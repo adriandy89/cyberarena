@@ -1,0 +1,8 @@
+# Respuestas del room web-red-team.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+web-red-team-t01-q01: hex encoding
+web-red-team-t01-q02: b
+web-red-team-t01-q03: "#"
+web-red-team-t02-q01: "un payload que cambia su forma en cada ejecucion manteniendo la misma funcionalidad"
+web-red-team-t02-q02: HTTP
+web-red-team-t02-q03: b

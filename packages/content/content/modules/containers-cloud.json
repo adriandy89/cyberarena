@@ -1,0 +1,8 @@
+{
+  "slug": "containers-cloud",
+  "title": "Containers & Cloud",
+  "description": "Container escape (privileged, docker.sock, capabilities) e IAM misconfigurations en AWS/Azure.",
+  "rooms": [
+    { "slug": "containers-y-cloud" }
+  ]
+}

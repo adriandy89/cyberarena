@@ -1,0 +1,8 @@
+{
+  "slug": "ad-avanzado",
+  "title": "Active Directory Avanzado",
+  "description": "Delegación Kerberos (unconstrained/constrained/RBCD), ADCS abuse (ESC1-ESC8), NTLM relay y trust attacks.",
+  "rooms": [
+    { "slug": "ad-avanzado" }
+  ]
+}

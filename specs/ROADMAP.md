@@ -16,7 +16,7 @@
 | F9 | `100-content-cs101` | ✅ completada (2026-11-01) | Path Cyber Security 101 completo (14 módulos) |
 | F10 | `101-content-jrpt` | ✅ completada (2026-11-01) | Path Jr Penetration Tester completo (17 módulos) |
 | F11 | `102-content-webapp` | ✅ completada (2026-11-01) | Path Web Application Pentesting |
-| F12 | `103-content-advpt` | ⬜ siguiente | Paths Web App Red Teaming + Red Teaming (nivel PT2) |
+| F12 | `103-content-advpt` | ✅ completada (2026-11-01) | Paths Web App Red Teaming + Red Teaming (nivel PT2) |
 
 ## Convenciones
 

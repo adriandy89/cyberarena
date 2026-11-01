@@ -1,0 +1,8 @@
+{
+  "slug": "web-red-team",
+  "title": "Web Red Teaming",
+  "description": "Bypass de WAF, payloads polimórficos, encoding en capas y C2 camuflado: el arte de no ser detectado.",
+  "rooms": [
+    { "slug": "web-red-team" }
+  ]
+}

@@ -1,0 +1,8 @@
+# Respuestas del room containers-y-cloud.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+containers-y-cloud-t01-q01: --privileged
+containers-y-cloud-t01-q02: /var/run/docker.sock
+containers-y-cloud-t01-q03: b
+containers-y-cloud-t02-q01: aws s3 ls
+containers-y-cloud-t02-q02: AWS_ACCESS_KEY_ID
+containers-y-cloud-t02-q03: b

