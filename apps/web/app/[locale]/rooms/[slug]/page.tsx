@@ -46,7 +46,7 @@ async function loadRoom(slug: string): Promise<ApiRoom | null> {
 }
 
 export default async function RoomPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
-  const { locale, slug } = await params;
+  const { slug } = await params;
   const t = await getTranslations('RoomPage');
   const room = await loadRoom(slug);
   if (!room) {

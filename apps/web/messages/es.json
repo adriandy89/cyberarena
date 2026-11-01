@@ -112,7 +112,12 @@
     "adminUsers": "Usuarios (admin)",
     "you": "tú",
     "noUsers": "Sin usuarios todavía.",
-    "roleChangeFailed": "No se pudo cambiar el rol."
+    "roleChangeFailed": "No se pudo cambiar el rol.",
+    "xpCard": "Nivel y XP",
+    "xpToNext": "{xp} XP para el siguiente nivel",
+    "solvedCount": "{count, plural, one {# pregunta resuelta} other {# preguntas resueltas}}",
+    "pathsProgress": "Progreso por ruta",
+    "roomsDone": "rooms"
   },
   "PathsPage": {
     "title": "Rutas de aprendizaje",
@@ -147,5 +152,13 @@
     "roomCompleted": "¡Room completado! Bonus de XP añadido.",
     "previous": "Anterior",
     "next": "Siguiente"
+  },
+  "PathPage": {
+    "back": "Volver a las rutas"
+  },
+  "PathProgress": {
+    "overallProgress": "Progreso de la ruta",
+    "guestTeaser": "Inicia sesión para guardar tu progreso y ganar XP.",
+    "guestCta": "Entrar"
   }
 }

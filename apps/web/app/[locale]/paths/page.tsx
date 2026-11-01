@@ -62,44 +62,42 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
       ) : (
         <ul className="mt-8 space-y-4">
           {paths.map((path) => (
-            <li
-              key={path.slug}
-              className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 transition-colors hover:border-slate-600"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-semibold">{path.title}</h2>
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${LEVEL_CLASSES[path.level] ?? LEVEL_CLASSES.beginner}`}
-                >
-                  {t(`levels.${path.level}`)}
-                </span>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{path.description}</p>
-              <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                <span>
-                  {t('modules', { count: path.moduleCount })} · {t('rooms', { count: path.roomCount })}
-                </span>
-                <span>
-                  ≈ {Math.round(path.estimatedMinutes / 60)}h · {t('type.walkthrough')}+
-                </span>
-              </p>
-              {path.rooms.length > 0 && (
+            <li key={path.slug}>
+              <Link
+                href={`/paths/${path.slug}`}
+                className="block rounded-xl border border-slate-800 bg-slate-900/50 p-5 transition-colors hover:border-slate-600"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg font-semibold">{path.title}</h2>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${LEVEL_CLASSES[path.level] ?? LEVEL_CLASSES.beginner}`}
+                  >
+                    {t(`levels.${path.level}`)}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{path.description}</p>
+                <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <span>
+                    {t('modules', { count: path.moduleCount })} · {t('rooms', { count: path.roomCount })}
+                  </span>
+                  <span>
+                    ≈ {Math.round(path.estimatedMinutes / 60)}h · {t('type.walkthrough')}+
+                  </span>
+                </p>
                 <ul className="mt-4 space-y-2">
                   {path.rooms.map((room) => (
-                    <li key={room.slug}>
-                      <Link
-                        href={`/rooms/${room.slug}`}
-                        className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm transition-colors hover:border-emerald-500/40"
-                      >
-                        <span className="font-medium text-slate-200">{room.title}</span>
-                        <span className="text-xs uppercase tracking-wide text-slate-500">
-                          {room.difficulty} · {room.estimatedMinutes}′
-                        </span>
-                      </Link>
+                    <li
+                      key={room.slug}
+                      className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm"
+                    >
+                      <span className="font-medium text-slate-200">{room.title}</span>
+                      <span className="text-xs uppercase tracking-wide text-slate-500">
+                        {room.difficulty} · {room.estimatedMinutes}′
+                      </span>
                     </li>
                   ))}
                 </ul>
-              )}
+              </Link>
             </li>
           ))}
         </ul>

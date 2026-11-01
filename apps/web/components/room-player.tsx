@@ -35,7 +35,7 @@ export function RoomPlayer({ roomSlug, tasks }: { roomSlug: string; tasks: Playe
   const [hintsOpen, setHintsOpen] = useState<Set<string>>(new Set());
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [roomCompleted, setRoomCompleted] = useState(false);
-  const [totalQuestions, setTotalQuestions] = useState(
+  const [totalQuestions] = useState(
     tasks.reduce((sum, task) => sum + task.questions.length, 0),
   );
 

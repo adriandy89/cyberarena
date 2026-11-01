@@ -24,6 +24,24 @@ interface UserListItem {
   createdAt: string;
 }
 
+interface XpSummary {
+  totalXp: number;
+  solvedCount: number;
+  level: { index: number; name: string; threshold: number; progressRatio: number; xpToNextLevel: number };
+}
+
+interface ProgressOverview {
+  paths: Array<{
+    slug: string;
+    title: string;
+    level: string;
+    roomsCompleted: number;
+    roomsTotal: number;
+    percent: number;
+  }>;
+  totals: { roomsCompleted: number; roomsTotal: number; solvedQuestions: number; totalQuestions: number };
+}
+
 export default function DashboardPage() {
   const t = useTranslations('DashboardPage');
   const router = useRouter();
@@ -32,6 +50,8 @@ export default function DashboardPage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [users, setUsers] = useState<UserListItem[] | null>(null);
   const [roleError, setRoleError] = useState<string | null>(null);
+  const [xp, setXp] = useState<XpSummary | null>(null);
+  const [overview, setOverview] = useState<ProgressOverview | null>(null);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -63,6 +83,21 @@ export default function DashboardPage() {
         }
       } catch {
         // Profile is a nice-to-have here; the session already proves we are in.
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const [xpResponse, overviewResponse] = await Promise.all([
+          fetch('/api/users/me/xp', { credentials: 'include' }),
+          fetch('/api/progress/overview', { credentials: 'include' }),
+        ]);
+        if (xpResponse.ok) setXp((await xpResponse.json()) as XpSummary);
+        if (overviewResponse.ok) setOverview((await overviewResponse.json()) as ProgressOverview);
+      } catch {
+        // XP card stays hidden on failure
       }
     })();
   }, []);
@@ -131,6 +166,57 @@ export default function DashboardPage() {
           </div>
         </dl>
       </section>
+
+      {xp && (
+        <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+              {t('xpCard')}
+            </h2>
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              {xp.level.name} · {xp.totalXp} XP
+            </span>
+          </div>
+          <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all"
+              style={{ width: `${Math.round(xp.level.progressRatio * 100)}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-slate-500">
+            {t('xpToNext', { xp: xp.level.xpToNextLevel })}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            {t('solvedCount', { count: xp.solvedCount })}
+          </p>
+        </section>
+      )}
+
+      {overview && overview.paths.length > 0 && (
+        <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+            {t('pathsProgress')}
+          </h2>
+          <ul className="mt-4 space-y-4">
+            {overview.paths.map((path) => (
+              <li key={path.slug}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-slate-200">{path.title}</span>
+                  <span className="text-xs text-slate-400">
+                    {path.roomsCompleted}/{path.roomsTotal} {t('roomsDone')} · {path.percent}%
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    className={`h-full rounded-full ${path.percent === 100 ? 'bg-emerald-400' : 'bg-emerald-500/70'}`}
+                    style={{ width: `${path.percent}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {me?.role === 'ADMIN' && (
         <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">

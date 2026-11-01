@@ -112,7 +112,12 @@
     "adminUsers": "Users (admin)",
     "you": "you",
     "noUsers": "No users yet.",
-    "roleChangeFailed": "Could not change the role."
+    "roleChangeFailed": "Could not change the role.",
+    "xpCard": "Level & XP",
+    "xpToNext": "{xp} XP to the next level",
+    "solvedCount": "{count, plural, one {# question solved} other {# questions solved}}",
+    "pathsProgress": "Progress by path",
+    "roomsDone": "rooms"
   },
   "PathsPage": {
     "title": "Learning paths",
@@ -147,5 +152,13 @@
     "roomCompleted": "Room completed! XP bonus added.",
     "previous": "Previous",
     "next": "Next"
+  },
+  "PathPage": {
+    "back": "Back to paths"
+  },
+  "PathProgress": {
+    "overallProgress": "Path progress",
+    "guestTeaser": "Sign in to save your progress and earn XP.",
+    "guestCta": "Sign in"
   }
 }
