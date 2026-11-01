@@ -1,0 +1,56 @@
+---
+index: 2
+title: "Logs: la evidencia digital"
+questions:
+  - id: defensa-introduccion-t02-q01
+    prompt: "¿Qué herramienta de Linux ya conociste para seguir un log EN VIVO?"
+    hint: "tail con la opción follow."
+    kind: text
+  - id: defensa-introduccion-t02-q02
+    prompt: "¿Dónde guarda Windows sus logs de eventos (extensión .evtx)?"
+    hint: "Carpeta del sistema con 'winevt'."
+    kind: text
+  - id: defensa-introduccion-t02-q03
+    prompt: "Un administrador borra logs justo después de una alerta. ¿Qué indica?"
+    hint: "Los defensores no destruyen evidencia."
+    kind: choice
+    options:
+      - id: a
+        label: "Mantenimiento rutinario"
+      - id: b
+        label: "Posible compromiso: los atacantes borran huellas (anti-forense)"
+      - id: c
+        label: "Falta de disco"
+      - id: d
+        label: "Es obligatorio tras cada alerta"
+---
+
+## Todo deja rastro
+
+Cada sistema genera eventos: accesos (exitosos y fallidos), cambios, ejecución de
+procesos, conexiones… El trabajo defensivo empieza por saber DÓNDE mirar:
+
+```bash
+# Linux
+tail -f /var/log/auth.log          # intentos de login SSH en vivo
+grep "Failed password" /var/log/auth.log | wc -l   # ¿fuerza bruta?
+last                               # últimos inicios de sesión
+journalctl -u ssh --since "1 hour ago"
+```
+
+```powershell
+# Windows: Visor de eventos (eventvwr.msc) o PowerShell
+Get-WinEvent -LogName Security -MaxEvents 20
+# Canales clave: Security (4624 login ok, 4625 login fallido), System, Application
+```
+
+## Qué busca un analista en logs
+
+- **Login fallidos en ráfaga** → fuerza bruta (tu Hydra del módulo anterior, visto
+  desde el otro lado).
+- **Login exitoso a deshoras o desde IP rara** → posible compromiso.
+- **Creación de usuarios/servicios nuevos** → persistencia.
+- **Proceso raros corriendo como SYSTEM** → escalada en marcha.
+
+Ironía del oficio: cada herramienta ofensiva que aprendiste tiene su firma en los
+logs. Los mejores defensores entienden el ataque.

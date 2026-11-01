@@ -1,0 +1,49 @@
+---
+index: 1
+title: "SIEM: el cerebro que correlaciona"
+questions:
+  - id: seguridad-soluciones-t01-q01
+    prompt: "¿Qué hace un SIEM (además de guardar logs)?"
+    hint: "Juntar eventos de muchas fuentes y detectar patrones."
+    kind: choice
+    options:
+      - id: a
+        label: "Cifra el tráfico de red"
+      - id: b
+        label: "Centraliza logs de múltiples fuentes y los correlaciona para generar alertas"
+      - id: c
+        label: "Sustituye a los firewalls"
+      - id: d
+        label: "Solo hace backups"
+  - id: seguridad-soluciones-t01-q02
+    prompt: "En un SIEM, ¿qué es una 'regla de correlación'?"
+    hint: "Lógica que une eventos sueltos en un incidente."
+    kind: text
+---
+
+## Del caos de logs a la alerta accionable
+
+Un **SIEM** (Security Information and Event Management) ingiere logs de TODO
+(firewalls, servidores, AD, aplicaciones, EDRs) y los analiza juntos:
+
+```text
+Eventos:  100 fallos de login (firewall)  +  login exitoso (DC)  +  acceso a shares raros (file server)
+          └──────────── regla de correlación: "fuerza bruta con éxito" ────────────┘
+          → ALERTA de severidad crítica al SOC
+```
+
+Ejemplos reales: Splunk, Elastic (ELK), QRadar, Wazuh, Microsoft Sentinel.
+
+## Cómo lo usa el analista
+
+```sql
+-- Lenguaje de consulta tipo SPL/KQL (Splunk/Sentinel):
+index=auth "Failed password" | stats count by src_ip | where count > 20
+```
+
+Buscar, pivotar y enriquecer: de una IP sospechosa a "¿qué más hizo esa IP?" en
+segundos. Los SIEMs se alimentan de firmas Y de comportamiento (UEBA: anomalías como
+"este usuario nunca entra de noche… hoy sí").
+
+Como atacante, el SIEM es tu enemigo invisible: cada comando que ejecutas genera
+eventos que pueden correlacionarse. La detección es cuestión de la regla correcta.

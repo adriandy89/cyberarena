@@ -1,0 +1,49 @@
+---
+index: 2
+title: "REMnux, FlareVM y el laboratorio seguro"
+questions:
+  - id: herramientas-defensivas-t02-q01
+    prompt: "¿Qué es REMnux?"
+    hint: "Linux preparado para análisis de malware."
+    kind: text
+  - id: herramientas-defensivas-t02-q02
+    prompt: "¿Dónde se analiza SIEMPRE malware peligroso?"
+    hint: "Máquina aislada, sin acceso a tu red real."
+    kind: choice
+    options:
+      - id: a
+        label: "En tu portátil de trabajo, con antivirus actualizado"
+      - id: b
+        label: "En una máquina virtual aislada (red solo-host) dedicada"
+      - id: c
+        label: "En el móvil"
+      - id: d
+        label: "En la nube de la empresa"
+  - id: herramientas-defensivas-t02-q03
+    prompt: "¿Qué kit es el equivalente de REMnux pero para Windows (análisis de malware Win32)?"
+    hint: "Se instala sobre un Windows VM; flare."
+    kind: text
+---
+
+## Distribuciones preparadas
+
+- **REMnux**: Ubuntu cargado de herramientas para análisis de malware y evidencias:
+  decodificadores, analizadores de PDF/Office, network sniffing, scripts de extracción
+  de IOCs.
+- **FlareVM**: lo mismo pero sobre Windows (PS> instalador que convierte una VM en
+  laboratorio de reverse engineering: debuggers, dissectores de PE, DE compilers).
+
+## La regla de oro del laboratorio
+
+```text
+VM de análisis  ←→  red solo-host / host-only  (NUNCA bridge a tu LAN)
+```
+
+Malware se detona en la VM con la red aislada (o con INetSim/FakeNet simulando
+internet para ver a qué "llama"). Snapshots ANTES de detonar: analizar → restaurar →
+repetir. Un analista sin snapshots acaba reinstalando todo muy a menudo.
+
+## Cerrando el círculo del path
+
+Ya conoces ambos lados: atacar (recon, exploits, tooling ofensivo) y defender (SOC,
+logs, SIEM, análisis). El último módulo del path conecta esto con TU carrera.

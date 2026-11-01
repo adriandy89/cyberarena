@@ -1,0 +1,8 @@
+{
+  "slug": "defensive-tooling",
+  "title": "Defensive Security Tooling",
+  "description": "CyberChef, REMnux/FlareVM y cómo se monta un laboratorio de análisis seguro.",
+  "rooms": [
+    { "slug": "herramientas-defensivas" }
+  ]
+}

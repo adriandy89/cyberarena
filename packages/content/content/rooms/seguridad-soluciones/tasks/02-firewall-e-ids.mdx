@@ -1,0 +1,50 @@
+---
+index: 2
+title: "Firewall, IDS e IPS"
+questions:
+  - id: seguridad-soluciones-t02-q01
+    prompt: "¿Qué dispositivo FILTRA tráfico según reglas (permitir/denegar)?"
+    hint: "El clásico de toda red."
+    kind: text
+  - id: seguridad-soluciones-t02-q02
+    prompt: "¿Cuál es la diferencia entre IDS e IPS?"
+    hint: "Detectar vs Prevenir."
+    kind: choice
+    options:
+      - id: a
+        label: "IDS detecta y alerta; IPS además BLOQUEA en tiempo real"
+      - id: b
+        label: "Son lo mismo con distinto nombre"
+      - id: c
+        label: "IDS bloquea; IPS solo mira"
+      - id: d
+        label: "Ninguno trabaja a nivel de red"
+  - id: seguridad-soluciones-t02-q03
+    prompt: "¿Qué tipo de firewall inspecciona hasta la capa de aplicación (HTTP, DNS…)?"
+    hint: "Next-Generation / capa 7."
+    kind: text
+---
+
+## Los guardianes de la red
+
+- **Firewall**: filtra por reglas (IP/puerto — packet filter; o estado de conexión —
+  stateful). El portátil de toda red perimetral.
+- **NGFW** (Next-Gen): añade inspección de aplicación, usuarios e incluso IPS
+  integrado (ej. Palo Alto, Fortinet).
+- **IDS** (Intrusion Detection): escucha (a menudo en un span/mirror port) y ALERTA
+  de patrones maliciosos. Ej.: Snort, Suricata.
+- **IPS** (Intrusion Prevention): igual pero EN LÍNEA — puede descartar el paquete
+  malicioso antes de que llegue.
+
+## Signaturas vs anomalías
+
+Los IDS/IPS clasicos detectan por **firmas** (patrones conocidos: "esto es un scan
+de EternalBlue") y por **anomalía** (comportamiento raro: "ese servidor nunca habló
+con ese país"). Como atacante: las firmas se evitan modificando payloads; las
+anomalías, manteniendo un perfil bajo.
+
+## Escáner de vulnerabilidades (la tercera pata)
+
+**Nessus, OpenVAS, Qualys**: inventarían la red y comprueban versiones contra CVEs
+conocidos. Los defensores los usan para priorizar parches; los pentesters para
+empezar la enumeración. Son ruidosos por diseño — su presencia en logs es inevitable.

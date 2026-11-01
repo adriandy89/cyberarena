@@ -1,0 +1,8 @@
+{
+  "slug": "defensive-security",
+  "title": "Defensive Security",
+  "description": "El otro lado: SOC, análisis de logs y el ciclo de vida de los incidentes.",
+  "rooms": [
+    { "slug": "defensa-introduccion" }
+  ]
+}

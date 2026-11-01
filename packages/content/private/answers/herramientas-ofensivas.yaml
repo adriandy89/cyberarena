@@ -1,0 +1,9 @@
+# Respuestas del room herramientas-ofensivas.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+herramientas-ofensivas-t01-q01: b
+herramientas-ofensivas-t01-q02: "archivo de contraseñas"
+herramientas-ofensivas-t02-q01: dir
+herramientas-ofensivas-t02-q02: "403"
+herramientas-ofensivas-t03-q01: --dump
+herramientas-ofensivas-t03-q02: --os-shell
+herramientas-ofensivas-t03-q03: b

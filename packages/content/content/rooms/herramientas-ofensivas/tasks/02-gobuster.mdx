@@ -1,0 +1,45 @@
+---
+index: 2
+title: "Gobuster: descubrir lo oculto"
+questions:
+  - id: herramientas-ofensivas-t02-q01
+    prompt: "¿Qué modo de Gobuster fuerza directorios y archivos web?"
+    hint: "Es el modo por defecto: gobuster dir."
+    kind: text
+  - id: herramientas-ofensivas-t02-q02
+    prompt: "¿Qué código HTTP indica normalmente un directorio protegido (existe pero no puedes verlo)?"
+    hint: "Forbidden."
+    kind: text
+---
+
+## Sobre el hombro de ffuf
+
+Ya conoces ffuf (módulo web). **Gobuster** es la alternativa clásica con sintaxis
+propia:
+
+```bash
+gobuster dir -u http://10.10.10.5 -w /usr/share/wordlists/dirb/common.txt
+# flags útiles: -x php,html,txt (extensiones) -t 50 (hilos) -s 200,301,302,403
+```
+
+- **dir**: fuerza rutas (`/admin`, `/backup.zip`…)
+- **dns**: fuerza subdominios (`gobuster dns -d victima.com -w subdominios.txt`)
+- **vhost**: fuerza virtual hosts
+
+## Leer los resultados
+
+| Código | Significado para ti |
+|---|---|
+| 200 | existe y accesible |
+| 301/302 | redirección (siguela con -u y barra final) |
+| **403** | ¡EXISTE pero está prohibido! — objetivo de bypass |
+| 404 | no existe |
+
+Un 403 merece atención: a veces se bypassea cambiando cabeceras (`X-Forwarded-For`),
+probando mayúsculas o añadiendo `/.` tras la ruta. Esas técnicas se practican en el
+path de Jr Pentester.
+
+## Higiene operativa
+
+El fuzzing genera MUCHO ruido en logs — un defensor lo ve en segundos. En engagements
+reales se acuerda la ventana y el caudal con el cliente. En labs: a por ello.

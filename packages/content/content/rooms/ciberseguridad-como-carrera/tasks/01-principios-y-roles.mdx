@@ -1,0 +1,48 @@
+---
+index: 1
+title: "Principios del profesional y mapa de roles"
+questions:
+  - id: ciberseguridad-como-carrera-t01-q01
+    prompt: "¿Cuál de estos es el triángulo clásico de la seguridad de la información?"
+    hint: "Tres palabras que empiezan por C, I y D."
+    kind: text
+  - id: ciberseguridad-como-carrera-t01-q02
+    prompt: "¿Qué rol se dedica a romper sistemas CON AUTORIZACIÓN para encontrar fallos?"
+    hint: "El que has estado aprendiendo en la mitad ofensiva del path."
+    kind: text
+  - id: ciberseguridad-como-carrera-t01-q03
+    prompt: "Un compañero te pide 'probar' la web de su empresa sin permiso escrito. ¿Profesionalmente qué haces?"
+    hint: "La autorización lo es TODO."
+    kind: choice
+    options:
+      - id: a
+        label: "Ayudarle: es su empresa"
+      - id: b
+        label: "Rechazar hasta tener autorización escrita (scope) de un responsable"
+      - id: c
+        label: "Probar solo un poco, sin dañar"
+      - id: d
+        label: "Cobrarle primero"
+---
+
+## CIA: el objetivo de todo
+
+**Confidencialidad** (solo quien debe, ve), **Integridad** (los datos no se alteran
+sin autorización), **Disponibilidad** (el sistema está cuando se necesita). Todo
+control de seguridad protege alguna de las tres. Añade autenticación y no-repudio
+para el quinto elemento (AAA).
+
+## El mapa de roles (los que ya sabes reconocer)
+
+| Rol | Hace | Palabras clave |
+|---|---|---|
+| **Pentester** | ataques autorizados + informe | el "red team" comercial |
+| **Red teamer** | simula adversarios reales, sigilo | TTPs, evasión |
+| **Analista SOC** | monitoriza y responde | SIEM, triaje (tu módulo 10) |
+| **DFIR** | forense + respuesta a incidentes | evidencia, timeline |
+| **Threat hunter** | busca lo que las alertas no vieron | hipótesis, anomaly |
+| **AppSec / DevSecOps** | seguridad en el código y el pipeline | SDLC, SAST/DAST |
+| **GRC** | normas, riesgo, auditoría | ISO 27001, NIST |
+
+Ninguno es "mejor": son perspectivas del mismo problema. La tuya empieza por el que
+más te haya enganchado de este path.

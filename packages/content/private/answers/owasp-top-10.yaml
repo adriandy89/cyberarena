@@ -1,0 +1,11 @@
+# Respuestas del room owasp-top-10.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+owasp-top-10-t01-q01: Broken Access Control
+owasp-top-10-t01-q02: b
+owasp-top-10-t01-q03: "no, el atacante controla el cliente y puede enviar la peticion directamente"
+owasp-top-10-t02-q01: SQL injection
+owasp-top-10-t02-q02: "consultas preparadas / consultas parametrizadas"
+owasp-top-10-t02-q03: XSS
+owasp-top-10-t03-q01: SSRF
+owasp-top-10-t03-q02: "8 - software and data integrity failures"
+owasp-top-10-t03-q03: b

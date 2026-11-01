@@ -1,0 +1,48 @@
+---
+index: 1
+title: "CyberChef: la navaja suiza del análisis"
+questions:
+  - id: herramientas-defensivas-t01-q01
+    prompt: "¿Qué es CyberChef?"
+    hint: "GCHQ lo liberó; funciona en el navegador."
+    kind: choice
+    options:
+      - id: a
+        label: "Un antivirus online"
+      - id: b
+        label: "Una herramienta web para decodificar/analizar datos encadenando operaciones"
+      - id: c
+        label: "Un escáner de puertos"
+      - id: d
+        label: "Un editor de imágenes"
+  - id: herramientas-defensivas-t01-q02
+    prompt: "En CyberChef, ¿qué significa encadenar operaciones en 'Recipe'?"
+    hint: "La salida de una alimenta la siguiente."
+    kind: text
+  - id: herramientas-defensivas-t01-q03
+    prompt: "Ya sabes base64 y ROT13 de criptografía. ¿Qué operación de CyberChef las combinaría?"
+    hint: "Magic lo detecta solo."
+    kind: text
+---
+
+## El "cilindro de operaciones" de GCHQ
+
+**CyberChef** (gchq.github.io/CyberChef, corre offline en tu navegador) encadena
+operaciones: la salida de cada una alimenta la siguiente.
+
+```text
+Input: RkxBR3s=  →  [From Base64]  →  [ROT13]  →  FLAG{...}
+```
+
+Operaciones estrella para el día a día:
+- **From/To Base64, Hex, URL** — los decodificadores de siempre.
+- **ROT13, XOR** — retos y malware simple.
+- **Extract IPs / URLs / emails** — de un log o un binario sucio.
+- **Magic** — ¡adivina la cadena de operaciones por ti! (prueba: pega el ROT13+base64
+  de tus rooms anteriores y pulsa Magic).
+
+Para un analista: examinar cabeceras, decodificar payloads de phishing, extraer IOCs
+de un log. Para un CTF: el 50% de los retos de "decoding".
+
+No necesita instalar nada: descarga el HTML y funciona offline (ideal para evidencias
+sin exponerlas a internet).

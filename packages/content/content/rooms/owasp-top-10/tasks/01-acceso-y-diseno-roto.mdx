@@ -1,0 +1,51 @@
+---
+index: 1
+title: "Broken Access Control y fallos de diseño"
+questions:
+  - id: owasp-top-10-t01-q01
+    prompt: "Cambiar /perfil/12 por /perfil/13 en la URL y ver datos de OTRO usuario, ¿qué riesgo OWASP es?"
+    hint: "El nº1 de la lista desde 2021: el control de acceso."
+    kind: text
+  - id: owasp-top-10-t01-q02
+    prompt: "¿Qué es IDOR?"
+    hint: "Insecure Direct Object Reference."
+    kind: choice
+    options:
+      - id: a
+        label: "Un error de JavaScript"
+      - id: b
+        label: "Acceder a objetos de otros usuarios manipulando sus identificadores (ids, nombres de archivo)"
+      - id: c
+        label: "Un tipo de cifrado"
+      - id: d
+        label: "Un framework de Python"
+  - id: owasp-top-10-t01-q03
+    prompt: "Ocultar el botón de admin en la interfaz SIN verificar permisos en el servidor, ¿protege algo?"
+    hint: "Ya sabes por el módulo web que el cliente se controla."
+    kind: text
+---
+
+## #1 Broken Access Control (el rey invicto)
+
+La aplicación no verifica QUIÉN puede hacer QUÉ:
+
+- **IDOR**: `/api/facturas/1042` → cambias a `/api/facturas/1043` y ves la factura
+  de otro. El servidor identifica el objeto pero no comprueba el dueño.
+- **Escalada horizontal** (acceder a otros usuarios como tú) y **vertical** (usuario
+  → admin: `/admin` accesible sin rol).
+- El 94% de aplicaciones auditadas por OWASP tiene algún fallo de esta familia.
+
+**Prevención**: verificar permisos EN EL SERVIDOR por cada petición (deny by default),
+nunca confiar en el cliente (¡tu lesson del room web!).
+
+## #4 Insecure Design
+
+Diseños que no contemplan abuso: recuperación de contraseña preguntando datos
+públicos, códigos de descuento sin límite, "secreta" seguridad por oscuridad. No es
+un bug de código: es el producto diseñado sin pensar en atacantes (threat modeling).
+
+## #5 Security Misconfiguration
+
+Configuración por defecto peligrosa: debug activo en producción, credenciales por
+defecto (admin/admin), directorios listados, cloud buckets públicos, CORS `*`.
+Cada cosa que dejaste "para luego" es este punto.

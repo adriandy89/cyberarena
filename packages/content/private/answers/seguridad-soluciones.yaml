@@ -1,0 +1,7 @@
+# Respuestas del room seguridad-soluciones.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+seguridad-soluciones-t01-q01: b
+seguridad-soluciones-t01-q02: "logica que une varios eventos en un unico incidente y genera alerta"
+seguridad-soluciones-t02-q01: firewall
+seguridad-soluciones-t02-q02: a
+seguridad-soluciones-t02-q03: NGFW

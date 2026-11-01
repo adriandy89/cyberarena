@@ -1,6 +1,6 @@
 # Spec 100 — Content Pack: Cyber Security 101 completo
 
-- **Estado:** en curso (entrega incremental por módulos)
+- **Estado:** COMPLETADA (2026-11-01) — 14/14 módulos
 - **Creada:** 2026-11-01
 - **Changelog:** 2026-11-01 primera versión.
 
@@ -23,12 +23,12 @@ cuando los 14 módulos están publicados y el path muestra horas/rooms coherente
 | 6 | cryptography | 1 (simétrico/asimétrico, hashing, cracking+ROT13 flag) | ✅ 2026-11-01 |
 | 7 | exploitation-basics | 1 (CVEs, Metasploit, shells) | ✅ 2026-11-01 |
 | 8 | web-hacking | 1 (anatomía, validación cliente, Burp) | ✅ 2026-11-01 |
-| 9 | offensive-tooling | 3-4 | ⬜ |
-| 10 | defensive-security | 4-5 | ⬜ |
-| 11 | security-solutions | 3 | ⬜ |
-| 12 | defensive-tooling | 3-4 | ⬜ |
-| 13 | cyber-career | 2-3 | ⬜ |
-| 14 | owasp-top-10 | 3 | ⬜ |
+| 9 | offensive-tooling | 1 (hydra/gobuster/sqlmap) | ✅ 2026-11-01 |
+| 10 | defensive-security | 1 (SOC/logs/incidentes) | ✅ 2026-11-01 |
+| 11 | security-solutions | 1 (SIEM/firewall/IDS) | ✅ 2026-11-01 |
+| 12 | defensive-tooling | 1 (CyberChef/REMnux/lab) | ✅ 2026-11-01 |
+| 13 | cyber-career | 1 (principios/roles/siguiente paso) | ✅ 2026-11-01 |
+| 14 | owasp-top-10 | 1 (Top 10 2025 completo) | ✅ 2026-11-01 |
 
 (Recuentos ajustables al autor; mínimo 1 room de calidad por módulo.)
 
@@ -46,8 +46,8 @@ cuando los 14 módulos están publicados y el path muestra horas/rooms coherente
       idempotente + `/api/catalog` muestra el path con las rooms nuevas + E2E de una
       pregunta nueva (respuesta correcta vía API). *(linux: 36 answers, catálogo 5
       rooms ≈3h, SUID y flag base64 resueltas vía API, página 200)*
-- [ ] Al cerrar la spec: los 14 módulos publicados, duración estimada coherente y
-      `docs/content-guide.md` sin cambios necesarios.
+- [x] Al cerrar la spec: los 14 módulos publicados, duración estimada coherente y
+      `docs/content-guide.md` sin cambios necesarios. (14 módulos / 18 rooms / ~12h / 137 respuestas)
 
 ## 5. Fuera de alcance
 

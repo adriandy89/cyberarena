@@ -1,0 +1,61 @@
+---
+index: 3
+title: "Supply chain, SSRF y logging: la cola 6-10"
+questions:
+  - id: owasp-top-10-t03-q01
+    prompt: "Una web permite al usuario indicar una URL interna y el servidor la consulta. ¿Qué riesgo OWASP (nº10)?"
+    hint: "Server-Side Request Forgery: el servidor pide lo que TÚ digas."
+    kind: text
+  - id: owasp-top-10-t03-q02
+    prompt: "Una dependencia npm comprometida que roba claves en cada instalación, ¿qué entrada del Top 10 es?"
+    hint: "Cadena de suministro de software."
+    kind: text
+  - id: owasp-top-10-t03-q03
+    prompt: "¿Por qué 'logging & monitoring insuficiente' es un riesgo de seguridad en sí mismo?"
+    hint: "¿Qué pasa si atacan y nadie lo ve?"
+    kind: choice
+    options:
+      - id: a
+        label: "No lo es: los logs son opcionales"
+      - id: b
+        label: "Sin logs/monitorización, los atacantes permanecen meses sin ser detectados"
+      - id: c
+        label: "Porque gastan disco"
+      - id: d
+        label: "Solo importa para facturación"
+---
+
+## #10 SSRF (Server-Side Request Forgery)
+
+La web pide URLs por ti ("importa esta imagen"): si apuntas a
+`http://169.254.169.254/latest/meta-data/` (metadata de AWS) o a servicios internos
+`http://localhost:6379/` (Redis sin auth), el servidor —que SÍ puede llegar ahí— te
+devuelve la respuesta. Es LA vía clásica hacia la nube interna.
+
+## #08 Software & Data Integrity (supply chain)
+
+Pipelines y dependencias sin verificar: el ataque a SolarWinds (2020) comprometió el
+build de miles de clientes. Mitigación: firmas, lockfiles (¡pnpm-lock.yaml!),
+SBOM, revisión de dependencias.
+
+## #06 Vulnerable & Outdated Components
+
+Librerías viejas con CVEs públicos = puertas abiertas con manual. Log4Shell
+(CVE-2021-44228) fue exactamente esto a escala mundial. Mitigación: inventario +
+`npm audit`/dependabot + parchear rápido.
+
+## #09 Logging & Monitoring
+
+Tu módulo SOC al revés: si la app no registra accesos ni errores, el atacante vive
+meses sin ser visto. La detección ES parte de la seguridad.
+
+---
+
+## El Top 10 completo (2025) de memoria
+
+1. Broken Access Control · 2. Cryptographic Failures · 3. Injection · 4. Insecure
+Design · 5. Security Misconfiguration · 6. Vulnerable Components · 7. Auth Failures ·
+8. Integrity Failures · 9. Logging Failures · 10. SSRF.
+
+Cada uno tendrá labs dedicados en el path **Jr Penetration Tester**. Has cerrado
+Cyber Security 101: la base está. 🎓

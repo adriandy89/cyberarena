@@ -1,0 +1,8 @@
+{
+  "slug": "offensive-tooling",
+  "title": "Offensive Security Tooling",
+  "description": "Hydra, Gobuster y sqlmap: el arsenal básico del atacante con su ética de laboratorio.",
+  "rooms": [
+    { "slug": "herramientas-ofensivas" }
+  ]
+}

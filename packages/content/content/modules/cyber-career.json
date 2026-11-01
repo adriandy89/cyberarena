@@ -1,0 +1,8 @@
+{
+  "slug": "cyber-career",
+  "title": "Cyber Career",
+  "description": "Principios del profesional, mapa de roles del sector y tu siguiente paso formativo.",
+  "rooms": [
+    { "slug": "ciberseguridad-como-carrera" }
+  ]
+}

@@ -1,0 +1,49 @@
+---
+index: 2
+title: "Las inyecciones: código donde no debe ser"
+questions:
+  - id: owasp-top-10-t02-q01
+    prompt: "Una entrada ' OR 1=1-- en un login, ¿qué vulnerabilidad explota?"
+    hint: "La del #3 de OWASP: inyección SQL."
+    kind: text
+  - id: owasp-top-10-t02-q02
+    prompt: "¿Qué defiende de SQLi por diseño (no por escapar strings a mano)?"
+    hint: "Consultas preparadas con parámetros."
+    kind: text
+  - id: owasp-top-10-t02-q03
+    prompt: "Un <script> pegado en un campo de comentarios que ejecuta en el navegador de otros usuarios, ¿qué es?"
+    hint: "Cross-Site Scripting."
+    kind: text
+---
+
+## #3 Injection (SQL, XSS, comandos…)
+
+Entrada del usuario interpretada como código:
+
+**SQLi** (la estrella): `' OR 1=1--` en el login devuelve la primera fila; con UNION
+se roban tablas; con sqlmap, la base entera (módulo 9).
+
+```sql
+-- vulnerable
+SELECT * FROM users WHERE email='$email';
+-- parametrizada (la entrada NUNCA es código)
+SELECT * FROM users WHERE email=$1;
+```
+
+**XSS**: JavaScript inyectado que ejecuta en víctimas (roba cookies de sesión,
+keylogger). Tres tipos: reflected (en la respuesta), stored (guardado en BD: el peor),
+DOM (en el navegador). Prevención: escapar según contexto + CSP.
+
+**Command injection**: entrada que llega a `system("ping " + host)` → `; rm -rf /`.
+El `;`/`&&`/`` ` `` en campos que tocan la shell.
+
+## #2 Cryptographic Failures
+
+HTTPS no forzado, contraseñas en MD5, datos sensibles en claro, claves hardcodeadas.
+Ya sabes del módulo crypto lo correcto: TLS, argon2/bcrypt, gestión de secretos.
+
+## #07 Authentication Failures
+
+Login débil: sin rate limit (Hydra entra), contraseñas "123456", sesión sin expirar,
+2FA ausente, "secret questions" con respuestas públicas. El lockout + 2FA de tu
+módulo Hydra ES la mitigación.

@@ -1,0 +1,8 @@
+{
+  "slug": "security-solutions",
+  "title": "Security Solutions",
+  "description": "La tecnología de la defensa: SIEM, firewalls, IDS/IPS y escáneres de vulnerabilidades.",
+  "rooms": [
+    { "slug": "seguridad-soluciones" }
+  ]
+}
