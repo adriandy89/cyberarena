@@ -102,8 +102,10 @@ services:
     init: true
     environment:
       NODE_ENV: development
-      # Browser-facing API URL (host port), not the docker-internal one.
-      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-3001}
+      # Server-side URL of the API for the Next rewrite proxy (/api -> api).
+      API_URL: http://api:3001
+      # Browser-facing API URL is NOT needed anymore: requests go through the
+      # same-origin rewrite (ADR-008).
       CHOKIDAR_USEPOLLING: 'true'
       WATCHPACK_POLLING: 'true'
     ports:

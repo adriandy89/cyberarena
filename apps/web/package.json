@@ -13,6 +13,7 @@
   "dependencies": {
     "@repo/shared": "workspace:*",
     "@repo/ui": "workspace:*",
+    "better-auth": "1.7.15",
     "next": "16.4.3",
     "next-intl": "4.14.9",
     "react": "19.3.1",

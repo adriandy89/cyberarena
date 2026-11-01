@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LanguageSwitcher } from '../../components/language-switcher';
+import { UserMenu } from '../../components/user-menu';
 import { Link } from '../../i18n/navigation';
 
 interface PathCard {
@@ -30,10 +31,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="flex items-center gap-4">
           <Link
             href="/status"
-            className="text-sm text-slate-400 transition-colors hover:text-slate-200"
+            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
           >
             {t('nav.status')}
           </Link>
+          <UserMenu />
           <LanguageSwitcher />
         </div>
       </header>

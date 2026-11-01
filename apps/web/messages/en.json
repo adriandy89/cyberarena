@@ -75,5 +75,43 @@
     "title": "Page not found",
     "description": "The resource you are looking for does not exist or has moved.",
     "back": "Back to home"
+  },
+  "UserMenu": {
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "LoginPage": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Create your account",
+    "subtitle": "Your progress, XP and streaks are waiting.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password (min. 8 characters)",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "submitting": "One moment…",
+    "switchToSignUp": "No account yet? Sign up",
+    "switchToSignIn": "Already registered? Sign in",
+    "errors": {
+      "invalidCredentials": "Wrong email or password.",
+      "userExists": "An account with that email already exists.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "invalidEmail": "The email is not valid.",
+      "generic": "The operation could not be completed. Try again."
+    }
+  },
+  "DashboardPage": {
+    "title": "Your dashboard",
+    "profile": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "emailVerified": "Email verified",
+    "yes": "Yes",
+    "no": "No",
+    "adminUsers": "Users (admin)",
+    "you": "you",
+    "noUsers": "No users yet.",
+    "roleChangeFailed": "Could not change the role."
   }
 }

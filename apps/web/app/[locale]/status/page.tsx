@@ -10,7 +10,8 @@ interface HealthResponse {
   timestamp: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+// Same-origin relative path: Next's /api rewrite proxies to the API (ADR-008).
+const API_HEALTH_URL = '/api/health';
 
 function StatusDot({ up }: { up: boolean }) {
   return (
@@ -29,7 +30,7 @@ export default function StatusPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/health`, { cache: 'no-store' });
+      const response = await fetch(`${API_HEALTH_URL}`, { cache: 'no-store' });
       setHealth((await response.json()) as HealthResponse);
       setError(null);
     } catch (cause) {
@@ -52,7 +53,7 @@ export default function StatusPage() {
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-8">
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
       <p className="mt-1 text-sm text-slate-500">
-        {t('api')} <code className="rounded bg-slate-900 px-1.5 py-0.5">{API_URL}</code>
+        {t('api')} <code className="rounded bg-slate-900 px-1.5 py-0.5">/api/health</code>
       </p>
 
       <div className="mt-8 space-y-3">

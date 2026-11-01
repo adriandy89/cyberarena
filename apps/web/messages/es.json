@@ -75,5 +75,43 @@
     "title": "Página no encontrada",
     "description": "El recurso que buscas no existe o ha cambiado de ubicación.",
     "back": "Volver al inicio"
+  },
+  "UserMenu": {
+    "signIn": "Entrar",
+    "signOut": "Salir"
+  },
+  "LoginPage": {
+    "signInTitle": "Inicia sesión",
+    "signUpTitle": "Crea tu cuenta",
+    "subtitle": "Tu progreso, XP y rachas te esperan.",
+    "name": "Nombre",
+    "email": "Email",
+    "password": "Contraseña (mín. 8 caracteres)",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarme",
+    "submitting": "Un momento…",
+    "switchToSignUp": "¿No tienes cuenta? Regístrate",
+    "switchToSignIn": "¿Ya tienes cuenta? Inicia sesión",
+    "errors": {
+      "invalidCredentials": "Email o contraseña incorrectos.",
+      "userExists": "Ya existe una cuenta con ese email.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "invalidEmail": "El email no es válido.",
+      "generic": "No se pudo completar la operación. Inténtalo de nuevo."
+    }
+  },
+  "DashboardPage": {
+    "title": "Tu panel",
+    "profile": "Perfil",
+    "name": "Nombre",
+    "email": "Email",
+    "role": "Rol",
+    "emailVerified": "Email verificado",
+    "yes": "Sí",
+    "no": "No",
+    "adminUsers": "Usuarios (admin)",
+    "you": "tú",
+    "noUsers": "Sin usuarios todavía.",
+    "roleChangeFailed": "No se pudo cambiar el rol."
   }
 }
