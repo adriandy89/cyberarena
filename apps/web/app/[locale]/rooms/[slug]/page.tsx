@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { isDifficulty, type Difficulty } from '@repo/shared';
 import { DifficultyBadge } from '@repo/ui';
+import { LabPanel } from '../../../../components/lab-panel';
 import { Markdown } from '../../../../components/markdown';
 import { RoomPlayer, type PlayerQuestion, type PlayerTask } from '../../../../components/room-player';
 import { Link } from '../../../../i18n/navigation';
@@ -14,6 +15,8 @@ interface ApiRoom {
   type: string;
   estimatedMinutes: number;
   tags: string[];
+  lab: string | null;
+  labUrl: string | null;
   tasks: Array<{
     id: string;
     index: number;
@@ -88,7 +91,8 @@ export default async function RoomPage({ params }: { params: Promise<{ locale: s
         </p>
       </header>
 
-      <div className="mt-8">
+      <div className="mt-8 space-y-6">
+        {room.lab && <LabPanel labSlug={room.lab} labUrl={room.labUrl} />}
         <RoomPlayer roomSlug={room.slug} tasks={tasks} />
       </div>
     </div>

@@ -238,5 +238,14 @@
     "results": "{count, plural, one {# room} other {# rooms}}",
     "empty": "No results with those filters. Try relaxing the search.",
     "loadMore": "Load more"
+  },
+  "LabPanel": {
+    "title": "Laboratory",
+    "intro": "Start the lab on your machine with Docker and attack it from your terminal. First time: copy flags.env.example to flags.env inside the lab folder.",
+    "upLabel": "Start",
+    "downLabel": "Tear down (always when finished)",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "warning": "Isolated local educational environment. Never expose labs to public networks."
   }
 }

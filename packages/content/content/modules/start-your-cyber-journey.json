@@ -3,6 +3,7 @@
   "title": "Empieza tu viaje en ciberseguridad",
   "description": "Qué es la seguridad ofensiva, cómo se trabaja con ética y legalidad, y cómo se estructura el aprendizaje práctico con rooms y flags.",
   "rooms": [
-    { "slug": "intro-ciberseguridad-ofensiva" }
+    { "slug": "intro-ciberseguridad-ofensiva" },
+    { "slug": "recon-web-basico" }
   ]
 }

@@ -116,6 +116,7 @@ model Room {
   estimatedMinutes Int
   tags             String[]
   lab              String?
+  labUrl           String?
   order            Int       @default(0)
   createdAt        DateTime  @default(now())
   tasks            Task[]

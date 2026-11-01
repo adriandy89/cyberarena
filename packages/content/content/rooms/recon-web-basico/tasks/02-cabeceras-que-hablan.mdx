@@ -1,0 +1,32 @@
+---
+index: 2
+title: "Cabeceras que hablan de más"
+questions:
+  - id: recon-web-basico-t02-q01
+    prompt: "Envía la flag escondida en las cabeceras de respuesta del servidor."
+    hint: "curl -I http://127.0.0.1:18080/ y mira las cabeceras X-…"
+    kind: flag
+---
+
+## La respuesta dice más que el cuerpo
+
+Las cabeceras HTTP de respuesta informan sobre el servidor (Server, X-Powered-By) y
+a veces contienen **secretos olvidados**. Pídele solo las cabeceras al servidor:
+
+```bash
+curl -I http://127.0.0.1:18080/
+```
+
+Entre las habituales hay una cabecera personalizada `X-…` que no debería estar ahí.
+La flag que contiene es la respuesta final de este room.
+
+## Al terminar
+
+Destruye SIEMPRE el laboratorio cuando acabes:
+
+```bash
+docker compose -f labs/web-recon-1/compose.yaml --env-file labs/web-recon-1/flags.env down -v
+```
+
+Los labs son efímeros: levantar → practicar → destruir. En la próxima sesión estará
+limpio otra vez.

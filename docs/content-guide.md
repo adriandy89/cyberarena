@@ -87,6 +87,31 @@ mi-room-t01-q02: a                       # el id de la opción correcta
 7. Flags con `FLAG{snake_case}`; las de labs se inyectan por env del compose del lab
    (fase 007) y se siembran igual por el pipeline.
 
+## Labs (fase 007)
+
+Los rooms con laboratorio declaran en el frontmatter `lab: <slug>` y opcionalmente
+`labUrl` (la URL del servicio principal, ej. `http://127.0.0.1:18080` — validación:
+`labUrl` exige `lab`). El room player muestra el **LabPanel** con los comandos up/down.
+
+Patrón de lab declarativo (ver `labs/web-recon-1/` como referencia):
+
+```
+labs/<slug>/
+├── compose.yaml        # imagen pública + entrypoint que sustituye placeholders
+├── site/               # plantillas con __FLAG_n__ (montadas read-only)
+├── README.md           # objetivo, servicios, puertos, prerrequisitos
+└── flags.env.example   # FLAG_n=placeholder (flags.env real va gitignored)
+```
+
+**Convención flags↔respuestas (revisión humana)**: los valores de `flags.env` del lab
+deben coincidir con `private/answers/<room>.yaml` (la comparación es case-insensitive).
+El pipeline NO puede validar esta coincidencia (el env no se commitea): al crear un
+lab, verifica ambos lados antes de publicar el room.
+
+Reglas de seguridad del lab (ya en la plantilla y en `labs/_template`): red interna
+aislada, puertos publicados solo en `127.0.0.1`, `cap_drop: ALL` + caps mínimas,
+`no-new-privileges`, y `down -v` SIEMPRE al terminar.
+
 ## Flujo de publicación
 
 ```bash

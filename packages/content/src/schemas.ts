@@ -45,6 +45,8 @@ export const roomFrontmatterSchema = z.object({
   estimatedMinutes: z.number().int().positive().max(600),
   tags: z.array(slugSchema).max(8).default([]),
   lab: slugSchema.nullable().default(null),
+  // Browser/lab-facing URL of the lab (e.g. http://127.0.0.1:18080).
+  labUrl: z.string().url().nullable().default(null),
 });
 
 export const pathJsonSchema = z.object({

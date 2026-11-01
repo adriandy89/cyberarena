@@ -238,5 +238,14 @@
     "results": "{count, plural, one {# room} other {# rooms}}",
     "empty": "Sin resultados con esos filtros. Prueba a relajar la búsqueda.",
     "loadMore": "Cargar más"
+  },
+  "LabPanel": {
+    "title": "Laboratorio",
+    "intro": "Levanta el laboratorio en tu máquina con Docker y atácalo desde tu terminal. La primera vez, copia flags.env.example a flags.env dentro de la carpeta del lab.",
+    "upLabel": "Levantar",
+    "downLabel": "Destruir (siempre al terminar)",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "warning": "Entorno educativo local aislado. Never expongas los labs a redes públicas."
   }
 }

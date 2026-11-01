@@ -1,0 +1,51 @@
+# Lab: web-recon-1 — room recon-web-basico (CS101)
+# Declarative lab: no image build. Site templates are mounted read-only and the
+# entrypoint substitutes __FLAG_n__ placeholders with the values from flags.env
+# before starting nginx (see README.md).
+#
+# Up:    docker compose -f labs/web-recon-1/compose.yaml --env-file labs/web-recon-1/flags.env up -d
+# Down:  docker compose -f labs/web-recon-1/compose.yaml down -v
+name: lab-web-recon-1
+
+services:
+  web:
+    image: nginx:1.29-alpine
+    working_dir: /usr/share/nginx/html
+    volumes:
+      - ./site:/site:ro
+    # $${VAR} escapes docker-compose interpolation: the values come from the
+    # container environment (flags.env), not from the compose file.
+    command: >
+      sh -c "sed -e \"s|__FLAG_1__|$${FLAG_1}|g\" -e \"s|__FLAG_2__|$${FLAG_2}|g\" /site/index.html > /usr/share/nginx/html/index.html
+      && sed -e \"s|__FLAG_1__|$${FLAG_1}|g\" -e \"s|__FLAG_2__|$${FLAG_2}|g\" /site/robots.txt > /usr/share/nginx/html/robots.txt
+      && mkdir -p /usr/share/nginx/html/secreto
+      && sed -e \"s|__FLAG_1__|$${FLAG_1}|g\" -e \"s|__FLAG_2__|$${FLAG_2}|g\" /site/secreto.html > /usr/share/nginx/html/secreto/index.html
+      && sed -e \"s|__FLAG_1__|$${FLAG_1}|g\" -e \"s|__FLAG_2__|$${FLAG_2}|g\" /site/default.conf > /etc/nginx/conf.d/default.conf
+      && exec nginx -g 'daemon off;'"
+    environment:
+      # Real values live in flags.env (gitignored); NEVER in this file.
+      FLAG_1: ${FLAG_1:?set FLAG_1 in labs/web-recon-1/flags.env}
+      FLAG_2: ${FLAG_2:?set FLAG_2 in labs/web-recon-1/flags.env}
+    ports:
+      # Loopback only: reachable from the student's machine, not the LAN.
+      - '127.0.0.1:18080:80'
+    cap_drop:
+      - ALL
+    # Minimal set for the official nginx entrypoint (master binds :80 then drops
+    # privileges to the nginx user).
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - FOWNER
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    networks:
+      - lab
+
+networks:
+  lab:
+    name: lab-web-recon-1

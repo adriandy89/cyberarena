@@ -64,6 +64,7 @@ export interface CatalogTaskDetail {
 }
 
 export interface CatalogRoomDetail extends CatalogRoomSummary {
+  labUrl: string | null;
   tasks: CatalogTaskDetail[];
 }
 
@@ -130,6 +131,7 @@ export class CatalogService {
                 estimatedMinutes: true,
                 tags: true,
                 lab: true,
+                labUrl: true,
               },
             },
           },
@@ -180,6 +182,7 @@ export class CatalogService {
       estimatedMinutes: room.estimatedMinutes,
       tags: room.tags,
       lab: room.lab,
+      labUrl: room.labUrl,
       tasks: room.tasks.map((task) => ({
         id: task.id,
         index: task.index,

@@ -1,0 +1,45 @@
+---
+index: 1
+title: "robots.txt y rutas ocultas"
+questions:
+  - id: recon-web-basico-t01-q01
+    prompt: "Según el robots.txt del lab, ¿qué ruta (empezando por /) pide no indexar?"
+    hint: "curl http://127.0.0.1:18080/robots.txt"
+    kind: text
+  - id: recon-web-basico-t01-q02
+    prompt: "Visita esa ruta con curl (o el navegador) y envía la flag que contiene."
+    hint: "curl http://127.0.0.1:18080/secreto/"
+    kind: flag
+---
+
+## Levanta el laboratorio
+
+Usa el comando del panel **Laboratorio** de esta página (arriba). Cuando el contenedor
+esté listo, compruébalo:
+
+```bash
+curl http://127.0.0.1:18080/
+```
+
+Deberías ver la página de bienvenida. Nada sensible… a simple vista.
+
+## robots.txt: el mapa que los sitios regalan
+
+`robots.txt` es un archivo público que indica a los buscadores qué NO indexar. La ironía
+es obvia: **acabas de recibir la lista de sitios interesantes**.
+
+```bash
+curl http://127.0.0.1:18080/robots.txt
+```
+
+La línea `Disallow:` contiene una ruta. Visítala:
+
+```bash
+curl http://127.0.0.1:18080/secreto/
+```
+
+Ahí espera tu primera flag real de laboratorio. Guárdala para la pregunta final de
+esta tarea.
+
+> En un pentest real, robots.txt, sitemap.xml y archivos de backup (`.old`, `.bak`,
+> `.git/`) son las primeras paradas del reconocimiento pasivo.

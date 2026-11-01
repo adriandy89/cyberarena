@@ -143,6 +143,7 @@ async function main(): Promise<void> {
               estimatedMinutes: 1,
               tags: [],
               lab: null,
+              labUrl: null,
               tasks: [],
             };
           }

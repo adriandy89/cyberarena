@@ -32,6 +32,12 @@ export function validateCatalog(catalog: Catalog, answers: Record<string, string
           });
         }
         roomBySlug.set(room.slug, room);
+        if (room.labUrl && !room.lab) {
+          issues.push({
+            source: `room:${room.slug}`,
+            message: 'labUrl is set but lab is null (labUrl requires a lab slug)',
+          });
+        }
         room.tasks.forEach((task, taskIndex) => {
           if (task.index !== taskIndex + 1) {
             issues.push({

@@ -12,6 +12,7 @@ function room(slug: string, taskIndexes: number[] = [1], questionIds: string[][]
     estimatedMinutes: 30,
     tags: [],
     lab: null,
+    labUrl: null,
     tasks: taskIndexes.map((index, i) => ({
       index,
       title: `Task ${index}`,
