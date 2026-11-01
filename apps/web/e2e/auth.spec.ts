@@ -6,9 +6,10 @@ test.describe('auth flow (ES)', () => {
 
   test('register via UI, see dashboard, sign out', async ({ page }) => {
     await page.goto('/es');
+    await page.waitForLoadState('networkidle');
 
-    // Go to login (wait for hydration)
-    await expect(page.getByRole('link', { name: 'Entrar' }).first()).toBeVisible({ timeout: 15_000 });
+    // Go to login (wait for hydration and session check)
+    await expect(page.getByRole('link', { name: 'Entrar' }).first()).toBeVisible({ timeout: 30_000 });
     await page.getByRole('link', { name: 'Entrar' }).first().click();
     await expect(page).toHaveURL(/\/es\/login/);
 

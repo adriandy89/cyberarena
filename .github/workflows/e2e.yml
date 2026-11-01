@@ -69,6 +69,14 @@ jobs:
           done
           curl -sf http://127.0.0.1:3000/es >/dev/null
 
+      - name: Warm up stack (let session checks settle)
+        run: |
+          # Hit key pages so Next.js warms up and auth client resolves session
+          for path in /es /es/login /es/hacktivities /es/paths /api/health; do
+            curl -sf "http://127.0.0.1:3000${path}" >/dev/null || true
+          done
+          sleep 5
+
       - name: Install Playwright chromium
         run: pnpm --filter @repo/web exec playwright install --with-deps chromium
 
