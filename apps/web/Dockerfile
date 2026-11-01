@@ -1,6 +1,5 @@
 # Multi-stage production image for the web app.
 # Built from the monorepo root:  docker build -f apps/web/Dockerfile .
-# Optimized/verified in phase 008 (deploy-hardening); base version from phase 000.
 
 # syntax=docker/dockerfile:1
 FROM node:22-bookworm-slim AS base
@@ -23,13 +22,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm turbo build --filter=@repo/web...
 
 # --- runner: minimal, non-root ---
+# In this monorepo the standalone tree keeps the workspace layout:
+# server.js lands at apps/web/server.js, and .next/static must be copied
+# next to it (standalone output does not include it).
 FROM node:22-bookworm-slim AS runner
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 RUN groupadd -g 10001 app && useradd -u 10001 -g app -s /bin/sh -m app
 WORKDIR /app
 COPY --from=builder --chown=10001:10001 /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=10001:10001 /app/apps/web/.next/static ./apps/web/.next/static
 USER 10001
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]

@@ -1,0 +1,133 @@
+# CyberArena — PRODUCTION stack (phase 008).
+# Build & run from the repository root:
+#   docker compose --project-directory . -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
+# The reverse proxy lives in infra/stacks/proxy (bring it up FIRST).
+name: cyberarena-prod
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cyberarena}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB: ${POSTGRES_DB:-cyberarena}
+    secrets:
+      - postgres_password
+    ports:
+      # Ops access only (backups/psql), never exposed publicly.
+      - '${POSTGRES_PORT:-5433}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks: [backend]
+
+  api:
+    build:
+      # Paths resolve from the project directory (infra/stacks/prod).
+      context: ../../..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      # Entrypoint builds DATABASE_URL from these + the postgres_password secret.
+      DB_USER: ${POSTGRES_USER:-cyberarena}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-cyberarena}
+      API_PORT: 3001
+      CORS_ORIGINS: ${WEB_ORIGIN:-https://localhost}
+      WEB_URL: ${WEB_ORIGIN:-https://localhost}
+      # better-auth: links/origin through the public origin (proxy + rewrite).
+      BETTER_AUTH_URL: ${WEB_ORIGIN:-https://localhost}
+      REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-false}
+      EMAIL_FROM: ${EMAIL_FROM:-CyberArena <no-reply@cyberarena.local>}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@cyberarena.local}
+      # Real password travels via secrets/bootstrap_admin_password (optional:
+      # without it, a random one is generated and logged once — ADR-009).
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      MIGRATE_ON_BOOT: 'true'
+    secrets:
+      - postgres_password
+      - better_auth_secret
+      - bootstrap_admin_password
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node -e "fetch('http://127.0.0.1:3001/api/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+      - proxy
+
+  web:
+    build:
+      context: ../../..
+      dockerfile: apps/web/Dockerfile
+    environment:
+      NODE_ENV: production
+      # Next standalone binds to $HOSTNAME; the container's hostname would bind
+      # only that interface — force all interfaces so Caddy can reach it.
+      HOSTNAME: 0.0.0.0
+      # Server-side API URL: internal docker network (browser goes through the
+      # same-origin /api rewrite — ADR-008).
+      API_URL: http://api:3001
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      api:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - frontend
+      - proxy
+
+volumes:
+  pgdata:
+
+secrets:
+  postgres_password:
+    file: secrets/postgres_password
+  better_auth_secret:
+    file: secrets/better_auth_secret
+  bootstrap_admin_password:
+    file: secrets/bootstrap_admin_password
+
+networks:
+  # web <-> api (and api egress: SMTP, etc.)
+  frontend:
+    name: cyberarena-prod-frontend
+  # api <-> postgres. Internal: no egress at all (blast radius).
+  backend:
+    name: cyberarena-prod-backend
+    internal: true
+  # Shared with infra/stacks/proxy (Caddy). Bring the proxy stack up FIRST.
+  proxy:
+    name: cyberarena_proxy
+    external: true

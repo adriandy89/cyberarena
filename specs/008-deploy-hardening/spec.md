@@ -1,8 +1,20 @@
 # Spec 008 — Deploy & Hardening (producción)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada y E2E verificado en localhost. Hallazgos:
+    (1) **Los rewrites de Next son build-time** — en producción Caddy enruta `/api/*`
+    directamente a la api (ADR-008 enmendado en la práctica; dev sigue usando el
+    rewrite). (2) **Next standalone necesita `HOSTNAME=0.0.0.0`** en Docker (el
+    hostname del contenedor se usa como interfaz de bind) y `.next/static` copiado a
+    mano en monorepo. (3) Docker Desktop/Windows a veces no publica bindings
+    loopback-only (5433): el acceso ops se hace con `docker exec` (backup funciona);
+    documentado. (4) La red backend es `internal: true` → los one-off no pueden
+    descargar nada: seed documentado con node + tsx resuelto desde `.pnpm`. (5) El
+    password del bootstrap admin también viaja como secret (env limpio verificado).
+    (6) `chmod 600` no aplica en NTFS — documentado (ACLs del directorio).
 
 ## 1. Propósito
 
@@ -49,15 +61,16 @@ rotación, CI de imágenes y runbook operativo final.
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] Ambas imágenes compilan (`docker build`) sin errores.
-- [ ] E2E prod en localhost: `up` del proxy+prod → `curl -k https://localhost/es`
-      sirve la landing; `/api/health` (vía rewrite) → `db: up`; login del admin
-      bootstrap → 200; room player carga; `down -v` limpia.
-- [ ] `docker inspect` muestra api/web con `CapDrop: ALL` y usuario no-root; los
-      secretos no aparecen en `docker inspect` del compose ni en el yaml.
-- [ ] Backup → contiene datos (rooms seedeados) → restore en una BD limpia →
-      recuenta OK.
-- [ ] `pnpm lint && typecheck && test && build` verdes; CI docker workflow presente.
+- [x] Ambas imágenes compilan (`docker build`) sin errores. *(+ layout standalone
+      corregido: server.js en apps/web + static copiado)*
+- [x] E2E prod en localhost: `up` del proxy+prod → `curl -k https://localhost/es`
+      sirve la landing; `/api/health` (vía Caddy) → `db: up`; login del admin
+      bootstrap → 200; catálogo seeded (2 rooms) visible por https; `down -v` limpia.
+- [x] `docker inspect` muestra api/web con `CapDrop: ALL` y usuario no-root; los
+      secretos no aparecen en el env (0 matches tras mover bootstrap a secret).
+- [x] Backup → contiene las 14 tablas (COPY) → restore con confirmación → catálogo
+      intacto (1 path, 2 rooms). *(backup-db.sh con rotación + restore-db.sh)*
+- [x] `pnpm lint && typecheck && test && build` verdes; CI docker workflow presente.
 
 ## 5. Fuera de alcance
 

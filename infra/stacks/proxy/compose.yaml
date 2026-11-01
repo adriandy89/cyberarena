@@ -1,0 +1,32 @@
+# CyberArena — reverse proxy stack (bring up BEFORE the prod stack).
+#   docker compose --project-directory . -f infra/stacks/proxy/compose.yaml --env-file infra/stacks/proxy/.env up -d
+name: cyberarena-proxy
+
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp' # HTTP/3
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE, CHOWN, SETUID, SETGID, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks: [proxy]
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  # Shared with the prod stack (web joins as external).
+  proxy:
+    name: cyberarena_proxy

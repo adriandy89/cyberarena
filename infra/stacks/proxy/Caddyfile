@@ -1,0 +1,28 @@
+# CyberArena reverse proxy (phase 008).
+# SITE_ADDRESS controls TLS:
+#   - localhost (default): Caddy issues an internal self-managed certificate.
+#     Browsers will warn until you trust Caddy's local CA (see docs/runbook.md).
+#   - your-domain.com: automatic Let's Encrypt/ACME certificate (set ACME_EMAIL).
+#
+# /api/* is routed straight to the NestJS API here (Next rewrites are build-time;
+# in production the proxy keeps the same-origin contract of ADR-008).
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	header {
+		# Security headers (add Strict-Transport-Security when using a real domain).
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "interest-cohort=()"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy api:3001
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}

@@ -20,6 +20,8 @@ packages/content/dist/
 .env.*
 !.env.example
 infra/stacks/*/.env
+infra/stacks/*/secrets/*
+!infra/stacks/*/secrets/README.md
 labs/**/*.env
 
 # Prisma

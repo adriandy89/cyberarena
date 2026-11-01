@@ -98,6 +98,97 @@ curl -s http://localhost:3001/api/catalog/rooms/<slug> | jq '.tasks[].questions[
   renombrar rompe progreso — ver guide §reglas).
 - Las respuestas viven hasheadas (sha256) en la tabla `Answer`, jamás expuestas por la API.
 
+## Producción (fase 008)
+
+Stacks: `infra/stacks/proxy` (Caddy, TLS) + `infra/stacks/prod` (web+api+postgres).
+Ambos se ejecutan con `--project-directory` EN SU PROPIA CARPETA (montan archivos
+relativos: Caddyfile y secrets).
+
+### Despliegue desde cero
+
+```bash
+# 1) Secretos (una vez; en Linux chmod 600 — en Windows NTFS no aplica)
+cd infra/stacks/prod/secrets
+openssl rand -hex 24 > postgres_password                  # SOLO alfanumérico (va en URL)
+openssl rand -base64 32 | tr -d '\n=+/' > better_auth_secret
+printf 'TuPasswordInicial-12345' > bootstrap_admin_password  # opcional (si no: se genera y loggea)
+cd ../../..   # raíz del repo
+
+# 2) Environments
+cp infra/stacks/proxy/.env.example infra/stacks/proxy/.env   # SITE_ADDRESS (localhost o dominio)
+cp infra/stacks/prod/.env.example  infra/stacks/prod/.env    # WEB_ORIGIN etc.
+
+# 3) Proxy PRIMERO (define la red cyberarena_proxy)
+docker compose --project-directory infra/stacks/proxy -f infra/stacks/proxy/compose.yaml --env-file infra/stacks/proxy/.env up -d
+
+# 4) Producción (build + up; migraciones automáticas al arrancar la api)
+docker compose --project-directory infra/stacks/prod -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
+
+# 5) Seed del contenido (one-off dentro de la red interna — ver abajo)
+```
+
+### Seed de contenido en producción
+
+El catálogo viaja con la imagen pero el seed corre aparte (la red backend es
+`internal: true` — sin egress — así que el one-off usa node+tsx directos):
+
+```bash
+PROD_PW=$(cat infra/stacks/prod/secrets/postgres_password)
+MSYS_NO_PATHCONV=1 docker run --rm --network cyberarena-prod-backend \
+  -v "$(pwd)/packages/content/dist:/app/content/dist:ro" \
+  -e "DATABASE_URL=postgresql://cyberarena:${PROD_PW}@postgres:5432/cyberarena?schema=public" \
+  --entrypoint sh cyberarena-prod-api \
+  -c 'TSX=$(ls /app/node_modules/.pnpm/tsx@*/node_modules/tsx/dist/cli.mjs | head -1); cd /app/packages/database && node "$TSX" prisma/seed.ts'
+```
+
+(Regenera `packages/content/dist` antes con `pnpm --filter @repo/content build`.)
+
+### Actualizar a una nueva versión
+
+```bash
+git pull && pnpm install && pnpm build     # valida todo
+docker compose --project-directory infra/stacks/prod -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
+# el entrypoint aplica migraciones pendientes (MIGRATE_ON_BOOT=true); re-seed si cambió contenido
+```
+
+### TLS
+
+- `SITE_ADDRESS=localhost` (default): certificado interno de Caddy. El navegador avisa
+  hasta que confíes en la CA local (`docker cp cyberarena-proxy-caddy-1:/data/caddy/pki/authorities/local/root.crt`
+  e importarla en el sistema).
+- Dominio real: `SITE_ADDRESS=tudominio.com` + `ACME_EMAIL=...` → Let's Encrypt
+  automático; añade `Strict-Transport-Security` al Caddyfile.
+
+### Backups y restore
+
+```bash
+bash infra/scripts/backup-db.sh cyberarena-prod-postgres-1 cyberarena cyberarena backups 14
+echo "cyberarena" | bash infra/scripts/restore-db.sh backups/<file>.sql.gz cyberarena-prod-postgres-1
+```
+
+Cron diario (Linux): `0 4 * * * cd /ruta/repo && bash infra/scripts/backup-db.sh ...`.
+
+### Checklist de seguridad (ADR-006)
+
+- [x] Contenedores no-root (10001 api/web; caps mínimas postgres/caddy) + `cap_drop: ALL`
+- [x] `no-new-privileges` en todos; healthchecks en todos
+- [x] Secretos por compose secrets (postgres/auth/bootstrap) — no en yaml ni env
+- [x] Redes: `backend` interna (postgres sin egress), frontend, proxy pública
+- [x] API/Postgres jamás publicados; solo Caddy 80/443 (443/udp HTTP/3)
+- [x] Cabeceras: nosniff, DENY frames, referrer-policy, permissions-policy
+- [x] Admin bootstrap solo con BD vacía (ADR-009); registro nunca otorga ADMIN
+
+### Troubleshooting de producción
+
+| Síntoma | Causa | Fix |
+|---|---|---|
+| 502 desde Caddy a web | Next standalone ligó al hostname del contenedor | `HOSTNAME: 0.0.0.0` en el env de web (ya en el compose) |
+| `/api/*` 500 en prod | Los rewrites de Next son BUILD-TIME (no runtime) | Caddy enruta `/api/*` → api:3001 (ya en el Caddyfile; ADR-008 enmendado) |
+| One-off no puede instalar nada | Red `backend` es `internal: true` (sin egress) — corepack/pnpm no descargan | Usar node + `node_modules/.pnpm/tsx@*/...` directos (comando de seed) |
+| Puerto 5433 no accesible en Windows | Docker Desktop a veces no publica bindings loopback-only | Es operativa opcional: usa `docker exec` para psql/backup; o publica sin host_ip si tu red lo permite |
+| `mount src not a directory` (Caddyfile) | compose corrido con project-directory incorrecto | Usar `--project-directory infra/stacks/proxy` |
+| Migraciones no aplican | `MIGRATE_ON_BOOT` distinto de true | `docker compose logs api` para ver `[entrypoint]` |
+
 ## Solución de problemas
 
 | Síntoma | Causa probable | Fix |
