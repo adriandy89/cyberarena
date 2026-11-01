@@ -1,0 +1,51 @@
+---
+index: 3
+title: "Del pasivo al activo: preparando el salto"
+questions:
+  - id: recon-pasivo-osint-t03-q01
+    prompt: "¿Cuál es la diferencia FUNDAMENTAL entre recon pasivo y activo?"
+    hint: "¿El objetivo puede detectar lo que haces?"
+    kind: text
+  - id: recon-pasivo-osint-t03-q02
+    prompt: "Has recopilado: 15 subdominios, 3 emails de empleados y un panel de Jenkins expuesto. ¿Cuál es tu siguiente paso LÓGICO en la fase activa?"
+    hint: "Verificar qué hay vivo y escuchando."
+    kind: choice
+    options:
+      - id: a
+        label: "Lanzar un exploit contra Jenkins inmediatamente"
+      - id: b
+        label: "Descubrir qué hosts están vivos y qué puertos/services ofrecen (host discovery + port scan)"
+      - id: c
+        label: "Enviar un email de phishing"
+      - id: d
+        label: "Escribir el informe final"
+---
+
+## La frontera invisible
+
+| Pasivo | Activo |
+|---|---|
+| Consultas a terceros (CT, Google, archive) | Paquetes AL objetivo |
+| Indetectable | Detectable (logs, IDS, WAF) |
+| Información histórica/agregada | Estado actual real |
+| Siempre seguro | Solo con autorización |
+
+El paso a activo NO se da hasta tener el scope confirmado y la autorización escrita
+(reglas de engagement del módulo 1). Lanzar un escaneo contra un host fuera de scope
+es un incidente legal.
+
+## Checklist de transición (tu método)
+
+Después del pasivo, tu lista de objetivos debería tener:
+
+1. **IPs/rangos** confirmados como del cliente (whois, DNS, CT logs).
+2. **Subdominios** resueltos a IPs activas.
+3. **Superficie web**: URLs, paneles, APIs detectadas.
+4. **Usuarios potenciales** (para ataques de credenciales más adelante).
+
+El siguiente módulo (recon activo) convierte esa lista en: qué está vivo, qué corre
+y qué versión tiene. El módulo de Nmap lo automatiza.
+
+> **Toma nota**: cada hallazgo del pasivo alimenta al activo. Cada hallazgo del activo
+> alimenta la explotación. Es una cadena — y el pentester que se salta eslabones
+> pierde hallazgos.

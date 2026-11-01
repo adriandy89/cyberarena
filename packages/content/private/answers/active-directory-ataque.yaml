@@ -1,0 +1,11 @@
+# Respuestas del room active-directory-ataque.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+active-directory-ataque-t01-q01: BloodHound
+active-directory-ataque-t01-q02: b
+active-directory-ataque-t01-q03: net user /domain
+active-directory-ataque-t02-q01: Kerberoasting
+active-directory-ataque-t02-q02: "no requiere pre-autenticacion (DONT_REQ_PREAUTH)"
+active-directory-ataque-t02-q03: b
+active-directory-ataque-t03-q01: Pass-the-Hash
+active-directory-ataque-t03-q02: "extraer las credenciales de LSASS con mimikatz"
+active-directory-ataque-t03-q03: b

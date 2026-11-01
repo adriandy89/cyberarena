@@ -1,0 +1,8 @@
+{
+  "slug": "burp-suite",
+  "title": "Burp Suite",
+  "description": "Proxy, Repeater e Intruder en profundidad: el flujo profesional de testing web.",
+  "rooms": [
+    { "slug": "burp-suite-pro" }
+  ]
+}

@@ -1,0 +1,70 @@
+---
+index: 3
+title: "Intruder: automatizar la fuerza bruta"
+questions:
+  - id: burp-suite-pro-t03-q01
+    prompt: "En Intruder, ¿qué marcador señala la posición donde se sustituirá el payload? (el símbolo)"
+    hint: "§valor§ (los símbolos de sección)."
+    kind: text
+  - id: burp-suite-pro-t03-q02
+    prompt: "¿Qué tipo de ataque de Intruder prueba UNA lista en UNA posición?"
+    hint: "Sniper: una posición a la vez."
+    kind: text
+  - id: burp-suite-pro-t03-q03
+    prompt: "En un ataque con 1000 payloads, ¿cómo identificas los exitosos en Intruder?"
+    hint: "Ordena por length o status de respuesta."
+    kind: choice
+    options:
+      - id: a
+        label: "Manualmente uno por uno"
+      - id: b
+        label: "Ordenando resultados por Length o Status: los exitosos suelen tener respuesta distinta al resto"
+      - id: c
+        label: "No se puede"
+      - id: d
+        label: "Solo con la versión Pro"
+---
+
+## Intruder: desde manual a automático
+
+1. **Send to Intruder** (Ctrl+I) desde cualquier petición.
+2. **Positions**: marca con § lo que quieres sustituir:
+   ```http
+   POST /login HTTP/1.1
+   username=§admin§&password=§password123§
+   ```
+3. **Payloads**: asigna listas a cada posición.
+4. **Start attack**: Intruder ejecuta todas las combinaciones.
+
+### Los 4 tipos de ataque
+
+| Tipo | Qué hace | Cuándo |
+|---|---|---|
+| **Sniper** | una lista, una posición a la vez | probar 1 parámetro |
+| **Battering ram** | la MISMA lista en TODAS las posiciones | misma contraseña en user y pass |
+| **Pitchfork** | listas paralelas (user[i], pass[i]) | user/password emparejados |
+| **Cluster bomb** | producto cartesiano (todas las combinaciones) | fuerza bruta real |
+
+### El truco: leer los resultados
+
+Intruder muestra una tabla con cada intento. La clave: **ordena por Length**.
+
+```text
+Payload: password1   Length: 4523   Status: 302   ← redirect (¡login OK!)
+Payload: password2   Length: 4523   Status: 302   ← igual... espera
+Payload: password3   Length: 4523   Status: 302
+Payload: rockyou     Length: 8234   Status: 200   ← ¡DISTINTO! investiga este
+```
+
+Un Length o Status diferente del patrón general = respuesta diferente = posible éxito.
+
+### Casos reales de Intruder
+
+- **Fuerza bruta de login**: Cluster bomb (users × passwords)
+- **IDOR en masa**: Sniper con IDs 1-1000 en /perfil/§id§
+- **Fuzzing de parámetros**: Sniper con payloads XSS/SQLi
+- **Bypass de rate limit**: Pitchfork con tokens rotados
+
+Con Burp dominado (Proxy → Repeater → Intruder), puedes testear CUALQUIER aplicación
+web. Los siguientes módulos del path aplican estas técnicas contra los fallos OWASP
+con laboratorios.

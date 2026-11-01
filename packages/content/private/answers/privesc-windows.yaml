@@ -1,0 +1,11 @@
+# Respuestas del room privesc-windows.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+privesc-windows-t01-q01: whoami /priv
+privesc-windows-t01-q02: SeImpersonatePrivilege
+privesc-windows-t01-q03: wmic service get name,startname,pathname
+privesc-windows-t02-q01: "windows resuelve los espacios probando rutas anteriores: C:\\Program.exe primero"
+privesc-windows-t02-q02: "sustituir el binario por una shell y reiniciar el servicio"
+privesc-windows-t02-q03: sc stop
+privesc-windows-t03-q01: AlwaysInstallElevated
+privesc-windows-t03-q02: Potato
+privesc-windows-t03-q03: b

@@ -1,0 +1,8 @@
+{
+  "slug": "recon-activo",
+  "title": "Reconocimiento Activo",
+  "description": "Host discovery, port scanning y detección de versiones: el primer contacto directo con el objetivo.",
+  "rooms": [
+    { "slug": "recon-activo-escaneo" }
+  ]
+}

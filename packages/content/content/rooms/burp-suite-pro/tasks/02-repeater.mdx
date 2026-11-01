@@ -1,0 +1,59 @@
+---
+index: 2
+title: "Repeater: el taller del web hacker"
+questions:
+  - id: burp-suite-pro-t02-q01
+    prompt: "En Repeater, ¿qué vista muestra la respuesta RENDERIZADA como la vería el navegador?"
+    hint: "Render (vs Pretty/Raw/Hex)."
+    kind: text
+  - id: burp-suite-pro-t02-q02
+    prompt: "Quieres probar SQLi en un parámetro id. ¿Cómo lo harías en Repeater?"
+    hint: "Modifica el valor del parámetro y reenvía."
+    kind: text
+  - id: burp-suite-pro-t02-q03
+    prompt: "¿Qué sección de Repeater muestra las cabeceras de respuesta y el status code?"
+    hint: "Response panel: Pretty view muestra todo."
+    kind: choice
+    options:
+      - id: a
+        label: "Solo en Hex"
+      - id: b
+        label: "Response panel en Pretty/Raw view"
+      - id: c
+        label: "No se pueden ver"
+      - id: d
+        label: "Solo en Intruder"
+---
+
+## Repeater: la misma petición, N veces, N variaciones
+
+Recibes una petición del History en Repeater y tienes control TOTAL:
+
+```http
+GET /producto?id=1 HTTP/1.1
+Host: tienda.local
+Cookie: sesion=abc123
+```
+
+Editas `id=1' OR 1=1--` → **Send** → examinas la respuesta (status, headers, body).
+Editas de nuevo → Send. Repites. Sin tocar el navegador.
+
+### Los 4 viewpoints de la respuesta
+
+- **Pretty**: formateada (headers arriba, body renderizado con sintaxis)
+- **Raw**: exactamente como llega (bytes en claro)
+- **Render**: como la pintaría el navegador (¡para XSS: ves si tu script ejecuta!)
+- **Hex**: bytes en hexadecimal (para binarios, encoding issues)
+
+### Casos de uso reales
+
+```text
+1. SQLi:  cambiar id=1 → id=1' OR 1=1-- y ver si el error cambia
+2. XSS:   inyectar <script> en un parámetro → Render → ¿ejecuta?
+3. IDOR:  cambiar /perfil/1024 → /perfil/1025 → ¿ves datos de otro?
+4. Auth:  manipular cookies/tokens → ¿acepta una modificada?
+5. Logic: precio=100 → precio=1 en el POST del carrito
+```
+
+**Atajo profesional**: clic derecho en cualquier petición del navegador que Burp
+capturó → "Send to Repeater" → modifica → observa. Es el 80% del trabajo web manual.

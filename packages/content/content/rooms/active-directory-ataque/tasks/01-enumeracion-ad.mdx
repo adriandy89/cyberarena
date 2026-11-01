@@ -1,0 +1,67 @@
+---
+index: 1
+title: "Enumerar el dominio: BloodHound y PowerView"
+questions:
+  - id: active-directory-ataque-t01-q01
+    prompt: "¿Qué herramienta mapea el dominio completo como un GRAFO mostrando rutas de ataque (quién puede comprometer a quién)?"
+    hint: "BloodHound (de SpectreOps)."
+    kind: text
+  - id: active-directory-ataque-t01-q02
+    prompt: "¿Qué información revela BloodHound que es ORO para escalada?"
+    hint: "Relaciones ocultas: 'este usuario es admin de aquel servidor'."
+    kind: choice
+    options:
+      - id: a
+        label: "Contraseñas en texto plano"
+      - id: b
+        label: "Rutas de ataque: mi usuario → grupo X → admin de Y → Domain Admin"
+      - id: c
+        label: "La versión de Windows"
+      - id: d
+        label: "Solo lista de usuarios"
+  - id: active-directory-ataque-t01-q03
+    prompt: "¿Qué comando de cmd ya conociste para listar usuarios del dominio (sin herramientas)?"
+    hint: "Del room de AD básico: net user /domain"
+    kind: text
+---
+
+## BloodHound: el mapa del tesoro
+
+```bash
+# 1. Recolección (en la máquina comprometida)
+SharpHound.exe -c All                # recopila TODO el dominio a un .zip
+# o desde Linux con impacket:
+bloodhound-python -u user -p pass -d corp.local -dc dc01.corp.local -c All
+
+# 2. Análisis (en tu máquina con la GUI de BloodHound)
+# Importa el .zip → el grafo se pinta → "Find Shortest Path to Domain Admins"
+```
+
+BloodHound responde la pregunta mágica: **"¿Cómo llego de MI usuario actual a Domain
+Admin?"** Las rutas típicas que descubre:
+
+- Tu usuario → miembro de `Help Desk` → puede resetear la contraseña de un admin
+- Tu usuario → tiene sesión en un servidor → ese servidor tiene un servicio con
+  credenciales de Domain Admin
+- Tu usuario → puede escribir en una GPO → la GPO aplica al DC
+
+## PowerView / Enumeración manual
+
+```powershell
+# Módulo de PowerShell clásico (anterior a BloodHound)
+Get-DomainUser                          # todos los usuarios
+Get-DomainGroup "Domain Admins" -Members
+Get-NetComputer                         # todos los equipos
+Find-LocalAdminAccess                   # ¿dónde soy admin local?
+Get-DomainGPO                           # políticas de grupo
+```
+
+## El flujo profesional
+
+1. Shell en cualquier máquina del dominio (phishing, exploit, share abierto).
+2. **Enumerar** con BloodHound → grafo de rutas.
+3. Seguir la ruta más corta (a menudo 2-3 saltos).
+4. En cada salto: la técnica del siguiente task (Kerberoast, Pass-the-Hash, etc.).
+
+> Sin BloodHound, enumerar AD a mano es como buscar un libro en una biblioteca sin
+> catálogo: posible, pero brutalmente lento.

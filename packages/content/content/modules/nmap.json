@@ -1,0 +1,8 @@
+{
+  "slug": "nmap",
+  "title": "Nmap Pro",
+  "description": "Tipos de scan avanzados, evasión de firewalls/IDS, NSE scripting y outputs procesables.",
+  "rooms": [
+    { "slug": "nmap-pro" }
+  ]
+}

@@ -1,6 +1,6 @@
 # Spec 101 — Content Pack: Jr Penetration Tester
 
-- **Estado:** en curso (entrega incremental por módulos)
+- **Estado:** COMPLETADA (2026-11-01) — 7/8 módulos (web-owasp cubierto por CS101 owasp + burp; labs dedicados en iteración 102)
 - **Creada:** 2026-11-01
 - **Changelog:** 2026-11-01 primera versión.
 
@@ -14,14 +14,14 @@ práctico. Metodología, herramientas a fondo y laboratorios.
 | # | Módulo | Rooms previstos | Estado |
 |---|---|---|---|
 | 1 | pentest-foundations | 1 (metodología, kill chain, reporte) | 🚧 esta sesión |
-| 2 | recon-pasivo | 1 (OSINT) | ⬜ |
-| 3 | recon-activo | 1 (escaneo) | ⬜ |
-| 4 | nmap | 2 (discovery, port scans) | ⬜ |
-| 6 | burp-suite | 1-2 | ⬜ |
-| 7 | web-owasp | 3-4 (SQLi, XSS, IDOR, SSRF — con labs) | ⬜ |
-| 8 | privesc | 2 (linux, windows — con labs) | ⬜ |
-| 9 | active-directory | 2 | ⬜ |
-| 10 | scripting | 1 (bash/python scanner) | ⬜ |
+| 2 | recon-pasivo | 1 (crt.sh, dorks, metadata) | ✅ |
+| 3 | recon-activo | 1 (host/port/version discovery) | ✅ |
+| 4 | nmap | 1 (scan types, evasión, NSE, output) | ✅ |
+| 6 | burp-suite | 1 (proxy/repeater/intruder) | ✅ |
+| 7 | web-owasp | ver CS101 módulo owasp + burp (labs: iteración 102) | ⬜ |
+| 8 | privesc | 2 (linux SUID/cron/PATH + windows servicios/tokens) | ✅ |
+| 9 | active-directory | 1 (BloodHound, Kerberoast, PtH) | ✅ |
+| 10 | scripting | 1 (bash scanner, python fuzzer, pipelines) | ✅ |
 
 (Recuentos ajustables; mínimo 1 room sólido por módulo.)
 

@@ -1,0 +1,8 @@
+{
+  "slug": "scripting",
+  "title": "Scripting para Pentesters",
+  "description": "Escáner bash, fuzzer Python y encadenar herramientas: construye tu propio arsenal.",
+  "rooms": [
+    { "slug": "scripting-pentest" }
+  ]
+}

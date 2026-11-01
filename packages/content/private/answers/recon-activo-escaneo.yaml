@@ -1,0 +1,11 @@
+# Respuestas del room recon-activo-escaneo.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+recon-activo-escaneo-t01-q01: nmap -sn
+recon-activo-escaneo-t01-q02: ARP
+recon-activo-escaneo-t01-q03: b
+recon-activo-escaneo-t02-q01: "envia SYN y al recibir SYN-ACK contesta RST sin completar la conexion"
+recon-activo-escaneo-t02-q02: "open, closed, filtered"
+recon-activo-escaneo-t02-q03: b
+recon-activo-escaneo-t03-q01: -sV
+recon-activo-escaneo-t03-q02: banner
+recon-activo-escaneo-t03-q03: b

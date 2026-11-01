@@ -1,0 +1,11 @@
+# Respuestas del room privesc-linux.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+privesc-linux-t01-q01: LinPEAS
+privesc-linux-t01-q02: sudo -l
+privesc-linux-t01-q03: b
+privesc-linux-t02-q01: sudo vim -c ':!bash'
+privesc-linux-t02-q02: find / -exec /bin/bash -p \;
+privesc-linux-t02-q03: b
+privesc-linux-t03-q01: "crear un binario tar malicioso en un directorio que este antes en el PATH del cron"
+privesc-linux-t03-q02: cap_net_bind_service
+privesc-linux-t03-q03: b

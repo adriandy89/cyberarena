@@ -1,0 +1,8 @@
+{
+  "slug": "recon-pasivo",
+  "title": "Reconocimiento Pasivo",
+  "description": "OSINT sin tocar el objetivo: Certificate Transparency, Google dorks, metadata y la frontera con el escaneo activo.",
+  "rooms": [
+    { "slug": "recon-pasivo-osint" }
+  ]
+}

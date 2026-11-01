@@ -1,0 +1,63 @@
+---
+index: 2
+title: "Port scan básico: ¿qué puertas están abiertas?"
+questions:
+  - id: recon-activo-escaneo-t02-q01
+    prompt: "¿Qué envía un SYN scan (half-open) y qué hace al recibir SYN-ACK?"
+    hint: "Envía SYN; al recibir SYN-ACK responde RST (no completa la conexión)."
+    kind: text
+  - id: recon-activo-escaneo-t02-q02
+    prompt: "¿Qué estados de puerto reporta Nmap? (los tres principales)"
+    hint: "open, closed, filtered"
+    kind: text
+  - id: recon-activo-escaneo-t02-q03
+    prompt: "¿Qué estado indica que un FIREWALL está bloqueando el puerto (no la máquina)?"
+    hint: "No sabes si está abierto: algo se come el paquete."
+    kind: choice
+    options:
+      - id: a
+        label: "closed"
+      - id: b
+        label: "filtered"
+      - id: c
+        label: "open"
+      - id: d
+        label: "unfiltered"
+---
+
+## Anatomía de un scan
+
+El port scan más común (**SYN scan**, `-sS` en Nmap):
+
+```text
+Escáner          →  SYN    →  Puerto 22      (¿estás abierto?)
+Escáner  ←  SYN-ACK  ←      Puerto 22      (sí, abierto)
+Escáner          →  RST    →  Puerto 22      (gracias, me voy sin conectar)
+```
+
+Nunca completa el handshake → el servicio NO lo registra en sus logs de aplicación
+(aunque el firewall puede verlo). Es rápido y semi-sigiloso.
+
+Los TRES estados que importan:
+
+| Estado | Significado | Acción |
+|---|---|---|
+| **open** | algo escucha ahí | enumerar versión |
+| **closed** | la máquina responde RST: nadie escucha | seguir |
+| **filtered** | firewall/IDS se come el paquete | puerto interesante igualmente |
+
+```bash
+nmap -sS -p- 10.10.10.5        # SYN scan a TODOS los puertos (65535)
+nmap -sS --top-ports 100 10.10.10.5   # los 100 más comunes (rápido)
+```
+
+## TCP connect scan vs SYN scan
+
+- `-sT` (connect): completa el handshake. Más lento, más ruido en logs de la app.
+- `-sS` (SYN): el clásico — requiere root pero es el estándar del pentester.
+
+## UDP (la asignatura pendiente)
+
+UDP no tiene handshake: el escaneo es lento y ambiguo (¿perdió el paquete o está
+abierto?). `nmap -sU --top-ports 50` cubre DNS(53), SNMP(161), DHCP(67). Un servicio
+UDP olvidado (SNMP con community `public`) es oro puro en redes corporativas.

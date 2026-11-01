@@ -1,0 +1,76 @@
+---
+index: 3
+title: "Versiones y servicios: de puerto abierto a exploit"
+questions:
+  - id: recon-activo-escaneo-t03-q01
+    prompt: "¿Qué flag de Nmap detecta la versión del servicio que corre en cada puerto abierto?"
+    hint: "Service version: -sV"
+    kind: text
+  - id: recon-activo-escaneo-t03-q02
+    prompt: "¿Qué script NSE de Nmap intenta identificar el sistema operativo y dispositivos por sus respuestas?"
+    hint: "Nmap Scripting Engine: busque 'banner' o 'fingerprint'."
+    kind: text
+  - id: recon-activo-escaneo-t03-q03
+    prompt: "Sabes que el puerto 80 corre 'Apache httpd 2.4.49'. ¿Cuál es tu SIGUIENTE acción?"
+    hint: "Ese Apache tiene CVE-2021-41773 (path traversal)."
+    kind: choice
+    options:
+      - id: a
+        label: "Ignorar el puerto 80: es solo una web"
+      - id: b
+        label: "searchsploit apache 2.4.49 y verificar si el CVE aplica (path traversal + RCE)"
+      - id: c
+        label: "Cerrar nmap y escribir el informe"
+      - id: d
+        label: "Escanear el puerto 443 en su lugar"
+---
+
+## El flag que cambia todo: -sV
+
+```bash
+nmap -sV -sS -p 22,80,443,445 10.10.10.5
+```
+
+Sin `-sV`, Nmap dice "puerto 80 open". Con `-sV`:
+
+```text
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3
+80/tcp open  http    Apache httpd 2.4.49 ((Unix))
+443/tcp open  ssl/https Apache httpd 2.4.49
+445/tcp open  netbios-ssn Samba smbd 4.6.2
+```
+
+**Ese output es la entrada del exploit**: versión exacta → searchsploit → CVE.
+
+## OS detection y scripts NSE
+
+```bash
+nmap -O 10.10.10.5              # adivina el SO por el stack TCP/IP
+nmap -sV --script=banner 10.10.10.5    # captura banners de los servicios
+nmap --script vuln 10.10.10.5    # scripts de vulnerabilidades conocidas (¡ruidoso!)
+```
+
+Los **scripts NSE** (Nmap Scripting Engine) son la artillería: desde detectar
+EternalBlue (`smb-vuln-ms17-010`) hasta enumerar usuarios de SMB
+(`smb-enum-users.nse`). Hay +600 oficiales: `ls /usr/share/nmap/scripts/`.
+
+## El flujo profesional completo (memorízalo)
+
+```bash
+# 1. Quién está vivo
+nmap -sn 10.10.10.0/24
+# 2. Qué puertos (rápido primero)
+nmap -sS --top-ports 100 -oA scan_rapido <vivos>
+# 3. Todos los puertos en los interesantes
+nmap -sS -p- -oA scan_completo <objetivo>
+# 4. Versiones + scripts en los puertos abiertos
+nmap -sV -sC -p <abiertos> -oA scan_versiones <objetivo>
+# 5. searchsploit <versión> → exploit
+```
+
+`-oA` guarda en tres formatos (normal, grepable, XML) para procesar después. `-sC`
+ejecuta los scripts "default" (seguros y útiles).
+
+Con este flujo puedes enumerar cualquier red en minutos. El siguiente módulo (Burp
+Suite) hace lo mismo pero para aplicaciones web.

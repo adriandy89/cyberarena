@@ -1,0 +1,59 @@
+---
+index: 2
+title: "Google dorks y metadata: buscar lo que no debía estar"
+questions:
+  - id: recon-pasivo-osint-t02-q01
+    prompt: "¿Qué dork de Google busca archivos de configuración expuestos en un dominio?"
+    hint: "site:victima.com filetype:env OR filetype:conf"
+    kind: text
+  - id: recon-pasivo-osint-t02-q02
+    prompt: "¿Qué es Google Hacking Database (GHDB)?"
+    hint: "Exploit-DB la mantiene: dorks catalogados por categoría."
+    kind: choice
+    options:
+      - id: a
+        label: "Un buscador alternativo a Google"
+      - id: b
+        label: "Una base pública de dorks catalogados que encuentran archivos, credenciales y paneles expuestos"
+      - id: c
+        label: "Un framework de pentest"
+      - id: d
+        label: "Un plugin de Burp"
+  - id: recon-pasivo-osint-t02-q03
+    prompt: "¿Qué fuga de metadata es común en documentos PDF/Word publicados en webs corporativas?"
+    hint: "Los documentos guardan quién los creó..."
+    kind: text
+---
+
+## Google dorks: el buscador como arma
+
+Los operadores avanzados de Google filtran resultados con precisión quirúrgica:
+
+```text
+site:victima.com filetype:pdf          → todos los PDFs del dominio
+site:victima.com inurl:admin           → páginas con "admin" en la URL
+site:*.victima.com -www                → subdominios indexados
+filetype:env DB_PASSWORD               → archivos .env expuestos (¡en cualquier web!)
+site:victima.com intitle:"index of"    → directorios listados
+```
+
+La **GHDB** (en exploit-db.com/google-hacking-database) cataloga miles de dorks por
+categoría: credenciales, mensajes de error, paneles vulnerables. Empieza ahí.
+
+## Metadata de documentos
+
+Los PDF y Office docs llevan metadata incrustada: autor (nombre y email del empleado),
+ruta del archivo en su PC (`C:\Users\jperez\Documentos\`), software usado, a veces
+comentarios eliminados "visiblemente" pero recuperables.
+
+Herramientas: `exiftool informe.pdf`, `metagoofil` (busca y extrae en masa).
+
+## OSINT humano (para el informe)
+
+LinkedIn revela la estructura del equipo de IT (¿quién es el admin de AD? Los nombres
+de usuario suelen seguir un patrón: `jperez`, `j.perez` — se prueban contra el login
+corporativo en la fase activa). GitHub de la empresa: código con credenciales
+olvidadas (gitleaks lo automatiza).
+
+Todo esto sin enviar UN paquete al objetivo: las fuentes son terceros que ya indexaron
+esa información.

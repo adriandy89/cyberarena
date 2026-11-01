@@ -1,0 +1,54 @@
+---
+index: 1
+title: "Proxy y Target: ver y organizar el tráfico"
+questions:
+  - id: burp-suite-pro-t01-q01
+    prompt: "¿En qué pestaña de Burp ves TODA la historia de peticiones HTTP desde que abriste el proxy?"
+    hint: "Proxy > HTTP History (no Intercept)."
+    kind: text
+  - id: burp-suite-pro-t01-q02
+    prompt: "¿Qué pestaña de Burp organiza automáticamente el sitio web como un árbol de directorios y endpoints?"
+    hint: "Target > Site map"
+    kind: text
+  - id: burp-suite-pro-t01-q03
+    prompt: "¿Qué ventaja tiene 'Send to Repeater' (Ctrl+R) sobre reenviar la petición desde el navegador?"
+    hint: "En el navegador no puedes editar cabeceras/cuerpo fácilmente."
+    kind: choice
+    options:
+      - id: a
+        label: "Es más rápido"
+      - id: b
+        label: "Te permite modificar cualquier parte de la petición y reenviarla repetidamente sin tocar el navegador"
+      - id: c
+        label: "Carga la página mejor"
+      - id: d
+        label: "Ninguna: hace lo mismo"
+---
+
+## Configuración de 30 segundos
+
+1. Burp Proxy > Options: escucha en `127.0.0.1:8080` (default).
+2. Navegador: proxy HTTP a `127.0.0.1:8080` (o FoxyProxy para activar/desactivar).
+3. Visita `http://burp` en el navegador → certificado CA de Burp → instálalo como
+   confianza de CA (para HTTPS).
+
+## El flujo de trabajo diario
+
+```text
+Navegador → Burp Proxy → HTTP History → (analizar) → Repeater → (modificar/repetir)
+```
+
+- **Intercept ON**: congela cada petición para editarla EN VIVO.
+- **Intercept OFF** (recomendado por defecto): todo pasa libre, pero se GUARDA en
+  **HTTP History** — revísala después con filtros.
+
+## Target: el mapa del sitio
+
+La pestaña **Target > Site map** construye un árbol con TODAS las URLs descubiertas
+(por navegación o por fuzzing desde Burp). Es tu inventario del objetivo:
+- Rutas descubiertas automáticamente
+- Parámetros de cada endpoint
+- Response headers de cada URL
+
+Clic derecho en cualquier petición del History → **"Send to Repeater"** (Ctrl+R) o
+**"Send to Intruder"** (Ctrl+I) para el siguiente nivel.

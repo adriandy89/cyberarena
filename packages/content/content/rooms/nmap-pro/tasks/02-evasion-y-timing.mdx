@@ -1,0 +1,62 @@
+---
+index: 2
+title: "Evasión: ser invisible en los logs"
+questions:
+  - id: nmap-pro-t02-q01
+    prompt: "¿Qué flag de Nmap fragmenta los paquetes para evadir IDS?"
+    hint: "-f (o -ff para fragmentos más pequeños)"
+    kind: text
+  - id: nmap-pro-t02-q02
+    prompt: "¿Qué opción hace que Nmap use proxies/zzombis para ocultar tu IP real?"
+    hint: "-D decoy (añade IPs señuelo)"
+    kind: text
+  - id: nmap-pro-t02-q03
+    prompt: "¿Qué template de timing es el MÁS lento y sigiloso?"
+    hint: "T5 = insane (rápido/ruidoso); T0 = paranoid..."
+    kind: choice
+    options:
+      - id: a
+        label: "-T5 (insane)"
+      - id: b
+        label: "-T0 (paranoid)"
+      - id: c
+        label: "-T3 (normal, default)"
+      - id: d
+        label: "El timing no importa"
+---
+
+## Las tres capas de evasión
+
+### 1. Timing templates (-T)
+
+```bash
+nmap -T0 10.10.10.5    # paranoid: 5 min entre paquetes. Indetectable por rate-based IDS
+nmap -T2 10.10.10.5    # polite: lento pero razonable
+nmap -T4 10.10.10.5    # aggressive: rápido (default en labs)
+nmap -T5 10.10.10.5    # insane: MUY rápido, pierde resultados, SOS en el SIEM
+```
+
+### 2. Fragmentación y señuelos
+
+```bash
+nmap -f 10.10.10.5           # fragmenta probes en paquetes de 8 bytes
+nmap -ff 10.10.10.5          # fragmentos aún más pequeños
+nmap -D RND:10 10.10.10.5    # 10 IPs señuelo aleatorias + la tuya
+nmap -S <spoof_ip> 10.10.10.5  # spoof completo (solo funciona con zombie scan)
+nmap --source-port 53 10.10.10.5   # puerto origen 53 (DNS): muchos FW lo permiten
+```
+
+### 3. Decoys en la práctica
+
+`-D` hace que el objetivo vea el scan viniendo de 11 IPs (10 falsas + la tuya). El
+admin debe investigar 11 orígenes. En un pentest CON autorización, los decoys se
+acuerdan previamente (el SOC debe saber distinguir el tráfico legítimo del test).
+
+## En la vida real del pentest
+
+La evasión NUNCA es total: un SIEM con correlación detecta patrones aunque fragmentes.
+La evasión ralentiza y complica la detección, y en engagements white/grey-box se
+coordina con el SOC (ventana horaria, IPs origen conocidas).
+
+En CTFs y labs: `-T4` y a correr. En producción de un cliente: coordina, usa `-T2`,
+y limita el scope de puertos.

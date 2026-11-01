@@ -1,0 +1,11 @@
+# Respuestas del room nmap-pro.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+nmap-pro-t01-q01: "-sN"
+nmap-pro-t01-q02: b
+nmap-pro-t01-q03: "silencio (sin respuesta)"
+nmap-pro-t02-q01: "-f"
+nmap-pro-t02-q02: "-D"
+nmap-pro-t02-q03: b
+nmap-pro-t03-q01: "--script vuln"
+nmap-pro-t03-q02: "-oG"
+nmap-pro-t03-q03: smb-vuln-ms17-010

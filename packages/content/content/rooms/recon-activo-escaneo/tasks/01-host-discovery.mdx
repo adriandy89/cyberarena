@@ -1,0 +1,59 @@
+---
+index: 1
+title: "Host discovery: ¿quién está vivo?"
+questions:
+  - id: recon-activo-escaneo-t01-q01
+    prompt: "¿Qué herramienta clásica envía pings ICMP a un rango completo para descubrir hosts vivos?"
+    hint: "nmap -sn con la opción de rango."
+    kind: text
+  - id: recon-activo-escaneo-t01-q02
+    prompt: "En una red LOCAL (misma subred), ¿qué protocolo de capa 2 descubre hosts incluso con firewall ICMP?"
+    hint: "Ya lo conociste en el room de cmd: arp -a"
+    kind: text
+  - id: recon-activo-escaneo-t01-q03
+    prompt: "Un host responde a ARP pero no a ping ICMP. ¿Está vivo?"
+    hint: "ARP es capa 2: si responde, la interfaz existe."
+    kind: choice
+    options:
+      - id: a
+        label: "No: ping es el único indicador"
+      - id: b
+        label: "Sí: la respuesta ARP prueba que la máquina está encendida y conectada (solo bloquea ICMP)"
+      - id: c
+        label: "Solo si también responde HTTP"
+      - id: d
+        label: "Imposible saberlo"
+---
+
+## El primer barrido
+
+Antes de escanear puertos necesitas saber QUIÉN está vivo en el rango:
+
+```bash
+# Nmap ping sweep (ICMP + ARP en local)
+nmap -sn 10.10.10.0/24           # -sn = sin port scan, solo discovery
+nmap -sn -PR 10.10.10.0/24       # ARP only (redes locales: lo más fiable)
+
+# Alternativas clásicas
+fping -asg 10.10.10.0/24         # rápido y silencioso
+arp-scan --localnet              # puro ARP: descubre lo que bloquea ICMP
+```
+
+## Por qué ARP > ICMP en redes locales
+
+Un firewall bien configurado bloquea ping ICMP (entrante). Pero **ARP** es necesario
+para que la red funcione: si la máquina no responde ARP, no puede comunicarse. Por eso
+`arp-scan` en la misma subred encuentra TODO lo encendido, incluso hosts "ocultos".
+
+En redes remotas (no local): ARP no llega — se usan ICMP, TCP SYN a puertos comunes
+(80, 443) y UDP. Nmap combina técnicas con `-sn` por defecto.
+
+## El resultado esperado
+
+Una lista de IPs vivas. Cada una es un objetivo para el port scan del siguiente task.
+En un pentest de red interna, este barrido puede descubrir máquinas olvidadas (la
+impresora con FTP abierto, la Raspberry del laboratorio, el Windows Server 2003 que
+nadie parchea).
+
+> **Ruido**: un ping sweep a /24 es MUY visible en cualquier SIEM. En engagements con
+> reglas de sigilo se acuerda ventana y técnica con el cliente.

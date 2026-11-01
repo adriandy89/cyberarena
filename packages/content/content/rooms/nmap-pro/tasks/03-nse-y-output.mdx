@@ -1,0 +1,67 @@
+---
+index: 3
+title: "NSE y outputs: la artillería y la evidencia"
+questions:
+  - id: nmap-pro-t03-q01
+    prompt: "¿Qué comando ejecuta TODOS los scripts NSE de la categoría 'vuln' contra un objetivo?"
+    hint: "--script vuln"
+    kind: text
+  - id: nmap-pro-t03-q02
+    prompt: "¿Qué formato de output de Nmap es ideal para grep y procesar con otros tools?"
+    hint: "-oG (grepable). -oN normal, -oX XML, -oA todos."
+    kind: text
+  - id: nmap-pro-t03-q03
+    prompt: "¿Qué script NSE comprueba si un Windows es vulnerable a EternalBlue?"
+    hint: "ms17-010"
+    kind: text
+---
+
+## NSE: 600+ scripts listos
+
+```bash
+# Categorías útiles
+nmap --script vuln 10.10.10.5            # busca vulnerabilidades conocidas
+nmap --script auth 10.10.10.5            # intenta logins anónimos/default
+nmap --script discovery 10.10.10.5       # enumera información
+nmap --script smb-vuln* 10.10.10.5       # todos los de SMB
+
+# Específicos que usarás SIEMPRE en pentests de Windows
+nmap --script smb-vuln-ms17-010.nse -p 445 10.10.10.5   # EternalBlue
+nmap --script smb-enum-shares.nse -p 445 10.10.10.5     # shares de SMB
+
+# Web
+nmap --script http-enum.nse -p 80 10.10.10.5            # rutas comunes
+nmap --script http-title.nse -p 80 10.10.10.5           # títulos de páginas
+nmap --script ssl-heartbleed.nse -p 443 10.10.10.5      # Heartbleed
+```
+
+## Outputs: la evidencia del informe
+
+```bash
+nmap -sV -oA escaneo_inicial 10.10.10.5
+# genera: escaneo_inicial.nmap (humano), .gnmap (grep), .xml (parseable)
+```
+
+- **`-oN`** (normal): el output legible — pega directo al informe.
+- **`-oG`** (grepable): una línea por puerto — procesable con `grep`, `awk`.
+- **`-oX`** (XML): para herramientas como `searchsploit --nmap`.
+- **`-oA`**: los tres a la vez.
+
+```bash
+# Pipeline real: nmap → grep → searchsploit
+nmap -sV -oG - 10.10.10.5 | grep open | grep -oP '\S+/\w+ open \S+ \S+' 
+searchsploit --nmap escaneo_inicial.xml    # sugiere exploits por versión
+```
+
+## Tu cheat-sheet de Nmap (cópiala)
+
+```bash
+nmap -sn CIDR                    # discovery
+nmap -sS -p- --min-rate 5000 IP  # full range rápido
+nmap -sV -sC -p PUERTOS IP       # versiones + scripts default
+nmap -sU --top-ports 20 IP       # UDP básico
+nmap --script vuln -p PUERTOS IP # vulnerabilidades
+```
+
+Con Nmap dominado, puedes pasar al módulo web: Burp Suite hace para HTTP lo que Nmap
+hace para TCP.

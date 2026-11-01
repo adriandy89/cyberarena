@@ -1,0 +1,9 @@
+{
+  "slug": "privesc",
+  "title": "Escalada de Privilegios",
+  "description": "Linux (SUID, sudo, cron, PATH) y Windows (servicios, tokens, AlwaysInstallElevated): de usuario a root/SYSTEM.",
+  "rooms": [
+    { "slug": "privesc-linux" },
+    { "slug": "privesc-windows" }
+  ]
+}

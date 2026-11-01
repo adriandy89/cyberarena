@@ -1,0 +1,63 @@
+---
+index: 1
+title: "Tipos de scan: elegir la herramienta correcta"
+questions:
+  - id: nmap-pro-t01-q01
+    prompt: "¿Qué scan envía paquetes TCP SIN flags (null scan)?"
+    hint: "-sN"
+    kind: text
+  - id: nmap-pro-t01-q02
+    prompt: "¿Qué scan es MÁS sigiloso contra IDS que firman SYN scans?"
+    hint: "Fragmenta los paquetes para que el IDS no los reensamble."
+    kind: choice
+    options:
+      - id: a
+        label: "TCP connect (-sT)"
+      - id: b
+        label: "FIN/XMAS/NULL scans (-sF/-sX/-sN)"
+      - id: c
+        label: "Ping sweep (-sn)"
+      - id: d
+        label: "UDP scan (-sU)"
+  - id: nmap-pro-t01-q03
+    prompt: "En un scan FIN (-sF), ¿qué respuesta indica puerto ABIERTO?"
+    hint: "En FIN scans, la ausencia de respuesta es significativa..."
+    kind: text
+---
+
+## El menú completo de scans
+
+| Flag | Nombre | Cómo funciona | Mejor para |
+|---|---|---|---|
+| `-sS` | SYN | SYN → RST (sin conectar) | rápido, estándar |
+| `-sT` | Connect | handshake completo | cuando no hay root |
+| `-sN` | NULL | paquete sin flags | evadir firewalls básicos |
+| `-sF` | FIN | solo flag FIN | ídem |
+| `-sX` | XMAS | FIN+PSH+URG (brilla) | ídem |
+| `-sU` | UDP | paquetes UDP | DNS/SNMP/DHCP |
+| `-sA` | ACK | solo flag ACK | mapear reglas de firewall |
+
+## FIN/NULL/XMAS: los scans "raros" que funcionan
+
+Los firewalls antiguos solo filtran paquetes SYN (los que intentan CONECTAR). Un
+paquete FIN o NULL a un puerto ABIERTO en un host Unix no genera respuesta (el stack
+lo ignora en silencio). A un puerto CERRADO responde RST.
+
+```text
+FIN → puerto abierto  →  silencio     ← abierto!
+FIN → puerto cerrado  →  RST          ← cerrado
+FIN → firewall        →  nada         ← filtered (ambiguo con abierto)
+```
+
+Su punto débil: los firewalls modernos y Windows responden RST a TODO (defecto del
+RFC), haciendo imposible distinguir. Pero contra un Linux sin firewall estatal:
+funciona.
+
+## ACK scan (-sA): el mapa de firewalls
+
+No detecta puertos abiertos — detecta QUÉ PUERTOS FILTRA el firewall (unfiltered vs
+filtered). Lo usas DESPUÉS de un SYN scan para entender las reglas.
+
+```bash
+nmap -sA -p 80,443,8080 10.10.10.5   # ¿qué filtra el FW?
+```
