@@ -11,7 +11,7 @@
       "badge": "Novato → Experto",
       "title": "Tu arena personal de ciberseguridad",
       "subtitle": "Rutas de aprendizaje con rooms guiados, retos con flags, laboratorios Docker aislados y un sistema de progreso con XP, niveles y rachas. De Cyber Security 101 hasta Red Teaming.",
-      "ctaPrimary": "Explorar rutas (próximamente)",
+      "ctaPrimary": "Explorar rutas",
       "ctaSecondary": "Estado del sistema",
       "disclaimer": "Contenido con fines educativos, para practicar en entornos locales controlados."
     },
@@ -113,5 +113,22 @@
     "you": "tú",
     "noUsers": "Sin usuarios todavía.",
     "roleChangeFailed": "No se pudo cambiar el rol."
+  },
+  "PathsPage": {
+    "title": "Rutas de aprendizaje",
+    "subtitle": "Progresión guiada de novato a experto. Cada ruta se compone de módulos y rooms prácticos.",
+    "empty": "El catálogo aún no tiene rutas publicadas. Ejecuta el seed del contenido (ver docs/runbook.md).",
+    "modules": "{count, plural, one {# módulo} other {# módulos}}",
+    "rooms": "{count, plural, one {# room} other {# rooms}}",
+    "type": {
+      "walkthrough": "Walkthroughs"
+    },
+    "levels": {
+      "beginner": "Iniciación",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "comingSoon": "Player de rooms disponible en la próxima fase",
+    "back": "Volver al inicio"
   }
 }

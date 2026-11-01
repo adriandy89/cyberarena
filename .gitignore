@@ -9,6 +9,9 @@ out/
 build/
 *.tsbuildinfo
 
+# Contenido compilado (catalog/answers se generan con pnpm --filter @repo/content build)
+packages/content/dist/
+
 # Turborepo
 .turbo/
 

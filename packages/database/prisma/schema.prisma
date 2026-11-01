@@ -73,3 +73,88 @@ model Verification {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+// ---------------------------------------------------------------------------
+// Content catalog (phase 002). Synced from packages/content by the seed;
+// slugs/question ids are stable identifiers shared with the content sources.
+// ---------------------------------------------------------------------------
+
+model CatalogPath {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String
+  description String
+  level       String
+  order       Int             @default(0)
+  modules     CatalogModule[]
+
+  @@map("CatalogPath")
+}
+
+model CatalogModule {
+  id           String       @id @default(cuid())
+  slug         String       @unique
+  catalogPathId String
+  catalogPath  CatalogPath  @relation(fields: [catalogPathId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  order        Int          @default(0)
+  rooms        Room[]
+
+  @@map("CatalogModule")
+}
+
+model Room {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  catalogModuleId  String
+  catalogModule    CatalogModule @relation(fields: [catalogModuleId], references: [id], onDelete: Cascade)
+  title            String
+  description      String
+  difficulty       String
+  type             String
+  estimatedMinutes Int
+  tags             String[]
+  lab              String?
+  order            Int       @default(0)
+  tasks            Task[]
+
+  @@map("Room")
+}
+
+model Task {
+  id     String     @id // stable: <room-slug>-t<NN>
+  roomId String
+  room   Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  index  Int
+  title  String
+  body   String
+  questions Question[]
+
+  @@unique([roomId, index])
+  @@map("Task")
+}
+
+model Question {
+  id      String  @id // stable: <room-slug>-t<NN>-q<NN>
+  taskId  String
+  task    Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  prompt  String
+  hint    String?
+  kind    String
+  options Json?
+  index   Int
+  answers Answer[]
+
+  @@map("Question")
+}
+
+/// Answer hashes: NEVER selected by catalog queries nor exposed via the API.
+model Answer {
+  questionId String   @id
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerHash String
+  kind       String
+
+  @@map("Answer")
+}

@@ -1,0 +1,44 @@
+---
+index: 1
+title: ¿Qué es la ciberseguridad ofensiva?
+questions:
+  - id: intro-ciberseguridad-ofensiva-t01-q01
+    prompt: ¿Cuál de estas descripciones define mejor el trabajo de un pentester?
+    hint: Piensa en "autorizado" como la palabra clave.
+    kind: choice
+    options:
+      - id: a
+        label: Ataca sistemas sin permiso para demostrar su talento
+      - id: b
+        label: Evalúa sistemas con autorización escrita para encontrar y reportar fallos
+      - id: c
+        label: Instala firewalls y gesta parches de seguridad
+      - id: d
+        label: Analiza malware para crear antivirus
+  - id: intro-ciberseguridad-ofensiva-t01-q02
+    prompt: ¿Cómo se llama la fase inicial de un pentest en la que se recopila información del objetivo sin interactuar directamente con él?
+    hint: 'Se hace "a distancia": buscadores, certificados, DNS públicos…'
+    kind: text
+---
+
+La **ciberseguridad ofensiva** es la disciplina que busca vulnerabilidades atacando
+sistemas *con permiso*, para demostrar que existen y poder arreglarlas. Sus
+profesionales más conocidos:
+
+- **Pentester**: ejecuta pruebas de intrusión acotadas por contrato.
+- **Red teamer**: simula a un adversario realista, incluida la capa humana.
+- **Bug bounty hunter**: busca fallos en programas públicos de recompensa.
+
+Su contrapartida es la seguridad **defensiva** (SOC, blue team, forense): detectar,
+responder y endurecer. Las dos caras se necesitan: en este path aprenderás primero la
+ofensiva porque enseña *cómo se rompen las cosas*, la base para saber protegerlas.
+
+## Las fases de una prueba de intrusión
+
+1. **Reconocimiento** (*reconnaissance*): recopilar información. Si no tocas los
+   sistemas del objetivo, es **pasivo** (OSINT, DNS, buscadores); si interactúas
+   (escaneos), es **activo**.
+2. **Enumeración y análisis**: mapear servicios, versiones y superficies de ataque.
+3. **Explotación**: abusar de una vulnerabilidad concreta.
+4. **Post-explotación**: escalada de privilegios, movimiento lateral, persistencia.
+5. **Reporte**: la parte más importante del trabajo — evidencia, impacto y remediación.

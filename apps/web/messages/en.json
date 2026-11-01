@@ -11,7 +11,7 @@
       "badge": "Novice → Expert",
       "title": "Your personal cybersecurity arena",
       "subtitle": "Learning paths with guided rooms, flag challenges, isolated Docker labs and a progress system with XP, levels and streaks. From Cyber Security 101 to Red Teaming.",
-      "ctaPrimary": "Explore paths (coming soon)",
+      "ctaPrimary": "Explore paths",
       "ctaSecondary": "System status",
       "disclaimer": "Educational content only, to practice in controlled local environments."
     },
@@ -113,5 +113,22 @@
     "you": "you",
     "noUsers": "No users yet.",
     "roleChangeFailed": "Could not change the role."
+  },
+  "PathsPage": {
+    "title": "Learning paths",
+    "subtitle": "Guided progression from novice to expert. Each path contains modules and hands-on rooms.",
+    "empty": "No paths published yet. Run the content seed (see docs/runbook.md).",
+    "modules": "{count, plural, one {# module} other {# modules}}",
+    "rooms": "{count, plural, one {# room} other {# rooms}}",
+    "type": {
+      "walkthrough": "Walkthroughs"
+    },
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "comingSoon": "Room player arrives in the next phase",
+    "back": "Back to home"
   }
 }

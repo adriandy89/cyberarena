@@ -1,8 +1,16 @@
 # Spec 002 — Content Engine (contenido como código)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada y E2E verificado. Notas: (1) isCorrectAnswer en
+    @repo/shared pasó a ser case-insensitive para TODAS las respuestas (regla única,
+    también al hashear). (2) Lección YAML documentada en el guide: citar strings con
+    `": "`. (3) TS2742 en el catálogo de la API resuelto anotando tipos de retorno
+    explícitos. (4) La "validación negativa" quedó cubierta por los unit tests de
+    validateCatalog + los fallos reales de YAML durante el desarrollo (documentados en
+    el guide §reglas) — el builder rompe el build de CI ante contenido inválido.
 
 ## 1. Propósito
 
@@ -54,13 +62,18 @@ el pipeline completo de punta a punta.
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] `pnpm --filter @repo/content build` valida y emite catalog.json; contenido
-      inválido (probado con un caso) rompe el build con error claro.
-- [ ] `pnpm db:seed` idempotente: segunda ejecución no duplica nada (slugs/ids estables).
-- [ ] `GET /api/catalog` y `GET /api/catalog/rooms/intro-ciberseguridad-ofensiva`
-      devuelven el catálogo SIN respuestas (grep de hash/answer vacío).
-- [ ] `/es/paths` y `/en/paths` renderizan la ruta CS101 desde la API.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` verdes.
+- [x] `pnpm --filter @repo/content build` valida y emite catalog.json; contenido
+      inválido (probado con un caso) rompe el build con error claro. *(fallos YAML reales
+      durante el desarrollo + 6 unit tests de validateCatalog)*
+- [x] `pnpm db:seed` idempotente: segunda ejecución no duplica nada (slugs/ids estables).
+      *(verificado: 1 path / 1 room / 6 questions / 6 answers tras doble seed)*
+- [x] `GET /api/catalog` y `GET /api/catalog/rooms/intro-ciberseguridad-ofensiva`
+      devuelven el catálogo SIN respuestas. *(keys de pregunta: id,prompt,hint,kind,
+      options,index; sin answerHash; las únicas coincidencias de texto son la guía que
+      enseña el concepto, no la tabla Answer)*
+- [x] `/es/paths` y `/en/paths` renderizan la ruta CS101 desde la API. *(next start
+      producción: título y conteos visibles; rewrite /api OK)*
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` verdes. *(42 tests)*
 
 ## 5. Fuera de alcance
 

@@ -24,20 +24,16 @@ describe('normalizeAnswer', () => {
 });
 
 describe('isCorrectAnswer', () => {
-  it('compares flags case-insensitively after normalization', () => {
-    expect(isCorrectAnswer('flag{great_job}', 'FLAG{GREAT_JOB}', 'flag')).toBe(true);
-    expect(isCorrectAnswer(' FLAG{ok} ', 'FLAG{ok}', 'flag')).toBe(true);
-    expect(isCorrectAnswer('FLAG{nope}', 'FLAG{other}', 'flag')).toBe(false);
-  });
-
-  it('compares free text exactly (case-sensitive) after normalization', () => {
-    expect(isCorrectAnswer('nmap -sV', 'nmap -sV', 'text')).toBe(true);
-    expect(isCorrectAnswer('nmap  -sV', 'nmap -sV', 'text')).toBe(true); // collapsed
-    expect(isCorrectAnswer('Nmap -sV', 'nmap -sV', 'text')).toBe(false);
+  it('compares case-insensitively after normalization (student-friendly)', () => {
+    expect(isCorrectAnswer('flag{great_job}', 'FLAG{GREAT_JOB}')).toBe(true);
+    expect(isCorrectAnswer(' FLAG{ok} ', 'FLAG{ok}')).toBe(true);
+    expect(isCorrectAnswer('nmap  -sV', 'Nmap -sV')).toBe(true);
+    expect(isCorrectAnswer('Regla De Compromiso', 'regla de compromiso')).toBe(true);
+    expect(isCorrectAnswer('FLAG{nope}', 'FLAG{other}')).toBe(false);
   });
 
   it('rejects empty submissions', () => {
-    expect(isCorrectAnswer('', 'FLAG{x}', 'flag')).toBe(false);
-    expect(isCorrectAnswer('   ', 'FLAG{x}', 'flag')).toBe(false);
+    expect(isCorrectAnswer('', 'FLAG{x}')).toBe(false);
+    expect(isCorrectAnswer('   ', 'FLAG{x}')).toBe(false);
   });
 });

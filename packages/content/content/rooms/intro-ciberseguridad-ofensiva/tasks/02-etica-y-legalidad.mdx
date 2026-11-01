@@ -1,0 +1,46 @@
+---
+index: 2
+title: "Ética y legalidad: la línea que no se cruza"
+questions:
+  - id: intro-ciberseguridad-ofensiva-t02-q01
+    prompt: ¿Qué documento define QUÉ se puede probar, CUÁNDO y CÓMO en una prueba de intrusión profesional?
+    hint: Se firma antes de empezar y delimita el alcance (scope).
+    kind: text
+  - id: intro-ciberseguridad-ofensiva-t02-q02
+    prompt: Un compañero encuentra una SQLi en una web pública sin programa de bug bounty y te propone explotarla "solo para demostrar que existe". ¿Qué hace un profesional?
+    hint: Sin autorización previa no hay prueba válida.
+    kind: choice
+    options:
+      - id: a
+        label: La explota con cuidado, sin dañar datos, y avisa después a la empresa
+      - id: b
+        label: Reporta la empresa a la policía por ser vulnerable
+      - id: c
+        label: "No la explota: sin autorización escrita es ilegal, aunque la intención sea buena"
+      - id: d
+        label: La explota y publica el hallazgo en redes para presionar a que la arreglen
+---
+
+Todo el aprendizaje de esta plataforma ocurre en **laboratorios locales controlados**
+(contenedores que tú mismo levantas). Esa misma disciplina se aplica fuera: la
+diferencia entre un profesional y un delincuente no es la técnica, es la **autorización**.
+
+## El pilar: autorización explícita y escrita
+
+- **Regla de compromiso / contrato**: define el alcance (sistemas, redes, horarios),
+  el tipo de pruebas permitidas y los contactos de emergencia. Sin él, no hay prueba.
+- **Programas de bug bounty** (plataformas públicas): son la "autorización" del mundo
+  open scope: respeta siempre su política de alcance y de divulgación.
+- **Divulgación responsable**: encontraste un fallo fuera de un programa → la vía
+  correcta es avisar al propietario por canales privados y dar tiempo a arreglarlo,
+  nunca publicarlo antes.
+
+## Lo que nunca se hace
+
+- Atacar sistemas sin permiso (ilegal en casi todo el mundo, con o sin "buena intención").
+- Ir más allá del alcance acordado "porque se podía".
+- Retener, exfiltrar o publicar datos reales de usuarios.
+- Instalar backdoors permanentes fuera de lo pactado.
+
+Dominar la técnica es la mitad del oficio; la otra mitad es el criterio de cuándo
+usarla.

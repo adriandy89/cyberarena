@@ -87,13 +87,12 @@ export function normalizeAnswer(value: string): string {
 }
 
 /**
- * Server-side answer comparison. Flags compare case-insensitively (lenient,
- * student-friendly); free text compares on normalized exact match.
+ * Server-side answer comparison. Both sides are normalized (trim + collapse
+ * whitespace) and compared case-insensitively — student-friendly, TryHackMe-style
+ * leniency. The same rule is used when hashing answers for storage.
  */
-export function isCorrectAnswer(submitted: string, expected: string, kind: QuestionKind): boolean {
-  const a = normalizeAnswer(submitted);
-  const b = normalizeAnswer(expected);
-  if (a.length === 0) return false;
-  if (kind === 'flag') return a.toLowerCase() === b.toLowerCase();
-  return a === b;
+export function isCorrectAnswer(submitted: string, expected: string): boolean {
+  const a = normalizeAnswer(submitted).toLowerCase();
+  const b = normalizeAnswer(expected).toLowerCase();
+  return a.length > 0 && a === b;
 }

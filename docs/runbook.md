@@ -83,6 +83,21 @@ Puertos: web 3000 · api 3001 · postgres 5432 · mailpit UI 8025 / SMTP 1025.
   curl -s -b cookies.txt http://localhost:3000/api/users/me
   ```
 
+## Contenido (fase 002)
+
+El catálogo es código (`packages/content`, ver `docs/content-guide.md`):
+
+```bash
+pnpm --filter @repo/content build   # valida MDX/JSON → dist/catalog.json (rompe si es inválido)
+pnpm db:seed                        # sincroniza el catálogo a BD (idempotente, respuestas hasheadas)
+curl -s http://localhost:3001/api/catalog            # verificar
+curl -s http://localhost:3001/api/catalog/rooms/<slug> | jq '.tasks[].questions[] | .id'
+```
+
+- El seed **borra** filas del catálogo ausentes en el fuente (los ids/slugs son estables:
+  renombrar rompe progreso — ver guide §reglas).
+- Las respuestas viven hasheadas (sha256) en la tabla `Answer`, jamás expuestas por la API.
+
 ## Solución de problemas
 
 | Síntoma | Causa probable | Fix |
