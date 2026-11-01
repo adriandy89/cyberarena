@@ -1,0 +1,11 @@
+# Respuestas del room linea-de-comandos-windows.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+linea-de-comandos-windows-t01-q01: dir
+linea-de-comandos-windows-t01-q02: netstat -ano
+linea-de-comandos-windows-t01-q03: b
+linea-de-comandos-windows-t02-q01: cmdlets
+linea-de-comandos-windows-t02-q02: Get-Process
+linea-de-comandos-windows-t02-q03: b
+linea-de-comandos-windows-t03-q01: "$_"
+linea-de-comandos-windows-t03-q02: iex
+linea-de-comandos-windows-t03-q03: b

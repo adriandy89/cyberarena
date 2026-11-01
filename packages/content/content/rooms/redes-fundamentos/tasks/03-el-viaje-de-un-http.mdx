@@ -1,0 +1,72 @@
+---
+index: 3
+title: "El viaje completo de una petición HTTP"
+questions:
+  - id: redes-fundamentos-t03-q01
+    prompt: "¿Qué código HTTP indica 'no encontrado'?"
+    hint: "El famoso gato de error."
+    kind: text
+  - id: redes-fundamentos-t03-q02
+    prompt: "¿Qué cabecera HTTP envía el navegador para decirle al servidor cómo autenticarse?"
+    hint: "Authorization."
+    kind: text
+  - id: redes-fundamentos-t03-q03
+    prompt: "¿Qué método HTTP se usa para ENVIAR datos al servidor (formularios, APIs)?"
+    hint: "No es GET."
+    kind: text
+  - id: redes-fundamentos-t03-q04
+    prompt: "En el flujo DNS→TCP→TLS→HTTP, ¿qué paso añade HTTPS además de lo demás?"
+    hint: "La S final."
+    kind: choice
+    options:
+      - id: a
+        label: "Compresión"
+      - id: b
+        label: "Cifrado y verificación del servidor (certificado) con TLS"
+      - id: c
+        label: "Traducción de nombres"
+      - id: d
+        label: "Enrutamiento más rápido"
+---
+
+## Ana escribe http://victima.com/login en su navegador
+
+1. **DNS**: `victima.com` → `93.184.216.34` (la guía telefónica responde).
+2. **ARP** (si están en la misma red): ¿quién tiene la MAC de la puerta de enlace?
+3. **TCP**: handshake SYN → SYN-ACK → ACK contra el puerto 80.
+4. **HTTP**: Ana envía:
+
+```http
+GET /login HTTP/1.1
+Host: victima.com
+User-Agent: Mozilla/5.0 ...
+Cookie: sesion=abc123
+```
+
+5. El servidor responde:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html
+Set-Cookie: sesion=abc123; HttpOnly
+
+<html>... formulario de login ...</html>
+```
+
+## Códigos que leerás a diario
+
+- **2xx** éxito (200 OK, 201 Created)
+- **3xx** redirección (301, 302)
+- **4xx** tu culpa (400, 401 sin autenticar, 403 prohibido, **404** no existe)
+- **5xx** culpa del servidor (500, 502, 503)
+
+## HTTPS: mismo viaje + TLS
+
+Con HTTPS, tras el handshake TCP ocurre el **handshake TLS**: el servidor presenta su
+**certificado**, verifican cifrado y a partir de ahí TODO viaja cifrado (incluidas las
+cabeceras — solo el nombre del dominio en SNI es visible). Como atacante en la misma
+red verás la conexión… pero no su contenido. Como defensor, TLS evita sniffing pero
+no ataques de aplicación (SQLi va DENTRO de HTTPS igualmente).
+
+Métodos: GET (pedir), POST (enviar), PUT/PATCH (actualizar), DELETE (borrar). En el
+módulo Web Hacking abusarás de todos.

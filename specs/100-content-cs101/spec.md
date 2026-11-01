@@ -17,9 +17,9 @@ cuando los 14 módulos están publicados y el path muestra horas/rooms coherente
 |---|---|---|---|
 | 1 | start-your-cyber-journey | 2 (intro, recon-web-basico+lab) | ✅ (fases 002/007) |
 | 2 | linux-fundamentals | 3 (terminal, permisos/SUID, red/scripts) | ✅ 2026-11-01 |
-| 3 | windows-ad-fundamentals | 1 (ediciones/registry/UAC) — más rooms en iteración | ✅ 2026-11-01 (inicial) |
-| 4 | command-line | 3 | ⬜ |
-| 5 | networking | 4-5 | ⬜ |
+| 3 | windows-ad-fundamentals | 2 (ediciones/registry/UAC, AD+Kerberos) | ✅ 2026-11-01 |
+| 4 | command-line | 1 (cmd+PowerShell) — más rooms en iteración | ✅ 2026-11-01 (inicial) |
+| 5 | networking | 1 (capas/DNS/HTTP) — más rooms en iteración | ✅ 2026-11-01 (inicial) |
 | 6 | cryptography | 3-4 | ⬜ |
 | 7 | exploitation-basics | 4 | ⬜ |
 | 8 | web-hacking | 4 | ⬜ |

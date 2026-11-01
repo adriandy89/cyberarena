@@ -1,0 +1,62 @@
+---
+index: 2
+title: "PowerShell: objetos, no texto"
+questions:
+  - id: linea-de-comandos-windows-t02-q01
+    prompt: "¿Qué convención de nombre tienen los comandos de PowerShell (Verbo-Sustantivo)?"
+    hint: "Se llaman cmdlets y siguen el patrón Get-____."
+    kind: text
+  - id: linea-de-comandos-windows-t02-q02
+    prompt: "¿Qué cmdlet lista los procesos en ejecución?"
+    hint: "Get-Process, tal cual."
+    kind: text
+  - id: linea-de-comandos-windows-t02-q03
+    prompt: "¿Qué ventaja tiene PowerShell sobre cmd al tratar la salida?"
+    hint: "No son cadenas de texto…"
+    kind: choice
+    options:
+      - id: a
+        label: "Es más rápido porque es gráfico"
+      - id: b
+        label: "La salida son OBJETOS con propiedades que puedes filtrar y ordenar sin parsear texto"
+      - id: c
+        label: "Permite más colores en la terminal"
+      - id: d
+        label: "Ninguna: cmd es superior"
+---
+
+## Cmdlets: verbo-sustantivo
+
+```powershell
+Get-Process                # procesos
+Get-Service                # servicios
+Get-ChildItem              # listar (alias: ls, dir — ¡funcionan!)
+Get-Content archivo.log    # cat
+Get-Command *firewall*     # descubrir cmdlets
+Get-Help Get-Process       # manual
+```
+
+La magia: la salida es un **objeto** con propiedades. Fíltrala y fórmatea sin grep:
+
+```powershell
+Get-Process | Where-Object CPU -gt 100 | Sort-Object CPU -Descending
+Get-Service | Where-Object Status -eq 'Running' | Select-Object -First 10
+Get-NetTCPConnection -State Listen
+Get-LocalUser
+```
+
+Compara `Get-NetTCPConnection -State Listen` con el `netstat -ano` + findstr de cmd:
+mismo resultado, sin parsear nada.
+
+## Sistema y ejecución
+
+```powershell
+Get-ComputerInfo           # versión de Windows, RAM, dominio
+whoami /priv               # mis privilegios (¿SeImpersonate? ¡potito!)
+Get-ExecutionPolicy        # ¿puedo ejecutar scripts .ps1?
+Set-ExecutionPolicy -Scope Process Bypass   # typical en labs
+```
+
+`whoami /priv` merece un marcador: el privilegio **SeImpersonatePrivilege** en un
+servicio web es la puerta al clásico ataque Potato. Lo practicarás con lab en
+Jr Pentester.

@@ -1,0 +1,8 @@
+{
+  "slug": "networking",
+  "title": "Networking",
+  "description": "Cómo viajan los paquetes: capas, IP y puertos, TCP/UDP, DNS y el viaje completo de una petición HTTP.",
+  "rooms": [
+    { "slug": "redes-fundamentos" }
+  ]
+}

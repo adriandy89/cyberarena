@@ -1,0 +1,64 @@
+---
+index: 1
+title: "Capas, IP y puertos: la dirección de todo"
+questions:
+  - id: redes-fundamentos-t01-q01
+    prompt: "¿Qué protocolo de capa de transporte garantiza entrega (handshake SYN, SYN-ACK, ACK)?"
+    hint: "El de las conexiones fiables."
+    kind: text
+  - id: redes-fundamentos-t01-q02
+    prompt: "¿Qué puerto usa HTTPS por defecto?"
+    hint: "HTTP va en el 80; su versión segura suma 443."
+    kind: text
+  - id: redes-fundamentos-t01-q03
+    prompt: "Una IP privada NO enrutable en internet es..."
+    hint: "RFC1918: tres rangos clásicos."
+    kind: choice
+    options:
+      - id: a
+        label: "8.8.8.8"
+      - id: b
+        label: "192.168.1.50"
+      - id: c
+        label: "1.1.1.1"
+      - id: d
+        label: "9.9.9.9"
+---
+
+## El modelo en capas (el práctico de 4)
+
+```text
+Aplicación    HTTP, DNS, SSH, SMTP     ← lo que ves
+Transporte    TCP / UDP + puertos      ← ¿quién habla con quién
+Internet      IP + routing             ← ¿por dónde va el paquete
+Acceso        Ethernet/WiFi, MAC       ← el salto físico
+```
+
+Cada capa envuelve a la anterior (encapsulación): un HTTP va dentro de un TCP, que va
+dentro de un IP, que va dentro de una trama. Cuando capturas tráfico con Wireshark
+(módulo siguiente) literalmente "desvistes" el paquete capa a capa.
+
+## IP: el domicilio
+
+- **IP privada** (RFC1918): `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` — tu LAN.
+  Detrás de un NAT comparten una IP pública.
+- **Puerto** (0-65535): el "número de habitación". **IP+puerto = socket**, la
+  dirección completa de una conversación.
+
+| Puerto | Servicio |
+|---|---|
+| 22 | SSH |
+| 80 / 443 | HTTP / HTTPS |
+| 53 | DNS |
+| 445 | SMB (Windows) |
+| 3389 | RDP |
+
+Los <1024 son "bien conocidos" y requieren privilegios para abrirlos.
+
+## TCP vs UDP
+
+- **TCP**: fiable, con conexión (three-way handshake SYN → SYN-ACK → ACK). HTTP, SSH, SMB.
+- **UDP**: sin conexión, "lanza y reza". DNS, streaming, DHCP. ¡Y Kerberos!
+
+Tu escáner de puertos del módulo de Nmap vive exactamente en esta capa: mandar SYNs
+y leer las respuestas es todo un port scan.

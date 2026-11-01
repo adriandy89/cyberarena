@@ -1,0 +1,55 @@
+---
+index: 2
+title: "Grupos que importan (y por qué los querrás)"
+questions:
+  - id: active-directory-basico-t02-q01
+    prompt: "¿Qué grupo tiene control total sobre TODOS los controladores de dominio?"
+    hint: "Empieza por Domain."
+    kind: text
+  - id: active-directory-basico-t02-q02
+    prompt: "¿Cómo se llama la cuenta de administrador local integrada en CADA equipo Windows (no solo del dominio)?"
+    hint: "La de siempre, la que instaló Windows."
+    kind: text
+  - id: active-directory-basico-t02-q03
+    prompt: "¿Qué representa un 'ticket' en la autenticación Kerberos?"
+    hint: "Un pase que demuestra quién eres sin reenviar la contraseña."
+    kind: choice
+    options:
+      - id: a
+        label: "Un registro del firewall"
+      - id: b
+        label: "Una prueba criptográfica de identidad que presentas a los servicios"
+      - id: c
+        label: "Un correo del administrador"
+      - id: d
+        label: "Un mensaje de error de Windows"
+---
+
+## Los grupos del reino
+
+| Grupo | Poder |
+|---|---|
+| **Domain Admins** | administradores de todo el dominio (DC incluido) |
+| **Enterprise Admins** | todo el BOSQUE (el último nivel) |
+| **Administrators** | admins locales de cada equipo |
+| **Domain Users** | cualquier usuario del dominio |
+
+En un engagement, tu escalada soñada suele ser: usuario normal → Domain Admins. Y tu
+pesadilla como defensor: que alguien esté ahí sin que lo sepas.
+
+## Kerberos: el guardián con tickets
+
+AD autentica con **Kerberos** (puerto 88) desde Windows 2000:
+
+1. **AS-REQ**: envías tu usuario al **KDC** (servicio del DC).
+2. **AS-REP**: recibes un **TGT** (Ticket Granting Ticket) cifrado con tu clave.
+3. **TGS-REQ**: presentas el TGT pidiendo acceso a un servicio (ej. un file server).
+4. **TGS-REP**: recibes el **ticket de servicio**, que presentas al servidor.
+
+No se envía ninguna contraseña por la red — solo tickets criptográficos. Los ataques
+que estudiarás más adelante (Kerberoasting, Pass-the-Ticket, AS-REP Roasting) abusan
+exactamente de estos tickets. Por ahora quédate con: **TGT = llave maestra temporal;
+ticket de servicio = llave de una puerta concreta**.
+
+> NTLM (el protocolo antiguo) sigue activo en muchas redes y trae sus propios abusos
+> (NTLM relay). En el path de Jr Pentester profundizamos con labs.

@@ -6,6 +6,8 @@
   "modules": [
     { "slug": "start-your-cyber-journey" },
     { "slug": "linux-fundamentals" },
-    { "slug": "windows-ad-fundamentals" }
+    { "slug": "windows-ad-fundamentals" },
+    { "slug": "command-line" },
+    { "slug": "networking" }
   ]
 }

@@ -1,0 +1,61 @@
+---
+index: 1
+title: "Dominios y el Controlador de Dominio"
+questions:
+  - id: active-directory-basico-t01-q01
+    prompt: "¿Cómo se llama el servidor que almacena y administra la base de datos de Active Directory?"
+    hint: "Sus siglas son DC."
+    kind: text
+  - id: active-directory-basico-t01-q02
+    prompt: "En el usuario 'ANA@corp.local', ¿qué parte es el dominio?"
+    hint: "Lo que va después de la arroba."
+    kind: text
+  - id: active-directory-basico-t01-q03
+    prompt: "¿Qué unidades organizan usuarios y equipos dentro del dominio (las 'carpetas' administrativas)?"
+    hint: "Unidades Organizativas, en inglés."
+    kind: choice
+    options:
+      - id: a
+        label: "Grupos de seguridad"
+      - id: b
+        label: "OUs (Organizational Units)"
+      - id: c
+        label: "Hives del Registry"
+      - id: d
+        label: "VLANs"
+---
+
+## Del caos al dominio
+
+Sin AD: cada equipo tiene sus usuarios locales (workgroup) — inmanejable a escala.
+Con AD: un **dominio** (ej. `corp.local`) centraliza identidades. Un usuario del
+dominio inicia sesión en CUALQUIER equipo autorizado: una identidad, muchas máquinas.
+
+## El DC: la joya de la corona
+
+El **Controlador de Dominio (DC)** guarda la base de datos NTDS.dit (todos los
+usuarios y hashes) y responde autenticación. Comprometer el DC = comprometer todo el
+dominio. Por eso en los labs de AD tu objetivo final siempre es llegar al DC.
+
+## La jerarquía
+
+```text
+Bosque (forest)         ← límite de seguridad
+└── Dominio corp.local
+    ├── OU=Madrid
+    │   ├── usuarios, equipos, grupos
+    │   └── GPOs aplicadas
+    └── OU=Barcelona
+```
+
+Las **OUs** agrupan objetos para delegar y aplicar **GPOs** (Group Policy Objects:
+directivas que el DC empuja a los equipos — configuraciones, restricciones, scripts
+de arranque… y a veces contraseñas en claro que un atacante lee feliz).
+
+## Vocabulario mínimo
+
+- **Objeto**: usuario, equipo, grupo, impresora… todo lo que vive en AD.
+- **Grupo de seguridad**: colección de usuarios con permisos (Domain Admins es EL
+  grupo que querrás).
+- **Trust**: relación entre dominios/bosques que permite acceso cruzado — en
+  Red Teaming, la ruta hacia el "dominio padre".

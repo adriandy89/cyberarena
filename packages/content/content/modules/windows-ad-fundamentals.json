@@ -1,8 +1,9 @@
 {
   "slug": "windows-ad-fundamentals",
   "title": "Windows y Active Directory Fundamentals",
-  "description": "El sistema operativo del entorno corporativo: ediciones, Registry, UAC y la primera toma de contacto con el dominio.",
+  "description": "El sistema operativo del entorno corporativo: ediciones, Registry, UAC, y el modelo de dominio con Kerberos.",
   "rooms": [
-    { "slug": "windows-fundamentos-1" }
+    { "slug": "windows-fundamentos-1" },
+    { "slug": "active-directory-basico" }
   ]
 }

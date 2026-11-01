@@ -1,0 +1,8 @@
+{
+  "slug": "command-line",
+  "title": "Command Line",
+  "description": "CMD y PowerShell: la automatización del mundo Windows, del diagnóstico de red a los pipelines de objetos.",
+  "rooms": [
+    { "slug": "linea-de-comandos-windows" }
+  ]
+}

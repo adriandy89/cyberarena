@@ -1,0 +1,52 @@
+---
+index: 3
+title: "Tu primera mirada dentro de AD"
+questions:
+  - id: active-directory-basico-t03-q01
+    prompt: "¿Qué protocolo de directorio consulta Active Directory (el que usan las herramientas de enumeración)?"
+    hint: "Successor de X.500; su puerto es 389."
+    kind: text
+  - id: active-directory-basico-t03-q02
+    prompt: "¿Qué herramienta de línea de comandos de Windows consulta AD (ej. para listar usuarios del dominio)?"
+    hint: "Un clásico binario de Windows con nombre de directorio activo… abreviado."
+    kind: text
+  - id: active-directory-basico-t03-q03
+    prompt: "El servicio DNS en un dominio AD, ¿qué registra además de nombres (clave para encontrar controladores)?"
+    hint: "Los SRV records apuntan a los DCs."
+    kind: choice
+    options:
+      - id: a
+        label: "Nada: DNS es independiente de AD"
+      - id: b
+        label: "Registros SRV que anuncian dónde están los DC y sus servicios"
+      - id: c
+        label: "Las contraseñas de los usuarios"
+      - id: d
+        label: "Solo páginas web internas"
+---
+
+## LDAP: el idioma de AD
+
+Active Directory habla **LDAP** (Lightweight Directory Access Protocol, puerto 389/636).
+Enumerar AD = hacer preguntas LDAP al DC: "dame todos los usuarios", "¿quiénes son
+Domain Admins?", "¿qué equipos hay?".
+
+```powershell
+# Desde un Windows del dominio, sin herramientas extra:
+net user /domain              # usuarios del dominio
+net group "Domain Admins" /domain
+```
+
+El binario histórico: **net** (¡sí, net!). Con más potencia usarás PowerShell
+(`Get-ADUser -Filter *`) o herramientas ofensivas (enum4linux, BloodHound — este
+último mapea rutas de ataque completas y lo verás en Jr Pentester).
+
+## DNS: la guía telefónica del dominio
+
+AD está casado con su DNS interno: el dominio `corp.local` vive ahí. Los registros
+**SRV** (`_ldap._tcp.corp.local`) anuncian qué máquinas son DCs y qué servicios
+ofrecen (Kerberos, LDAP…). Por eso "el DNS está roto" en una red corporativa suele
+significar "AD está roto".
+
+Con esto cierras el módulo Windows/AD: ediciones y Registry, UAC y el modelo de
+dominio. Siguiente parada: redes — cómo viajan realmente tus paquetes.

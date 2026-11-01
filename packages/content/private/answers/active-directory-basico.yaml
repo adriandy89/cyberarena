@@ -1,0 +1,11 @@
+# Respuestas del room active-directory-basico.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+active-directory-basico-t01-q01: Controlador de Dominio
+active-directory-basico-t01-q02: corp.local
+active-directory-basico-t01-q03: b
+active-directory-basico-t02-q01: Domain Admins
+active-directory-basico-t02-q02: Administrator
+active-directory-basico-t02-q03: b
+active-directory-basico-t03-q01: LDAP
+active-directory-basico-t03-q02: net
+active-directory-basico-t03-q03: b

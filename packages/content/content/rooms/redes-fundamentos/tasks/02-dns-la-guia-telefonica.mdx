@@ -1,0 +1,60 @@
+---
+index: 2
+title: "DNS: la guía telefónica de internet"
+questions:
+  - id: redes-fundamentos-t02-q01
+    prompt: "¿Qué tipo de registro DNS traduce un nombre a una IP (IPv4)?"
+    hint: "El más común: A de Address."
+    kind: text
+  - id: redes-fundamentos-t02-q02
+    prompt: "¿Qué registro apunta un nombre a OTRO nombre (alias)?"
+    hint: "Canonical Name."
+    kind: text
+  - id: redes-fundamentos-t02-q03
+    prompt: "En pentesting, ¿por qué el DNS es oro para el reconocimiento?"
+    hint: "Subdominios = superficie de ataque."
+    kind: choice
+    options:
+      - id: a
+        label: "Porque contiene las contraseñas del dominio"
+      - id: b
+        label: "Los registros revelan subdominios, IPs internas y servicios ocultos: más superficie para atacar"
+      - id: c
+        label: "Porque bloquea los escáneres"
+      - id: d
+        label: "Porque cifra todo el tráfico"
+---
+
+## De nombre a IP en un segundo
+
+Escribes `tryhackme.com` y ocurre esto:
+
+1. El **resolver** (tu DNS, ej. 8.8.8.8) comprueba su caché.
+2. Pregunta a los **root servers** → "¿quién maneja .com?" → servidores **TLD**.
+3. TLD → "pregunta a los nameservers de tryhackme.com".
+4. El nameserver autoritativo responde con el **registro A** (la IP).
+
+Todo en milisegundos, y con jerarquía: root → TLD → autoritativo.
+
+## Registros que reconocerás para siempre
+
+| Registro | Qué es |
+|---|---|
+| **A / AAAA** | nombre → IP (IPv4 / IPv6) |
+| **CNAME** | alias a otro nombre |
+| **MX** | servidores de correo |
+| **TXT** | texto libre (SPF, verificaciones…) |
+| **NS** | nameservers del dominio |
+| **SRV** | dónde vive un servicio (¡los de AD!) |
+
+## DNS para atacar (y defender)
+
+```bash
+nslookup tryhackme.com          # consulta básica
+dig tryhackme.com ANY +noall +answer
+dig axfr @ns1.victima.com victima.com    # zone transfer: el LOTEO (si está mal configurado)
+```
+
+Enumerar subdominios (`dev.`, `staging.`, `vpn.`…) con herramientas como sublist3r o
+consultas a Certificate Transparency (crt.sh) descubre activos que la empresa olvidó
+que existían — y sin enviar UN solo paquete al objetivo (recon pasivo puro).
