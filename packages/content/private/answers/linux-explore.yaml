@@ -1,0 +1,7 @@
+# Respuestas del lab linux-explore (rooms linux-fundamentos-1 y linux-fundamentos-2).
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/linux-explore/flags.env
+linux-fundamentos-1-t04-q01: FLAG{hidden_dotfile_discovery}
+linux-fundamentos-1-t04-q02: FLAG{grep_system_files}
+linux-fundamentos-2-t04-q01: FLAG{log_analysis_grep}
+linux-fundamentos-2-t04-q02: FLAG{group_permissions_read}

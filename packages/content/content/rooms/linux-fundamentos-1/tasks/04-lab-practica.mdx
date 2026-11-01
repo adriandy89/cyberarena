@@ -1,0 +1,33 @@
+---
+index: 4
+title: "Lab: explora el sistema real"
+questions:
+  - id: linux-fundamentos-1-t04-q01
+    prompt: "Levanta el lab y encuentra el archivo oculto (dotfile) en tu home. Envía la flag."
+    hint: "ls -la ~ | grep secret | cat"
+    kind: flag
+  - id: linux-fundamentos-1-t04-q02
+    prompt: "Encuentra la flag escondida en un comentario de un archivo del sistema /etc/."
+    hint: "grep FLAG /etc/passwd"
+    kind: flag
+---
+
+## Práctica en el laboratorio
+
+Levanta el lab (panel arriba) y entra con:
+```bash
+docker exec -it lab-linux-explore-shell-1 su - explorer
+```
+
+### Ejercicio 1: dotfile oculto
+```bash
+ls -la ~                          # -a muestra archivos ocultos (que empiezan por .)
+cat ~/.secret_flag                # ¡ahí está la flag!
+```
+
+### Ejercicio 2: buscar en archivos del sistema
+```bash
+grep FLAG /etc/passwd             # busca la palabra FLAG en passwd
+```
+
+Estos son EXACTAMENTE los comandos que usarás en cada máquina comprometida.

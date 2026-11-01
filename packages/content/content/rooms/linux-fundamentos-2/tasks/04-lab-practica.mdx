@@ -1,0 +1,30 @@
+---
+index: 4
+title: "Lab: permisos y procesos en el sistema real"
+questions:
+  - id: linux-fundamentos-2-t04-q01
+    prompt: "Encuentra la flag en un log de aplicación (usa grep recursivo)."
+    hint: "grep -r secret /var/log/"
+    kind: flag
+  - id: linux-fundamentos-2-t04-q02
+    prompt: "Lee la flag en un archivo que solo el grupo 'flagreaders' puede ver (ya eres miembro)."
+    hint: "find / -name '*flag*' 2>/dev/null | grep group | cat"
+    kind: flag
+---
+
+## Práctica en el laboratorio
+
+### Ejercicio 1: buscar en logs
+```bash
+grep -r "secret" /var/log/        # recursivo: busca en todos los archivos
+```
+
+### Ejercicio 2: permisos de grupo
+```bash
+id                                 # verifica que estás en el grupo flagreaders
+find / -name "*flag*" 2>/dev/null # encuentra los archivos con flag
+ls -la /opt/group_only_flag.txt    # mira los permisos: r--r-----
+cat /opt/group_only_flag.txt       # puedes leerlo porque eres del grupo
+```
+
+La lección: los permisos Unix no son solo rwx para dueño — el grupo Y otros importan.

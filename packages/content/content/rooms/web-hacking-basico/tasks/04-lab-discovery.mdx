@@ -1,0 +1,39 @@
+---
+index: 4
+title: "Lab: descubre contenido oculto"
+questions:
+  - id: web-hacking-basico-t04-q01
+    prompt: "Encuentra el panel de administración (200 OK en /admin) y envía su flag."
+    hint: "curl http://127.0.0.1:18089/admin"
+    kind: flag
+  - id: web-hacking-basico-t04-q02
+    prompt: "Dentro de /backup hay un dump SQL. Envía la flag que contiene."
+    hint: "curl http://127.0.0.1:18089/backup/db.sql"
+    kind: flag
+  - id: web-hacking-basico-t04-q03
+    prompt: "/dev hace redirect (301). Sigue el redirect (curl -L) y envía la flag."
+    hint: "curl -L http://127.0.0.1:18089/dev"
+    kind: flag
+---
+
+## Práctica: content discovery contra el lab
+
+```bash
+# Fuzzing con gobuster:
+gobuster dir -u http://127.0.0.1:18089 -w /usr/share/wordlists/dirb/common.txt
+
+# O manualmente (robots.txt ya te da pistas):
+curl http://127.0.0.1:18089/robots.txt
+# Disallow: /admin
+# Disallow: /backup
+# Disallow: /dev
+```
+
+```bash
+# Sigue el redirect del /dev:
+curl -L http://127.0.0.1:18089/dev
+```
+
+robots.txt, directory listing y redirects son las tres técnicas que acabas de practicar
+contra un servidor real. En un pentest, este discovery toma 30 segundos y puede
+revelar paneles de admin, backups y entornos de desarrollo.

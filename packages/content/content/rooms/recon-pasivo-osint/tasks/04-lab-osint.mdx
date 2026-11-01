@@ -1,0 +1,48 @@
+---
+index: 4
+title: "Lab: OSINT contra una empresa real"
+questions:
+  - id: recon-pasivo-osint-t04-q01
+    prompt: "Lee el robots.txt del lab y envía la flag que contiene."
+    hint: "curl http://127.0.0.1:18091/robots.txt"
+    kind: flag
+  - id: recon-pasivo-osint-t04-q02
+    prompt: "Hay un flag en un comentario HTML de la página /about. Encuéntrala."
+    hint: "curl http://127.0.0.1:18091/about | grep FLAG"
+    kind: flag
+  - id: recon-pasivo-osint-t04-q03
+    prompt: "El archivo .env está accesible. Envía la flag que contiene el comentario."
+    hint: "curl http://127.0.0.1:18091/.env"
+    kind: flag
+  - id: recon-pasivo-osint-t04-q04
+    prompt: "En un comentario HTML del home hay una pista sobre /admin/panel. Visítalo y envía la flag."
+    hint: "curl -s http://127.0.0.1:18091/ | grep admin → luego curl /admin/panel"
+    kind: flag
+---
+
+## Práctica: OSINT contra TechCorp
+
+El lab simula la web corporativa de "TechCorp Solutions". Todo lo que necesas está
+accesible PÚBLICAMENTE — no exploit, solo saber mirar:
+
+### 1. robots.txt
+```bash
+curl http://127.0.0.1:18091/robots.txt
+```
+
+### 2. Código fuente (HTML comments)
+```bash
+curl -s http://127.0.0.1:18091/about | grep -i flag
+curl -s http://127.0.0.1:18091/ | grep -i admin
+```
+
+### 3. Archivos de configuración
+```bash
+curl http://127.0.0.1:18091/.env
+```
+
+### 4. Seguir pistas
+Los HTML comments del home revelan que hay un admin panel. Sigue la pista.
+
+**Esto es exactamente lo que un atacante hace en los primeros 5 minutos contra
+cualquier web corporativa — sin enviar un solo paquete de ataque.**

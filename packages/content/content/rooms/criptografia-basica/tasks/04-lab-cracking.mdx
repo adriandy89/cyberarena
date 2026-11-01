@@ -1,0 +1,33 @@
+---
+index: 4
+title: "Lab: rompe hashes reales"
+questions:
+  - id: criptografia-basica-t04-q01
+    prompt: "Rompe el hash MD5 del nivel 1 y envía la flag."
+    hint: "El hash empieza por 5f4dcc... (crackstation.net lo tiene)"
+    kind: flag
+  - id: criptografia-basica-t04-q02
+    prompt: "Rompe el hash SHA1 del nivel 2 (password común de diccionario)."
+    hint: "Crackstation o john --wordlist=rockyou.txt"
+    kind: flag
+  - id: criptografia-basica-t04-q03
+    prompt: "Rompe el hash SHA256 del nivel 3."
+    hint: "Same password común, algoritmo distinto."
+    kind: flag
+---
+
+## Práctica: cracking contra el lab
+
+Levanta el lab y visita cada nivel:
+
+```bash
+curl http://127.0.0.1:18088/challenge/1    # te da el hash MD5
+curl "http://127.0.0.1:18088/challenge/1?answer=password"  # responde con la flag
+```
+
+Los passwords están en el top 100 de rockyou.txt:
+- Nivel 1 (MD5): el más común de todos
+- Nivel 2 (SHA1): "déjame entrar"
+- Nivel 3 (SHA256): el del teclado
+
+Cuando creas saber la password, envíala con `?answer=PASSWORD` para verificar.

