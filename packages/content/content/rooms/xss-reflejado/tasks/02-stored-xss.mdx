@@ -19,6 +19,10 @@ questions:
     prompt: "¿Qué cookie del documento es el objetivo clásico de un payload XSS?"
     hint: "document.cookie — roba la sesión."
     kind: text
+  - id: xss-reflejado-t02-q03
+    prompt: "View the admin entry in the guestbook. Submit the hidden flag."
+    hint: "curl http://127.0.0.1:18082/guestbook"
+    kind: flag
 ---
 
 ## Stored XSS: envenena una vez, afecta a todos
@@ -68,3 +72,11 @@ usuario normal podría ver todo el contenido.
 <svg onload=alert('XSS')>
 <body onload=alert('XSS')>
 ```
+
+## Flag from the guestbook
+
+The admin entry in the guestbook contains a flag. View all entries:
+```bash
+curl "http://127.0.0.1:18082/guestbook"
+```
+Look for the admin's message which contains a flag.

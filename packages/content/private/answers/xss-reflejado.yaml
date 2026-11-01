@@ -5,3 +5,5 @@ xss-reflejado-t01-q01: "<script>alert(1)</script>"
 xss-reflejado-t01-q02: html.escape()
 xss-reflejado-t02-q01: b
 xss-reflejado-t02-q02: document.cookie
+xss-reflejado-t01-q03: FLAG{alert_executed_in_browser}
+xss-reflejado-t02-q03: FLAG{stored_xss_steals_session}

@@ -14,6 +14,10 @@ questions:
     prompt: "¿Qué valor del header JWT desactiva la verificación de firma?"
     hint: "alg: none — el algoritmo 'sin algoritmo'."
     kind: text
+  - id: auth-bypass-t01-q04
+    prompt: "Submit the JWT weak secret flag (crack the hash from /crack endpoint, then forge a token as admin)."
+    hint: "The secret is a common phrase. Try jwt_secret."
+    kind: flag
 ---
 
 ## Nivel 1: Basic Auth con contraseña débil

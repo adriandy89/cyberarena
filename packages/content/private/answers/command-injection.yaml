@@ -7,3 +7,4 @@ command-injection-t01-q03: b
 command-injection-t02-q01: "%0a"
 command-injection-t02-q02: FLAG{filter_bypass_newline}
 command-injection-t02-q03: b
+command-injection-t01-q04: FLAG{deep_path_discovery}

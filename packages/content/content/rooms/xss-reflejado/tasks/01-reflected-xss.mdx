@@ -10,6 +10,10 @@ questions:
     prompt: "¿Qué función de Python SANITIZA HTML (y que este lab deliberadamente NO usa)?"
     hint: "html.escape() del módulo html."
     kind: text
+  - id: xss-reflejado-t01-q03
+    prompt: "Search for 'XSS' in the lab's /search endpoint. Submit the flag."
+    hint: "curl http://127.0.0.1:18082/search?q=XSS"
+    kind: flag
 ---
 
 ## Reflected: el input vuelve sin lavar
@@ -50,3 +54,12 @@ Reflected XSS requiere que la VÍCTIMA haga clic en tu enlace malicioso. El ataq
 4. Con la cookie, te haces pasar por la víctima
 
 La mitigación: `html.escape()` en Python, `textContent` en JavaScript, CSP headers.
+
+## Flag from the lab
+
+The lab has a hidden flag in the /search endpoint. When you search for the
+word "XSS", the response contains the flag:
+```bash
+curl "http://127.0.0.1:18082/search?q=XSS"
+```
+Look for the flag in the response body.

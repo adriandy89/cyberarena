@@ -7,3 +7,4 @@ jwt-security-t01-q03: FLAG{jwt_none_algorithm_win}
 jwt-security-t02-q01: /crack
 jwt-security-t02-q02: jwt_secret
 jwt-security-t02-q03: FLAG{forged_admin_token}
+jwt-security-t02-q04: FLAG{forged_admin_token}

