@@ -1,0 +1,8 @@
+{
+  "slug": "windows-ad-fundamentals",
+  "title": "Windows y Active Directory Fundamentals",
+  "description": "El sistema operativo del entorno corporativo: ediciones, Registry, UAC y la primera toma de contacto con el dominio.",
+  "rooms": [
+    { "slug": "windows-fundamentos-1" }
+  ]
+}

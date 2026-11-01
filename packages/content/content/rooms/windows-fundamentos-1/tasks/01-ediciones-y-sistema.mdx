@@ -1,0 +1,46 @@
+---
+index: 1
+title: 'Ediciones, arquitectura y el disco C:'
+questions:
+  - id: windows-fundamentos-1-t01-q01
+    prompt: "¿Qué carpeta de C:\\ contiene los perfiles de los usuarios?"
+    hint: "En español 'Usuarios', en disco es otra palabra."
+    kind: text
+  - id: windows-fundamentos-1-t01-q02
+    prompt: "¿Qué programa de Windows es la 'centralita' de configuración, hardware y usuarios (con secciones como Sistema o Red)?"
+    hint: "El panel con paneles."
+    kind: choice
+    options:
+      - id: a
+        label: "Explorador de archivos"
+      - id: b
+        label: "Panel de Control"
+      - id: c
+        label: " Administración de equipos"
+      - id: d
+        label: "Registro de Windows"
+---
+
+## Un ecosistema, muchas ediciones
+
+**Home** (consumo), **Pro** (dominio + BitLocker + Escritorio remoto), **Enterprise**
+(GPO completas, corporativo) y **Server** (los controladores de dominio que atacarás
+en Active Directory). La edición define qué técnicas de ataque/aprovechamiento existen.
+
+## El sistema de archivos: NTFS y sus carpetas clave
+
+| Ruta | Qué hay |
+|---|---|
+| `C:\Windows` | el sistema (System32 = binarios críticos) |
+| `C:\Program Files` | software de 64 bits |
+| `C:\Program Files (x86)` | software de 32 bits |
+| `C:\Users\<usuario>` | perfiles (Documentos, Escritorio, NTUSER.DAT…) |
+| `C:\ProgramData` | datos de aplicaciones (oculto, escribible por usuarios) |
+
+NTFS trae **ACLs granulares** (más ricas que rwx), **flujos alternativos (ADS)** para
+esconder datos (`archivo.txt:oculto`) y **journaling**. En AD verás también unidades
+de red mapeadas y recursos compartidos (`\\servidor\recurso`).
+
+Herramientas de gestión que ya debes reconocer: **Panel de Control**, **Administración
+de equipos** (usuarios locales, servicios, visor de eventos) y **msconfig/taskmgr**
+para procesos y arranque.

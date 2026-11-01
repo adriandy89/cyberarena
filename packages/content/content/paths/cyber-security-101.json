@@ -5,6 +5,7 @@
   "level": "beginner",
   "modules": [
     { "slug": "start-your-cyber-journey" },
-    { "slug": "linux-fundamentals" }
+    { "slug": "linux-fundamentals" },
+    { "slug": "windows-ad-fundamentals" }
   ]
 }

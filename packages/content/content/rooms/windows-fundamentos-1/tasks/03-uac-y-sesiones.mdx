@@ -1,0 +1,50 @@
+---
+index: 3
+title: "UAC, sesiones y el botón 'Ejecutar como administrador'"
+questions:
+  - id: windows-fundamentos-1-t03-q01
+    prompt: "¿Cómo se llama el mecanismo que pide confirmación (y eleva privilegios) cuando un programa necesita permisos de administrador?"
+    hint: "Acrónimo de Control de Cuentas de Usuario."
+    kind: text
+  - id: windows-fundamentos-1-t03-q02
+    prompt: "¿Qué privilegios tiene un proceso lanzado 'como administrador' comparado con uno normal?"
+    hint: "Dos tokens, dos mundos."
+    kind: choice
+    options:
+      - id: a
+        label: "Los mismos: solo cambia el icono"
+      - id: b
+        label: "Acceso completo a HKLM, archivos del sistema y a tomar posesión de procesos"
+      - id: c
+        label: "Solo puede cambiar el fondo de pantalla"
+      - id: d
+        label: "Ninguno: es una trampa de examen"
+  - id: windows-fundamentos-1-t03-q03
+    prompt: "¿Qué usuario integrado de Windows tiene TODOS los privilegios (más que Administrador)?"
+    hint: "El que ni siquiera aparece en la lista de usuarios."
+    kind: text
+---
+
+## UAC: el guarda de la discoteca
+
+**UAC** (User Account Control) separa dos tokens de seguridad:
+
+- **Token filtrado**: tu sesión normal — sin acceso a zonas críticas del sistema.
+- **Token elevado**: al pulsar "Sí" en el aviso de UAC — acceso a `C:\Windows`,
+  `HKLM`, tomar posesión de archivos, abrir puertos bajos…
+
+Un proceso normal con usuario Administrador NO tiene el token elevado por defecto:
+por eso un binario malicioso con privilegios normales no puede, por ejemplo, escribir
+en `C:\Windows\System32`. **Bypasses de UAC** = técnicas que engañan a procesos
+confiables autoelevables para conseguir el token completo.
+
+## Cuentas especiales que debes conocer
+
+- **Administrator**: la cuenta local todopoderosa (a veces deshabilitada).
+- **SYSTEM (LocalSystem)**: el contexto de los servicios del sistema — MÁS poderoso
+  que Administrator en ciertos aspectos internos.
+- **Guest**: acceso limitado, casi siempre deshabilitada.
+
+Cuando comprometas una máquina Windows, tu objetivo típico es: usuario normal →
+bypass UAC → Administrator → migración a SYSTEM → robo de credenciales →
+Active Directory. Ese camino completo se practica en el módulo de AD del path.

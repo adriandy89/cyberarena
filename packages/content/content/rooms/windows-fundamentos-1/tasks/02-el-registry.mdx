@@ -1,0 +1,53 @@
+---
+index: 2
+title: "El Registry: la base de datos del sistema"
+questions:
+  - id: windows-fundamentos-1-t02-q01
+    prompt: "¿Qué herramienta gráfica abre el editor del Registro?"
+    hint: "regedit. Ese mismo, tal cual."
+    kind: text
+  - id: windows-fundamentos-1-t02-q02
+    prompt: "¿Qué rama (hive) del Registry contiene la configuración del usuario actual (HK...)?"
+    hint: "Current User."
+    kind: text
+  - id: windows-fundamentos-1-t02-q03
+    prompt: "¿Por qué a un atacante le encanta la clave Run (autoarranque de programas)?"
+    hint: "Se ejecuta cada vez que…"
+    kind: choice
+    options:
+      - id: a
+        label: "Permite cambiar el fondo de pantalla"
+      - id: b
+        label: "Es persistencia: lo que escribas ahí se ejecuta en cada inicio de sesión"
+      - id: c
+        label: "Guarda las contraseñas en claro"
+      - id: d
+        label: "Acelera el arranque del sistema"
+---
+
+## Cinco ramas que gobernarán tu enumeración
+
+```text
+HKEY_CLASSES_ROOT   (HKCR)  asociaciones de archivos
+HKEY_CURRENT_USER   (HKCU)  configuración del usuario actual
+HKEY_LOCAL_MACHINE  (HKLM)  configuración de TODA la máquina  ← la mina
+HKEY_USERS          (HKU)   todos los perfiles cargados
+HKEY_CURRENT_CONFIG         perfil de hardware actual
+```
+
+Abre el editor con **regedit** (o desde terminal: `reg query ...`). Rutas que
+memorizarás para siempre:
+
+```powershell
+# Autoarranque (persistencia clásica):
+HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+
+# Versión exacta del sistema (enumeración):
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+```
+
+Cada programa instalado deja rastro en `HKLM\SOFTWARE`. Cada "ombi" (programa
+portátil que se ejecuta sin instalación) también lo deja en `HKCU\SOFTWARE`. El
+Registry es la forma más rápida de responder: ¿QUÉ hay instalado, QUÉ arranca solo y
+QUÉ versión de Windows es exactamente?
