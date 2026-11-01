@@ -1,0 +1,8 @@
+{
+  "slug": "xss",
+  "title": "Cross-Site Scripting (XSS)",
+  "description": "Reflected y stored XSS contra un lab real: inyección de JavaScript, robo de cookies y payloads de bypass.",
+  "rooms": [
+    { "slug": "xss-reflejado" }
+  ]
+}

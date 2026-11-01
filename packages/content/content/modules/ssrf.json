@@ -1,0 +1,8 @@
+{
+  "slug": "ssrf",
+  "title": "Server-Side Request Forgery",
+  "description": "SSRF con lab real: acceso a servicios internos, config con secretos y cloud metadata (el ataque Capital One).",
+  "rooms": [
+    { "slug": "ssrf-basico" }
+  ]
+}

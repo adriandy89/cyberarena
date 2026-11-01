@@ -1,0 +1,57 @@
+---
+index: 2
+title: "Cloud metadata: el SSRF que roba la nube"
+questions:
+  - id: ssrf-basico-t02-q01
+    prompt: "¿Qué IP especial es el endpoint de metadata en AWS?"
+    hint: "169.254.169.254 — link-local address."
+    kind: text
+  - id: ssrf-basico-t02-q02
+    prompt: "Envía la flag escondida en el metadata de cloud."
+    hint: "curl el endpoint /fetch con url=http://169.254.169.254/latest/meta-data/"
+    kind: flag
+  - id: ssrf-basico-t02-q03
+    prompt: "¿Qué credenciales puede revelar el metadata endpoint de AWS?"
+    hint: "IAM role credentials: access keys temporales."
+    kind: choice
+    options:
+      - id: a
+        label: "Solo el hostname"
+      - id: b
+        label: "IAM role credentials (access key, secret key, session token) = acceso a la cuenta AWS"
+      - id: c
+        label: "Contraseñas de usuarios"
+      - id: d
+        label: "Nada: es solo informativo"
+---
+
+## 169.254.169.254: la IP más peligrosa de la nube
+
+Toda instancia EC2 puede consultar su metadata en `http://169.254.169.254/latest/meta-data/`.
+Esta IP es accesible SOLO desde dentro de la instancia — pero con SSRF, el atacante
+usa el servidor como proxy.
+
+```bash
+curl "http://127.0.0.1:18083/fetch?url=http%3A%2F%2F169.254.169.254%2Flatest%2Fmeta-data%2F"
+```
+
+En AWS real, el metadata endpoint revela:
+- **IAM role credentials**: access key + secret + session token → acceso a S3, DynamoDB,
+  todo lo que la instancia puede hacer
+- **User data**: scripts de arranque que a veces contienen contraseñas
+- **Security groups**, network configuration
+
+## El ataque real (Capital One 2019)
+
+Un atacante usó SSRF contra el metadata endpoint de una instancia EC2 → obtuvo
+credenciales IAM → accedió a S3 → robó datos de 100M+ de clientes. Todo empezó con
+UNA petición SSRF.
+
+## Mitigación
+
+- **Bloquear** el acceso a 169.254.169.254 desde el código (allowlist de dominios)
+- **IMDSv2** en AWS: el metadata requiere un token (ya no basta con GET)
+- Nunca aceptar URLs del usuario sin validación de allowlist
+
+En el lab, extrae la flag del metadata endpoint y ya has simulado el primer paso del
+ataque Capital One.

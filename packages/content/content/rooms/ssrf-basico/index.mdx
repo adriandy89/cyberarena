@@ -1,0 +1,18 @@
+---
+slug: ssrf-basico
+title: "SSRF: que el servidor haga peticiones por ti"
+description: "Obliga al servidor a consultar URLs internas: config con secretos, metadata de cloud y el acceso a la red que no deberías ver."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 35
+tags:
+  - web
+  - ssrf
+  - owasp
+lab: ssrf-basico
+labUrl: http://127.0.0.1:18083
+---
+
+SSRF (Server-Side Request Forgery) convierte al servidor en TU proxy: le haces
+consultar URLs que TÚ no podrías alcanzar — endpoints internos, metadata de cloud,
+servicios sin exposición pública.

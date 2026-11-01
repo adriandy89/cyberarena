@@ -1,0 +1,52 @@
+---
+index: 1
+title: "SSRF a servicios internos"
+questions:
+  - id: ssrf-basico-t01-q01
+    prompt: "¿Qué acrónimo describe el ataque donde el servidor hace peticiones a URLs internas que el atacante controla?"
+    hint: "Server-Side Request Forgery."
+    kind: text
+  - id: ssrf-basico-t01-q02
+    prompt: "Envía la flag escondida en la configuración interna (/config)."
+    hint: "curl el endpoint /fetch con url=http://localhost:8080/internal?path=/config (URL-encoded!)"
+    kind: flag
+---
+
+## El fetcher vulnerable
+
+El lab tiene un "URL Fetcher" — un servicio que hace peticiones HTTP por ti (como un
+preview de enlaces). El problema: acepta CUALQUIER URL, incluidas las internas.
+
+```bash
+# Uso normal (una web externa)
+curl "http://127.0.0.1:18083/fetch?url=https://httpbin.org/get"
+
+# SSRF: apunta al MISMO servidor (loopback)
+# ¡Recuerda URL-encodear el parámetro url!
+curl "http://127.0.0.1:18083/fetch?url=http%3A%2F%2Flocalhost%3A8080%2Finternal%3Fpath%3D%2Fhealth"
+```
+
+## Qué hay dentro
+
+El servidor tiene una "API interna" en `/internal` con varios paths:
+
+- `/health` — status del servicio
+- `/users` — lista de usuarios
+- `/config` — configuración con **secretos** (¡incluida una flag!)
+- `/metadata` — metadata de cloud (siguiente task)
+
+## Extrae la flag de la config
+
+Usa SSRF para llegar a `/config` y busca el campo `flag`:
+
+```bash
+curl "http://127.0.0.1:18083/fetch?url=http%3A%2F%2Flocalhost%3A8080%2Finternal%3Fpath%3D%2Fconfig"
+```
+
+La respuesta JSON contiene la flag en el campo `flag`.
+
+## Por qué funciona
+
+El servidor PUEDE alcanzar `localhost:8080` (es él mismo). El atacante NO puede —
+pero puede hacer que el servidor lo haga POR él. Es como pedirle a alguien con acceso
+al banco que te lea el saldo de una cuenta ajena.
