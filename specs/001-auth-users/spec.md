@@ -17,6 +17,14 @@
     global (APP_PIPE) + `@Body({ schema })`. (6) La regla eslint
     `consistent-type-imports` rompe la DI de Nest (metadata elide type-imports):
     desactivada en apps/api.
+  - 2026-11-01 (enmienda de seguridad, ADR-009): **el bootstrap de ADMIN cambia de
+    "primer usuario registrado" a "creación al arrancar con BD vacía"**. El hook
+    `databaseHooks` se ELIMINA (registrarse jamás otorga ADMIN — vulnerabilidad en
+    despliegues recién expuestos); `AdminBootstrapService` crea el admin inicial desde
+    `BOOTSTRAP_ADMIN_EMAIL/PASSWORD` (idempotente y anti-race por email único) y
+    verifica en cada arranque que exista un admin. E2E re-verificado con BD truncada:
+    arranque→admin, registro→STUDENT, re-arranque→skip sin duplicar. US4 queda
+    satisfecha por esta vía en lugar del hook original.
 
 ## 1. Propósito
 

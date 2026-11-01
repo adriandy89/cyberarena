@@ -52,8 +52,12 @@ Puertos: web 3000 · api 3001 · postgres 5432 · mailpit UI 8025 / SMTP 1025.
 
 ## Autenticación (fase 001)
 
-- **El primer usuario registrado se convierte en ADMIN** automáticamente
-  (`databaseHooks` de better-auth); todos los demás nacen STUDENT.
+- **Admin inicial (ADR-009)**: al arrancar la API, si la tabla `User` está vacía se crea
+  automáticamente `BOOTSTRAP_ADMIN_EMAIL` (default `admin@cyberarena.local`) con
+  `BOOTSTRAP_ADMIN_PASSWORD` (o una contraseña aleatoria que se muestra UNA vez en el
+  log del arranque — cámbiala tras el primer login). **Registrarse nunca otorga ADMIN**:
+  todos los registros nacen STUDENT y los roles solo cambian vía endpoint admin. En cada
+  arranque se verifica que exista al menos un admin (si no, ERROR en el log).
 - La web habla con la API por el rewrite same-origin `/api` (ADR-008): la cookie de
   sesión es de primer partido y no hay CORS cross-port.
 - **Verificación de email / reset de contraseña en dev**: `REQUIRE_EMAIL_VERIFICATION`

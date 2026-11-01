@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { Role } from '@repo/database';
-import { resolveBootstrapRole } from './auth';
+import { createAuth } from './auth';
+import type { PrismaClient } from '@repo/database';
 
-describe('resolveBootstrapRole', () => {
-  it('makes the very first user ADMIN', () => {
-    expect(resolveBootstrapRole(0)).toBe(Role.ADMIN);
-  });
-
-  it('makes every subsequent user STUDENT', () => {
-    expect(resolveBootstrapRole(1)).toBe(Role.STUDENT);
-    expect(resolveBootstrapRole(500)).toBe(Role.STUDENT);
+describe('createAuth', () => {
+  it('builds an instance where registration defaults role to STUDENT (never ADMIN)', () => {
+    const auth = createAuth({
+      prisma: {} as PrismaClient,
+      sendEmail: async () => {},
+    });
+    const roleField = auth.options.user?.additionalFields?.role;
+    expect(roleField).toBeDefined();
+    expect(roleField?.defaultValue).toBe('STUDENT');
+    expect(roleField?.input).toBe(false);
   });
 });

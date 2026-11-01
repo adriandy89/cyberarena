@@ -14,10 +14,8 @@ export interface AuthDependencies {
   sendEmail: (input: SendEmailInput) => Promise<void>;
 }
 
-/** Pure rule for tests: the first ever-registered user bootstraps as ADMIN. */
-export function resolveBootstrapRole(existingUserCount: number): Role {
-  return existingUserCount === 0 ? Role.ADMIN : Role.STUDENT;
-}
+// NOTE: registration NEVER grants ADMIN. The initial admin is created at first
+// boot by AdminBootstrapService (ADR-009) — see admin-bootstrap.service.ts.
 
 const emailLayout = (title: string, body: string, url: string, cta: string) => `
 <!doctype html><html lang="es"><body style="font-family:system-ui,sans-serif;background:#020617;color:#e2e8f0;padding:32px">
@@ -89,16 +87,6 @@ export function createAuth(deps: AuthDependencies) {
           defaultValue: Role.STUDENT,
           // Never client-writable: role changes go through the admin endpoint only.
           input: false,
-        },
-      },
-    },
-    databaseHooks: {
-      user: {
-        create: {
-          before: async (user) => {
-            const existing = await deps.prisma.user.count();
-            return { data: { ...user, role: resolveBootstrapRole(existing) } };
-          },
         },
       },
     },
