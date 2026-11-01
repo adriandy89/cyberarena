@@ -41,6 +41,23 @@
         }
       }
     },
+    "4": {
+      "title": "Lab: OSINT against a real company",
+      "questions": {
+        "recon-pasivo-osint-t04-q01": {
+          "prompt": "Read the robots.txt flag."
+        },
+        "recon-pasivo-osint-t04-q02": {
+          "prompt": "Find the flag in an HTML comment on /about."
+        },
+        "recon-pasivo-osint-t04-q03": {
+          "prompt": "The .env file is accessible. Submit its flag."
+        },
+        "recon-pasivo-osint-t04-q04": {
+          "prompt": "Follow the admin panel hint. Visit it and submit the flag."
+        }
+      }
+    },
     "5": {
       "title": "Lab: DNS enumeration",
       "questions": {

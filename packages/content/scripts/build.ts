@@ -224,7 +224,7 @@ async function loadTranslations(locale: string): Promise<Record<string, RoomTran
     try {
       translations[slug] = JSON.parse(await readFile(file, 'utf8')) as RoomTranslation;
     } catch {
-      console.warn(`[translations] failed to parse ${file}, skipping`);
+      console.error(`[translations] FAILED: ${file} is invalid JSON`); process.exit(1);
     }
   }
   return translations;

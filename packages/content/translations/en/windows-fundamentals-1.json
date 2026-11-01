@@ -1,0 +1,45 @@
+{
+  "title": "Windows Fundamentals I: the system you will audit",
+  "description": "Editions and architecture, the Registry, UAC and management tools.",
+  "tasks": {
+    "1": {
+      "title": "Editions, architecture and the C: drive",
+      "questions": {
+        "windows-fundamentos-1-t01-q01": {
+          "prompt": "Which folder on C: contains user profiles?"
+        },
+        "windows-fundamentos-1-t01-q02": {
+          "prompt": "Which Windows program is the hub for configuration?"
+        }
+      }
+    },
+    "2": {
+      "title": "The Registry",
+      "questions": {
+        "windows-fundamentos-1-t02-q01": {
+          "prompt": "What graphical tool opens the Registry Editor?"
+        },
+        "windows-fundamentos-1-t02-q02": {
+          "prompt": "Which registry hive (HK...) contains the current user configuration?"
+        },
+        "windows-fundamentos-1-t02-q03": {
+          "prompt": "Why does an attacker love the Run key?"
+        }
+      }
+    },
+    "3": {
+      "title": "UAC and sessions",
+      "questions": {
+        "windows-fundamentos-1-t03-q01": {
+          "prompt": "What mechanism asks for confirmation and elevates privileges?"
+        },
+        "windows-fundamentos-1-t03-q02": {
+          "prompt": "What privileges does an as-administrator process have?"
+        },
+        "windows-fundamentos-1-t03-q03": {
+          "prompt": "Which built-in account has ALL privileges?"
+        }
+      }
+    }
+  }
+}
