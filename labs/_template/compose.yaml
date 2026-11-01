@@ -1,0 +1,35 @@
+# Lab template — one isolated compose stack per practical room (phase 007 fills real labs).
+#
+# Usage for a room with slug <room-slug>:
+#   1. Copy this folder to labs/<room-slug>/
+#   2. Copy flags.env.example -> flags.env and set the real flag values
+#      (seed them into the DB too — see docs/content-guide.md §flags)
+#   3. Adjust the vulnerable service(s) below and the published port
+#   4. Run:  docker compose -f labs/<room-slug>/compose.yaml --env-file labs/<room-slug>/flags.env up -d
+#   5. Tear down ALWAYS with:  docker compose -f labs/<room-slug>/compose.yaml down -v
+#
+# SECURITY (constitution §1.4): labs never join the app networks; they publish at most
+# one port bound to localhost and run in their own isolated network.
+name: lab-template
+
+services:
+  vulnerable-app:
+    # Replace with the room's vulnerable image/build.
+    image: nginxdemos/hello:latest
+    environment:
+      # Flags are injected via flags.env, never hardcoded in the compose file.
+      FLAG_1: ${FLAG_1:?set FLAG_1 in labs/<room-slug>/flags.env}
+    ports:
+      # Bind to loopback only: reachable from the student's machine, not the LAN.
+      - '127.0.0.1:18080:80'
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    networks:
+      - lab
+
+networks:
+  lab:
+    name: lab-template

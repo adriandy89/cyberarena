@@ -1,0 +1,79 @@
+{
+  "Metadata": {
+    "title": "CyberArena — Learn cybersecurity by practicing",
+    "description": "Personal TryHackMe-style cybersecurity learning platform: novice-to-expert paths, flag rooms, isolated Docker labs and a gamified progress system."
+  },
+  "HomePage": {
+    "nav": {
+      "status": "System status"
+    },
+    "hero": {
+      "badge": "Novice → Expert",
+      "title": "Your personal cybersecurity arena",
+      "subtitle": "Learning paths with guided rooms, flag challenges, isolated Docker labs and a progress system with XP, levels and streaks. From Cyber Security 101 to Red Teaming.",
+      "ctaPrimary": "Explore paths (coming soon)",
+      "ctaSecondary": "System status",
+      "disclaimer": "Educational content only, to practice in controlled local environments."
+    },
+    "roadmap": {
+      "title": "Learning roadmap",
+      "subtitle": "Five paths, novice to expert, in the recommended order."
+    },
+    "paths": [
+      {
+        "slug": "cyber-security-101",
+        "title": "Cyber Security 101",
+        "description": "Fundamentals: Linux, Windows & AD, networking, cryptography, basic exploitation, web hacking and defense.",
+        "level": "beginner"
+      },
+      {
+        "slug": "jr-penetration-tester",
+        "title": "Jr Penetration Tester",
+        "description": "Reconnaissance, Nmap, Burp Suite, Metasploit, privilege escalation, OWASP and Active Directory.",
+        "level": "intermediate"
+      },
+      {
+        "slug": "web-application-pentesting",
+        "title": "Web Application Pentesting",
+        "description": "OWASP in depth, APIs, injections and chained web exploitation.",
+        "level": "intermediate"
+      },
+      {
+        "slug": "web-application-red-teaming",
+        "title": "Web Application Red Teaming",
+        "description": "Evasion, advanced payloads and offensive engagements against web applications.",
+        "level": "advanced"
+      },
+      {
+        "slug": "red-teaming",
+        "title": "Red Teaming",
+        "description": "Advanced AD, Kerberos, containers, cloud/IAM and AI/LLM exploitation (PT2 level).",
+        "level": "advanced"
+      }
+    ],
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "footer": "CyberArena — personal project. Original content for educational purposes."
+  },
+  "StatusPage": {
+    "title": "System status",
+    "api": "API",
+    "apiLabel": "API (NestJS)",
+    "apiUp": "Operational",
+    "apiDown": "Unreachable",
+    "dbLabel": "Database (PostgreSQL)",
+    "dbUp": "Connected",
+    "dbDown": "No connection",
+    "latency": "Health check latency",
+    "refresh": "Refresh",
+    "loading": "Checking…"
+  },
+  "NotFoundPage": {
+    "title": "Page not found",
+    "description": "The resource you are looking for does not exist or has moved.",
+    "back": "Back to home"
+  }
+}

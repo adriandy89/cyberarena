@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/* Tailwind must also scan the shared UI package source (internal package). */
+@source '../../../packages/ui/src';
+
+:root {
+  color-scheme: dark;
+}
