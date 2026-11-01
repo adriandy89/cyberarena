@@ -1,6 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+export interface CatalogRoomLink {
+  slug: string;
+  title: string;
+  difficulty: string;
+  type: string;
+  estimatedMinutes: number;
+}
+
 export interface CatalogPathSummary {
   slug: string;
   title: string;
@@ -9,6 +17,7 @@ export interface CatalogPathSummary {
   moduleCount: number;
   roomCount: number;
   estimatedMinutes: number;
+  rooms: CatalogRoomLink[];
 }
 
 export interface CatalogRoomSummary {
@@ -74,7 +83,16 @@ export class CatalogService {
         modules: {
           orderBy: { order: 'asc' },
           select: {
-            rooms: { select: { estimatedMinutes: true } },
+            rooms: {
+              orderBy: { order: 'asc' },
+              select: {
+                slug: true,
+                title: true,
+                difficulty: true,
+                type: true,
+                estimatedMinutes: true,
+              },
+            },
           },
         },
       },
@@ -89,6 +107,7 @@ export class CatalogService {
         moduleCount: path.modules.length,
         roomCount: rooms.length,
         estimatedMinutes: rooms.reduce((total, room) => total + room.estimatedMinutes, 0),
+        rooms,
       };
     });
   }

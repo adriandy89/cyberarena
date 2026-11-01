@@ -27,6 +27,12 @@ export class UsersController {
     };
   }
 
+  /** XP total, level and solved count for the dashboard. */
+  @Get('me/xp')
+  meXp(@CurrentUser() user: AuthUser) {
+    return this.users.getXpSummary(user.id);
+  }
+
   @Get()
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)

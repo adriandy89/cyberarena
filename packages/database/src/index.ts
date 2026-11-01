@@ -1,5 +1,6 @@
 export { createPrismaClient, PrismaClient } from './client.js';
 export type { DatabaseUrl } from './client.js';
+export { hashAnswer } from './answers.js';
 
 // Generated model/enum surface (regenerated with `pnpm db:generate`).
 // The prisma-client generator names entity types `<Model>Model`.

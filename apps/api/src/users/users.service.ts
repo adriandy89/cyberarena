@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { type Role } from '@repo/database';
+import { getLevelForXp } from '@repo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface UserListItem {
@@ -20,6 +21,18 @@ export interface SetRoleInput {
   actorId: string;
   targetUserId: string;
   role: Role;
+}
+
+export interface XpSummary {
+  totalXp: number;
+  solvedCount: number;
+  level: {
+    index: number;
+    name: string;
+    threshold: number;
+    progressRatio: number;
+    xpToNextLevel: number;
+  };
 }
 
 const MAX_TAKE = 100;
@@ -50,6 +63,30 @@ export class UsersService {
     return {
       users: page,
       nextCursor: hasMore ? page[page.length - 1]!.id : null,
+    };
+  }
+
+  /** XP total, solved count and level (from @repo/shared LEVELS). */
+  async getXpSummary(userId: string): Promise<XpSummary> {
+    const [aggregate, solvedCount] = await Promise.all([
+      this.prisma.xpEvent.aggregate({
+        where: { userId },
+        _sum: { amount: true },
+      }),
+      this.prisma.questionSolved.count({ where: { userId } }),
+    ]);
+    const totalXp = aggregate._sum.amount ?? 0;
+    const progress = getLevelForXp(totalXp);
+    return {
+      totalXp,
+      solvedCount,
+      level: {
+        index: progress.level.index,
+        name: progress.level.name,
+        threshold: progress.level.threshold,
+        progressRatio: progress.progressRatio,
+        xpToNextLevel: progress.xpToNextLevel,
+      },
     };
   }
 

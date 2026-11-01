@@ -158,3 +158,29 @@ model Answer {
 
   @@map("Answer")
 }
+
+// ---------------------------------------------------------------------------
+// Progress & gamification (phase 003). XP idempotency is enforced by the
+// unique [userId, reason] constraint (ADR-011).
+// ---------------------------------------------------------------------------
+
+model QuestionSolved {
+  userId      String
+  questionId  String
+  solvedAt    DateTime @default(now())
+
+  @@id([userId, questionId])
+  @@map("QuestionSolved")
+}
+
+model XpEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    String   // "question:<questionId>" | "room-complete:<roomSlug>"
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reason])
+  @@index([userId, createdAt])
+  @@map("XpEvent")
+}
