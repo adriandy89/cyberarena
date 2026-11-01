@@ -1,0 +1,10 @@
+# Respuestas de labs Tier 4.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+owasp-top-10-t04-q01: FLAG{admin_secret_via_idor}
+owasp-top-10-t04-q02: FLAG{admin_order_internal_note}
+owasp-top-10-t04-q03: FLAG{service_account_exposed}
+recon-pasivo-osint-t05-q01: FLAG{axfr_zone_transfer_dump}
+recon-pasivo-osint-t05-q02: "14"
+criptografia-basica-t05-q01: FLAG{base64_single_layer}
+criptografia-basica-t05-q02: FLAG{rot13_double_decode}
+criptografia-basica-t05-q03: FLAG{xor_triple_challenge}

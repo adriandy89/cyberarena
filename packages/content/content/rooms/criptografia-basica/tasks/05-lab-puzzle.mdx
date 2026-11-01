@@ -1,0 +1,46 @@
+---
+index: 5
+title: "Lab: puzzle de decodificación multi-capa"
+questions:
+  - id: criptografia-basica-t05-q01
+    prompt: "Decodifica el challenge 1 (base64 simple) y envía la flag."
+    hint: "echo STRING | base64 -d"
+    kind: flag
+  - id: criptografia-basica-t05-q02
+    prompt: "Decodifica el challenge 2 (base64 + ROT13) y envía la flag."
+    hint: "echo STRING | base64 -d | tr 'A-Za-z' 'N-ZA-Mn-za-m'"
+    kind: flag
+  - id: criptografia-basica-t05-q03
+    prompt: "Decodifica el challenge 3 (base64 + XOR con key 'ctf') y envía la flag."
+    hint: "echo STRING | base64 -d, luego XOR con 'ctf' en CyberChef o Python"
+    kind: flag
+---
+
+## Decodificación en capas
+
+El lab sirve 3 challenges progresivos. Cada flag está codificada en capas:
+
+### Nivel 1: base64
+```bash
+# El endpoint te da la cadena encoded:
+curl http://127.0.0.1:18097/challenge/1
+#Coge el valor "encoded" y:
+echo 'RkxBR3s...' | base64 -d
+```
+
+### Nivel 2: base64 + ROT13
+```bash
+curl http://127.0.0.1:18097/challenge/2
+# Primero base64 -d, luego ROT13:
+echo 'STRING' | base64 -d | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+```
+
+### Nivel 3: base64 + XOR
+```bash
+curl http://127.0.0.1:18097/challenge/3
+# base64 -d, luego XOR con key "ctf":
+# En Python:
+python3 -c "import base64; d=base64.b64decode('STRING'); print(''.join(chr(b^ord('ctf'[i%3])) for i,b in enumerate(d)))"
+```
+
+Cada nivel te da una flag diferente. Envíalas con `?answer=FLAG{...}` para verificar.
