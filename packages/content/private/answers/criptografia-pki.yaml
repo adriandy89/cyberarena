@@ -1,0 +1,5 @@
+# Respuestas del room criptografia-pki.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+criptografia-pki-t01-q01: b
+criptografia-pki-t01-q02: "Certificate Authority: la entidad de confianza que firma certificados digitales"
+criptografia-pki-t01-q03: openssl s_client

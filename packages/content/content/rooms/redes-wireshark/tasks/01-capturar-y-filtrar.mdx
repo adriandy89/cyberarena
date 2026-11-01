@@ -1,0 +1,66 @@
+---
+index: 1
+title: "Capturar y filtrar: lo básico de Wireshark"
+questions:
+  - id: redes-wireshark-t01-q01
+    prompt: "¿Qué filtro de Wireshark muestra SOLO tráfico HTTP?"
+    hint: "Protocol name en el display filter."
+    kind: text
+  - id: redes-wireshark-t01-q02
+    prompt: "¿Qué filtro muestra solo tráfico de una IP específica?"
+    hint: "ip.addr == 10.10.10.5"
+    kind: text
+  - id: redes-wireshark-t01-q03
+    prompt: "¿Qué es el 'promiscuous mode' en captura de red?"
+    hint: "Escuchar TODO el tráfico de la red, no solo el dirigido a ti."
+    kind: choice
+    options:
+      - id: a
+        label: "Solo captura paquetes HTTP"
+      - id: b
+        label: "La interfaz captura TODOS los paquetes que pasan por ella, no solo los dirigidos a tu MAC"
+      - id: c
+        label: "Acelera la captura"
+      - id: d
+        label: "Cifra el tráfico"
+---
+
+## Tu primera captura
+
+1. Abre Wireshark → selecciona tu interfaz activa (eth0/wlan0)
+2. Haz clic en Start (icono azul)
+3. Navega a alguna web → verás paquetes en tiempo real
+4. Stop (icono rojo)
+
+## Display Filters (tu herramienta diaria)
+
+```text
+http                          → solo HTTP
+tcp.port == 443               → solo HTTPS
+ip.addr == 10.10.10.5         → tráfico hacia/desde esa IP
+ip.src == 10.10.10.5          → solo desde esa IP
+dns                           → solo consultas DNS
+tcp.flags.syn == 1            → solo SYNs (inicio de conexiones)
+http.request.method == "POST" → solo POSTs
+!(http or dns)                → todo EXCEPTO HTTP y DNS
+```
+
+## La estructura de 3 paneles
+
+```text
+┌──────────────────────────────────────────┐
+│ 1. Packet List: cada paquete en una línea │
+│    (nº, tiempo, source, dest, protocol)   │
+├──────────────────────────────────────────┤
+│ 2. Packet Details: capas del protocolo    │
+│    (Ethernet → IP → TCP → HTTP → Data)    │
+│    Clic en ▶ para expandir cada capa      │
+├──────────────────────────────────────────┤
+│ 3. Packet Bytes: el hex dump crudo        │
+│    (lo que literalmente viaja)            │
+└──────────────────────────────────────────┘
+```
+
+**Clic derecho en un paquete → Follow → TCP Stream**: reconstruye la conversación
+completa en texto plano. Es la forma más rápida de ver credenciales HTTP, comandos
+FTP o sesiones Telnet.

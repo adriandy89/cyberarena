@@ -1,0 +1,75 @@
+---
+index: 1
+title: "Certificados y la cadena de confianza"
+questions:
+  - id: criptografia-pki-t01-q01
+    prompt: "¿Qué contiene un certificado digital?"
+    hint: "Clave pública, identidad, firma de la CA, fechas de validez."
+    kind: choice
+    options:
+      - id: a
+        label: "Solo la clave privada del servidor"
+      - id: b
+        label: "Clave pública del titular, su identidad (CN/SAN), la CA que lo firma y fechas de validez"
+      - id: c
+        label: "Solo el nombre del dominio"
+      - id: d
+        label: "Contraseñas de usuarios"
+  - id: criptografia-pki-t01-q02
+    prompt: "¿Qué es una CA (Certificate Authority)?"
+    hint: "La entidad de confianza que firma certificados."
+    kind: text
+  - id: criptografia-pki-t01-q03
+    prompt: "¿Qué comando openssl inspecciona un certificado remoto?"
+    hint: "openssl s_client -connect host:443"
+    kind: text
+---
+
+## El modelo de confianza PKI
+
+```text
+Root CA ( autofirmada, en tu navegador/SO )
+└── Intermediate CA ( firmada por Root )
+    └── Server Cert ( firmada por Intermediate, para tudominio.com )
+```
+
+Tu navegador confía en ~150 Root CAs preinstaladas (VeriSign, DigiCert, Let's
+Encrypt ISRG Root X1...). Cuando visitas https://ejemplo.com:
+
+1. El servidor presenta su certificado
+2. Tu navegador verifica la firma de la Intermediate
+3. La Intermediate fue firmada por una Root que ya confías
+4. La cadena es válida → confianza transitiva
+
+Si CUALQUIIER eslabón falla (certificado vencido, CA no confiable, nombre no
+coincide) → el navegador muestra la advertencia.
+
+## OpenSSL: tu herramienta diaria
+
+```bash
+# Inspeccionar un certificado remoto
+openssl s_client -connect ejemplo.com:443 -servername ejemplo.com 2>/dev/null | openssl x509 -text -noout
+
+# Output clave:
+#   Subject: CN=ejemplo.com           (para quién es)
+#   Issuer: C=US, O=Let's Encrypt     (quién lo firmó)
+#   Not Before / Not After             (validez)
+#   Subject Alternative Names          (dominios cubiertos)
+
+# Ver solo fechas
+openssl s_client -connect ejemplo.com:443 2>/dev/null | openssl x509 -noout -dates
+
+# Generar una clave privada + CSR (Certificate Signing Request)
+openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr
+
+# Auto-firmar (para labs)
+openssl req -x509 -keyout server.key -out server.crt -days 365 -subj "/CN=localhost"
+```
+
+## Qué busca un pentester en certificados
+
+- **CN y SAN**: subdominios que quizá no conocías (enumeración)
+- **Fechas**: certificado vencido = hallazgo (bypass posible en clientes mal configurados)
+- **Algoritmo**: SHA-1 firmado hoy = débil
+- **Key size**: RSA < 2048 = débil
+- **Emisor**: CAs internas revelan infraestructura corporativa

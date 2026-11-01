@@ -1,0 +1,8 @@
+# Respuestas del room redes-wireshark.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+redes-wireshark-t01-q01: http
+redes-wireshark-t01-q02: ip.addr == 10.10.10.5
+redes-wireshark-t01-q03: b
+redes-wireshark-t02-q01: b
+redes-wireshark-t02-q02: Follow TCP Stream
+redes-wireshark-t02-q03: "porque TLS cifra la capa de aplicacion: sin la clave del servidor no puedes descifrar el contenido"

@@ -1,8 +1,9 @@
 {
   "slug": "cryptography",
   "title": "Cryptography",
-  "description": "Cifrado simétrico y asimétrico, hashing con salt, cracking ético de contraseñas y codificaciones (base64/ROT13).",
+  "description": "Cifrado, hashing, cracking, PKI y certificados digitales con práctica.",
   "rooms": [
-    { "slug": "criptografia-basica" }
+    { "slug": "criptografia-basica" },
+    { "slug": "criptografia-pki" }
   ]
 }

@@ -1,0 +1,91 @@
+---
+index: 2
+title: "Análisis: encontrar credenciales en el tráfico"
+questions:
+  - id: redes-wireshark-t02-q01
+    prompt: "¿Qué protocolo envía credenciales EN TEXTO PLANO por la red?"
+    hint: "HTTP Basic Auth, FTP, Telnet — sin cifrado."
+    kind: choice
+    options:
+      - id: a
+        label: "HTTPS"
+      - id: b
+        label: "HTTP Basic Auth, FTP, Telnet — todo sin cifrar"
+      - id: c
+        label: "SSH"
+      - id: d
+        label: "Ninguno: todo va cifrado"
+  - id: redes-wireshark-t02-q02
+    prompt: "¿Qué opción de Wireshark reconstruye una conversación TCP completa?"
+    hint: "Follow TCP Stream."
+    kind: text
+  - id: redes-wireshark-t02-q03
+    prompt: "¿Por qué HTTPS no muestra el contenido en Wireshark sin la clave del servidor?"
+    hint: "TLS cifra la capa de aplicación."
+    kind: text
+---
+
+## Encontrar oro en la captura
+
+### HTTP Basic Auth
+```text
+Filtro: http.authorization
+Clic en el paquete → HTTP → Authorization: Basic dXNlcjpwYXNzd29yZA==
+Base64 decode: user:password
+```
+
+### FTP (credenciales en claro)
+```text
+Filtro: ftp
+Veras: USER anonymous
+       PASS user@example.com
+       USER admin
+       PASS SuperSecret123  ← ¡en texto plano!
+```
+
+### Telnet (todo en claro)
+```text
+Filtro: telnet
+Follow TCP Stream → la sesión completa en texto: login, password, comandos
+```
+
+## TCP Stream: la reconstrucción
+
+**Clic derecho en cualquier paquete TCP → Follow → TCP Stream**:
+
+```text
+POST /login HTTP/1.1
+Host: app.victima.com
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=P@ssw0rd123   ← la contraseña en claro
+```
+
+Es la herramienta #1 del analista de tráfico y del atacante en la misma red (MITM).
+
+## TLS/HTTPS: lo que NO puedes ver
+
+```text
+Transport Layer Security    (puerto 443)
+├── Client Hello            (visible: SNI = dominio)
+├── Server Hello + Cert     (visible: certificado)
+├── Key Exchange            (visible: parámetros públicos)
+└── Encrypted Data          (INVISIBLE sin la clave)
+```
+
+Con TLS, Wireshark solo muestra metadatos (IPs, dominio vía SNI, tamaño). El
+contenido permanece cifrado — por eso HTTPS es fundamental. Para ver contenido
+TLS necesitas la clave privada del servidor (o un TLS proxy como Burp/mitmproxy).
+
+## tcpdump: Wireshark sin GUI
+
+```bash
+# Capturar en una interfaz específica
+tcpdump -i eth0 -w captura.pcap          # guardar a archivo (abrir en Wireshark)
+tcpdump -i eth0 port 80                  # solo HTTP
+tcpdump -i eth0 host 10.10.10.5          # solo una IP
+tcpdump -i eth0 -A port 21               # FTP en ASCII (¡credenciales!)
+```
+
+En servidores sin GUI, tcpdump captura → descargas el .pcap → lo abres en
+Wireshark en tu máquina.
