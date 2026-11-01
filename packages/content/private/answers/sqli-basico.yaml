@@ -1,0 +1,10 @@
+# Respuestas del room sqli-basico.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: FLAG_1/FLAG_2 deben coincidir con labs/sqli-basico/flags.env
+sqli-basico-t01-q01: "'"
+sqli-basico-t01-q02: "OR 1=1"
+sqli-basico-t02-q01: "' OR 1=1--"
+sqli-basico-t02-q02: FLAG{union_select_dumps_everything}
+sqli-basico-t03-q01: LIMIT
+sqli-basico-t03-q02: FLAG{hidden_in_plain_description}
+sqli-basico-t03-q03: sqlite_master

@@ -1,0 +1,8 @@
+{
+  "slug": "sqli",
+  "title": "SQL Injection",
+  "description": "Explotación práctica de SQLi contra un lab real: detección, bypass, UNION SELECT y extracción.",
+  "rooms": [
+    { "slug": "sqli-basico" }
+  ]
+}
