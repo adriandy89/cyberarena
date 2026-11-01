@@ -1,6 +1,6 @@
 # Spec 104 — Labs Masivos: práctica real para todos los rooms
 
-- **Estado:** en implementación
+- **Estado:** COMPLETADA (2026-11-01) — 4 iteraciones, 22 labs
 - **Creada:** 2026-11-01
 - **Changelog:** 2026-11-01 primera versión.
 
