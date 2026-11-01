@@ -1,8 +1,15 @@
 # Spec 005 — Gamificación (streaks, badges, leaderboard, certificados, skills)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada y E2E verificado. Notas: (1) La evaluación de
+    badges también se dispara en respuestas alreadySolved (auto-reparación para
+    usuarios con progreso previo a la fase). (2) El leaderboard es público por diseño
+    (solo nombre público, XP y nivel — sin emails). (3) Certificado = HTML imprimible
+    (sin dependencias PDF). (4) Otro zombi en :3000 (PID expuesto por netstat) falseó
+    404s durante el E2E — el protocolo de matar por PID se aplicó.
 
 ## 1. Propósito
 
@@ -45,14 +52,16 @@ certificados por path y skill matrix por tags.
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] E2E admin (6 respuestas hoy): `/me/streak` → `current 1, solvedToday 6,
+- [x] E2E admin (6 respuestas hoy): `/me/streak` → `current 1, solvedToday 6,
       qualifiedToday true`; `/me/badges` incluye `first-question`, `room-first`,
       `path-complete:cyber-security-101`; `/leaderboard` → admin #1 con 80 XP;
       `/me/skills` → tags del room al 100%; `/me/certificates` → cs101 completo.
-- [ ] `/es/leaderboard` renderiza la tabla (público) y `/es/certificate/cyber-security-101`
-      es imprimible con los datos del admin.
-- [ ] Dashboard muestra racha 🔥 y grid de badges (datos por curl de sus endpoints).
-- [ ] `pnpm lint && typecheck && test && build` verdes.
+      *(verificado al completo, exactamente esos 3 badges)*
+- [x] `/es/leaderboard` renderiza la tabla (público) y `/es/certificate/cyber-security-101`
+      es imprimible con los datos del admin. *(200 ambos + i18n: "Clasificación/Histórico/
+      Este mes", "Print / PDF"; datos por endpoints)*
+- [x] Dashboard muestra racha 🔥 y grid de badges (datos por curl de sus endpoints).
+- [x] `pnpm lint && typecheck && test && build` verdes. *(61 tests: 20 shared + 41 api)*
 
 ## 5. Fuera de alcance
 

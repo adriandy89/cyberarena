@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
+import { GamificationModule } from '../gamification/gamification.module';
 import { ProgressController } from './progress.controller';
 import { ProgressService } from './progress.service';
 import { RoomsController } from './rooms.controller';
 import { RoomsService } from './rooms.service';
 
 @Module({
+  imports: [GamificationModule],
   controllers: [RoomsController, ProgressController],
   providers: [RoomsService, ProgressService],
 })

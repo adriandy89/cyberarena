@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { hashAnswer } from '@repo/database';
 import { xpForQuestion, xpForRoomCompletion, type RoomType } from '@repo/shared';
+import { BadgesService } from '../gamification/badges.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface SubmitAnswerResult {
@@ -29,7 +30,10 @@ function isUniqueViolation(error: unknown): boolean {
  */
 @Injectable()
 export class RoomsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly badges: BadgesService,
+  ) {}
 
   async submitAnswer(
     userId: string,
@@ -66,6 +70,8 @@ export class RoomsService {
       select: { questionId: true },
     });
     if (alreadySolved) {
+      // Self-healing: legacy solves predate badge evaluation (ADR-013).
+      void this.badges.evaluate(userId).catch(() => undefined);
       return {
         correct: true,
         alreadySolved: true,
@@ -113,6 +119,9 @@ export class RoomsService {
         if (!isUniqueViolation(error)) throw error;
       }
     }
+
+    // Badge evaluation is best-effort and never blocks the answer flow (ADR-013).
+    void this.badges.evaluate(userId).catch(() => undefined);
 
     return { correct: true, alreadySolved: false, xpAwarded, roomCompleted };
   }

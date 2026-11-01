@@ -184,3 +184,12 @@ model XpEvent {
   @@index([userId, createdAt])
   @@map("XpEvent")
 }
+
+model UserBadge {
+  userId     String
+  badgeId    String   // static id or "path-complete:<pathSlug>"
+  awardedAt  DateTime @default(now())
+
+  @@id([userId, badgeId])
+  @@map("UserBadge")
+}

@@ -30,6 +30,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </span>
         <div className="flex items-center gap-4">
           <Link
+            href="/paths"
+            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
+          >
+            {t('nav.paths')}
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
+          >
+            {t('nav.leaderboard')}
+          </Link>
+          <Link
             href="/status"
             className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
           >

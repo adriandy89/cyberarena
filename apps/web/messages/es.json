@@ -5,6 +5,8 @@
   },
   "HomePage": {
     "nav": {
+      "paths": "Rutas",
+      "leaderboard": "Clasificación",
       "status": "Estado del sistema"
     },
     "hero": {
@@ -160,5 +162,59 @@
     "overallProgress": "Progreso de la ruta",
     "guestTeaser": "Inicia sesión para guardar tu progreso y ganar XP.",
     "guestCta": "Entrar"
+  },
+  "Gamification": {
+    "streakCard": "Racha diaria",
+    "streakDone": "¡Racha asegurada hoy! ({required}+ preguntas)",
+    "streakTodo": "{solved}/{required} preguntas hoy para mantener la racha",
+    "streakBest": "Mejor racha: {best} días",
+    "badgesCard": "Badges ({earned}/{total})",
+    "skillsCard": "Skill matrix",
+    "certificatesCard": "Certificados",
+    "badges": {
+      "first-question": {
+        "name": "Primer acierto"
+      },
+      "room-first": {
+        "name": "Primer room"
+      },
+      "questions-10": {
+        "name": "10 preguntas"
+      },
+      "questions-50": {
+        "name": "50 preguntas"
+      },
+      "questions-100": {
+        "name": "100 preguntas"
+      },
+      "streak-3": {
+        "name": "Racha 3 días"
+      },
+      "streak-7": {
+        "name": "Racha 7 días"
+      },
+      "streak-30": {
+        "name": "Racha 30 días"
+      },
+      "pathComplete": "Path completado: {slug}"
+    }
+  },
+  "LeaderboardPage": {
+    "title": "Clasificación",
+    "period": {
+      "all": "Histórico",
+      "month": "Este mes"
+    },
+    "empty": "Aún no hay puntuaciones en este periodo."
+  },
+  "CertificatePage": {
+    "title": "Certificado de finalización",
+    "awardedTo": "Otorgado a",
+    "forCompleting": "por completar la ruta",
+    "date": "Fecha",
+    "print": "Imprimir / PDF",
+    "notFound": "Certificado no disponible",
+    "notFoundHint": "Completa todas las preguntas de la ruta para obtenerlo.",
+    "footnote": "Verificable en CyberArena · path {slug}"
   }
 }

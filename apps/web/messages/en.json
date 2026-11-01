@@ -5,6 +5,8 @@
   },
   "HomePage": {
     "nav": {
+      "paths": "Paths",
+      "leaderboard": "Leaderboard",
       "status": "System status"
     },
     "hero": {
@@ -160,5 +162,59 @@
     "overallProgress": "Path progress",
     "guestTeaser": "Sign in to save your progress and earn XP.",
     "guestCta": "Sign in"
+  },
+  "Gamification": {
+    "streakCard": "Daily streak",
+    "streakDone": "Streak secured today! ({required}+ questions)",
+    "streakTodo": "{solved}/{required} questions today to keep the streak",
+    "streakBest": "Best streak: {best} days",
+    "badgesCard": "Badges ({earned}/{total})",
+    "skillsCard": "Skill matrix",
+    "certificatesCard": "Certificates",
+    "badges": {
+      "first-question": {
+        "name": "First blood"
+      },
+      "room-first": {
+        "name": "First room"
+      },
+      "questions-10": {
+        "name": "10 questions"
+      },
+      "questions-50": {
+        "name": "50 questions"
+      },
+      "questions-100": {
+        "name": "100 questions"
+      },
+      "streak-3": {
+        "name": "3-day streak"
+      },
+      "streak-7": {
+        "name": "7-day streak"
+      },
+      "streak-30": {
+        "name": "30-day streak"
+      },
+      "pathComplete": "Path completed: {slug}"
+    }
+  },
+  "LeaderboardPage": {
+    "title": "Leaderboard",
+    "period": {
+      "all": "All-time",
+      "month": "This month"
+    },
+    "empty": "No scores in this period yet."
+  },
+  "CertificatePage": {
+    "title": "Certificate of completion",
+    "awardedTo": "Awarded to",
+    "forCompleting": "for completing the path",
+    "date": "Date",
+    "print": "Print / PDF",
+    "notFound": "Certificate not available",
+    "notFoundHint": "Complete every question of the path to earn it.",
+    "footnote": "Verifiable on CyberArena · path {slug}"
   }
 }

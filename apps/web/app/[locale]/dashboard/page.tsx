@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { authClient } from '../../../lib/auth-client';
 import { useRouter } from '../../../i18n/navigation';
+import { GamificationPanels } from '../../../components/gamification-panels';
 
 type Role = 'STUDENT' | 'ADMIN';
 
@@ -217,6 +218,8 @@ export default function DashboardPage() {
           </ul>
         </section>
       )}
+
+      <GamificationPanels />
 
       {me?.role === 'ADMIN' && (
         <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">

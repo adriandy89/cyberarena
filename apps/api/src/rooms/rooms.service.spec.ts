@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { hashAnswer } from '@repo/database';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { BadgesService } from '../gamification/badges.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RoomsService } from './rooms.service';
 
@@ -34,8 +35,12 @@ function baseMocks() {
 }
 
 function makeService(mocks = baseMocks()) {
-  const service = new RoomsService(mocks as unknown as PrismaService);
-  return { service, mocks };
+  const badges = { evaluate: vi.fn().mockResolvedValue(undefined) };
+  const service = new RoomsService(
+    mocks as unknown as PrismaService,
+    badges as unknown as BadgesService,
+  );
+  return { service, mocks, badges };
 }
 
 describe('RoomsService.submitAnswer', () => {
