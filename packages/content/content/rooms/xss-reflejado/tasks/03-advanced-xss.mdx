@@ -1,0 +1,40 @@
+---
+index: 3
+title: "XSS Avanzado: DOM, filter bypass y CSP"
+questions:
+  - id: xss-reflejado-t03-q01
+    prompt: "¿Qué tipo de XSS ocurre cuando el payload se procesa en el NAVEGADOR via JavaScript (no en el servidor)?"
+    hint: "DOM-based XSS — location.hash → innerHTML."
+    kind: text
+  - id: xss-reflejado-t03-q02
+    prompt: "¿Qué tag HTML ejecuta JavaScript sin usar <script> y bypasea filtros que solo bloquean script?"
+    hint: "<img src=x onerror=alert(1)>"
+    kind: text
+  - id: xss-reflejado-t03-q03
+    prompt: "¿Qué directiva CSP DEBILITA la protección al permitir scripts inline?"
+    hint: "'unsafe-inline'"
+    kind: text
+---
+
+## Los 3 vectores avanzados del lab
+
+### 1. DOM-based XSS (/dom)
+El JavaScript del propio sitio usa `location.hash` en `innerHTML`:
+```text
+http://127.0.0.1:18093/dom#<img src=x onerror=alert(document.body.innerHTML)>
+```
+El servidor NUNCA ve tu payload — todo pasa en el navegador del usuario.
+
+### 2. Filter bypass (/filtered)
+El filtro elimina `<script>` pero no otros tags:
+```bash
+curl "http://127.0.0.1:18093/filtered?input=<img src=x onerror=alert(1)>"
+# El filtro no bloquea <img> — solo <script>
+```
+
+### 3. CSP débil (/csp)
+El header CSP incluye `'unsafe-inline'` que permite scripts inline:
+```bash
+curl -s http://127.0.0.1:18093/csp | grep Content-Security
+# script-src 'self' 'unsafe-inline' ← el hueco
+```

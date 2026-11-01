@@ -1,0 +1,28 @@
+# Lab: ssrf-deep — additional task in room ssrf-basico
+# Advanced SSRF: redirect-based, protocol schemes, internal port scanning.
+name: lab-ssrf-deep
+
+services:
+  web:
+    image: python:3.12-alpine
+    working_dir: /app
+    volumes:
+      - ./site:/site:ro
+    command: sh -c "cp /site/app.py /app/app.py && python /app/app.py"
+    environment:
+      FLAG_1: ${FLAG_1:?set FLAG_1}
+      FLAG_2: ${FLAG_2:?set FLAG_2}
+    ports:
+      - '127.0.0.1:18095:8080'
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks:
+      lab:
+        aliases:
+          - ssrf-alias
+
+networks:
+  lab:
+    name: lab-ssrf-deep

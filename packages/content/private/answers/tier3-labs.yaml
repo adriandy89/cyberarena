@@ -1,0 +1,9 @@
+# Respuestas de labs Tier 3 (rooms existentes).
+# PRIVADO: el seed lo hashea a la tabla Answer.
+sqli-basico-t04-q01: "la pagina muestra 'user exists' o 'user not found'"
+sqli-basico-t04-q02: "usando SUBSTR y CASE WHEN para deducir cada caracter por la respuesta true/false"
+xss-reflejado-t03-q01: DOM-based XSS
+xss-reflejado-t03-q02: "<img src=x onerror=alert(1)>"
+xss-reflejado-t03-q03: "unsafe-inline"
+ssrf-basico-t03-q01: ssrf-alias
+ssrf-basico-t03-q02: FLAG{redirect_ssrf_bypass}
