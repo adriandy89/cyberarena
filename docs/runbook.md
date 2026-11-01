@@ -50,6 +50,34 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/en   # 200
 
 Puertos: web 3000 · api 3001 · postgres 5432 · mailpit UI 8025 / SMTP 1025.
 
+## Autenticación (fase 001)
+
+- **El primer usuario registrado se convierte en ADMIN** automáticamente
+  (`databaseHooks` de better-auth); todos los demás nacen STUDENT.
+- La web habla con la API por el rewrite same-origin `/api` (ADR-008): la cookie de
+  sesión es de primer partido y no hay CORS cross-port.
+- **Verificación de email / reset de contraseña en dev**: `REQUIRE_EMAIL_VERIFICATION`
+  en el `.env` del stack (default `false`). Los emails salen por Mailpit:
+  - UI: http://localhost:8025
+  - API REST (para scripts): `curl -s http://localhost:8025/api/v1/messages | jq`
+  - Flujo de reset con curl (a través del rewrite de la web, puerto 3000):
+    ```bash
+    curl -s -X POST http://localhost:3000/api/auth/forget-password \
+      -H 'Content-Type: application/json' \
+      -d '{"email":"admin@example.com","redirectTo":"/es/login"}'
+    # el enlace llega a Mailpit; abrirlo verifica/resetea vía GET /api/auth/reset-password/...
+    ```
+- Cambiar roles: dashboard → panel "Usuarios (admin)", o
+  `PATCH /api/users/<id>/role` con body `{"role":"ADMIN"|"STUDENT"}` (un admin no
+  puede cambiarse su propio rol).
+- Crear cuenta dev rápidamente:
+  ```bash
+  curl -s -c cookies.txt -X POST http://localhost:3000/api/auth/sign-up/email \
+    -H 'Content-Type: application/json' \
+    -d '{"name":"Ada","email":"ada@example.com","password":"supersecret1"}'
+  curl -s -b cookies.txt http://localhost:3000/api/users/me
+  ```
+
 ## Solución de problemas
 
 | Síntoma | Causa probable | Fix |

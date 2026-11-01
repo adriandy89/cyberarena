@@ -46,8 +46,9 @@ pnpm dev
 ```
 
 - Web: http://localhost:3000 (`/es` · `/en`)
-- API: http://localhost:3001/api/health
+- API: http://localhost:3001/api/health (o a través de la web: http://localhost:3000/api/health)
 - Mailpit (email dev): http://localhost:8025
+- Login: http://localhost:3000/es/login — **el primer usuario registrado es ADMIN**
 
 ## Estructura del repositorio
 
