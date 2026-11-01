@@ -1,0 +1,49 @@
+---
+index: 1
+title: "Explorar el sistema de archivos"
+questions:
+  - id: file-upload-t01-q01
+    prompt: "¿Qué archivo oculto (que empieza por punto) contiene credenciales en la mayoría de aplicaciones web?"
+    hint: ".env — variables de entorno con secrets."
+    kind: text
+  - id: file-upload-t01-q02
+    prompt: "Envía la flag del archivo flag_level1.txt (visible en /files)."
+    hint: "curl http://127.0.0.1:18087/files/flag_level1.txt"
+    kind: flag
+  - id: file-upload-t01-q03
+    prompt: "Envía la flag del archivo .env (oculto pero accesible)."
+    hint: "curl http://127.0.0.1:18087/files/.env"
+    kind: flag
+---
+
+## Directory listing: la información gratis
+
+El lab tiene un **FileShare** con directorio listing habilitado:
+
+```bash
+curl http://127.0.0.1:18087/files
+```
+
+Verás archivos públicos Y archivos que no deberían estar ahí:
+- `flag_level1.txt` — accesible directamente
+- `.env` — archivo de configuración con credenciales
+
+## El .env: la fuga más común de todas
+
+El patrón es idéntico en apps reales: el `.env` con claves de API, contraseñas de
+BD y secrets se sube al servidor y queda accesible porque nadie bloqueó el acceso
+a archivos ocultos.
+
+```bash
+curl http://127.0.0.1:18087/files/.env
+# DB_PASSWORD=FLAG{dotenv_credentials_leak}
+```
+
+En producción real, ese archivo tendría credenciales de AWS, tokens de Slack,
+claves de base de datos... todo lo que la app necesita para funcionar.
+
+## Directory listing también es información
+
+`/files` sin autenticación ya es un hallazgo del informe: "información expuesta
+por directory listing". Pero lo interesante viene en el siguiente task: subir
+archivos que NO deberían poder subirse.

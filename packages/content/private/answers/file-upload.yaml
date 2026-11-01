@@ -1,0 +1,9 @@
+# Respuestas del room file-upload.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/file-upload/flags.env
+file-upload-t01-q01: .env
+file-upload-t01-q02: FLAG{open_directory_listing}
+file-upload-t01-q03: FLAG{dotenv_credentials_leak}
+file-upload-t02-q01: double extension
+file-upload-t02-q02: b
+file-upload-t02-q03: FLAG{discover_hidden_files}

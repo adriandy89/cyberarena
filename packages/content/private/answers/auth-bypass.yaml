@@ -1,0 +1,9 @@
+# Respuestas del room auth-bypass.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/auth-bypass/flags.env
+auth-bypass-t01-q01: "base64 de username:password"
+auth-bypass-t01-q02: FLAG{basic_auth_weak_password}
+auth-bypass-t01-q03: none
+auth-bypass-t02-q01: IDOR
+auth-bypass-t02-q02: FLAG{idor_admin_secret}
+auth-bypass-t02-q03: b

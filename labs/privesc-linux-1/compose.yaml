@@ -1,0 +1,34 @@
+# Lab: privesc-linux-1 — room privesc-linux (WebApp/JrPT)
+# A REAL Linux privesc playground with SUID, sudo misconfig, cron, capabilities.
+# Interactive: access via docker exec (not HTTP).
+# Up:    docker compose -f labs/privesc-linux-1/compose.yaml --env-file labs/privesc-linux-1/flags.env up -d
+# Enter: docker exec -it lab-privesc-linux-1-shell-1 sh
+# Down:  docker compose -f labs/privesc-linux-1/compose.yaml --env-file labs/privesc-linux-1/flags.env down -v
+name: lab-privesc-linux-1
+
+services:
+  shell:
+    image: alpine:3.20
+    entrypoint: ["/bin/sh", "/setup.sh"]
+    volumes:
+      - ./setup.sh:/setup.sh:ro
+    environment:
+      FLAG_1: ${FLAG_1:?set FLAG_1}
+      FLAG_2: ${FLAG_2:?set FLAG_2}
+      FLAG_3: ${FLAG_3:?set FLAG_3}
+      FLAG_4: ${FLAG_4:?set FLAG_4}
+    stdin_open: true
+    tty: true
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - FOWNER
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks: [lab]
+
+networks:
+  lab:
+    name: lab-privesc-linux-1

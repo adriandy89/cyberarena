@@ -1,0 +1,70 @@
+---
+index: 2
+title: "IDOR: cuando cambiar un número te da acceso"
+questions:
+  - id: auth-bypass-t02-q01
+    prompt: "¿Qué acrónimo describe acceder a objetos de otros usuarios manipulando identificadores?"
+    hint: "Insecure Direct Object Reference."
+    kind: text
+  - id: auth-bypass-t02-q02
+    prompt: "Envía la flag del campo 'secret' del usuario admin (endpoint /api/user/1)."
+    hint: "curl http://127.0.0.1:18086/api/user/1"
+    kind: flag
+  - id: auth-bypass-t02-q03
+    prompt: "¿Cuál es la causa raíz del IDOR?"
+    hint: "El servidor identifica el objeto pero no comprueba quién es el dueño."
+    kind: choice
+    options:
+      - id: a
+        label: "La API es demasiado rápida"
+      - id: b
+        label: "Falta verificación de autorización: el servidor devuelve el objeto sin comprobar que el solicitante es su dueño"
+      - id: c
+        label: "El ID es demasiado corto"
+      - id: d
+        label: "Falta HTTPS"
+---
+
+## Nivel 3: IDOR en la API
+
+El lab expone una API REST:
+
+```bash
+# Listar usuarios (disponible públicamente):
+curl http://127.0.0.1:18086/api/users
+# {"users": [{"id": 1, "name": "admin"}, {"id": 2, "name": "user"}]}
+
+# Acceder a los datos de un usuario:
+curl http://127.0.0.1:18086/api/user/2
+# {"id": 2, "name": "user", "role": "user", "secret": "normal"}
+
+# Cambiar el ID → datos del ADMIN:
+curl http://127.0.0.1:18086/api/user/1
+# {"id": 1, "name": "admin", "role": "admin", "secret": "FLAG{idor_admin_secret}"}
+```
+
+La API **no verifica** que el solicitante tenga permiso para ver ese usuario.
+Simplemente busca por ID y devuelve lo que encuentre.
+
+## IDOR es el hallazgo más común en pentests web
+
+Cualquier endpoint que use IDs secuenciales es candidato:
+- `/api/orders/123` → cambia a `/api/orders/124` (pedido de otra persona)
+- `/api/invoices/2024-001` → la factura de otro cliente
+- `/api/messages/567` → el mensaje privado de otro usuario
+
+## Remediación
+
+```python
+# MAL (solo identifica el objeto):
+user = db.get_user(requested_id)
+return user
+
+# BIEN (verifica autorización):
+user = db.get_user(requested_id)
+if user.id != current_user.id and current_user.role != 'admin':
+    return forbidden()
+return user
+```
+
+**Deny by default**: si no estás SEGURO de que el usuario tiene permiso, niega.

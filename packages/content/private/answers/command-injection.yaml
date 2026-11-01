@@ -1,0 +1,9 @@
+# Respuestas del room command-injection.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/cmd-injection/flags.env
+command-injection-t01-q01: ";"
+command-injection-t01-q02: FLAG{semicolon_command_execution}
+command-injection-t01-q03: b
+command-injection-t02-q01: "%0a"
+command-injection-t02-q02: FLAG{filter_bypass_newline}
+command-injection-t02-q03: b

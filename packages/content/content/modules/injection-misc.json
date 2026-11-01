@@ -1,0 +1,9 @@
+{
+  "slug": "injection-misc",
+  "title": "Command Injection y File Upload",
+  "description": "OS command execution vía ping utility y file upload bypass: RCE práctico con labs reales.",
+  "rooms": [
+    { "slug": "command-injection" },
+    { "slug": "file-upload" }
+  ]
+}

