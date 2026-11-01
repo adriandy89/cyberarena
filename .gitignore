@@ -1,0 +1,42 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Turborepo
+.turbo/
+
+# Entorno y secretos (NUNCA commitear)
+.env
+.env.*
+!.env.example
+infra/stacks/*/.env
+labs/**/*.env
+
+# Prisma
+packages/database/generated/
+
+# Tests / coverage
+coverage/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Docker
+docker-data/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*

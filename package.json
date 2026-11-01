@@ -1,0 +1,26 @@
+{
+  "name": "cyberarena",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma personal de aprendizaje de ciberseguridad estilo TryHackMe: rutas, rooms, flags, labs Docker y gamificación. Bilingüe ES/EN.",
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml,yml}\"",
+    "db:generate": "turbo run db:generate --filter=@repo/database",
+    "db:migrate": "turbo run db:migrate --filter=@repo/database",
+    "db:push": "turbo run db:push --filter=@repo/database",
+    "db:seed": "turbo run db:seed --filter=@repo/database",
+    "db:studio": "pnpm --filter @repo/database studio"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
