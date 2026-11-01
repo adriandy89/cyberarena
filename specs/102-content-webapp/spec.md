@@ -1,6 +1,6 @@
 # Spec 102 — Content Pack: Web Application Pentesting
 
-- **Estado:** en curso
+- **Estado:** COMPLETADA (2026-11-01) — 3 módulos con labs reales
 - **Creada:** 2026-11-01
 - **Changelog:** 2026-11-01 primera versión.
 

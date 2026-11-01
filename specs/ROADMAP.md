@@ -15,8 +15,8 @@
 | F8 | `008-deploy-hardening` | ✅ completada (2026-11-01) | Stack prod + proxy Caddy HTTPS + backups + hardening + runbook final |
 | F9 | `100-content-cs101` | ✅ completada (2026-11-01) | Path Cyber Security 101 completo (14 módulos) |
 | F10 | `101-content-jrpt` | ✅ completada (2026-11-01) | Path Jr Penetration Tester completo (17 módulos) |
-| F11 | `102-content-webapp` | ⬜ siguiente | Path Web Application Pentesting |
-| F12 | `103-content-advpt` | ⬜ pendiente | Paths Web App Red Teaming + Red Teaming (nivel PT2) |
+| F11 | `102-content-webapp` | ✅ completada (2026-11-01) | Path Web Application Pentesting |
+| F12 | `103-content-advpt` | ⬜ siguiente | Paths Web App Red Teaming + Red Teaming (nivel PT2) |
 
 ## Convenciones
 
