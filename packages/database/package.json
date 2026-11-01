@@ -1,0 +1,37 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Prisma 7 schema, migrations, seed and typed client for CyberArena",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "studio": "prisma studio",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1"
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "@types/node": "24.19.2",
+    "dotenv": "18.0.9",
+    "prisma": "7.10.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

@@ -21,6 +21,14 @@
     "db:studio": "pnpm --filter @repo/database studio"
   },
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "prettier": "3.9.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@prisma/engines",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

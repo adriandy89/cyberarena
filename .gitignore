@@ -20,7 +20,13 @@ infra/stacks/*/.env
 labs/**/*.env
 
 # Prisma
-packages/database/generated/
+packages/database/src/generated/
+
+# Backups
+backups/
+
+# ZCode / agentes
+.zcode/
 
 # Tests / coverage
 coverage/
