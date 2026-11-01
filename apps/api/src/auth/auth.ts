@@ -38,7 +38,11 @@ const emailLayout = (title: string, body: string, url: string, cta: string) => `
  */
 export function createAuth(deps: AuthDependencies) {
   const webUrl = process.env.WEB_URL ?? 'http://localhost:3000';
-  const baseURL = `${process.env.BETTER_AUTH_URL ?? 'http://localhost:3001'}/api`;
+  // better-auth derives its router basePath from the baseURL PATHNAME
+  // (dist/auth/base.mjs: new URL(baseURL).pathname): it must include /api/auth
+  // so endpoints are served at /api/auth/**, matching the root dispatch in
+  // main.ts and the web client's baseURL.
+  const baseURL = `${process.env.BETTER_AUTH_URL ?? 'http://localhost:3001'}/api/auth`;
   const requireEmailVerification = process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
 
   return betterAuth({

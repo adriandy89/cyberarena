@@ -5,7 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { type Reflector } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
 import { Role } from '@repo/database';
 import { ROLES_KEY, type RequiredRoles } from './roles.decorator';
 import type { SessionRequest } from './session.guard';

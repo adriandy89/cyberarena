@@ -6,8 +6,8 @@
 | Fase | Carpeta | Estado | Entregable |
 |---|---|---|---|
 | F0 | `000-foundation` | ✅ completada (2026-11-01) | Monorepo operativo: web+api bilingüe + postgres en Docker + CI |
-| F1 | `001-auth-users` | ⬜ siguiente | Better Auth, roles admin/estudiante, perfiles, emails dev |
-| F2 | `002-content-engine` | ⬜ pendiente | Content Collections: schemas, seed→BD, validación, guía de autoría |
+| F1 | `001-auth-users` | ✅ completada (2026-11-01) | Better Auth, roles admin/estudiante, perfiles, emails dev |
+| F2 | `002-content-engine` | ⬜ siguiente | Content Collections: schemas, seed→BD, validación, guía de autoría |
 | F3 | `003-room-player` | ⬜ pendiente | UI del room: tasks MDX, preguntas, flags, hints, progreso |
 | F4 | `004-paths-dashboard` | ⬜ pendiente | Páginas path/módulo, % progreso, dashboard personal |
 | F5 | `005-gamification` | ⬜ pendiente | XP, niveles, streaks, badges, leaderboard, certificados, skill matrix |

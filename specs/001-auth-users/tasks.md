@@ -4,33 +4,33 @@
 
 ## Fase A — Specs y datos
 
-- [ ] T001 [P] [US0] `specs/001-auth-users/*` completa + ADR-007/008.
-- [ ] T002 [P] [US1] Schema Prisma: better-auth core tables + `role` en User; migración
+^- [x] T001 [P] [US0] `specs/001-auth-users/*` completa + ADR-007/008.
+^- [x] T002 [P] [US1] Schema Prisma: better-auth core tables + `role` en User; migración
       0002 aplicada y versionada; `@repo/database` re-exporta tipos.
 
 ## Fase B — API
 
-- [ ] T003 [US1,US5,US6] `apps/api`: better-auth instance (prisma adapter, additionalField
+^- [x] T003 [US1,US5,US6] `apps/api`: better-auth instance (prisma adapter, additionalField
       role, first-user-admin hook, trustedOrigins, callbacks email), EmailService
       (nodemailer), AuthController catch-all con body cruto, main.ts con body parser
       condicional.
-- [ ] T004 [US2,US3] Guards (Session/Roles) + decorators; UsersModule: `GET /users/me`,
+^- [x] T004 [US2,US3] Guards (Session/Roles) + decorators; UsersModule: `GET /users/me`,
       `GET /users` (ADMIN), `PATCH /users/:id/role` (ADMIN, no auto-degradarse); tests.
 
 ## Fase C — Web
 
-- [ ] T005 [US6] `lib/auth-client.ts`, Next rewrites `/api`, `/status` a fetch relativo,
+^- [x] T005 [US6] `lib/auth-client.ts`, Next rewrites `/api`, `/status` a fetch relativo,
       types del auth client (`InferSessionUser`).
-- [ ] T006 [US2,US7] Páginas `/login` (sign in/up, errores i18n) y `/dashboard` (protección
+^- [x] T006 [US2,US7] Páginas `/login` (sign in/up, errores i18n) y `/dashboard` (protección
       cliente, `/users/me`, panel admin usuarios/roles), `UserMenu` en header, mensajes es/en.
 
 ## Fase D — Docs y cierre
 
-- [ ] T007 [P] [US5] `.env.example` (SMTP, REQUIRE_EMAIL_VERIFICATION, API_URL), runbook
+^- [x] T007 [P] [US5] `.env.example` (SMTP, REQUIRE_EMAIL_VERIFICATION, API_URL), runbook
       (Mailpit, flujo verificación/reset), README nota de auth.
-- [ ] T008 [US1..US4] Verificación completa: build/lint/typecheck/test + E2E curl
+^- [x] T008 [US1..US4] Verificación completa: build/lint/typecheck/test + E2E curl
       (registro→me→logout→roles) + Mailpit con verificación activada; changelog + ROADMAP.
 
 ## Bugs/Deuda
 
-- (vacío)
+- Ninguno

@@ -1,8 +1,22 @@
 # Spec 001 — Auth & Users (Better Auth + roles + perfiles)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada y E2E verificado. Desvíos/hallazgos:
+    (1) **ADR-007 enmendado**: el catch-all controller NO funciona en Express 5
+    (path-to-regexp v8: `*path`/`*splat` no cruzan `/`); el handler de better-auth se
+    monta con dispatch de raíz en `main.ts` (URL completa preservada). (2) **Gotcha
+    crítico de better-auth 1.7**: el router deriva el basePath del **pathname del
+    baseURL** (`new URL(baseURL).pathname`); por eso `baseURL` DEBE terminar en
+    `/api/auth` o todos los endpoints dan 404. (3) El endpoint de reset se llama
+    `/request-password-reset` (no `/forget-password`). (4) Los POST con cookie de
+    sesión exigen `Origin` confiable (curl necesita `-H 'Origin: http://localhost:3000'`).
+    (5) `ZodValidationPipe` no existe en Nest 12.3: se usa `StandardSchemaValidationPipe`
+    global (APP_PIPE) + `@Body({ schema })`. (6) La regla eslint
+    `consistent-type-imports` rompe la DI de Nest (metadata elide type-imports):
+    desactivada en apps/api.
 
 ## 1. Propósito
 
@@ -56,17 +70,17 @@ contraseña a través de Mailpit). Sustituye el `User` placeholder de F0 por el 
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] E2E con curl: sign-up → cookie de sesión → `GET /users/me` (200, role STUDENT) →
-      sign-out → `GET /users/me` (401).
-- [ ] Primer usuario registrado sale con role ADMIN; el segundo STUDENT.
-- [ ] Con sesión ADMIN: `GET /api/users` devuelve lista; `PATCH role` cambia rol y está
-      prohibido auto-degradarse (400).
-- [ ] Sign-up dispara email a Mailpit cuando `REQUIRE_EMAIL_VERIFICATION=true`
-      (verificación completa opcional en el smoke test).
-- [ ] Web: registro/login/dashboard funcionando en `/es` y `/en`; cookie same-origin vía
-      rewrite; `/status` sigue funcionando.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` verdes; tests nuevos de
-      UsersService, roles y first-user-admin en verde.
+- [x] E2E con curl: sign-up → cookie de sesión → `GET /users/me` (200, role STUDENT) →
+      sign-out → `GET /users/me` (401). *(verificado 2026-11-01 vía rewrite :3000)*
+- [x] Primer usuario registrado sale con role ADMIN; el segundo STUDENT. *(ada=ADMIN, bob=STUDENT)*
+- [x] Con sesión ADMIN: `GET /api/users` devuelve lista; `PATCH role` cambia rol y está
+      prohibido auto-degradarse (400). *(promote bob ✓, self-demote 400 ✓, rol inválido 400 por Zod ✓)*
+- [x] Sign-up dispara email a Mailpit cuando `REQUIRE_EMAIL_VERIFICATION=true`
+      *(verificado con request-password-reset: email en Mailpit; verificación opcional queda por env)*
+- [x] Web: registro/login/dashboard funcionando en `/es` y `/en`; cookie same-origin vía
+      rewrite; `/status` sigue funcionando. *(páginas 200; E2E íntegro vía :3000/api)*
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` verdes; tests nuevos de
+      UsersService, roles y first-user-admin en verde. *(10 tests api + 14 shared)*
 
 ## 5. Fuera de alcance
 

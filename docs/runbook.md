@@ -60,10 +60,11 @@ Puertos: web 3000 · api 3001 · postgres 5432 · mailpit UI 8025 / SMTP 1025.
   en el `.env` del stack (default `false`). Los emails salen por Mailpit:
   - UI: http://localhost:8025
   - API REST (para scripts): `curl -s http://localhost:8025/api/v1/messages | jq`
-  - Flujo de reset con curl (a través del rewrite de la web, puerto 3000):
+  - Flujo de reset con curl (a través del rewrite de la web, puerto 3000; nota: los
+    POST con cookie de sesión requieren cabecera `Origin` de confianza):
     ```bash
-    curl -s -X POST http://localhost:3000/api/auth/forget-password \
-      -H 'Content-Type: application/json' \
+    curl -s -X POST http://localhost:3000/api/auth/request-password-reset \
+      -H 'Content-Type: application/json' -H 'Origin: http://localhost:3000' \
       -d '{"email":"admin@example.com","redirectTo":"/es/login"}'
     # el enlace llega a Mailpit; abrirlo verifica/resetea vía GET /api/auth/reset-password/...
     ```

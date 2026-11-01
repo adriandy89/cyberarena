@@ -6,7 +6,7 @@ import type { AuthUser } from '../auth/auth-module-types';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { SessionGuard } from '../auth/session.guard';
-import { type UsersService } from './users.service';
+import { UsersService } from './users.service';
 
 const setRoleSchema = z.object({ role: z.enum(['STUDENT', 'ADMIN']) });
 
