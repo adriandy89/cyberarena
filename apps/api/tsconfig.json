@@ -1,0 +1,11 @@
+{
+  "extends": "@repo/config/typescript/node-library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "sourceRoot": "./src",
+    "types": ["node"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
