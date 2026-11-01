@@ -20,6 +20,8 @@ export interface PathTree {
       difficulty: string;
       type: string;
       estimatedMinutes: number;
+      lab?: string | null;
+      labUrl?: string | null;
     }>;
   }>;
 }
@@ -147,6 +149,11 @@ export function PathProgress({ pathSlug, tree }: { pathSlug: string; tree: PathT
                         <span className="font-medium text-slate-100">
                           {completed && <span className="mr-2 text-emerald-400">✓</span>}
                           {room.title}
+                          {room.lab && (
+                            <span className="ml-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-400">
+                              lab
+                            </span>
+                          )}
                         </span>
                         <span className="text-xs uppercase tracking-wide text-slate-500">
                           {room.difficulty} · {room.estimatedMinutes}′
