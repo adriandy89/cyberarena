@@ -1,10 +1,22 @@
 import 'reflect-metadata';
+import { json } from 'express';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  // Better Auth reads the raw request body, so Nest's body parser stays off
+  // and JSON parsing is applied selectively: every path except /api/auth.
+  // (ADR-007)
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
   app.setGlobalPrefix('api');
+
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.use((req: import('express').Request, res: import('express').Response, next: () => void) => {
+    if (req.path.startsWith('/auth')) {
+      return next();
+    }
+    return json()(req, res, next);
+  });
 
   const corsOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:3000')
     .split(',')

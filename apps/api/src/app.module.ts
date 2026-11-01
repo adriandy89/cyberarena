@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, StandardSchemaValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -11,8 +13,14 @@ import { PrismaModule } from './prisma/prisma.module';
     // Global rate limiting: 120 requests / minute / IP by default (constitution §1.5).
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
+    AuthModule,
+    UsersModule,
     HealthModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    // Zod/Standard Schema validation for @Body({ schema }) route params.
+    { provide: APP_PIPE, useClass: StandardSchemaValidationPipe },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}
