@@ -1,0 +1,34 @@
+{
+  "title": "Web Red Teaming",
+  "description": "Evasion and advanced payloads vs WAF/IDS.",
+  "tasks": {
+    "1": {
+      "title": "WAF bypass",
+      "questions": {
+        "web-red-team-t01-q01": {
+          "prompt": "What technique encodes SQLi in hex?"
+        },
+        "web-red-team-t01-q02": {
+          "prompt": "What HTTP feature can bypass parameter-only WAFs?"
+        },
+        "web-red-team-t01-q03": {
+          "prompt": "What SQL comment alternative to -- is less detected?"
+        }
+      }
+    },
+    "2": {
+      "title": "Polymorphic and C2",
+      "questions": {
+        "web-red-team-t02-q01": {
+          "prompt": "What is a polymorphic payload?"
+        },
+        "web-red-team-t02-q02": {
+          "prompt": "What C2 protocol disguises as HTTP?"
+        },
+        "web-red-team-t02-q03": {
+          "prompt": "What tools create covert tunnels?"
+        }
+      }
+    }
+  }
+}

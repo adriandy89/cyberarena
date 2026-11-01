@@ -1,0 +1,48 @@
+{
+  "title": "Linux privilege escalation",
+  "description": "From limited user to root: SUID, sudo, cron, PATH.",
+  "tasks": {
+    "1": {
+      "title": "Methodology",
+      "questions": {
+        "privesc-linux-t01-q01": {
+          "prompt": "What automated script is THE standard for Linux privesc enumeration?"
+        },
+        "privesc-linux-t01-q02": {
+          "prompt": "What command shows what you can run as root without password?"
+        },
+        "privesc-linux-t01-q03": {
+          "prompt": "Why NOT run enumeration scripts blindly?"
+        }
+      }
+    },
+    "2": {
+      "title": "SUDO and SUID",
+      "questions": {
+        "privesc-linux-t02-q01": {
+          "prompt": "sudo -l shows NOPASSWD: /usr/bin/vim. How to escalate?"
+        },
+        "privesc-linux-t02-q02": {
+          "prompt": "find is SUID root. What does GTFOBins say?"
+        },
+        "privesc-linux-t02-q03": {
+          "prompt": "Why is sudo less a privesc vector?"
+        }
+      }
+    },
+    "3": {
+      "title": "Cron, PATH and more",
+      "questions": {
+        "privesc-linux-t03-q01": {
+          "prompt": "A cron script calls tar without absolute path. How to escalate?"
+        },
+        "privesc-linux-t03-q02": {
+          "prompt": "What capability allows privileged port binding?"
+        },
+        "privesc-linux-t03-q03": {
+          "prompt": "You find credentials in a config file. What do you do?"
+        }
+      }
+    }
+  }
+}

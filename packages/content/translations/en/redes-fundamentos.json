@@ -1,0 +1,19 @@
+{
+  "title": "Networking I: how a packet actually travels",
+  "description": "The layered model, IPs and ports, TCP vs UDP, and the complete journey of an HTTP request.",
+  "tasks": {
+    "1": { "title": "Layers, IPs and ports", "questions": {
+      "redes-fundamentos-t01-q01": { "prompt": "Which transport layer protocol guarantees delivery (SYN, SYN-ACK, ACK handshake)?" },
+      "redes-fundamentos-t01-q02": { "prompt": "What port does HTTPS use by default?" },
+      "redes-fundamentos-t01-q03": { "prompt": "A non-routable private IP is..." }
+    }},
+    "2": { "title": "DNS: the internet's phone book", "questions": {
+      "redes-fundamentos-t02-q01": { "prompt": "Which DNS record type translates a name to an IPv4 address?" },
+      "redes-fundamentos-t02-q02": { "prompt": "Which record points one name to ANOTHER name (alias)?" },
+      "redes-fundamentos-t02-q03": { "prompt": "In pentesting, why is DNS gold for reconnaissance?" }
+    }},
+    "3": { "title": "The complete journey of an HTTP request", "questions": {
+      "redes-fundamentos-t03-q01": { "prompt": "What HTTP code indicates 'not found'?" },
+      "redes-fundamentos-t03-q02": { "prompt": "What HTTP header does the browser send to tell the server how to authenticate?" },
+      "redes-fundamentos-t03-q03": { "prompt": "What HTTP method is used to SEND data to the server?" },
+      "redes-fundamentos-t03-q04"

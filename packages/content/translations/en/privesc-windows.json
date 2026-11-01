@@ -1,0 +1,48 @@
+{
+  "title": "Windows privilege escalation",
+  "description": "From user to SYSTEM: services, tokens, registry.",
+  "tasks": {
+    "1": {
+      "title": "Windows enumeration",
+      "questions": {
+        "privesc-windows-t01-q01": {
+          "prompt": "What command shows YOUR privileges?"
+        },
+        "privesc-windows-t01-q02": {
+          "prompt": "What privileges allow token impersonation?"
+        },
+        "privesc-windows-t01-q03": {
+          "prompt": "What command lists services with their account and path?"
+        }
+      }
+    },
+    "2": {
+      "title": "Services",
+      "questions": {
+        "privesc-windows-t02-q01": {
+          "prompt": "A service runs unquoted path with spaces. Why dangerous?"
+        },
+        "privesc-windows-t02-q02": {
+          "prompt": "A LocalSystem service binary is world-writable. How to escalate?"
+        },
+        "privesc-windows-t02-q03": {
+          "prompt": "What command restarts a Windows service?"
+        }
+      }
+    },
+    "3": {
+      "title": "AlwaysInstallElevated and more",
+      "questions": {
+        "privesc-windows-t03-q01": {
+          "prompt": "What registry key enables AlwaysInstallElevated?"
+        },
+        "privesc-windows-t03-q02": {
+          "prompt": "What attack exploits SeImpersonatePrivilege?"
+        },
+        "privesc-windows-t03-q03": {
+          "prompt": "A critical KB is missing. What exploit type?"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Linux Fundamentals III: packages, networking and automation",
+  "description": "Install software, understand ports and connections from the terminal, and take your first steps with bash and cron.",
+  "tasks": {
+    "1": { "title": "Packages: install and update", "questions": {
+      "linux-fundamentos-3-t01-q01": { "prompt": "On Debian/Ubuntu, which command downloads and installs a package (e.g. nmap) in one step?" },
+      "linux-fundamentos-3-t01-q02": { "prompt": "Which distribution family uses dnf/rpm instead of apt/deb?" }
+    }},
+    "2": { "title": "Networking from the terminal", "questions": {
+      "linux-fundamentos-3-t02-q01": { "prompt": "Which command lists LISTENING ports with their process (successor of netstat)?" },
+      "linux-fundamentos-3-t02-q02": { "prompt": "Which tool downloads/shows a URL and handles POST with JSON?" },
+      "linux-fundamentos-3-t02-q03": { "prompt": "Is a port listening on 127.0.0.1:8080 accessible from another machine on the network?" }
+    }},
+    "3": { "title": "Your first script and scheduled tasks", "questions": {
+      "linux-fundamentos-3-t03-q01": { "prompt": "What line does a bash script start with to tell the system which interpreter to use?" },
+      "linux-fundamentos-3-t03-q02": { "prompt": "Which daemon executes scheduled tasks (crontab expressions)?" },
+      "linux-fundamentos-3-t03-q03": { "prompt": "In cron, what expression means 'every day at 03:30 AM'?" }
+    }}
+  }
+}

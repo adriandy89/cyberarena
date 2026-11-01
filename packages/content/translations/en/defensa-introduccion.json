@@ -1,0 +1,45 @@
+{
+  "title": "Defensive security: the other side",
+  "description": "SOC, monitoring, log analysis, incident response.",
+  "tasks": {
+    "1": {
+      "title": "The SOC",
+      "questions": {
+        "defensa-introduccion-t01-q01": {
+          "prompt": "What does SOC stand for?"
+        },
+        "defensa-introduccion-t01-q02": {
+          "prompt": "What is the PRIMARY goal of a SOC?"
+        }
+      }
+    },
+    "2": {
+      "title": "Logs: digital evidence",
+      "questions": {
+        "defensa-introduccion-t02-q01": {
+          "prompt": "What Linux tool follows a log LIVE?"
+        },
+        "defensa-introduccion-t02-q02": {
+          "prompt": "Where does Windows store event logs?"
+        },
+        "defensa-introduccion-t02-q03": {
+          "prompt": "An admin deletes logs after an alert. What does this indicate?"
+        }
+      }
+    },
+    "3": {
+      "title": "The incident lifecycle",
+      "questions": {
+        "defensa-introduccion-t03-q01": {
+          "prompt": "What is the first phase on confirming an intrusion?"
+        },
+        "defensa-introduccion-t03-q02": {
+          "prompt": "What is a false positive?"
+        },
+        "defensa-introduccion-t03-q03": {
+          "prompt": "What phase closes the cycle after eradication?"
+        }
+      }
+    }
+  }
+}

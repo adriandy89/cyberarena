@@ -1,0 +1,34 @@
+{
+  "title": "Advanced AD: PT2 Level",
+  "description": "Kerberos delegation, ADCS abuse, NTLM relay, trust attacks.",
+  "tasks": {
+    "1": {
+      "title": "Kerberos delegation",
+      "questions": {
+        "ad-avanzado-t01-q01": {
+          "prompt": "What delegation stores all user TGTs?"
+        },
+        "ad-avanzado-t01-q02": {
+          "prompt": "What attack forces privileged authentication to steal TGTs?"
+        },
+        "ad-avanzado-t01-q03": {
+          "prompt": "What delegation only allows specific services?"
+        }
+      }
+    },
+    "2": {
+      "title": "ADCS and NTLM relay",
+      "questions": {
+        "ad-avanzado-t02-q01": {
+          "prompt": "What Windows service issues Kerberos certificates?"
+        },
+        "ad-avanzado-t02-q02": {
+          "prompt": "What ADCS misconfig allows arbitrary SANs?"
+        },
+        "ad-avanzado-t02-q03": {
+          "prompt": "What tool automates ESC8?"
+        }
+      }
+    }
+  }
+}

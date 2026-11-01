@@ -1,0 +1,48 @@
+{
+  "title": "Burp Suite Pro",
+  "description": "Proxy, Repeater and Intruder mastery.",
+  "tasks": {
+    "1": {
+      "title": "Proxy and Target",
+      "questions": {
+        "burp-suite-pro-t01-q01": {
+          "prompt": "What tab shows ALL HTTP history?"
+        },
+        "burp-suite-pro-t01-q02": {
+          "prompt": "What tab shows the site as a directory tree?"
+        },
+        "burp-suite-pro-t01-q03": {
+          "prompt": "What advantage does Repeater have?"
+        }
+      }
+    },
+    "2": {
+      "title": "Repeater",
+      "questions": {
+        "burp-suite-pro-t02-q01": {
+          "prompt": "What view renders the response as the browser would?"
+        },
+        "burp-suite-pro-t02-q02": {
+          "prompt": "How would you test SQLi in Repeater?"
+        },
+        "burp-suite-pro-t02-q03": {
+          "prompt": "What section shows headers and status?"
+        }
+      }
+    },
+    "3": {
+      "title": "Intruder",
+      "questions": {
+        "burp-suite-pro-t03-q01": {
+          "prompt": "What symbol marks payload positions?"
+        },
+        "burp-suite-pro-t03-q02": {
+          "prompt": "What attack type tests one list one position?"
+        },
+        "burp-suite-pro-t03-q03": {
+          "prompt": "With 1000 payloads, how do you find successes?"
+        }
+      }
+    }
+  }
+}

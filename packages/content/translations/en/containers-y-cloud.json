@@ -1,0 +1,34 @@
+{
+  "title": "Containers and Cloud",
+  "description": "Container escape and IAM misconfigurations.",
+  "tasks": {
+    "1": {
+      "title": "Container escape",
+      "questions": {
+        "containers-y-cloud-t01-q01": {
+          "prompt": "What docker flag gives ALL host privileges?"
+        },
+        "containers-y-cloud-t01-q02": {
+          "prompt": "What UNIX socket allows container creation?"
+        },
+        "containers-y-cloud-t01-q03": {
+          "prompt": "What capability allows kernel module loading?"
+        }
+      }
+    },
+    "2": {
+      "title": "IAM misconfig",
+      "questions": {
+        "containers-y-cloud-t02-q01": {
+          "prompt": "What AWS CLI command lists S3 buckets?"
+        },
+        "containers-y-cloud-t02-q02": {
+          "prompt": "What env var provides IAM credentials to EC2?"
+        },
+        "containers-y-cloud-t02-q03": {
+          "prompt": "What S3 misconfig is the most common data leak?"
+        }
+      }
+    }
+  }
+}

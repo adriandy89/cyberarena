@@ -1,0 +1,48 @@
+{
+  "title": "Nmap Pro",
+  "description": "Advanced scan types, evasion, NSE, and outputs.",
+  "tasks": {
+    "1": {
+      "title": "Scan types",
+      "questions": {
+        "nmap-pro-t01-q01": {
+          "prompt": "What scan sends TCP with NO flags?"
+        },
+        "nmap-pro-t01-q02": {
+          "prompt": "Which scans are MORE stealthy against SYN-signature IDS?"
+        },
+        "nmap-pro-t01-q03": {
+          "prompt": "In FIN scan, what response means OPEN?"
+        }
+      }
+    },
+    "2": {
+      "title": "Evasion",
+      "questions": {
+        "nmap-pro-t02-q01": {
+          "prompt": "What Nmap flag fragments packets?"
+        },
+        "nmap-pro-t02-q02": {
+          "prompt": "What option adds decoy IPs?"
+        },
+        "nmap-pro-t02-q03": {
+          "prompt": "What timing template is SLOWEST?"
+        }
+      }
+    },
+    "3": {
+      "title": "NSE and outputs",
+      "questions": {
+        "nmap-pro-t03-q01": {
+          "prompt": "What command runs all vuln NSE scripts?"
+        },
+        "nmap-pro-t03-q02": {
+          "prompt": "What output format is best for grep?"
+        },
+        "nmap-pro-t03-q03": {
+          "prompt": "What NSE script checks EternalBlue?"
+        }
+      }
+    }
+  }
+}

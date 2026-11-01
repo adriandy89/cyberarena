@@ -1,0 +1,34 @@
+{
+  "title": "Defensive tools",
+  "description": "CyberChef, REMnux/FlareVM and safe lab setup.",
+  "tasks": {
+    "1": {
+      "title": "CyberChef",
+      "questions": {
+        "herramientas-defensivas-t01-q01": {
+          "prompt": "What is CyberChef?"
+        },
+        "herramientas-defensivas-t01-q02": {
+          "prompt": "What does chaining operations in Recipe mean?"
+        },
+        "herramientas-defensivas-t01-q03": {
+          "prompt": "What CyberChef operation auto-detects encoding?"
+        }
+      }
+    },
+    "2": {
+      "title": "REMnux, FlareVM and lab",
+      "questions": {
+        "herramientas-defensivas-t02-q01": {
+          "prompt": "What is REMnux?"
+        },
+        "herramientas-defensivas-t02-q02": {
+          "prompt": "Where should you ALWAYS analyze malware?"
+        },
+        "herramientas-defensivas-t02-q03": {
+          "prompt": "What kit is the Windows equivalent of REMnux?"
+        }
+      }
+    }
+  }
+}

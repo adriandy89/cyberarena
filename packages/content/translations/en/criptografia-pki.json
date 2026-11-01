@@ -1,0 +1,20 @@
+{
+  "title": "PKI, certificates and TLS in practice",
+  "description": "How digital certificates work, the chain of trust, and openssl.",
+  "tasks": {
+    "1": {
+      "title": "Certificates and the chain of trust",
+      "questions": {
+        "criptografia-pki-t01-q01": {
+          "prompt": "What does a digital certificate contain?"
+        },
+        "criptografia-pki-t01-q02": {
+          "prompt": "What is a CA (Certificate Authority)?"
+        },
+        "criptografia-pki-t01-q03": {
+          "prompt": "What openssl command inspects a remote certificate?"
+        }
+      }
+    }
+  }
+}

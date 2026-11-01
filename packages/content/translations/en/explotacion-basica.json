@@ -1,0 +1,48 @@
+{
+  "title": "Basic exploitation",
+  "description": "From vulnerability to access: CVEs, Metasploit, and shells.",
+  "tasks": {
+    "1": {
+      "title": "Vulnerabilities and CVEs",
+      "questions": {
+        "explotacion-basica-t01-q01": {
+          "prompt": "What is the standard public vulnerability identifier?"
+        },
+        "explotacion-basica-t01-q02": {
+          "prompt": "What is an exploit?"
+        },
+        "explotacion-basica-t01-q03": {
+          "prompt": "What scores vulnerability severity 0-10?"
+        }
+      }
+    },
+    "2": {
+      "title": "Metasploit",
+      "questions": {
+        "explotacion-basica-t02-q01": {
+          "prompt": "What command selects a module?"
+        },
+        "explotacion-basica-t02-q02": {
+          "prompt": "What command lists options?"
+        },
+        "explotacion-basica-t02-q03": {
+          "prompt": "What is a payload?"
+        }
+      }
+    },
+    "3": {
+      "title": "Shells",
+      "questions": {
+        "explotacion-basica-t03-q01": {
+          "prompt": "What program receives a reverse shell on port 4444?"
+        },
+        "explotacion-basica-t03-q02": {
+          "prompt": "Why does reverse work better than bind against firewalls?"
+        },
+        "explotacion-basica-t03-q03": {
+          "prompt": "What command makes a basic shell interactive?"
+        }
+      }
+    }
+  }
+}

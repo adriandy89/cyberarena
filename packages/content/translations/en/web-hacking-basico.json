@@ -1,0 +1,56 @@
+{
+  "title": "Basic Web Hacking",
+  "description": "How a modern web app is built, manual inspection, and your first bug.",
+  "tasks": {
+    "1": {
+      "title": "Anatomy of a web application",
+      "questions": {
+        "web-hacking-basico-t01-q01": {
+          "prompt": "Where does JavaScript execute?"
+        },
+        "web-hacking-basico-t01-q02": {
+          "prompt": "What keyboard shortcut opens DevTools?"
+        }
+      }
+    },
+    "2": {
+      "title": "Your first bug",
+      "questions": {
+        "web-hacking-basico-t02-q01": {
+          "prompt": "Why is JS-only validation a flaw?"
+        },
+        "web-hacking-basico-t02-q02": {
+          "prompt": "What wildcard is used for directory brute force?"
+        }
+      }
+    },
+    "3": {
+      "title": "Burp Suite",
+      "questions": {
+        "web-hacking-basico-t03-q01": {
+          "prompt": "What Burp mode pauses each request?"
+        },
+        "web-hacking-basico-t03-q02": {
+          "prompt": "What Burp module automates attacks?"
+        },
+        "web-hacking-basico-t03-q03": {
+          "prompt": "Burp vs DevTools: what advantage?"
+        }
+      }
+    },
+    "4": {
+      "title": "Lab: discover hidden content",
+      "questions": {
+        "web-hacking-basico-t04-q01": {
+          "prompt": "Find the admin panel (200 on /admin). Submit its flag."
+        },
+        "web-hacking-basico-t04-q02": {
+          "prompt": "Submit the flag from /backup/db.sql."
+        },
+        "web-hacking-basico-t04-q03": {
+          "prompt": "/dev redirects (301). Follow it (curl -L). Submit the flag."
+        }
+      }
+    }
+  }
+}

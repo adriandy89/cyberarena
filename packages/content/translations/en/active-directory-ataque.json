@@ -1,0 +1,48 @@
+{
+  "title": "Attacking Active Directory",
+  "description": "Kerberoasting, Pass-the-Hash, BloodHound.",
+  "tasks": {
+    "1": {
+      "title": "Enumerating",
+      "questions": {
+        "active-directory-ataque-t01-q01": {
+          "prompt": "What tool maps the domain as an attack graph?"
+        },
+        "active-directory-ataque-t01-q02": {
+          "prompt": "What BloodHound info is GOLD?"
+        },
+        "active-directory-ataque-t01-q03": {
+          "prompt": "What cmd command lists domain users?"
+        }
+      }
+    },
+    "2": {
+      "title": "Kerberoasting",
+      "questions": {
+        "active-directory-ataque-t02-q01": {
+          "prompt": "What attack requests TGS for SPN accounts?"
+        },
+        "active-directory-ataque-t02-q02": {
+          "prompt": "What condition enables AS-REP Roasting?"
+        },
+        "active-directory-ataque-t02-q03": {
+          "prompt": "Why is Kerberoasting silent?"
+        }
+      }
+    },
+    "3": {
+      "title": "PtH and lateral movement",
+      "questions": {
+        "active-directory-ataque-t03-q01": {
+          "prompt": "What attack uses NTLM hash without the password?"
+        },
+        "active-directory-ataque-t03-q02": {
+          "prompt": "You find Domain Admin creds in memory. What tool extracts them?"
+        },
+        "active-directory-ataque-t03-q03": {
+          "prompt": "What Sysinternals tool dumps LSASS?"
+        }
+      }
+    }
+  }
+}

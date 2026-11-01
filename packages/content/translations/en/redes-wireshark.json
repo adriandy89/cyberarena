@@ -1,0 +1,34 @@
+{
+  "title": "Networking II: Wireshark and packet capture",
+  "description": "Capture, filter and analyze network traffic with Wireshark and tcpdump.",
+  "tasks": {
+    "1": {
+      "title": "Capturing and filtering",
+      "questions": {
+        "redes-wireshark-t01-q01": {
+          "prompt": "What Wireshark filter shows ONLY HTTP traffic?"
+        },
+        "redes-wireshark-t01-q02": {
+          "prompt": "What filter shows traffic for a specific IP only?"
+        },
+        "redes-wireshark-t01-q03": {
+          "prompt": "What is promiscuous mode in network capture?"
+        }
+      }
+    },
+    "2": {
+      "title": "Analysis: finding credentials in traffic",
+      "questions": {
+        "redes-wireshark-t02-q01": {
+          "prompt": "Which protocol sends credentials IN PLAIN TEXT?"
+        },
+        "redes-wireshark-t02-q02": {
+          "prompt": "What Wireshark option reconstructs a complete TCP conversation?"
+        },
+        "redes-wireshark-t02-q03": {
+          "prompt": "Why cannot HTTPS content be seen without the server key?"
+        }
+      }
+    }
+  }
+}

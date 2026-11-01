@@ -1,0 +1,31 @@
+{
+  "title": "Security solutions: SIEM, firewalls and IDS",
+  "description": "The technology behind defense.",
+  "tasks": {
+    "1": {
+      "title": "SIEM",
+      "questions": {
+        "seguridad-soluciones-t01-q01": {
+          "prompt": "What does a SIEM do besides storing logs?"
+        },
+        "seguridad-soluciones-t01-q02": {
+          "prompt": "What is a correlation rule?"
+        }
+      }
+    },
+    "2": {
+      "title": "Firewall, IDS and IPS",
+      "questions": {
+        "seguridad-soluciones-t02-q01": {
+          "prompt": "What device FILTERS traffic by rules?"
+        },
+        "seguridad-soluciones-t02-q02": {
+          "prompt": "IDS vs IPS difference?"
+        },
+        "seguridad-soluciones-t02-q03": {
+          "prompt": "What firewall type inspects the application layer?"
+        }
+      }
+    }
+  }
+}

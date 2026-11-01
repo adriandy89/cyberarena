@@ -1,0 +1,48 @@
+{
+  "title": "Active recon: touching the target",
+  "description": "Host discovery, service enumeration, version detection.",
+  "tasks": {
+    "1": {
+      "title": "Host discovery",
+      "questions": {
+        "recon-activo-escaneo-t01-q01": {
+          "prompt": "What tool sends ICMP pings to a range?"
+        },
+        "recon-activo-escaneo-t01-q02": {
+          "prompt": "What layer-2 protocol discovers hosts even with ICMP firewall?"
+        },
+        "recon-activo-escaneo-t01-q03": {
+          "prompt": "A host responds to ARP but not ping. Is it alive?"
+        }
+      }
+    },
+    "2": {
+      "title": "Port scanning",
+      "questions": {
+        "recon-activo-escaneo-t02-q01": {
+          "prompt": "What does a SYN scan send on receiving SYN-ACK?"
+        },
+        "recon-activo-escaneo-t02-q02": {
+          "prompt": "What are the three main port states?"
+        },
+        "recon-activo-escaneo-t02-q03": {
+          "prompt": "What state indicates a firewall blocking?"
+        }
+      }
+    },
+    "3": {
+      "title": "Versions",
+      "questions": {
+        "recon-activo-escaneo-t03-q01": {
+          "prompt": "What Nmap flag detects service version?"
+        },
+        "recon-activo-escaneo-t03-q02": {
+          "prompt": "What NSE script identifies the OS?"
+        },
+        "recon-activo-escaneo-t03-q03": {
+          "prompt": "You see Apache 2.4.49. What is your NEXT action?"
+        }
+      }
+    }
+  }
+}

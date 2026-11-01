@@ -1,0 +1,56 @@
+{
+  "title": "Passive recon: OSINT",
+  "description": "Discover assets without sending a single packet.",
+  "tasks": {
+    "1": {
+      "title": "Subdomains",
+      "questions": {
+        "recon-pasivo-osint-t01-q01": {
+          "prompt": "What public database records ALL TLS certificates?"
+        },
+        "recon-pasivo-osint-t01-q02": {
+          "prompt": "What DNS records reveal service locations?"
+        },
+        "recon-pasivo-osint-t01-q03": {
+          "prompt": "Why is dev.victima.com more dangerous than victima.com?"
+        }
+      }
+    },
+    "2": {
+      "title": "Google dorks and metadata",
+      "questions": {
+        "recon-pasivo-osint-t02-q01": {
+          "prompt": "What Google dork finds exposed config files?"
+        },
+        "recon-pasivo-osint-t02-q02": {
+          "prompt": "What is GHDB?"
+        },
+        "recon-pasivo-osint-t02-q03": {
+          "prompt": "What metadata leak is common in PDFs?"
+        }
+      }
+    },
+    "3": {
+      "title": "Passive to active",
+      "questions": {
+        "recon-pasivo-osint-t03-q01": {
+          "prompt": "What is the FUNDAMENTAL passive vs active difference?"
+        },
+        "recon-pasivo-osint-t03-q02": {
+          "prompt": "After passive, what is your next LOGICAL active step?"
+        }
+      }
+    },
+    "5": {
+      "title": "Lab: DNS enumeration",
+      "questions": {
+        "recon-pasivo-osint-t05-q01": {
+          "prompt": "Perform AXFR against ns1.victima.com. Submit the staging flag."
+        },
+        "recon-pasivo-osint-t05-q02": {
+          "prompt": "How many records does the zone transfer return?"
+        }
+      }
+    }
+  }
+}

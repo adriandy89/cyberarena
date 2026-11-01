@@ -1,0 +1,53 @@
+{
+  "title": "Essential offensive tools",
+  "description": "Hydra for credentials, Gobuster for directories, sqlmap for SQL injection.",
+  "tasks": {
+    "1": {
+      "title": "Hydra: brute force",
+      "questions": {
+        "herramientas-ofensivas-t01-q01": {
+          "prompt": "What type of attack does Hydra execute?"
+        },
+        "herramientas-ofensivas-t01-q02": {
+          "prompt": "In hydra, what does -P (uppercase) mean?"
+        }
+      }
+    },
+    "2": {
+      "title": "Gobuster",
+      "questions": {
+        "herramientas-ofensivas-t02-q01": {
+          "prompt": "Which Gobuster mode brute-forces directories?"
+        },
+        "herramientas-ofensivas-t02-q02": {
+          "prompt": "What HTTP code indicates a protected directory?"
+        }
+      }
+    },
+    "3": {
+      "title": "sqlmap",
+      "questions": {
+        "herramientas-ofensivas-t03-q01": {
+          "prompt": "What sqlmap option dumps a table?"
+        },
+        "herramientas-ofensivas-t03-q02": {
+          "prompt": "What sqlmap flag gets an OS shell?"
+        },
+        "herramientas-ofensivas-t03-q03": {
+          "prompt": "Before automating SQLi, what should you ALWAYS do?"
+        }
+      }
+    },
+    "4": {
+      "title": "Lab: hydra",
+      "questions": {
+        "herramientas-ofensivas-t04-q01": {
+          "prompt": "Brute force admin and submit the flag."
+        },
+        "herramientas-ofensivas-t04-q02": {
+          "prompt": "The svc_backup password is changeme. Submit its flag."
+        }
+      }
+    }
+  }
+}

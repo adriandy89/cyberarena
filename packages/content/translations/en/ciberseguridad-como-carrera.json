@@ -1,0 +1,31 @@
+{
+  "title": "Cybersecurity as a career",
+  "description": "Principles, real roles, and how to keep advancing.",
+  "tasks": {
+    "1": {
+      "title": "Principles and role map",
+      "questions": {
+        "ciberseguridad-como-carrera-t01-q01": {
+          "prompt": "What is the classic security triad?"
+        },
+        "ciberseguridad-como-carrera-t01-q02": {
+          "prompt": "What role breaks systems WITH AUTHORIZATION?"
+        },
+        "ciberseguridad-como-carrera-t01-q03": {
+          "prompt": "A colleague asks to test without written permission. What do you do?"
+        }
+      }
+    },
+    "2": {
+      "title": "How to keep going",
+      "questions": {
+        "ciberseguridad-como-carrera-t02-q01": {
+          "prompt": "What demonstrates MORE real capability in an interview?"
+        },
+        "ciberseguridad-como-carrera-t02-q02": {
+          "prompt": "What is the next path after CS101?"
+        }
+      }
+    }
+  }
+}

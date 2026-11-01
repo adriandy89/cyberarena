@@ -1,0 +1,21 @@
+{
+  "title": "Windows Command Line: CMD and PowerShell",
+  "description": "From classic cmd to PowerShell cmdlets: navigating, querying the system and automating in the language that governs domains.",
+  "tasks": {
+    "1": { "title": "CMD: the classic that's still alive", "questions": {
+      "linea-de-comandos-windows-t01-q01": { "prompt": "Which cmd command lists directory contents?" },
+      "linea-de-comandos-windows-t01-q02": { "prompt": "Which command shows the routing table and network connections (with -ano you see processes)?" },
+      "linea-de-comandos-windows-t01-q03": { "prompt": "In cmd, what does 'ipconfig /all' do compared to plain 'ipconfig'?" }
+    }},
+    "2": { "title": "PowerShell: cmdlets", "questions": {
+      "linea-de-comandos-windows-t02-q01": { "prompt": "What naming convention do PowerShell commands follow (Verb-Noun)?" },
+      "linea-de-comandos-windows-t02-q02": { "prompt": "Which cmdlet lists running processes?" },
+      "linea-de-comandos-windows-t02-q03": { "prompt": "What advantage does PowerShell have over cmd when handling output?" }
+    }},
+    "3": { "title": "Pipelines, variables and your first PS script", "questions": {
+      "linea-de-comandos-windows-t03-q01": { "prompt": "Which automatic PowerShell variable represents the current pipeline object?" },
+      "linea-de-comandos-windows-t03-q02": { "prompt": "Which cmdlet downloads and executes content from a URL?" },
+      "linea-de-comandos-windows-t03-q03": { "prompt": "What does 'Get-ChildItem -Recurse -Filter *.zip | Select-Object FullName' do?" }
+    }}
+  }
+}

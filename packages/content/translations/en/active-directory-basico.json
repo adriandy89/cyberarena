@@ -1,0 +1,21 @@
+{
+  "title": "Active Directory Basics: the kingdom you'll conquer",
+  "description": "What a domain is, the Domain Controller, users/groups and how Kerberos authenticates: the corporate forest map.",
+  "tasks": {
+    "1": { "title": "Domains and the Domain Controller", "questions": {
+      "active-directory-basico-t01-q01": { "prompt": "What is the server that stores and manages the Active Directory database called?" },
+      "active-directory-basico-t01-q02": { "prompt": "In the user 'ANA@corp.local', which part is the domain?" },
+      "active-directory-basico-t01-q03": { "prompt": "What organizational units structure users and computers within the domain?" }
+    }},
+    "2": { "title": "Groups that matter (and why you'll want them)", "questions": {
+      "active-directory-basico-t02-q01": { "prompt": "Which group has full control over ALL domain controllers?" },
+      "active-directory-basico-t02-q02": { "prompt": "What is the built-in local administrator account on EVERY Windows machine called?" },
+      "active-directory-basico-t02-q03": { "prompt": "What does a 'ticket' represent in Kerberos authentication?" }
+    }},
+    "3": { "title": "Your first look inside AD", "questions": {
+      "active-directory-basico-t03-q01": { "prompt": "Which directory protocol does Active Directory use?" },
+      "active-directory-basico-t03-q02": { "prompt": "Which Windows command-line tool queries AD (e.g. to list domain users)?" },
+      "active-directory-basico-t03-q03": { "prompt": "What does DNS in an AD domain record besides names (key for finding controllers)?" }
+    }}
+  }
+}

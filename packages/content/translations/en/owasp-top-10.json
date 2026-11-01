@@ -1,0 +1,62 @@
+{
+  "title": "OWASP Top 10 (2025)",
+  "description": "The ten most critical web application security risks.",
+  "tasks": {
+    "1": {
+      "title": "Broken Access Control",
+      "questions": {
+        "owasp-top-10-t01-q01": {
+          "prompt": "Changing /profile/12 to /profile/13 is what OWASP risk?"
+        },
+        "owasp-top-10-t01-q02": {
+          "prompt": "What is IDOR?"
+        },
+        "owasp-top-10-t01-q03": {
+          "prompt": "Does hiding the admin button in UI protect anything?"
+        }
+      }
+    },
+    "2": {
+      "title": "Injections",
+      "questions": {
+        "owasp-top-10-t02-q01": {
+          "prompt": "What does OR 1=1-- exploit?"
+        },
+        "owasp-top-10-t02-q02": {
+          "prompt": "What defends against SQLi by design?"
+        },
+        "owasp-top-10-t02-q03": {
+          "prompt": "A script tag in a comment that runs in others' browsers is what?"
+        }
+      }
+    },
+    "3": {
+      "title": "The tail",
+      "questions": {
+        "owasp-top-10-t03-q01": {
+          "prompt": "A server fetching user-specified internal URLs is what risk?"
+        },
+        "owasp-top-10-t03-q02": {
+          "prompt": "A compromised npm dependency is what Top 10 entry?"
+        },
+        "owasp-top-10-t03-q03": {
+          "prompt": "Why is insufficient logging a security risk?"
+        }
+      }
+    },
+    "4": {
+      "title": "Lab: IDOR chain",
+      "questions": {
+        "owasp-top-10-t04-q01": {
+          "prompt": "Access admin (id=1) with ?expand. Submit the secret flag."
+        },
+        "owasp-top-10-t04-q02": {
+          "prompt": "Read the internal_note from order 1002."
+        },
+        "owasp-top-10-t04-q03": {
+          "prompt": "Use mass assignment: user_id=4. Read the service flag."
+        }
+      }
+    }
+  }
+}
