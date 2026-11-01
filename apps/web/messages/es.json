@@ -248,5 +248,23 @@
     "copy": "Copiar",
     "copied": "¡Copiado!",
     "warning": "Entorno educativo local aislado. Never expongas los labs a redes públicas."
+  },
+  "SecurityPanel": {
+    "title": "Seguridad",
+    "totpLabel": "Autenticación de dos factores (2FA)",
+    "totpDescription": "Añade una capa extra con un código de 6 dígitos desde tu app TOTP.",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "enable": "Activar 2FA",
+    "disable": "Desactivar",
+    "cancel": "Cancelar",
+    "scanQR": "Escanea el código QR o introduce el secret manualmente en tu app (Google Authenticator, Authy):",
+    "orManual": "Secret manual:",
+    "codePlaceholder": "000000",
+    "verify": "Verificar",
+    "invalidCode": "Código incorrecto. Inténtalo de nuevo.",
+    "enabled": "2FA activado correctamente.",
+    "disabled": "2FA desactivado.",
+    "backupCodes": "Códigos de backup (guárdalos en lugar seguro):"
   }
 }

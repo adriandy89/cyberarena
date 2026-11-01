@@ -1,4 +1,4 @@
-import { inferAdditionalFields } from 'better-auth/client/plugins';
+import { inferAdditionalFields, twoFactorClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
 // Absolute URL always: better-auth validates baseURL with `new URL(...)` and
@@ -23,6 +23,7 @@ export const authClient = createAuthClient({
         role: { type: 'string', input: false },
       },
     }),
+    twoFactorClient(),
   ],
 });
 

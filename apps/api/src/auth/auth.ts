@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { twoFactor } from 'better-auth/plugins';
 import { Role, type PrismaClient } from '@repo/database';
 
 export interface SendEmailInput {
@@ -106,6 +107,15 @@ export function createAuth(deps: AuthDependencies) {
         },
       },
     },
+    plugins: [
+      twoFactor({
+        issuer: 'CyberArena',
+        totpOptions: {
+          digits: 6,
+          period: 30,
+        },
+      }),
+    ],
   });
 }
 

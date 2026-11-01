@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { authClient } from '../../../lib/auth-client';
 import { useRouter } from '../../../i18n/navigation';
 import { GamificationPanels } from '../../../components/gamification-panels';
+import { SecurityPanel } from '../../../components/security-panel';
 
 type Role = 'STUDENT' | 'ADMIN';
 
@@ -219,6 +220,7 @@ export default function DashboardPage() {
         </section>
       )}
 
+      <SecurityPanel />
       <GamificationPanels />
 
       {me?.role === 'ADMIN' && (
