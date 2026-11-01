@@ -219,9 +219,26 @@
     "footnote": "Verifiable on CyberArena · path {slug}"
   },
   "HacktivitiesPage": {
+    "title": "Hacktivities",
+    "subtitle": "Browse every room: search, filter and practice.",
+    "searchPlaceholder": "Search rooms, tags…",
+    "sortLabel": "Sort",
+    "sort": {
+      "popular": "Most popular",
+      "newest": "Newest",
+      "az": "A→Z",
+      "za": "Z→A",
+      "time": "Shortest"
+    },
     "filters": {
+      "difficulty": "Difficulty",
+      "type": "Type",
+      "tag": "Tags",
       "labOnly": "Labs only"
-    }
+    },
+    "results": "{count, plural, one {# room} other {# rooms}}",
+    "empty": "No results with those filters. Try relaxing the search.",
+    "loadMore": "Load more"
   },
   "LabPanel": {
     "title": "Laboratory",
