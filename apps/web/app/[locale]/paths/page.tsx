@@ -1,6 +1,14 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '../../../i18n/navigation';
 
+interface CatalogRoomLink {
+  slug: string;
+  title: string;
+  difficulty: string;
+  type: string;
+  estimatedMinutes: number;
+}
+
 interface CatalogPathSummary {
   slug: string;
   title: string;
@@ -9,6 +17,7 @@ interface CatalogPathSummary {
   moduleCount: number;
   roomCount: number;
   estimatedMinutes: number;
+  rooms: CatalogRoomLink[];
 }
 
 const LEVEL_CLASSES: Record<CatalogPathSummary['level'], string> = {
@@ -74,10 +83,23 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
                   ≈ {Math.round(path.estimatedMinutes / 60)}h · {t('type.walkthrough')}+
                 </span>
               </p>
-              {/* Fase 004: página del path con progreso; por ahora el room player llega en 003. */}
-              <span className="mt-3 inline-block text-xs font-semibold text-emerald-400/70">
-                {t('comingSoon')}
-              </span>
+              {path.rooms.length > 0 && (
+                <ul className="mt-4 space-y-2">
+                  {path.rooms.map((room) => (
+                    <li key={room.slug}>
+                      <Link
+                        href={`/rooms/${room.slug}`}
+                        className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm transition-colors hover:border-emerald-500/40"
+                      >
+                        <span className="font-medium text-slate-200">{room.title}</span>
+                        <span className="text-xs uppercase tracking-wide text-slate-500">
+                          {room.difficulty} · {room.estimatedMinutes}′
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>

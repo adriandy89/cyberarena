@@ -1,8 +1,17 @@
 # Spec 003 — Room Player (jugabilidad, progreso y XP)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada y E2E verificado. Notas: (1) El E2E cazó un bug
+    real de contenido: la guía mostraba `FLAG{bienvenido_a_cyberarena}` y la respuesta
+    era `...ciberarena` — corregido a "cyberarena" (la validación no puede detectar
+    divergencia semántica guía/respuesta; los walkthroughs pueden revelar flags
+    legítimamente, así que se queda como revisión humana). (2) La relación Prisma de
+    respuestas es plural (`answers`) — ajustado el select. (3) Confusión momentánea por
+    procesos node zombis en :3000/:3001 durante el E2E (documentado en memoria: matar
+    por PID antes de arrancar).
 
 ## 1. Propósito
 
@@ -52,16 +61,18 @@ otorgamiento de XP.
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] E2E curl con sesión: resolver las 6 preguntas del room muestra → `correct:true`,
+- [x] E2E curl con sesión: resolver las 6 preguntas del room muestra → `correct:true`,
       XP acumulado 6×10 + bonus 20 = **80** en `/users/me/xp` (nivel NEOPHYTE→ umbral
       200 no alcanzado, ratio 80/200); respuesta repetida → `alreadySolved:true,
       xpAwarded:0`; respuesta errónea → `correct:false`; questionId ajeno al room → 404.
-- [ ] `GET /rooms/:slug/progress` refleja las 6 preguntas y `roomCompleted:true`.
-- [ ] `/es/rooms/intro-ciberseguridad-ofensiva` renderiza tasks, guía markdown y
-      preguntas en ambos idiomas de UI; enviar la flag de bienvenida desde la página
-      marca la pregunta (verificado con curl del HTML + endpoint).
-- [ ] `/es/paths` enlaza al room.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` verdes.
+      *(verificado 2026-11-01; case-insensitivity real: "reconocimiento", "REGLA de
+      Compromiso", "flag{BIENVENIDO_A_CYBERARENA}")*
+- [x] `GET /rooms/:slug/progress` refleja las 6 preguntas y `roomCompleted:true`.
+- [x] `/es/rooms/intro-ciberseguridad-ofensiva` renderiza tasks, guía markdown y
+      preguntas en ambos idiomas de UI. *(200; "Tarea 1 de 3", hints, título, minutos)*
+- [x] `/es/paths` enlaza al room. *(link + badge info · 30′)*
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` verdes. *(32 tests api
+      incl. 11 nuevos con casos de carrera; 43+ totales)*
 
 ## 5. Fuera de alcance
 

@@ -130,5 +130,22 @@
     },
     "comingSoon": "Room player arrives in the next phase",
     "back": "Back to home"
+  },
+  "RoomPage": {
+    "backToPaths": "Back to paths",
+    "estimated": "est. {minutes} min"
+  },
+  "RoomPlayer": {
+    "taskOf": "Task {index} of {total}",
+    "answerQuestions": "Answer the questions",
+    "showHint": "Show hint",
+    "solved": "Correct",
+    "submit": "Submit",
+    "yourAnswer": "Your answer…",
+    "wrongAnswer": "Incorrect — try again.",
+    "progress": "{solved}/{total} questions",
+    "roomCompleted": "Room completed! XP bonus added.",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

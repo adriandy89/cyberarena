@@ -130,5 +130,22 @@
     },
     "comingSoon": "Player de rooms disponible en la próxima fase",
     "back": "Volver al inicio"
+  },
+  "RoomPage": {
+    "backToPaths": "Volver a las rutas",
+    "estimated": "{minutes} min estimados"
+  },
+  "RoomPlayer": {
+    "taskOf": "Tarea {index} de {total}",
+    "answerQuestions": "Responde las preguntas",
+    "showHint": "Mostrar pista",
+    "solved": "Correcta",
+    "submit": "Enviar",
+    "yourAnswer": "Tu respuesta…",
+    "wrongAnswer": "Incorrecta — vuelve a intentarlo.",
+    "progress": "{solved}/{total} preguntas",
+    "roomCompleted": "¡Room completado! Bonus de XP añadido.",
+    "previous": "Anterior",
+    "next": "Siguiente"
   }
 }

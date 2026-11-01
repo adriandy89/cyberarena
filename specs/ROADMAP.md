@@ -8,8 +8,8 @@
 | F0 | `000-foundation` | ✅ completada (2026-11-01) | Monorepo operativo: web+api bilingüe + postgres en Docker + CI |
 | F1 | `001-auth-users` | ✅ completada (2026-11-01) | Better Auth, roles admin/estudiante, perfiles, emails dev |
 | F2 | `002-content-engine` | ✅ completada (2026-11-01) | Content Collections: schemas, seed→BD, validación, guía de autoría |
-| F3 | `003-room-player` | ⬜ siguiente | UI del room: tasks MDX, preguntas, flags, hints, progreso |
-| F4 | `004-paths-dashboard` | ⬜ pendiente | Páginas path/módulo, % progreso, dashboard personal |
+| F3 | `003-room-player` | ✅ completada (2026-11-01) | UI del room: tasks MDX, preguntas, flags, hints, progreso |
+| F4 | `004-paths-dashboard` | ⬜ siguiente | Páginas path/módulo, % progreso, dashboard personal |
 | F5 | `005-gamification` | ⬜ pendiente | XP, niveles, streaks, badges, leaderboard, certificados, skill matrix |
 | F6 | `006-hacktivities` | ⬜ pendiente | Catálogo público: búsqueda, filtros, orden, tarjetas || F7 | `007-labs` | ⬜ pendiente | Plantilla lab + labs reales integrados en rooms + verificación de flags |
 | F8 | `008-deploy-hardening` | ⬜ pendiente | Stack prod + proxy Caddy HTTPS + backups + hardening + runbook final |
