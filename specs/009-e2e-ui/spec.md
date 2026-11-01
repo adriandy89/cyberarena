@@ -1,8 +1,18 @@
 # Spec 009 — Tests E2E de UI (Playwright)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada: 11/11 specs en verde local (chromium). La fase
+    cazó **dos bugs reales de producto**: (1) el cliente de better-auth usaba baseURL
+    relativo → `BetterAuthError: Invalid base URL` — el login por NAVEGADOR nunca
+    funcionó (solo curl); corregido a URL absoluta con `window.location.origin`.
+    (2) La API rechazaba Origin `127.0.0.1:3000` (solo confiaba localhost) → 403
+    INVALID_ORIGIN al navegar por IP; `trustedOriginsFrom()` añade el gemelo loopback.
+    Además: baseURL de Playwright a 127.0.0.1 (localhost→IPv6 falla), y los facets de
+    hacktivities solo listan dificultades existentes (test ajustado a 'easy' y búsqueda
+    vacía en vez de 'insane').
 
 ## 1. Propósito
 
@@ -42,10 +52,10 @@ fase 100; el MCP NO — este repo necesita specs versionadas en CI).
 
 ## 4. Criterios de éxito
 
-- [ ] `pnpm test:e2e` verde localmente contra el stack dev (captura de evidencia).
-- [ ] Los 4 specs cubren los flujos descritos; usuario de prueba único por run.
-- [ ] CI workflow presente y coherente (se valida sintaxis localmente).
-- [ ] `pnpm lint && typecheck && build` siguen verdes.
+- [x] `pnpm test:e2e` verde localmente contra el stack dev (captura de evidencia).
+- [x] Los 4 specs cubren los flujos descritos; usuario de prueba único por run.
+- [x] CI workflow presente y coherente (se valida sintaxis localmente).
+- [x] `pnpm lint && typecheck && build` siguen verdes.
 
 ## 5. Fuera de alcance
 

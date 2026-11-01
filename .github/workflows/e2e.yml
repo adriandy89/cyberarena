@@ -1,0 +1,88 @@
+name: E2E (Playwright)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: chromium against ephemeral stack
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: cyberarena
+          POSTGRES_PASSWORD: cyberarena
+          POSTGRES_DB: cyberarena
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cyberarena"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://cyberarena:cyberarena@localhost:5432/cyberarena?schema=public
+      API_PORT: 3001
+      WEB_PORT: 3000
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build content + workspace
+        run: pnpm build
+
+      - name: Migrate + seed
+        run: pnpm db:migrate && pnpm db:seed
+
+      - name: Start API
+        run: |
+          nohup node apps/api/dist/main.js > api.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:3001/api/health >/dev/null && break || sleep 1
+          done
+          curl -sf http://127.0.0.1:3001/api/health
+
+      - name: Start Web
+        run: |
+          nohup env API_URL=http://127.0.0.1:3001 pnpm --filter @repo/web exec next start -p 3000 > web.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:3000/es >/dev/null && break || sleep 1
+          done
+          curl -sf http://127.0.0.1:3000/es >/dev/null
+
+      - name: Install Playwright chromium
+        run: pnpm --filter @repo/web exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        env:
+          E2E_NO_SERVER: '1'
+          E2E_BASE_URL: http://127.0.0.1:3000
+          E2E_API_URL: http://127.0.0.1:3001
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: apps/web/test-results/
+          retention-days: 7

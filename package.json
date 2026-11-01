@@ -18,7 +18,8 @@
     "db:migrate": "turbo run db:migrate --filter=@repo/database",
     "db:push": "turbo run db:push --filter=@repo/database",
     "db:seed": "turbo run db:seed --filter=@repo/database",
-    "db:studio": "pnpm --filter @repo/database studio"
+    "db:studio": "pnpm --filter @repo/database studio",
+    "test:e2e": "pnpm --filter @repo/web exec playwright test"
   },
   "devDependencies": {
     "prettier": "3.9.10",

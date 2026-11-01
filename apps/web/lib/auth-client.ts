@@ -1,12 +1,14 @@
 import { inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
-// Relative same-origin path in the browser (Next's /api rewrite proxies to
-// the NestJS API, ADR-008). Outside the browser (SSR/prerender) URL resolution
-// requires an absolute base, so a dummy one is used; no requests are made
-// during server rendering.
+// Absolute URL always: better-auth validates baseURL with `new URL(...)` and
+// rejects relative paths. In the browser, requests stay same-origin through the
+// /api rewrite (dev) or the reverse proxy (prod) — ADR-008. During SSR/prerender
+// a dummy host is used; no requests are made while server-rendering.
 const baseURL =
-  typeof window === 'undefined' ? 'http://ssr.invalid/api/auth' : '/api/auth';
+  typeof window === 'undefined'
+    ? 'http://ssr.invalid/api/auth'
+    : `${window.location.origin}/api/auth`;
 
 /**
  * Browser auth client. inferAdditionalFields mirrors the server's

@@ -31,6 +31,22 @@ const emailLayout = (title: string, body: string, url: string, cta: string) => `
 </body></html>`;
 
 /**
+ * trustedOrigins from WEB_URL plus its loopback twin: localhost <-> 127.0.0.1
+ * (browsers may hit either host in dev/homelab; both are same machine).
+ */
+function trustedOriginsFrom(webUrl: string): string[] {
+  const origins = new Set<string>([webUrl]);
+  try {
+    const url = new URL(webUrl);
+    const twin = url.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+    origins.add(`${url.protocol}//${twin}${url.port ? `:${url.port}` : ''}`);
+  } catch {
+    // keep WEB_URL as-is if unparseable
+  }
+  return [...origins];
+}
+
+/**
  * Builds the Better Auth instance bound to our Prisma client and mailer
  * (see ADR-007: manual integration, custom STUDENT/ADMIN role).
  */
@@ -46,7 +62,7 @@ export function createAuth(deps: AuthDependencies) {
   return betterAuth({
     database: prismaAdapter(deps.prisma, { provider: 'postgresql' }),
     baseURL,
-    trustedOrigins: [webUrl],
+    trustedOrigins: trustedOriginsFrom(webUrl),
     emailAndPassword: {
       enabled: true,
       requireEmailVerification,

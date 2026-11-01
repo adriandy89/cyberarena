@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@repo/shared": "workspace:*",
@@ -22,6 +23,7 @@
     "remark-gfm": "4.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.58.1",
     "@repo/config": "workspace:*",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.19.2",
