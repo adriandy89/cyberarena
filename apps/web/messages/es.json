@@ -219,25 +219,9 @@
     "footnote": "Verificable en CyberArena · path {slug}"
   },
   "HacktivitiesPage": {
-    "title": "Hacktivities",
-    "subtitle": "Explora todos los rooms: busca, filtra y practica.",
-    "searchPlaceholder": "Buscar rooms, tags…",
-    "sortLabel": "Ordenar",
-    "sort": {
-      "popular": "Populares",
-      "newest": "Más nuevos",
-      "az": "A→Z",
-      "za": "Z→A",
-      "time": "Más cortos"
-    },
     "filters": {
-      "difficulty": "Dificultad",
-      "type": "Tipo",
-      "tag": "Tags"
-    },
-    "results": "{count, plural, one {# room} other {# rooms}}",
-    "empty": "Sin resultados con esos filtros. Prueba a relajar la búsqueda.",
-    "loadMore": "Cargar más"
+      "labOnly": "Solo con labs"
+    }
   },
   "LabPanel": {
     "title": "Laboratorio",

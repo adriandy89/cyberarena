@@ -8,6 +8,7 @@ const listQuerySchema = z.object({
   difficulty: z.enum(DIFFICULTY_IDS as [string, ...string[]]).optional(),
   type: z.enum(ROOM_TYPES as [string, ...string[]]).optional(),
   tag: z.string().trim().max(64).optional(),
+  lab: z.enum(['true', 'false']).optional(),
   sort: z.enum(HACKTIVITIES_SORTS).default('popular'),
   take: z.coerce.number().int().min(1).max(50).default(24),
   skip: z.coerce.number().int().min(0).default(0),

@@ -49,6 +49,7 @@ export default function HacktivitiesPage() {
   const [difficulty, setDifficulty] = useState<string>('');
   const [type, setType] = useState<string>('');
   const [tag, setTag] = useState<string>('');
+  const [labOnly, setLabOnly] = useState(false);
   const [sort, setSort] = useState<Sort>('popular');
   const [data, setData] = useState<ListResponse | null>(null);
   const [skip, setSkip] = useState(0);
@@ -74,6 +75,7 @@ export default function HacktivitiesPage() {
         if (difficulty) params.set('difficulty', difficulty);
         if (type) params.set('type', type);
         if (tag) params.set('tag', tag);
+        if (labOnly) params.set('lab', 'true');
         const response = await fetch(`/api/hacktivities?${params.toString()}`, {
           credentials: 'include',
         });
@@ -90,7 +92,7 @@ export default function HacktivitiesPage() {
         if (id === requestId.current) setLoading(false);
       }
     },
-    [query, difficulty, type, tag, sort],
+    [query, difficulty, type, tag, labOnly, sort],
   );
 
   useEffect(() => {
@@ -191,6 +193,18 @@ export default function HacktivitiesPage() {
               #{option}
             </button>
           ))}
+          <label className="ml-2 flex cursor-pointer items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
+            <input
+              type="checkbox"
+              checked={labOnly}
+              onChange={(event) => {
+                setLabOnly(event.target.checked);
+                setSkip(0);
+              }}
+              className="accent-violet-500"
+            />
+            🧪 {t('filters.labOnly')}
+          </label>
         </div>
       </div>
 

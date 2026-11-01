@@ -10,6 +10,7 @@ export interface HacktivitiesQuery {
   difficulty?: string;
   type?: string;
   tag?: string;
+  lab?: 'true' | 'false';
   sort: HacktivitiesSort;
   take: number;
   skip: number;
@@ -53,6 +54,8 @@ export class HacktivitiesService {
       if (query.difficulty && room.difficulty !== query.difficulty) return false;
       if (query.type && room.type !== query.type) return false;
       if (query.tag && !room.tags.includes(query.tag)) return false;
+      if (query.lab === 'true' && !room.lab) return false;
+      if (query.lab === 'false' && room.lab) return false;
       if (needle) {
         const haystack =
           `${room.title} ${room.description} ${room.tags.join(' ')}`.toLowerCase();
