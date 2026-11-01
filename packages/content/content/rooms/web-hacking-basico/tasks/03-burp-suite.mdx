@@ -1,0 +1,51 @@
+---
+index: 3
+title: "Burp Suite: el intermediario total"
+questions:
+  - id: web-hacking-basico-t03-q01
+    prompt: "¿Cómo se llama el modo de Burp que pausa cada petición para que la edites antes de enviarla?"
+    hint: "Intercept ON/OFF."
+    kind: text
+  - id: web-hacking-basico-t03-q02
+    prompt: "¿Qué módulo de Burp automatiza ataques con listas de valores en un parámetro (la artillería de fuerza bruta)?"
+    hint: "Empieza por I."
+    kind: text
+  - id: web-hacking-basico-t03-q03
+    prompt: "Burp actúa como proxy entre tu navegador y el servidor. ¿Qué ventaja da frente a las DevTools?"
+    hint: "DevTools solo VE; Burp además…"
+    kind: choice
+    options:
+      - id: a
+        label: "Carga páginas más rápido"
+      - id: b
+        label: "Permite INTERCEPTAR y MODIFICAR peticiones y respuestas antes de que lleguen (en ambos sentidos)"
+      - id: c
+        label: "Espera, ¿DevTools también modifica?"
+      - id: d
+        label: "Ninguna: hacen lo mismo"
+---
+
+## El proxy que lo ve todo
+
+Burp Suite (la Community basta para aprender) se pone EN MEDIO:
+
+```text
+Navegador ──► Burp (127.0.0.1:8080) ──► Servidor
+```
+
+Configura el proxy del navegador (o usa FoxyProxy) y desde ese momento:
+
+- **Proxy > Intercept**: congela cada petición. Edítala (cambia el precio, el
+  parámetro, la cookie) y Forward. Ya no necesitas "copy as fetch": control total.
+- **HTTP History**: todo lo que ha pasado, listo para repetir (Repeater).
+- **Repeater**: envía UNA petición N veces con retoques — el taller del web hacker.
+
+## El resto del arsenal (lo usarás en el path Jr Pentester)
+
+- **Intruder**: automatiza listas (usuarios, IDs, payloads) contra un parámetro.
+- **Decoder**: base64/hex/URL al instante.
+- **Comparer**: diff entre dos respuestas (¿en qué se diferencia el admin del user?).
+
+Con DevTools MIRAS; con Burp TOCAS. En el módulo web del siguiente path montarás
+laboratorios vulnerables (SQLi, XSS) y atacarás TODO con Burp — esta base te basta
+para empezar a jugar en los labs de TryHackMe/CyberArena hoy mismo.

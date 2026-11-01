@@ -1,0 +1,52 @@
+---
+index: 1
+title: "Cifrado: simétrico y asimétrico"
+questions:
+  - id: criptografia-basica-t01-q01
+    prompt: "En cifrado SIMÉTRICO, ¿cuántas llaves se usan y quién las comparte?"
+    hint: "La misma para cifrar y descifrar."
+    kind: choice
+    options:
+      - id: a
+        label: "Una llave pública que cualquiera puede usar"
+      - id: b
+        label: "Una única llave secreta compartida entre las partes"
+      - id: c
+        label: "Dos llaves: una pública y una privada"
+      - id: d
+        label: "Ninguna: el algoritmo basta"
+  - id: criptografia-basica-t01-q02
+    prompt: "En HTTPS, ¿qué intercambia TLS para acordar la llave de sesión simétrica?"
+    hint: "Se apoya en el par público/privada del certificado."
+    kind: text
+  - id: criptografia-basica-t01-q03
+    prompt: "¿Qué par de llaves contiene un certificado digital?"
+    hint: "Una viaja libre; la otra nunca se mueve."
+    kind: text
+---
+
+## Una llave o dos
+
+- **Simétrico** (AES, ChaCha20): rápido, UNA llave secreta para cifrar y descifrar.
+  Problema: ¿cómo acuerdan la llave dos partes que nunca se han visto?
+- **Asimétrico** (RSA, curvas elípticas): DOS llaves. Lo que cifra la **pública** solo
+  lo abre la **privada** (y al revés para firmar). Lento, pero resuelve el acuerdo.
+
+## El baile de HTTPS (simplificado)
+
+1. El servidor presenta su **certificado** con su llave pública.
+2. El navegador la verifica contra autoridades (CAs) y genera una llave de sesión.
+3. La cifra con la pública del servidor → solo él puede abrirla.
+4. El resto de la conexión va en **simétrico** (rápido).
+
+Lo mejor de ambos mundos: asimétrico para acordar, simétrico para hablar. Lo mismo
+pasa en SSH (`~/.ssh/id_ed25519` es tu llave privada; el servidor guarda tu pública).
+
+## Claves que sí importan
+
+- La llave privada JAMÁS viaja. Ver una `id_rsa` o un `.pem` en un servidor
+  comprometido = puerta abierta.
+- La **longitud manda**: RSA-1024 está roto en la práctica; 2048+ aceptable;
+  AES-128/256 hoy por hoy, fuertes.
+- El cifrado es fuerte; los **usos** son débiles (certificados vencidos, llaves
+  filtradas, TLS mal configurado).

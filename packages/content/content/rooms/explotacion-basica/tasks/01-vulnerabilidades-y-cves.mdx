@@ -1,0 +1,52 @@
+---
+index: 1
+title: "Vulnerabilidades, CVEs y dónde buscarlas"
+questions:
+  - id: explotacion-basica-t01-q01
+    prompt: "¿Cómo se llama el identificador público estándar de una vulnerabilidad (formato AÑO-número)?"
+    hint: "Common Vulnerabilities and Exposures."
+    kind: text
+  - id: explotacion-basica-t01-q02
+    prompt: "¿Qué es un 'exploit'?"
+    hint: "No es la vulnerabilidad en sí."
+    kind: choice
+    options:
+      - id: a
+        label: "La vulnerabilidad del software"
+      - id: b
+        label: "El código o técnica que ABUSA de una vulnerabilidad para lograr algo"
+      - id: c
+        label: "El parche que la arregla"
+      - id: d
+        label: "Un tipo de firewall"
+  - id: explotacion-basica-t01-q03
+    prompt: "¿Qué puntúa de 0 a 10 la gravedad de una vulnerabilidad?"
+    hint: "Sistema de Puntuación de Vulnerabilidades Comunes."
+    kind: text
+---
+
+## El lenguaje de las vulnerabilidades
+
+- **Vulnerabilidad**: el fallo (un buffer sin límites, una validación que falta).
+- **CVE-2021-44228**: identificador único (ese es Log4Shell, apunta la fecha).
+- **CVSS**: nota de 0 a 10 — 9.8 = "parchea YA"; 3.1 = "cuando puedas".
+- **Exploit**: lo que ABUSA del fallo (script, cadena de acciones, herramienta).
+- **0-day**: vulnerabilidad sin parche conocido — los más valiosos (y peligrosos).
+
+## Tu flujo de trabajo real
+
+Enumeraste un FTP `vsftpd 2.3.4` en el puerto 21. ¿Qué haces?
+
+1. `searchsploit vsftpd 2.3.4` — busca en **Exploit-DB** (la base pública de
+   exploits más clásica; `searchsploit` es su cliente local).
+2. Navegador: NVD (nvd.nist.gov) o cve.mitre.org para el detalle del CVE.
+3. ¿Hay exploit público? Descárgalo (`searchsploit -m 49757.py`), LÉELO ENTERO,
+   adapta IPs/puertos, y ejecútalo en tu lab.
+
+```bash
+searchsploit apache 2.4.49    # la clásica path traversal
+searchsploit -x 50383.py      # examinar un exploit
+```
+
+Regla de oro: **nunca ejecutes un exploit que no entiendas** — en un lab te sale
+rajando; en un engagement real, te puede tumbar producción.

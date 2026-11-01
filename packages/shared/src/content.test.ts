@@ -21,6 +21,11 @@ describe('normalizeAnswer', () => {
     expect(normalizeAnswer('  nmap   -sV   ')).toBe('nmap -sV');
     expect(normalizeAnswer('\tfoo\n')).toBe('foo');
   });
+
+  it('strips diacritics so accented and plain answers match', () => {
+    expect(normalizeAnswer('pública y privada')).toBe('publica y privada');
+    expect(normalizeAnswer('EXPLOTACIÓN')).toBe('EXPLOTACION');
+  });
 });
 
 describe('isCorrectAnswer', () => {

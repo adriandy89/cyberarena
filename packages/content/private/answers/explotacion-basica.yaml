@@ -1,0 +1,11 @@
+# Respuestas del room explotacion-basica.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+explotacion-basica-t01-q01: CVE
+explotacion-basica-t01-q02: b
+explotacion-basica-t01-q03: CVSS
+explotacion-basica-t02-q01: use
+explotacion-basica-t02-q02: show options
+explotacion-basica-t02-q03: b
+explotacion-basica-t03-q01: nc
+explotacion-basica-t03-q02: entrantes
+explotacion-basica-t03-q03: python3 -c 'import pty; pty.spawn("/bin/bash")'

@@ -1,0 +1,8 @@
+{
+  "slug": "web-hacking",
+  "title": "Web Hacking",
+  "description": "Anatomía de una aplicación web, inspección con DevTools, validación de cliente y Burp Suite como proxy total.",
+  "rooms": [
+    { "slug": "web-hacking-basico" }
+  ]
+}

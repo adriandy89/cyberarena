@@ -1,13 +1,16 @@
 {
   "slug": "cyber-security-101",
   "title": "Cyber Security 101",
-  "description": "Tu punto de partida en la ciberseguridad: fundamentos ofensivos y defensivos, Linux, Windows, redes y criptografía, con práctica desde el primer día.",
+  "description": "Tu punto de partida en la ciberseguridad: fundamentos ofensivos y defensivos, Linux, Windows, redes, criptografía y web hacking, con práctica desde el primer día.",
   "level": "beginner",
   "modules": [
     { "slug": "start-your-cyber-journey" },
     { "slug": "linux-fundamentals" },
     { "slug": "windows-ad-fundamentals" },
     { "slug": "command-line" },
-    { "slug": "networking" }
+    { "slug": "networking" },
+    { "slug": "cryptography" },
+    { "slug": "exploitation-basics" },
+    { "slug": "web-hacking" }
   ]
 }

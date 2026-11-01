@@ -1,0 +1,8 @@
+{
+  "slug": "cryptography",
+  "title": "Cryptography",
+  "description": "Cifrado simétrico y asimétrico, hashing con salt, cracking ético de contraseñas y codificaciones (base64/ROT13).",
+  "rooms": [
+    { "slug": "criptografia-basica" }
+  ]
+}

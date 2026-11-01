@@ -20,9 +20,9 @@ cuando los 14 módulos están publicados y el path muestra horas/rooms coherente
 | 3 | windows-ad-fundamentals | 2 (ediciones/registry/UAC, AD+Kerberos) | ✅ 2026-11-01 |
 | 4 | command-line | 1 (cmd+PowerShell) — más rooms en iteración | ✅ 2026-11-01 (inicial) |
 | 5 | networking | 1 (capas/DNS/HTTP) — más rooms en iteración | ✅ 2026-11-01 (inicial) |
-| 6 | cryptography | 3-4 | ⬜ |
-| 7 | exploitation-basics | 4 | ⬜ |
-| 8 | web-hacking | 4 | ⬜ |
+| 6 | cryptography | 1 (simétrico/asimétrico, hashing, cracking+ROT13 flag) | ✅ 2026-11-01 |
+| 7 | exploitation-basics | 1 (CVEs, Metasploit, shells) | ✅ 2026-11-01 |
+| 8 | web-hacking | 1 (anatomía, validación cliente, Burp) | ✅ 2026-11-01 |
 | 9 | offensive-tooling | 3-4 | ⬜ |
 | 10 | defensive-security | 4-5 | ⬜ |
 | 11 | security-solutions | 3 | ⬜ |

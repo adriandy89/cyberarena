@@ -1,0 +1,57 @@
+---
+index: 3
+title: "Romper contraseñas y jugar con codificaciones"
+questions:
+  - id: criptografia-basica-t03-q01
+    prompt: "¿Qué herramienta de diccionario convierte listas de contraseñas contra hashes (la de 'John')?"
+    hint: "John the Ripper."
+    kind: text
+  - id: criptografia-basica-t03-q02
+    prompt: "Descodifica con ROT13 y envía la flag: SYNT{ebg13_erirynqb}"
+    hint: "ROT13 mueve cada letra 13 posiciones (A↔N). En Linux: echo 'texto' | tr 'A-Za-z' 'N-ZA-Mn-za-m'"
+    kind: flag
+  - id: criptografia-basica-t03-q03
+    prompt: "¿Base64 y hexadecimal son cifrado?"
+    hint: "Cualquiera puede invertirlos sin llave."
+    kind: choice
+    options:
+      - id: a
+        label: "Sí: ocultan la información"
+      - id: b
+        label: "No: son CODIFICACIONES, reversibles por cualquiera sin llave"
+      - id: c
+        label: "Solo hex es cifrado"
+      - id: d
+        label: "Solo con TLS"
+---
+
+## El ataque a contraseñas (parte ética: en labs)
+
+Con un hash rápido (MD5/SHA) y un diccionario, el cracking es probar candidatos:
+
+```bash
+# John the Ripper contra un MD5
+echo '5f4dcc3b5aa765d61d8327deb882cf99' > hash.txt
+john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+john --show hash.txt
+```
+
+Su primo `hashcat` usa la GPU (más rápido). El rey de los diccionarios:
+`rockyou.txt` (14M de contraseñas reales filtradas en 2006). Moraleja defensiva:
+las contraseñas de diccionario CAEN; la longitud manda.
+
+## Codificación ≠ cifrado (error de novato)
+
+- **Base64**: `echo -n "hola" | base64` → `aG9sYQ==` — cualquiera lo invierte
+  (`base64 -d`). Es TRANSPORTE, no secreto.
+- **Hex / URL-encoding**: igual de reversibles.
+- **ROT13**: cifra desplazando 13 letras… y es SU propio inversor. Un juguete
+  (¡pero aparece en CTFs constantemente!).
+
+Si en un pentest "descubres" una cadena base64, decodifícala SIEMPRE — suele haber
+credenciales `usuario:contraseña` (¡Basic Auth de HTTP es literalmente eso!).
+
+## Tu flag ROT13
+
+La guía te ha dado la flag ROT13-eada en la pregunta: usa `tr` (Linux/macOS) o
+cyberchef locally, y despierta tu primer "crackeo" :)

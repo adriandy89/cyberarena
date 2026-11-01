@@ -81,9 +81,16 @@ export function isFlag(value: string): boolean {
   return FLAG_PATTERN.test(value.trim());
 }
 
-/** Normalizes any answer: trims edges and collapses inner whitespace. */
+/**
+ * Normalizes any answer: strips diacritics (Spanish-friendly: "pública" ==
+ * "publica"), trims edges and collapses inner whitespace.
+ */
 export function normalizeAnswer(value: string): string {
-  return value.trim().replace(/\s+/g, ' ');
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
 }
 
 /**

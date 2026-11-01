@@ -1,0 +1,62 @@
+---
+index: 2
+title: "Hashing: huellas digitales de datos"
+questions:
+  - id: criptografia-basica-t02-q01
+    prompt: "¿Un hash es reversible (se puede recuperar el original del hash)?"
+    hint: "Es una función unidireccional."
+    kind: choice
+    options:
+      - id: a
+        label: "Sí, con la llave correcta"
+      - id: b
+        label: "No: es unidireccional por diseño"
+      - id: c
+        label: "Solo los hashes MD5"
+      - id: d
+        label: "Depende de la longitud"
+  - id: criptografia-basica-t02-q02
+    prompt: "¿Qué propiedad exige que un cambio mínimo en la entrada cambie todo el hash?"
+    hint: "Efecto avalancha."
+    kind: text
+  - id: criptografia-basica-t02-q03
+    prompt: "¿Por qué las contraseñas se guardan hasheadas y NO cifradas?"
+    hint: "No hace falta recuperarlas, solo verificarlas."
+    kind: text
+---
+
+## Hash ≠ cifrado
+
+Un **hash** (SHA-256, bcrypt…) resume cualquier entrada en una huella de longitud
+fija:
+
+```bash
+echo -n "hola" | sha256sum
+# b16b...  (64 caracteres)
+echo -n "HOLA" | sha256sum
+# ¡totalmente distinto con UN carácter de cambio!
+```
+
+Propiedades: **unidireccional** (no se "descifra"), determinista (misma entrada →
+mismo hash), y efecto avalancha. Usos: integridad de descargas (checksums), firmas,
+Merkle trees de blockchain… y contraseñas.
+
+## Contraseñas bien guardadas
+
+Si guardas `hash(contraseña)` y el usuario entra "su" contraseña, recomputas y
+comparas — nunca necesitas la original. Pero como los atacantes prueban millones de
+candidatos contra hashes rápidos (SHA-256), las contraseñas usan **hashes lentos con
+salt**: bcrypt, scrypt o argon2.
+
+- **Salt**: valor aleatorio único por usuario → dos usuarios con "123456" no generan
+  el mismo hash, y no sirven tablas precalculadas (rainbow tables).
+- Cibera 101 en una línea: `md5(sin salt)` = malo; `argon2/bcrypt` = bien.
+
+## Reconocer hashes (habilidad CTF diaria)
+
+```bash
+hashid '5f4dcc3b5aa765d61d8327deb882cf99'   # sugiere el algoritmo (¡es MD5 de password!)
+echo -n "prueba" | md5sum
+```
+
+Ese hash de ejemplo es EL clásico: MD5 de `password`. En el task siguiente lo rompemos.

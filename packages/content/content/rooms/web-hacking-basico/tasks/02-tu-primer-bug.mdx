@@ -1,0 +1,53 @@
+---
+index: 2
+title: "Tu primer bug: la validación de cliente"
+questions:
+  - id: web-hacking-basico-t02-q01
+    prompt: "¿Por qué confiar en validación hecha SOLO con JavaScript en el navegador es un fallo de seguridad?"
+    hint: "¿Quién controla lo que corre en tu navegador?"
+    kind: choice
+    options:
+      - id: a
+        label: "Porque JavaScript es lento"
+      - id: b
+        label: "El atacante controla su navegador: puede desactivarla o enviar la petición manipulada directamente al servidor"
+      - id: c
+        label: "Porque no funciona en móviles"
+      - id: d
+        label: "No es un fallo si hay HTTPS"
+  - id: web-hacking-basico-t02-q02
+    prompt: "¿Qué carácter wildcard se usa en la mayoría de buscadores para fuerza bruta de directorios (ej. ffuf)?"
+    hint: "FUZZ en mayúsculas… su abreviatura."
+    kind: text
+---
+
+## El bug que nunca muere
+
+Escenario real: un formulario te dice "precio: 10€" con JavaScript que impide
+cambiarlo. El atacante:
+
+1. Abre DevTools → Network.
+2. Envía el formulario normal.
+3. Clic derecho en la petición → "Copy as fetch" — y EDITA el cuerpo:
+   `precio=1` (¡o `precio=-100`!).
+4. La pega en la Console y Enter.
+
+Si el servidor NO revalida, acaba de comprar a 1€. La regla que se deriva (y que
+verás en OWASP): **toda validación de seguridad debe repetirse en el servidor**.
+Lo que corre en el cliente, el atacante lo controla.
+
+## Descubriendo lo que no te muestran
+
+Más allá del formulario visible, toda web tiene rutas no enlazadas:
+`/admin`, `/backup.zip`, `/.git/config`…
+
+```bash
+# Fuzzing de directorios con ffuf (wordlist clásica):
+ffuf -w /usr/share/wordlists/dirb/common.txt -u http://LAB/FUZZ
+# gobuster dir -u http://LAB -w common.txt   (alternativa)
+```
+
+El placeholder `FUZZ` se sustituye por cada palabra del diccionario: las rutas que
+existen responden distinto (200/301/403) que las que no (404). Esta técnica, combinada
+con lo que aprendiste de robots.txt en el lab web-recon-1, es la "content discovery"
+básica de todo engagement web.

