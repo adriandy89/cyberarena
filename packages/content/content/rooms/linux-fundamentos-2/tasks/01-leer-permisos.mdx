@@ -1,0 +1,56 @@
+---
+index: 1
+title: "Leer permisos como un profesional"
+questions:
+  - id: linux-fundamentos-2-t01-q01
+    prompt: "En '-rwxr-x---', ¿qué significa el segundo trío (r-x) y para quién?"
+    hint: "dueño, grupo, otros — en ese orden."
+    kind: choice
+    options:
+      - id: a
+        label: "El dueño puede leer y escribir"
+      - id: b
+        label: "El grupo puede leer y ejecutar, pero no escribir"
+      - id: c
+        label: "Cualquier usuario puede ejecutar"
+      - id: d
+        label: "Nadie más que root puede leer"
+  - id: linux-fundamentos-2-t01-q02
+    prompt: "¿Qué comando (modo simbólico) AÑADE permiso de ejecución SOLO al dueño de un archivo? Ejemplo exacto para script.sh."
+    hint: "chmod quién(+|-)qué archivo."
+    kind: text
+  - id: linux-fundamentos-2-t01-q03
+    prompt: "¿Qué valor octal equivale a rwxr-xr-- (dueño todo, grupo leer+ejecutar, otros solo leer)?"
+    hint: "r=4, w=2, x=1. Suma por trío: 7, 5 y…"
+    kind: text
+---
+
+## Anatomía de un ls -l
+
+```text
+-rwxr-x--- 1 ana dev 2048 nov 1 12:00 script.sh
+│└┬┘└┬┘└┬┘     └─ grupo
+│ │  │  └── otros (resto del mundo)
+│ │  └───── grupo (dev)
+│ └──────── dueño (ana)
+└────────── tipo: - archivo, d directorio, l enlace
+```
+
+Cada trío suma con **r=4, w=2, x=1**:
+
+- `rwx` = 7 · `r-x` = 5 · `r--` = 4 · `---` = 0
+- Por eso `chmod 754 script.sh` deja el archivo exactamente `rwxr-xr--`.
+
+En **directorios**, `x` no es "ejecutar" sino **poder entrar** (cd). Un directorio con
+`r` sin `x` lista nombres pero no deja acceder.
+
+## Cambiar permisos y dueños
+
+```bash
+chmod u+x script.sh        # simbólico: u/g/o/a + - r/w/x
+chmod 754 script.sh        # octal: dueño-grupo-otros
+chown ana:dev script.sh    # cambiar dueño y grupo (necesita privilegios)
+```
+
+`sudo` ejecuta como root: `sudo chown root:root fichero`. Úsalo con respeto, y consulta
+`sudo -l` (¿qué puedo hacer como root?) — un clásico de enumeración en CTFs.

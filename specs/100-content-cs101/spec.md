@@ -16,7 +16,7 @@ cuando los 14 módulos están publicados y el path muestra horas/rooms coherente
 | # | Módulo | Rooms previstos | Estado |
 |---|---|---|---|
 | 1 | start-your-cyber-journey | 2 (intro, recon-web-basico+lab) | ✅ (fases 002/007) |
-| 2 | linux-fundamentals | 3 | 🚧 esta sesión |
+| 2 | linux-fundamentals | 3 (terminal, permisos/SUID, red/scripts) | ✅ 2026-11-01 |
 | 3 | windows-ad-fundamentals | 3-4 | ⬜ |
 | 4 | command-line | 3 | ⬜ |
 | 5 | networking | 4-5 | ⬜ |
@@ -42,9 +42,10 @@ cuando los 14 módulos están publicados y el path muestra horas/rooms coherente
 
 ## 4. Criterios de éxito
 
-- [ ] Cada módulo entregado: `pnpm --filter @repo/content build` verde + seed
+- [x] Cada módulo entregado: `pnpm --filter @repo/content build` verde + seed
       idempotente + `/api/catalog` muestra el path con las rooms nuevas + E2E de una
-      pregunta nueva (respuesta correcta vía API).
+      pregunta nueva (respuesta correcta vía API). *(linux: 36 answers, catálogo 5
+      rooms ≈3h, SUID y flag base64 resueltas vía API, página 200)*
 - [ ] Al cerrar la spec: los 14 módulos publicados, duración estimada coherente y
       `docs/content-guide.md` sin cambios necesarios.
 

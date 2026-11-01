@@ -1,0 +1,69 @@
+---
+index: 1
+title: "¿Quién soy y dónde estoy?"
+questions:
+  - id: linux-fundamentos-1-t01-q01
+    prompt: "¿Qué comando muestra tu nombre de usuario actual?"
+    hint: "Piensa en 'who am I' contraído."
+    kind: text
+  - id: linux-fundamentos-1-t01-q02
+    prompt: "¿Qué comando imprime el directorio de trabajo actual (en qué carpeta estás)?"
+    hint: "Print Working Directory."
+    kind: text
+  - id: linux-fundamentos-1-t01-q03
+    prompt: "¿Qué símbolo representa el directorio home del usuario actual?"
+    hint: "La tilde también vive en el teclado español con AltGr+4."
+    kind: choice
+    options:
+      - id: a
+        label: "/"
+      - id: b
+        label: "~"
+      - id: c
+        label: "@"
+      - id: d
+        label: "$HOME$"
+---
+
+## Identidad y ubicación
+
+Dos preguntas existenciales de la terminal, con dos comandos de respuesta:
+
+```bash
+whoami     # tu usuario
+pwd        # tu directorio actual (print working directory)
+```
+
+El **prompt** también te da pistas: `usuario@host:~$` significa que estás en tu home
+(`~` es el atajo de `/home/tu-usuario`). La `$` indica usuario normal; si vieras `#`,
+eres root (¡cuidado con lo que escribes!).
+
+## Navegación básica
+
+```bash
+ls          # listar contenido
+ls -l       # detalle: permisos, tamaño, fecha
+ls -la      # detalle + ocultos (los que empiezan por .)
+cd /etc     # ir a un directorio absoluto
+cd Documentos   # relativo (desde donde estés)
+cd ..       # subir un nivel
+cd ~        # volver a home
+cd -        # volver al directorio anterior
+```
+
+Truco: la tecla **Tab** autocompleta nombres — úsala sin piedad. Y `Ctrl+L` limpia la
+pantalla (más rápido que escribir `clear`).
+
+## Jerarquía estándar (FHS)
+
+En Linux todo cuelga de `/` (root del sistema, no confundir con el usuario root):
+
+| Ruta | Contenido |
+|---|---|
+| `/home` | carpetas personales de usuarios |
+| `/etc` | configuración del sistema |
+| `/var/log` | logs |
+| `/tmp` | temporales |
+| `/usr/bin` | ejecutables instalados |
+
+A diferencia de Windows, no hay `C:\`: las rutas usan `/` y no hay letras de unidad.

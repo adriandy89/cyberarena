@@ -1,0 +1,64 @@
+---
+index: 3
+title: "Ayuda, tuberías y redirección"
+questions:
+  - id: linux-fundamentos-1-t03-q01
+    prompt: "¿Qué comando muestra el manual de otro comando (ej. con 'ls' como argumento)?"
+    hint: "El clásico de las páginas de manual."
+    kind: text
+  - id: linux-fundamentos-1-t03-q02
+    prompt: "¿Qué carácter conecta la salida de un comando con la entrada de otro?"
+    hint: "Se llama pipe (tubería)."
+    kind: text
+  - id: linux-fundamentos-1-t03-q03
+    prompt: "¿Qué hace 'history | grep ssh'?"
+    hint: "Dos comandos, una tubería."
+    kind: choice
+    options:
+      - id: a
+        label: "Muestra el historial completo y abre ssh"
+      - id: b
+        label: "Filtra el historial dejando solo líneas que contengan ssh"
+      - id: c
+        label: "Borra del historial los comandos ssh"
+      - id: d
+        label: "Guarda el historial en un servidor ssh"
+---
+
+## Nadie se sabe todos los comandos
+
+```bash
+man ls          # manual completo (q para salir)
+ls --help       # resumen de opciones
+man -k password # buscar en los manuales por palabra (apropos)
+```
+
+## Tuberías y redirección: la filosofía UNIX
+
+Cada comando hace UNA cosa bien; los compones con `|` (pipe):
+
+```bash
+cat acceso.log | grep "401" | wc -l        # ¿cuántos accesos no autorizados?
+ps aux | grep nginx                        # procesos de nginx
+history | grep ssh                         # ¿qué ssh he ejecutado?
+```
+
+Redirección de salida:
+
+```bash
+echo "hola" > saludo.txt     # crea/sobrescribe
+echo "otra línea" >> saludo.txt   # añade (append)
+comando 2> errores.txt       # solo stderr a archivo
+comando > /dev/null 2>&1     # silencio total (todo a la nada)
+```
+
+## Comandos estrella para más tarde
+
+```bash
+sort | uniq -c | sort -nr    # top de repetidos (verás esto MUCHO en CTFs)
+cut -d: -f1 /etc/passwd      # primera columna de un archivo delimitado por :
+awk '{print $1}'             # primera columna de texto tabulado
+```
+
+Con navegación, archivos y tuberías ya eres peligroso en una terminal. El siguiente
+room del módulo: permisos, usuarios y procesos — donde empieza la escalada de privilegios.

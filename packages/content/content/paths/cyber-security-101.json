@@ -4,6 +4,7 @@
   "description": "Tu punto de partida en la ciberseguridad: fundamentos ofensivos y defensivos, Linux, Windows, redes y criptografía, con práctica desde el primer día.",
   "level": "beginner",
   "modules": [
-    { "slug": "start-your-cyber-journey" }
+    { "slug": "start-your-cyber-journey" },
+    { "slug": "linux-fundamentals" }
   ]
 }

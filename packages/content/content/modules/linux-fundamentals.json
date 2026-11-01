@@ -1,0 +1,10 @@
+{
+  "slug": "linux-fundamentals",
+  "title": "Linux Fundamentals",
+  "description": "Terminal, sistema de archivos, permisos y SUID, usuarios, procesos, paquetes, red y automatización: la base para atacar y defender sistemas Linux.",
+  "rooms": [
+    { "slug": "linux-fundamentos-1" },
+    { "slug": "linux-fundamentos-2" },
+    { "slug": "linux-fundamentos-3" }
+  ]
+}

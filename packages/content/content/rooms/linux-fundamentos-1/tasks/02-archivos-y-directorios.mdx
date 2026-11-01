@@ -1,0 +1,67 @@
+---
+index: 2
+title: "Crear, copiar, mover y destruir"
+questions:
+  - id: linux-fundamentos-1-t02-q01
+    prompt: "¿Qué comando crea un directorio (y sus padres si faltan) en una sola línea?"
+    hint: "mkdir con la opción 'parents'."
+    kind: text
+  - id: linux-fundamentos-1-t02-q02
+    prompt: "¿Qué comando de borrado es irreversible y temido (sin papelera)?"
+    hint: "Remove recursive force."
+    kind: text
+  - id: linux-fundamentos-1-t02-q03
+    prompt: "Si ejecutas 'touch notas.txt' y el archivo NO existe, ¿qué ocurre?"
+    hint: "touch hace dos cosas según el caso."
+    kind: choice
+    options:
+      - id: a
+        label: "Da error: touch solo actualiza fechas de archivos existentes"
+      - id: b
+        label: "Crea el archivo vacío"
+      - id: c
+        label: "Abre un editor para escribirlo"
+      - id: d
+        label: "Nada: touch es un alias de cat"
+  - id: linux-fundamentos-1-t02-q04
+    prompt: "Decodifica el Base64 de la guía y envía la flag."
+    hint: "echo <cadena> | base64 -d"
+    kind: flag
+---
+
+## El ciclo de vida de un archivo
+
+```bash
+mkdir -p proyectos/ctf/notas    # crea toda la rama de directorios
+touch informe.txt               # crea vacío (o actualiza su fecha si existe)
+cp informe.txt copia.txt        # copiar
+mv copia.txt ~/Documentos/      # mover (¡y renombrar: mv a.txt b.txt!)
+cat informe.txt                 # ver contenido entero
+head -n 5 informe.txt           # primeras 5 líneas
+tail -f /var/log/syslog         # seguir un log en vivo (Ctrl+C para salir)
+rm copia.txt                    # borrar archivo
+rm -rf proyectos                # borrar directorio y todo su contenido — SIN PAPELERA
+```
+
+`rm -rf` no perdona: no hay Ctrl+Z. Léelo dos veces antes de Enter, sobre todo si
+empieza por `/` o lleva `*`.
+
+## Buscar cosas
+
+```bash
+find /etc -name "*.conf"            # archivos por nombre
+find / -type f -size +100M 2>/dev/null   # archivos enormes (errores a /dev/null)
+grep -i "error" app.log             # texto dentro de archivos (-i ignora mayúsculas)
+grep -r "password" ./configuración  # búsqueda recursiva
+```
+
+## Tu primera flag autocontenida
+
+Los ejercicios de flags de este room se resuelven con herramientas locales. Decodifica
+esto en tu terminal (es Base64):
+
+```bash
+echo "RkxBR3tjb21hbmRvc19kZWxfdGlhbn0=" | base64 -d
+```
+
+El resultado es la flag de esta tarea. Bienvenido al arte de decodificar :)

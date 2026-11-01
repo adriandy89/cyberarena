@@ -1,0 +1,44 @@
+---
+index: 1
+title: "Paquetes: instalar y actualizar"
+questions:
+  - id: linux-fundamentos-3-t01-q01
+    prompt: "En Debian/Ubuntu, ¿qué comando DESCARGA e instala un paquete (p. ej. nmap) en un solo paso?"
+    hint: "apt-get install… pero con una palabra menos."
+    kind: text
+  - id: linux-fundamentos-3-t01-q02
+    prompt: "¿Qué familia de distribución usa dnf/rpm en lugar de apt/deb?"
+    hint: "La del sombrero rojo."
+    kind: choice
+    options:
+      - id: a
+        label: "Arch Linux"
+      - id: b
+        label: "Fedora/RHEL"
+      - id: c
+        label: "Alpine"
+      - id: d
+        label: "openSUSE"
+---
+
+## El gestor de paquetes es tu app-store
+
+| Familia | Instalar | Buscar | Actualizar todo |
+|---|---|---|---|
+| Debian/Ubuntu | `apt install nmap` | `apt search nmap` | `apt update && apt upgrade` |
+| Fedora/RHEL | `dnf install nmap` | `dnf search nmap` | `dnf upgrade` |
+| Arch | `pacman -S nmap` | `pacman -Ss nmap` | `pacman -Syu` |
+| Alpine | `apk add nmap` | `apk search nmap` | `apk upgrade` |
+
+Regla de oro: instala SIEMPRE desde repositorios oficiales (firmados). Un `.deb` o
+`.rpm` descargado de una web random es la vía clásica de instalar un backdoor.
+
+```bash
+apt update          # refrescar índices (primero SIEMPRE)
+apt upgrade         # aplicar actualizaciones
+apt remove nmap     # desinstalar
+dpkg -l | grep nmap # ¿está instalado? (nivel paquete)
+```
+
+Mantener el sistema al día es la mitigación más rentable que existe — tanto para tus
+máquinas como para las que vas a auditar (¿versiones viejas = CVEs conocidos?).

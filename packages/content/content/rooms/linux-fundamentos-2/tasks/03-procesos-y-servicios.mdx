@@ -1,0 +1,56 @@
+---
+index: 3
+title: "Procesos y servicios"
+questions:
+  - id: linux-fundamentos-2-t03-q01
+    prompt: "¿Qué comando lista todos los procesos del sistema con su usuario (sintaxis clásica BSD)?"
+    hint: "Dos letras; te lo enseñamos filtrando nginx con grep."
+    kind: text
+  - id: linux-fundamentos-2-t03-q02
+    prompt: "¿Qué señal envía 'kill -9' a un proceso?"
+    hint: "La que no se puede capturar ni ignorar."
+    kind: text
+  - id: linux-fundamentos-2-t03-q03
+    prompt: "¿Qué comando gestiona los servicios en un sistema systemd moderno (uno solo)?"
+    hint: "El 'control' de systemctl… es él mismo."
+    kind: text
+---
+
+## Todo lo que corre es un proceso
+
+```bash
+ps aux                     # todos los procesos, con usuario
+ps aux | grep sshd         # ¿está corriendo el ssh?
+top / htop                 # procesos en vivo (CPU, memoria)
+kill <PID>                 # SIGTERM: "por favor, termina"
+kill -9 <PID>              # SIGKILL: muerte inmediata, sin limpieza
+```
+
+Cada proceso tiene un dueño. Ver un proceso corriendo como **root** que no debería
+(tu app, un script) es oro para un atacante — y una alerta para un defensor.
+
+## Servicios con systemd
+
+```bash
+systemctl status nginx     # estado de un servicio
+systemctl list-units --type=service --state=running
+journalctl -u nginx -f     # logs del servicio en vivo
+```
+
+Los servicios (demonios, nombres acabados en `d`: `sshd`, `systemd-resolved`) suelen
+arrancar con el sistema y correr como root o con cuentas dedicadas (`www-data`).
+
+## Enumeración express de una máquina
+
+Cuando comprometas un Linux, esta será tu primera ronda:
+
+```bash
+whoami && id               # quién soy
+sudo -l                    # qué puedo escalar
+find / -perm -4000 -type f 2>/dev/null   # SUID
+ps aux | head -20          # qué corre y COMO quién
+cat /etc/crontab           # tareas programadas
+```
+
+Guarda estos comandos: repetirás esta lista en cada lab del path. Has terminado la
+base de Linux — en los siguientes módulos la usarás para atacar de verdad.

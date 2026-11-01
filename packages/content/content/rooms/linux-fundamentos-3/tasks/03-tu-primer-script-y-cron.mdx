@@ -1,0 +1,57 @@
+---
+index: 3
+title: "Tu primer script y tareas programadas"
+questions:
+  - id: linux-fundamentos-3-t03-q01
+    prompt: "¿Con qué línea empieza un script bash para que el sistema sepa qué intérprete usar?"
+    hint: "Shebang: almohadilla, admiración, ruta."
+    kind: text
+  - id: linux-fundamentos-3-t03-q02
+    prompt: "¿Qué demonio ejecuta tareas programadas (expresiones crontab)?"
+    hint: "Se llama como el archivo /etc/crontab."
+    kind: text
+  - id: linux-fundamentos-3-t03-q03
+    prompt: "En cron, ¿qué expresión significa 'cada día a las 03:30 de la madrugada'?"
+    hint: "minuto hora día mes día-semana."
+    kind: text
+---
+
+## Scripts: guardar comandos para el futuro
+
+```bash
+#!/usr/bin/env bash
+# enumerar.sh — primera ronda de reconocimiento de una máquina
+set -e
+echo "== identidad =="; whoami; id
+echo "== suid ==";    find / -perm -4000 -type f 2>/dev/null
+echo "== puertos =="; ss -tulpn | head -15
+```
+
+Guárdalo como `enumerar.sh`, dale permisos y ejecútalo:
+
+```bash
+chmod +x enumerar.sh
+./enumerar.sh            # o bash enumerar.sh
+```
+
+Variables (`DESTINO=10.10.10.5`, luego `$DESTINO`), bucles (`for puerto in 22 80 443`) y
+condicionales convierten comandos en herramientas propias. En el módulo de scripting
+del path Jr Pentester harás un escáner de puertos en bash y Python.
+
+## Cron: el tiempo también ejecuta código
+
+```bash
+crontab -e               # editar TUS tareas
+cat /etc/crontab         # tareas del sistema
+ls -la /etc/cron.d/      # tareas por paquete
+```
+
+Formato: `minuto hora día-del-mes mes día-de-la-semana comando`.
+
+```
+30 3 * * * /usr/local/bin/backup.sh
+```
+
+Para un atacante, un cron de root que ejecuta un script escribible es escalada
+inmediata; para un defensor, revisar cron es parte de la caza de persistencia.
+Módulo de Linux completado —Windows y Active Directory te esperan.

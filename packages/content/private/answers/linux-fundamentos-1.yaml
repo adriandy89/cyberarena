@@ -1,0 +1,12 @@
+# Respuestas del room linux-fundamentos-1.
+# PRIVADO: nunca se sirve al cliente; el seed lo hashea a la tabla Answer.
+linux-fundamentos-1-t01-q01: whoami
+linux-fundamentos-1-t01-q02: pwd
+linux-fundamentos-1-t01-q03: b
+linux-fundamentos-1-t02-q01: mkdir -p
+linux-fundamentos-1-t02-q02: rm -rf
+linux-fundamentos-1-t02-q03: b
+linux-fundamentos-1-t02-q04: FLAG{comandos_del_tian}
+linux-fundamentos-1-t03-q01: man
+linux-fundamentos-1-t03-q02: "|"
+linux-fundamentos-1-t03-q03: b

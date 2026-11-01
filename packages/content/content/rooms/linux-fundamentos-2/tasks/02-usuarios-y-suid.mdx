@@ -1,0 +1,60 @@
+---
+index: 2
+title: "Usuarios, grupos y el bit SUID"
+questions:
+  - id: linux-fundamentos-2-t02-q01
+    prompt: "¿Qué archivo plano lista los usuarios locales del sistema?"
+    hint: "Cada usuario es una línea con 7 campos delimitados por :"
+    kind: text
+  - id: linux-fundamentos-2-t02-q02
+    prompt: "¿Qué bit especial hace que un binario se ejecute con los permisos de su DUEÑO (p. ej. root) aunque lo lance otro usuario?"
+    hint: "La s que aparece donde iría la x del dueño."
+    kind: text
+  - id: linux-fundamentos-2-t02-q03
+    prompt: "Un binario -rwsr-xr-x root root es SUID root y es escribible por cualquiera. ¿Qué riesgo hay?"
+    hint: "Si cualquiera puede reemplazarlo…"
+    kind: choice
+    options:
+      - id: a
+        label: "Ninguno: SUID solo afecta a la fecha de acceso"
+      - id: b
+        label: "Escalada inmediata: cualquiera sustituye el binario y root lo ejecutará"
+      - id: c
+        label: "Solo consume más memoria"
+      - id: d
+        label: "Rompe los logs del sistema"
+---
+
+## Dónde viven los usuarios
+
+```bash
+cat /etc/passwd    # usuarios: nombre:x:uid:gid:home:shell
+cat /etc/group     # grupos
+cat /etc/shadow    # hashes de contraseñas (¡solo root lo lee!)
+id                 # quién soy yo: uid, gid y grupos
+sudo -l            # qué comandos puedo ejecutar como root
+```
+
+En `/etc/passwd`, el campo `x` apunta a `/etc/shadow`. Si algún servicio escribe
+usuarios a mano y olvida ese `x` (dejando el hash a la vista), ya tienes un problema
+— lo verás en labs futuros.
+
+## SUID: el bit que otorga poderes
+
+Cuando el bit **SUID** está activo, el binario corre con los permisos de su **dueño**.
+Por eso `/usr/bin/passwd` puede editar `/etc/shadow` aunque lo lance un usuario normal:
+
+```bash
+ls -l /usr/bin/passwd
+# -rwsr-xr-x 1 root root ... /usr/bin/passwd
+#     ↑ la 's' donde iría la x del dueño = SUID
+```
+
+Para encontrar binarios SUID en toda una máquina (enumeración clásica de privesc):
+
+```bash
+find / -perm -4000 -type f 2>/dev/null
+```
+
+La pregunta de seguridad es siempre: ¿hay algún SUID **escribible** o algún binario
+"abusable" (busca en GTFOBins)? El primero es escalada directa.

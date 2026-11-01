@@ -1,0 +1,53 @@
+---
+index: 2
+title: "Red desde la terminal"
+questions:
+  - id: linux-fundamentos-3-t02-q01
+    prompt: "¿Qué comando lista los puertos ESCUCHANDO con su proceso (sucesor de netstat)?"
+    hint: "Dos esses; la opción -l es listening, -p proceso."
+    kind: text
+  - id: linux-fundamentos-3-t02-q02
+    prompt: "¿Qué herramienta descarga/muestra una URL y responde a POST con JSON (la usarás en cada API)?"
+    hint: "La c de client."
+    kind: text
+  - id: linux-fundamentos-3-t02-q03
+    prompt: "Un puerto en estado LISTEN en 127.0.0.1:8080, ¿es accesible desde otra máquina de la red?"
+    hint: "Piensa en la interfaz donde escucha."
+    kind: choice
+    options:
+      - id: a
+        label: "Sí, todos los LISTEN son públicos"
+      - id: b
+        label: "No: solo desde la propia máquina (loopback)"
+      - id: c
+        label: "Solo si hay firewall abierto"
+      - id: d
+        label: "Depende del protocolo"
+---
+
+## ¿Qué puertos tengo abiertos y quién los usa?
+
+```bash
+ip a                    # mis interfaces e IPs (sucesor de ifconfig)
+ss -tulpn               # puertos TCP/UDP escuchando + proceso
+ping -c 3 8.8.8.8       # ¿hay salida a internet?
+traceroute 8.8.8.8      # camino de saltos
+```
+
+`ss -tulpn` es de las primeras cosas que ejecutarás en una máquina comprometida:
+**servicio escuchando solo en 127.0.0.1** = posible movimiento lateral clásico
+(binded localhost, accesible vía SSH tunnel). Escuchando en `0.0.0.0` = todas las
+interfaces, potencialmente expuesto.
+
+## curl: tu navaja suiza HTTP
+
+```bash
+curl http://127.0.0.1:8080/           # GET simple
+curl -I http://ejemplo.com/           # solo cabeceras
+curl -X POST -H 'Content-Type: application/json' \
+     -d '{"user":"ana"}' http://api.local/login
+curl -o archivo.zip URL               # descargar
+```
+
+Ya conoces curl del lab de recon — aquí lo confirmas como herramienta diaria. En el
+módulo de Networking profundizaremos en TCP/IP, DNS y capturas con Wireshark.
