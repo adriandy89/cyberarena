@@ -10,14 +10,16 @@
 
 ## Desarrollo
 
-### Variante A — todo en Docker (recomendada para probar el stack completo)
+### Variante A — todo en Docker (verificada 2026-11-01)
 
 ```bash
 # Variables del stack
 cp infra/stacks/dev/.env.example infra/stacks/dev/.env   # ajusta secretos
 
-# Levanta postgres + mailpit + api + web (hot-reload por volúmenes)
-docker compose --project-directory . -f infra/stacks/dev/compose.yaml up -d
+# Levanta postgres + mailpit + api + web (hot-reload por volúmenes).
+# El primer arranque instala dependencias dentro de los contenedores (~3 min);
+# los siguientes arrancan en segundos gracias al volumen pnpm-store.
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d
 
 # Logs
 docker compose --project-directory . -f infra/stacks/dev/compose.yaml logs -f api web
@@ -25,14 +27,14 @@ docker compose --project-directory . -f infra/stacks/dev/compose.yaml logs -f ap
 # Migraciones/seed desde host apuntando al postgres del stack (puerto publicado)
 pnpm db:migrate && pnpm db:seed
 
-# Parar (borra contenedores, conserva volumen de datos)
-docker compose --project-directory . -f infra/stacks/dev/compose.yaml down
+# Parar (borra contenedores, conserva volúmenes de datos)
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env down
 ```
 
 ### Variante B — mixed (infra en Docker, dev servers en host; mejor DX en Windows)
 
 ```bash
-docker compose --project-directory . -f infra/stacks/dev/compose.yaml --profile infra up -d
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d postgres mailpit
 pnpm install
 pnpm db:migrate && pnpm db:seed
 pnpm dev          # web :3000 + api :3001 con hot-reload

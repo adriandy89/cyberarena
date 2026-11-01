@@ -40,6 +40,9 @@ export default function StatusPage() {
   }, []);
 
   useEffect(() => {
+    // Intentional fetch-on-mount for this small status widget. Revisited when a
+    // data-fetching layer lands (phase 003+); see specs/000-foundation changelog.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 

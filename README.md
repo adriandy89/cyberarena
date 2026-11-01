@@ -31,14 +31,17 @@ Requisitos: Node 22+, pnpm 11, Docker.
 
 ```bash
 # 1) Variables de entorno
-cp .env.example .env              # rellena secretos
+cp .env.example .env                                  # rellena secretos
+cp infra/stacks/dev/.env.example infra/stacks/dev/.env
 
 # 2) Todo el entorno dev en Docker (postgres + api + web + mailpit)
-docker compose --project-directory . -f infra/stacks/dev/compose.yaml up -d
+#    (primer arranque: instala dependencias dentro de los contenedores, ~3 min)
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d
 
-#    …o solo infraestructura y dev servers en host:
-docker compose --project-directory . -f infra/stacks/dev/compose.yaml --profile infra up -d
+#    …o solo infraestructura y dev servers en host (mejor DX en Windows):
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d postgres mailpit
 pnpm install
+pnpm db:migrate && pnpm db:seed
 pnpm dev
 ```
 

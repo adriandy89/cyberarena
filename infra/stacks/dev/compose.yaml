@@ -15,7 +15,9 @@ services:
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # Postgres 18+: mount the parent dir; data lands in a per-version subdir
+      # (required layout for future pg_upgrade --link, see docker-library/postgres#37).
+      - pgdata:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 5s
@@ -62,9 +64,10 @@ services:
     ports:
       - '${API_PORT:-3001}:3001'
     volumes:
-      # Whole monorepo bind-mounted for hot reload; node_modules shadows keep
+      # Whole monorepo bind-mounted for hot reload (paths resolve from the
+      # project directory, i.e. the repo root); node_modules shadows keep
       # container-native binaries (Windows host cannot share them).
-      - ../..:/app
+      - .:/app
       - /app/node_modules
       - /app/apps/api/node_modules
       - /app/apps/web/node_modules
@@ -106,7 +109,7 @@ services:
     ports:
       - '${WEB_PORT:-3000}:3000'
     volumes:
-      - ../..:/app
+      - .:/app
       - /app/node_modules
       - /app/apps/api/node_modules
       - /app/apps/web/node_modules

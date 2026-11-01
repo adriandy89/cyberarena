@@ -1,8 +1,19 @@
 # Spec 000 — Foundation (monorepo y entorno base)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada. Desvíos documentados: (1) el "pipe Zod global"
+    se pospone a F1 (Nest 12 expone `ZodValidationPipe` por-ruta; el patrón global se
+    diseña con los primeros DTOs reales). (2) El perfil `--profile infra` del stack dev se
+    sustituye por `up -d postgres mailpit` (semánticamente correcto sin profiles).
+    (3) Prisma 7: `url` fuera del schema (vive en `prisma.config.ts`) y cliente con driver
+    adapter `@prisma/adapter-pg` (requerimientos reales de la 7.10.1). (4) ESLint fijado
+    a 9.39.5 (los plugins de eslint-config-next aún no declaran peer para ESLint 10).
+    (5) pnpm 11: builds nativos vía `allowBuilds` y `confirmModulesPurge: false` en
+    `pnpm-workspace.yaml`. (6) Postgres 18 exige montar el volumen en `/var/lib/postgresql`
+    (layout pg_upgrade). Todos verificados en T015/T016.
 
 ## 1. Propósito
 
@@ -48,12 +59,12 @@ completo en Docker Compose (postgres + api + web + mailpit), CI y todo el andami
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] `docker compose -f infra/stacks/dev/compose.yaml up -d` deja web en :3000 (ES/EN navegables), api en :3001 (`/api/health` → `db: up`), mailpit en :8025.
-- [ ] El mismo resultado con la variante host: perfil `infra` + `pnpm dev`.
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` verdes en raíz.
-- [ ] Un test de humo en la API (Vitest) valida `/api/health`.
-- [ ] Git history con commits atómicos por tarea referenciando ids de `tasks.md`.
-- [ ] `specs/`, `docs/`, `AGENTS.md` commiteados y consistentes con lo implementado.
+- [x] `docker compose -f infra/stacks/dev/compose.yaml up -d` deja web en :3000 (ES/EN navegables), api en :3001 (`/api/health` → `db: up`), mailpit en :8025. *(verificado 2026-11-01: health `db: up` 20ms, /es /en 200, redirect / → /es, mailpit 200)*
+- [x] El mismo resultado con la variante host: perfil `infra` + `pnpm dev`. *(variante: `up -d postgres mailpit`; migración+seed ejecutados desde host contra el postgres del stack)*
+- [x] `pnpm lint && pnpm typecheck && pnpm build` verdes en raíz. *(7/7 lint, 8/8 typecheck, 4/4 build, 16 tests ✓)*
+- [x] Un test de humo en la API (Vitest) valida `/api/health`. *(HealthService unit tests)*
+- [x] Git history con commits atómicos por tarea referenciando ids de `tasks.md`.
+- [x] `specs/`, `docs/`, `AGENTS.md` commiteados y consistentes con lo implementado.
 
 ## 5. Fuera de alcance
 
