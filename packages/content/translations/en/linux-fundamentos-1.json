@@ -1,0 +1,38 @@
+{
+  "title": "Linux Fundamentals I: the terminal is your best friend",
+  "description": "First Linux commands: who you are, where you are, and how to navigate the filesystem without leaving the terminal.",
+  "tasks": {
+    "1": {
+      "title": "Who am I and where am I?",
+      "questions": {
+        "linux-fundamentos-1-t01-q01": { "prompt": "Which command shows your current username?" },
+        "linux-fundamentos-1-t01-q02": { "prompt": "Which command prints the current working directory?" },
+        "linux-fundamentos-1-t01-q03": { "prompt": "What symbol represents the current user's home directory?" }
+      }
+    },
+    "2": {
+      "title": "Create, copy, move and destroy",
+      "questions": {
+        "linux-fundamentos-1-t02-q01": { "prompt": "Which command creates a directory (and its parents if missing) in one line?" },
+        "linux-fundamentos-1-t02-q02": { "prompt": "Which delete command is irreversible and feared (no trash)?" },
+        "linux-fundamentos-1-t02-q03": { "prompt": "If you run 'touch notas.txt' and the file does NOT exist, what happens?" },
+        "linux-fundamentos-1-t02-q04": { "prompt": "Decode the Base64 from the guide and submit the flag." }
+      }
+    },
+    "3": {
+      "title": "Help, pipes and redirection",
+      "questions": {
+        "linux-fundamentos-1-t03-q01": { "prompt": "Which command shows the manual for another command?" },
+        "linux-fundamentos-1-t03-q02": { "prompt": "What character pipes the output of one command into the input of another?" },
+        "linux-fundamentos-1-t03-q03": { "prompt": "What does 'history | grep ssh' do?" }
+      }
+    },
+    "4": {
+      "title": "Lab: explore the real system",
+      "questions": {
+        "linux-fundamentos-1-t04-q01": { "prompt": "Start the lab and find the hidden file (dotfile) in your home. Submit the flag." },
+        "linux-fundamentos-1-t04-q02": { "prompt": "Find the flag hidden in a comment in a system file under /etc/." }
+      }
+    }
+  }
+}

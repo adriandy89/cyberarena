@@ -65,7 +65,7 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
             <li key={path.slug}>
               <Link
                 href={`/paths/${path.slug}`}
-                className="block rounded-xl border border-slate-800 bg-slate-900/50 p-5 transition-colors hover:border-slate-600"
+                className="card-hover animate-fade-in block rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-slate-600"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-lg font-semibold">{path.title}</h2>

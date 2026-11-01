@@ -1,0 +1,22 @@
+{
+  "title": "OS Command Injection with a real lab",
+  "description": "When user input reaches the server's shell: a vulnerable ping utility, filter bypass and command execution.",
+  "tasks": {
+    "1": {
+      "title": "Detect and exploit basic command injection",
+      "questions": {
+        "command-injection-t01-q01": { "prompt": "What character allows chaining a second command after the first in a shell?" },
+        "command-injection-t01-q02": { "prompt": "In the lab, submit the flag from /tmp/flags/flag1.txt (endpoint /ping with basic injection)." },
+        "command-injection-t01-q03": { "prompt": "What does the && operator do in a shell command?" }
+      }
+    },
+    "2": {
+      "title": "Filter bypass: evading the blacklist",
+      "questions": {
+        "command-injection-t02-q01": { "prompt": "What URL-encoded newline (%0a) allows injection in an endpoint that blocks ; and &&?" },
+        "command-injection-t02-q02": { "prompt": "Submit the flag from the /secure-ping endpoint (bypass the filter with newline)." },
+        "command-injection-t02-q03": { "prompt": "What validation approach correctly prevents command injection?" }
+      }
+    }
+  }
+}

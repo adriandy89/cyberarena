@@ -35,10 +35,11 @@ interface ApiRoom {
 
 export const dynamic = 'force-dynamic';
 
-async function loadRoom(slug: string): Promise<ApiRoom | null> {
+async function loadRoom(slug: string, locale: string): Promise<ApiRoom | null> {
   const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
+  const localeParam = locale === 'en' ? '?locale=en' : '';
   try {
-    const response = await fetch(`${apiUrl}/api/catalog/rooms/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${apiUrl}/api/catalog/rooms/${encodeURIComponent(slug)}${localeParam}`, {
       cache: 'no-store',
     });
     if (!response.ok) return null;
@@ -49,9 +50,9 @@ async function loadRoom(slug: string): Promise<ApiRoom | null> {
 }
 
 export default async function RoomPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const t = await getTranslations('RoomPage');
-  const room = await loadRoom(slug);
+  const room = await loadRoom(slug, locale);
   if (!room) {
     notFound();
   }

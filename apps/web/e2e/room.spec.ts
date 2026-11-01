@@ -3,7 +3,7 @@ import { apiLogin, makeTestUser, sessionCookieOptions } from './utils';
 
 test.describe('room player (linux-fundamentos-1)', () => {
   // Room solving depends on session + content fetch which is slower in CI
-  test.skip(({ browserName }) => process.env.CI === 'true', 'Timing-sensitive in CI');
+  test.skip(() => process.env.CI === 'true', 'Timing-sensitive in CI');
 
   const user = makeTestUser();
   let cookie = '';

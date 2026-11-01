@@ -1,0 +1,28 @@
+{
+  "title": "SSRF: making the server fetch for you",
+  "description": "Force the server to query internal URLs: config with secrets, cloud metadata and access to networks you shouldn't see.",
+  "tasks": {
+    "1": {
+      "title": "SSRF to internal services",
+      "questions": {
+        "ssrf-basico-t01-q01": { "prompt": "What acronym describes the attack where the server makes requests to internal URLs controlled by the attacker?" },
+        "ssrf-basico-t01-q02": { "prompt": "Submit the flag hidden in the internal configuration (/config)." }
+      }
+    },
+    "2": {
+      "title": "Cloud metadata: the SSRF that steals the cloud",
+      "questions": {
+        "ssrf-basico-t02-q01": { "prompt": "What special IP is the metadata endpoint in AWS?" },
+        "ssrf-basico-t02-q02": { "prompt": "Submit the flag hidden in the cloud metadata." },
+        "ssrf-basico-t02-q03": { "prompt": "What credentials can the AWS metadata endpoint reveal?" }
+      }
+    },
+    "3": {
+      "title": "Advanced SSRF: filter bypass",
+      "questions": {
+        "ssrf-basico-t03-q01": { "prompt": "The lab blocks localhost and 127.0.0.1. What hostname is NOT blocked but resolves to the same server?" },
+        "ssrf-basico-t03-q02": { "prompt": "Submit the flag obtained by bypassing the filter with the alias." }
+      }
+    }
+  }
+}

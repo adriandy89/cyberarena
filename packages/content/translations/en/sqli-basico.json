@@ -1,0 +1,35 @@
+{
+  "title": "SQL Injection with a real lab",
+  "description": "Exploit real SQLi against TechShop: login bypass, UNION SELECT to steal tables, and flag extraction.",
+  "tasks": {
+    "1": {
+      "title": "Detecting the injection",
+      "questions": {
+        "sqli-basico-t01-q01": { "prompt": "Which character inserted into a search field suggests SQLi by causing a syntax error?" },
+        "sqli-basico-t01-q02": { "prompt": "What boolean payload returns ALL products (always true)?" }
+      }
+    },
+    "2": {
+      "title": "Login bypass and UNION SELECT",
+      "questions": {
+        "sqli-basico-t02-q01": { "prompt": "What payload in username and password bypasses the login without valid credentials?" },
+        "sqli-basico-t02-q02": { "prompt": "Submit the flag hidden in the 'secret' column of the users table (UNION SELECT)." }
+      }
+    },
+    "3": {
+      "title": "Advanced extraction",
+      "questions": {
+        "sqli-basico-t03-q01": { "prompt": "Which SQL clause limits how many rows a query returns?" },
+        "sqli-basico-t03-q02": { "prompt": "Search the product descriptions for the hidden flag (hint: search for 'hidden')." },
+        "sqli-basico-t03-q03": { "prompt": "Which SQLite function lists all tables in the database?" }
+      }
+    },
+    "4": {
+      "title": "Lab: Blind SQL Injection",
+      "questions": {
+        "sqli-basico-t04-q01": { "prompt": "What visible difference exists between TRUE and FALSE in boolean-based blind SQLi?" },
+        "sqli-basico-t04-q02": { "prompt": "In blind SQLi, how do you extract data character by character?" }
+      }
+    }
+  }
+}

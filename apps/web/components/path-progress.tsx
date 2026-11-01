@@ -51,7 +51,7 @@ function Bar({ percent }: { percent: number }) {
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
       <div
-        className={`h-full rounded-full transition-all ${percent === 100 ? 'bg-emerald-400' : 'bg-emerald-500/70'}`}
+        className={`h-full progress-smooth rounded-full ${percent === 100 ? 'bg-emerald-400' : 'bg-emerald-500/70'}`}
         style={{ width: `${percent}%` }}
       />
     </div>
@@ -143,7 +143,7 @@ export function PathProgress({ pathSlug, tree }: { pathSlug: string; tree: PathT
                   <li key={room.slug}>
                     <Link
                       href={`/rooms/${room.slug}`}
-                      className="block rounded-xl border border-slate-800 bg-slate-900/40 p-4 transition-colors hover:border-emerald-500/40"
+                      className="card-hover block rounded-xl border border-slate-800 bg-slate-900/40 p-4 transition-colors hover:border-emerald-500/40"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="font-medium text-slate-100">

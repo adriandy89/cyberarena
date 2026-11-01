@@ -1,0 +1,22 @@
+{
+  "title": "Authentication Bypass with a real lab",
+  "description": "Three levels, three techniques: weak Basic Auth, JWT algorithm none and API IDOR.",
+  "tasks": {
+    "1": {
+      "title": "Basic Auth and JWT: levels 1 and 2",
+      "questions": {
+        "auth-bypass-t01-q01": { "prompt": "How are credentials encoded in HTTP Basic Auth?" },
+        "auth-bypass-t01-q02": { "prompt": "Submit the flag from level 1 (Basic Auth with weak credentials)." },
+        "auth-bypass-t01-q03": { "prompt": "What JWT header value disables signature verification?" }
+      }
+    },
+    "2": {
+      "title": "IDOR: when changing a number gives you access",
+      "questions": {
+        "auth-bypass-t02-q01": { "prompt": "What acronym describes accessing other users' objects by manipulating identifiers?" },
+        "auth-bypass-t02-q02": { "prompt": "Submit the flag from the admin user's 'secret' field (endpoint /api/user/1)." },
+        "auth-bypass-t02-q03": { "prompt": "What is the root cause of IDOR?" }
+      }
+    }
+  }
+}

@@ -127,7 +127,7 @@ export function RoomPlayer({ roomSlug, tasks }: { roomSlug: string; tasks: Playe
       )}
 
       {/* task */}
-      <article className="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+      <article className="animate-fade-in rounded-xl border border-slate-800 bg-slate-900/40 p-6">
         <header className="mb-4 border-b border-slate-800 pb-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
             {t('taskOf', { index: task.index, total: tasks.length })}
@@ -138,7 +138,7 @@ export function RoomPlayer({ roomSlug, tasks }: { roomSlug: string; tasks: Playe
       </article>
 
       {/* questions */}
-      <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-6">
+      <section className="animate-fade-in rounded-xl border border-slate-800 bg-slate-900/40 p-6">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           {t('answerQuestions')}
         </h3>
@@ -175,7 +175,7 @@ export function RoomPlayer({ roomSlug, tasks }: { roomSlug: string; tasks: Playe
                   <p className="mt-3 text-sm font-semibold text-emerald-400">
                     ✓ {t('solved')}
                     {state?.status === 'correct' && state.xp > 0 ? (
-                      <span className="ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs">
+                      <span className="ml-2 animate-bounce-xp rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs">
                         +{state.xp} XP
                       </span>
                     ) : null}

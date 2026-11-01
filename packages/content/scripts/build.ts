@@ -17,10 +17,12 @@ import {
   type PathJson,
 } from '../src/schemas';
 import { validateCatalog, type ValidationIssue } from '../src/validate';
+import { applyRoomTranslation, type RoomTranslation } from '../src/translations';
 
 const ROOT = path.resolve(__dirname, '..');
 const CONTENT = path.join(ROOT, 'content');
 const PRIVATE = path.join(ROOT, 'private');
+const TRANSLATIONS = path.join(ROOT, 'translations');
 const DIST = path.join(ROOT, 'dist');
 
 interface ParseError {
@@ -192,12 +194,40 @@ async function main(): Promise<void> {
   // answers.json is seed-only (gitignored, never imported by web code — ADR-010).
   await writeFile(path.join(DIST, 'answers.json'), JSON.stringify(answers, null, 2), 'utf8');
 
+  // --- EN catalog (merge translations) ---
+  const enTranslations = await loadTranslations('en');
+  const catalogEn = JSON.parse(JSON.stringify(catalog)) as Catalog;
+  for (const pathData of catalogEn.paths) {
+    for (const module of pathData.modules) {
+      for (const room of module.rooms) {
+        applyRoomTranslation(room, enTranslations[room.slug]);
+      }
+    }
+  }
+  await writeFile(path.join(DIST, 'catalog-en.json'), JSON.stringify(catalogEn, null, 2), 'utf8');
+
   const roomCount = referencedRooms.size;
   const questionCount = Object.keys(answers).length;
+  const enCount = Object.keys(enTranslations).length;
   console.log(
     `content build OK: ${compiledPaths.length} path(s), ` +
-      `${referencedModules.size} module(s), ${roomCount} room(s), ${questionCount} answer(s)`,
+      `${referencedModules.size} module(s), ${roomCount} room(s), ${questionCount} answer(s), ` +
+      `${enCount} EN translation(s)`,
   );
+}
+
+async function loadTranslations(locale: string): Promise<Record<string, RoomTranslation>> {
+  const translations: Record<string, RoomTranslation> = {};
+  const transFiles = await fg(`${locale}/*.json`, { cwd: TRANSLATIONS, absolute: true });
+  for (const file of transFiles) {
+    const slug = path.basename(file, '.json');
+    try {
+      translations[slug] = JSON.parse(await readFile(file, 'utf8')) as RoomTranslation;
+    } catch {
+      console.warn(`[translations] failed to parse ${file}, skipping`);
+    }
+  }
+  return translations;
 }
 
 main().catch((error) => {

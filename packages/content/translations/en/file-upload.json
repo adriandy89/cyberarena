@@ -1,0 +1,22 @@
+{
+  "title": "File Upload Bypass with a real lab",
+  "description": "Upload malicious files bypassing validation: double extension, content-type spoof and .env secret discovery.",
+  "tasks": {
+    "1": {
+      "title": "Exploring the file system",
+      "questions": {
+        "file-upload-t01-q01": { "prompt": "What hidden file (starting with a dot) contains credentials in most web apps?" },
+        "file-upload-t01-q02": { "prompt": "Submit the flag from flag_level1.txt (visible at /files)." },
+        "file-upload-t01-q03": { "prompt": "Submit the flag from the hidden .env file." }
+      }
+    },
+    "2": {
+      "title": "Bypassing upload validation",
+      "questions": {
+        "file-upload-t02-q01": { "prompt": "What technique appends a 'safe' extension to bypass a blacklist?" },
+        "file-upload-t02-q02": { "prompt": "What does the lab validate: the file extension or the content-type?" },
+        "file-upload-t02-q03": { "prompt": "Which file in the lab has the level 2 flag?" }
+      }
+    }
+  }
+}

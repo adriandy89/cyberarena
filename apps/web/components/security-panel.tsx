@@ -20,22 +20,20 @@ export function SecurityPanel() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    void checkStatus();
-  }, []);
-
-  async function checkStatus() {
-    try {
-      const res = await fetch('/api/auth/two-factor/status', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setTwoFactorEnabled(Boolean(data?.enabled));
+    void (async () => {
+      try {
+        const res = await fetch('/api/auth/two-factor/status', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setTwoFactorEnabled(Boolean(data?.enabled));
+        }
+      } catch {
+        // panel stays hidden on failure
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      // panel stays hidden on failure
-    } finally {
-      setLoading(false);
-    }
-  }
+    })();
+  }, []);
 
   async function startSetup() {
     setError(null);

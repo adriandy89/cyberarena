@@ -1,0 +1,19 @@
+{
+  "title": "Basic Web Recon: your first Docker lab",
+  "description": "Spin up your first vulnerable lab with Docker and do real web reconnaissance with curl: robots.txt, hidden paths and talkative headers.",
+  "tasks": {
+    "1": {
+      "title": "robots.txt and hidden paths",
+      "questions": {
+        "recon-web-basico-t01-q01": { "prompt": "According to the lab's robots.txt, which path (starting with /) is requested not to be indexed?" },
+        "recon-web-basico-t01-q02": { "prompt": "Visit that path with curl (or your browser) and submit the flag it contains." }
+      }
+    },
+    "2": {
+      "title": "Headers that say too much",
+      "questions": {
+        "recon-web-basico-t02-q01": { "prompt": "Submit the flag hidden in the server's response headers." }
+      }
+    }
+  }
+}

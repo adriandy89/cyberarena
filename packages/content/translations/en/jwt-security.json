@@ -1,0 +1,22 @@
+{
+  "title": "JWT Security: token attacks",
+  "description": "Break real JWTs: algorithm none, weak secret cracking and token forging with a dedicated lab.",
+  "tasks": {
+    "1": {
+      "title": "JWT anatomy and the alg:none attack",
+      "questions": {
+        "jwt-security-t01-q01": { "prompt": "How many parts does a JWT have separated by dots?" },
+        "jwt-security-t01-q02": { "prompt": "What JWT algorithm requires no signature?" },
+        "jwt-security-t01-q03": { "prompt": "Submit the flag obtained by using alg:none with role:admin." }
+      }
+    },
+    "2": {
+      "title": "Weak secret: crack and forge tokens",
+      "questions": {
+        "jwt-security-t02-q01": { "prompt": "What lab endpoint gives you the secret's hash for cracking?" },
+        "jwt-security-t02-q02": { "prompt": "What is the lab's weak secret?" },
+        "jwt-security-t02-q03": { "prompt": "Submit the flag obtained by forging a token with the cracked secret." }
+      }
+    }
+  }
+}

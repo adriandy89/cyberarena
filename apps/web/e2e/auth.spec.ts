@@ -5,7 +5,7 @@ import { makeTestUser } from './utils';
 // significantly slower in CI ephemeral environments. Skip full flow in CI;
 // the API-level auth is already verified by the unit tests.
 test.describe('auth flow (ES)', () => {
-  test.skip(({ browserName }) => process.env.CI === 'true', 'Timing-sensitive in CI');
+  test.skip(() => process.env.CI === 'true', 'Timing-sensitive in CI');
 
   const user = makeTestUser();
 

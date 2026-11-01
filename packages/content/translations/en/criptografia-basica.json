@@ -1,0 +1,38 @@
+{
+  "title": "Basic Cryptography: hashes, keys and secrets",
+  "description": "Symmetric vs asymmetric encryption, hashing and its real-world uses, and how passwords get cracked.",
+  "tasks": {
+    "1": {
+      "title": "Encryption: symmetric and asymmetric",
+      "questions": {
+        "criptografia-basica-t01-q01": { "prompt": "In SYMMETRIC encryption, how many keys are used and who shares them?" },
+        "criptografia-basica-t01-q02": { "prompt": "In HTTPS, what does TLS exchange to agree on the symmetric session key?" },
+        "criptografia-basica-t01-q03": { "prompt": "What pair of keys does a digital certificate contain?" }
+      }
+    },
+    "2": {
+      "title": "Hashing: digital fingerprints",
+      "questions": {
+        "criptografia-basica-t02-q01": { "prompt": "Is a hash reversible (can the original be recovered)?" },
+        "criptografia-basica-t02-q02": { "prompt": "What property requires that a minimal input change changes the entire hash?" },
+        "criptografia-basica-t02-q03": { "prompt": "Why are passwords stored hashed and NOT encrypted?" }
+      }
+    },
+    "3": {
+      "title": "Cracking passwords and playing with encodings",
+      "questions": {
+        "criptografia-basica-t03-q01": { "prompt": "Which dictionary tool converts password lists against hashes?" },
+        "criptografia-basica-t03-q02": { "prompt": "Decode with ROT13 and submit the flag: SYNT{ebg13_erirynqb}" },
+        "criptografia-basica-t03-q03": { "prompt": "Are Base64 and hexadecimal encryption?" }
+      }
+    },
+    "5": {
+      "title": "Lab: multi-layer decoding puzzle",
+      "questions": {
+        "criptografia-basica-t05-q01": { "prompt": "Decode challenge 1 (simple base64) and submit the flag." },
+        "criptografia-basica-t05-q02": { "prompt": "Decode challenge 2 (base64 + ROT13) and submit the flag." },
+        "criptografia-basica-t05-q03": { "prompt": "Decode challenge 3 (base64 + XOR with key 'ctf') and submit the flag." }
+      }
+    }
+  }
+}

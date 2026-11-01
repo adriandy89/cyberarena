@@ -1,0 +1,37 @@
+{
+  "title": "Linux Fundamentals II: permissions, users and processes",
+  "description": "Understand rwx and SUID bits, who runs the system, and how to inspect processes: the foundation of privilege escalation.",
+  "tasks": {
+    "1": {
+      "title": "Reading permissions like a professional",
+      "questions": {
+        "linux-fundamentos-2-t01-q01": { "prompt": "In '-rwxr-x---', what does the second trio (r-x) mean and for whom?" },
+        "linux-fundamentos-2-t01-q02": { "prompt": "Which command adds execute permission to the owner of 'script.sh' (symbolic mode)?" },
+        "linux-fundamentos-2-t01-q03": { "prompt": "What octal value equals rwxr-xr--?" }
+      }
+    },
+    "2": {
+      "title": "Users, groups and the SUID bit",
+      "questions": {
+        "linux-fundamentos-2-t02-q01": { "prompt": "Which plain-text file lists local system users?" },
+        "linux-fundamentos-2-t02-q02": { "prompt": "Which special bit makes a binary run with its OWNER's permissions (e.g. root)?" },
+        "linux-fundamentos-2-t02-q03": { "prompt": "A binary -rwsr-xr-x root root is SUID root and world-writable. What's the risk?" }
+      }
+    },
+    "3": {
+      "title": "Processes and services",
+      "questions": {
+        "linux-fundamentos-2-t03-q01": { "prompt": "Which command lists all system processes with their user (classic BSD syntax)?" },
+        "linux-fundamentos-2-t03-q02": { "prompt": "What signal does 'kill -9' send?" },
+        "linux-fundamentos-2-t03-q03": { "prompt": "Which command manages services on a modern systemd system?" }
+      }
+    },
+    "4": {
+      "title": "Lab: permissions and processes on a real system",
+      "questions": {
+        "linux-fundamentos-2-t04-q01": { "prompt": "Find the flag in an application log (use recursive grep)." },
+        "linux-fundamentos-2-t04-q02": { "prompt": "Read the flag in a file only the 'flagreaders' group can view (you are a member)." }
+      }
+    }
+  }
+}

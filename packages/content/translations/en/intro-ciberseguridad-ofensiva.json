@@ -1,0 +1,39 @@
+{
+  "title": "Introduction to Offensive Cybersecurity",
+  "description": "What a pentester actually does, the rules they work under, and how you'll learn here: rooms, tasks and flags.",
+  "tasks": {
+    "1": {
+      "title": "What is offensive cybersecurity?",
+      "questions": {
+        "intro-ciberseguridad-ofensiva-t01-q01": {
+          "prompt": "Which of these best describes a pentester's job?"
+        },
+        "intro-ciberseguridad-ofensiva-t01-q02": {
+          "prompt": "What is the initial phase of a pentest called, where information is gathered without directly interacting with the target?"
+        }
+      }
+    },
+    "2": {
+      "title": "Ethics and legality: the line you never cross",
+      "questions": {
+        "intro-ciberseguridad-ofensiva-t02-q01": {
+          "prompt": "What document defines WHAT can be tested, WHEN and HOW in a professional pentest?"
+        },
+        "intro-ciberseguridad-ofensiva-t02-q02": {
+          "prompt": "A colleague finds a SQLi on a public website with no bug bounty program and proposes exploiting it 'just to prove it exists'. What does a professional do?"
+        }
+      }
+    },
+    "3": {
+      "title": "Rooms, tasks and flags: how you'll learn here",
+      "questions": {
+        "intro-ciberseguridad-ofensiva-t03-q01": {
+          "prompt": "What is the exact format of flags on this platform?"
+        },
+        "intro-ciberseguridad-ofensiva-t03-q02": {
+          "prompt": "Demonstrate you understand the format: submit the welcome flag."
+        }
+      }
+    }
+  }
+}

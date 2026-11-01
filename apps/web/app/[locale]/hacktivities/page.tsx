@@ -219,7 +219,7 @@ export default function HacktivitiesPage() {
           <li key={room.slug}>
             <Link
               href={`/rooms/${room.slug}`}
-              className="flex h-full flex-col rounded-xl border border-slate-800 bg-slate-900/50 p-5 transition-colors hover:border-emerald-500/40"
+              className="card-hover animate-fade-in flex h-full flex-col rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-emerald-500/40"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span
