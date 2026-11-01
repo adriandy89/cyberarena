@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { GamificationModule } from './gamification/gamification.module';
+import { HacktivitiesModule } from './hacktivities/hacktivities.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RoomsModule } from './rooms/rooms.module';
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     CatalogModule,
     RoomsModule,
     GamificationModule,
+    HacktivitiesModule,
     HealthModule,
   ],
   providers: [

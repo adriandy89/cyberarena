@@ -11,7 +11,7 @@
 | F3 | `003-room-player` | ✅ completada (2026-11-01) | UI del room: tasks MDX, preguntas, flags, hints, progreso |
 | F4 | `004-paths-dashboard` | ✅ completada (2026-11-01) | Páginas path/módulo, % progreso, dashboard personal |
 | F5 | `005-gamification` | ✅ completada (2026-11-01) | XP, niveles, streaks, badges, leaderboard, certificados, skill matrix |
-| F6 | `006-hacktivities` | ⬜ siguiente | Catálogo público: búsqueda, filtros, orden, tarjetas || F7 | `007-labs` | ⬜ pendiente | Plantilla lab + labs reales integrados en rooms + verificación de flags |
+| F6 | `006-hacktivities` | ✅ completada (2026-11-01) | Catálogo público: búsqueda, filtros, orden, tarjetas || F7 | `007-labs` | ⬜ siguiente | Plantilla lab + labs reales integrados en rooms + verificación de flags |
 | F8 | `008-deploy-hardening` | ⬜ pendiente | Stack prod + proxy Caddy HTTPS + backups + hardening + runbook final |
 | F9 | `100-content-cs101` | ⬜ pendiente | Path Cyber Security 101 completo (14 módulos) |
 | F10 | `101-content-jrpt` | ⬜ pendiente | Path Jr Penetration Tester completo (17 módulos) |

@@ -7,7 +7,8 @@
     "nav": {
       "paths": "Paths",
       "leaderboard": "Leaderboard",
-      "status": "System status"
+      "status": "System status",
+      "hacktivities": "Hacktivities"
     },
     "hero": {
       "badge": "Novice → Expert",
@@ -216,5 +217,26 @@
     "notFound": "Certificate not available",
     "notFoundHint": "Complete every question of the path to earn it.",
     "footnote": "Verifiable on CyberArena · path {slug}"
+  },
+  "HacktivitiesPage": {
+    "title": "Hacktivities",
+    "subtitle": "Browse every room: search, filter and practice.",
+    "searchPlaceholder": "Search rooms, tags…",
+    "sortLabel": "Sort",
+    "sort": {
+      "popular": "Most popular",
+      "newest": "Newest",
+      "az": "A→Z",
+      "za": "Z→A",
+      "time": "Shortest"
+    },
+    "filters": {
+      "difficulty": "Difficulty",
+      "type": "Type",
+      "tag": "Tags"
+    },
+    "results": "{count, plural, one {# room} other {# rooms}}",
+    "empty": "No results with those filters. Try relaxing the search.",
+    "loadMore": "Load more"
   }
 }

@@ -1,8 +1,13 @@
 # Spec 006 — Hacktivities (catálogo de rooms con búsqueda y filtros)
 
-- **Estado:** en implementación
+- **Estado:** completada (2026-11-01)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:**
+  - 2026-11-01 primera versión.
+  - 2026-11-01 implementación completada y E2E verificado. Notas: (1) filtros inválidos
+    devuelven 400 (Zod en @Query({ schema })); (2) las completaciones se calculan en
+    memoria (usuarios con TODAS las preguntas del room); (3) la búsqueda cubre título,
+    descripción y tags (case-insensitive, acentos incluidos).
 
 ## 1. Propósito
 
@@ -42,12 +47,13 @@ dificultad/tipo/tag, ordenación y tarjetas con contexto (path, tiempo, completa
 
 ## 4. Criterios de éxito (verificables)
 
-- [ ] E2E: `?q=pentester` → 1 room (título del room lo contiene); `?q=zzz` → 0;
+- [x] E2E: `?q=pentester` → 1 room (título del room lo contiene); `?q=zzz` → 0;
       `?difficulty=insane` → 0; `?difficulty=info` → 1; `?sort=az` → ordenado;
-      `completions=1` (admin); `?type=challenge` → 400 o 0 (challenge es tipo válido
-      pero sin resultados → 0); `?difficulty=xxx` → 400.
-- [ ] `/es/hacktivities` renderiza búsqueda, filtros y tarjeta con link (curl).
-- [ ] `pnpm lint && typecheck && test && build` verdes.
+      `completions=1` (admin); `?type=challenge` → 0 (válido sin resultados);
+      `?difficulty=xxx` → 400. *(verificado; "pentester" matchea por descripción)*
+- [x] `/es/hacktivities` renderiza búsqueda, filtros y tarjeta con link (curl).
+      *(200 + "Hacktivities/Dificultad/Populares")*
+- [x] `pnpm lint && typecheck && test && build` verdes. *(47 tests api incl. 6 nuevos)*
 
 ## 5. Fuera de alcance
 
