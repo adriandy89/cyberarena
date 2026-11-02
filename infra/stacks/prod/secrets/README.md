@@ -34,9 +34,8 @@ Comprueba todo antes de desplegar: `bash infra/scripts/prod-preflight.sh`.
 Los secretos de compose se montan como archivos en el contenedor: no aparecen en
 `docker inspect` del servicio ni en el yaml.
 
-**Sin `` (fase 012).** Créalos desde Git Bash con los comandos de arriba, no con el Bloc de notas
+**Sin `\r` (fase 012).** Créalos desde Git Bash con los comandos de arriba, no con el Bloc de notas
 ni con `echo` de PowerShell: la imagen de Postgres lee `postgres_password` quitando el salto final
-pero NO un ``, así que guardaría una contraseña distinta de la que usa la API. El entrypoint de la
-API tolera `
-`, Postgres no. `bash infra/scripts/prod-preflight.sh` lo comprueba (sin mostrar
-los valores) y `tr -d '' < f > f.tmp && mv f.tmp f` lo corrige.
+pero NO un `\r`, así que guardaría una contraseña distinta de la que usa la API. El entrypoint de la
+API tolera `\r\n`, Postgres no. `bash infra/scripts/prod-preflight.sh` lo comprueba (sin mostrar
+los valores) y `tr -d '\r' < f > f.tmp && mv f.tmp f` lo corrige.

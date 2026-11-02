@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Role } from '@repo/database';
-import { AdminBootstrapService } from './admin-bootstrap.service';
+import { AdminBootstrapService, generatePassword } from './admin-bootstrap.service';
 import type { AuthInstance } from './auth';
 
 function makeService(overrides: {
@@ -67,6 +67,12 @@ describe('AdminBootstrapService.bootstrap', () => {
     const b = makeService({ count: [0] });
     await b.service.bootstrap();
     expect(b.signUpEmail.mock.calls[0]![0].body.password).toMatch(/^.{20}$/);
+  });
+
+  it('generates passwords from the unambiguous alphabet', () => {
+    const passwords = new Set(Array.from({ length: 50 }, () => generatePassword()));
+    expect(passwords.size).toBe(50);
+    for (const password of passwords) expect(password).toMatch(/^[A-HJ-NP-Za-km-z2-9]{20}$/);
   });
 });
 

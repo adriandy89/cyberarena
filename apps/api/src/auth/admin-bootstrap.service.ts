@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 import { Role } from '@repo/database';
 import { PrismaService } from '../prisma/prisma.service';
@@ -6,12 +7,12 @@ import type { AuthInstance } from './auth';
 
 const DEFAULT_BOOTSTRAP_ADMIN_EMAIL = 'admin@cyberarena.local';
 
-/** 20-char readable alphabet (no ambiguous glyphs). */
-function generatePassword(): string {
+/** 20 chars from a readable alphabet (no ambiguous glyphs), CSPRNG-backed. */
+export function generatePassword(): string {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
   let password = '';
   for (let i = 0; i < 20; i++) {
-    password += alphabet[Math.floor(Math.random() * alphabet.length)];
+    password += alphabet[randomInt(alphabet.length)];
   }
   return password;
 }
