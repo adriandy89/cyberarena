@@ -24,7 +24,7 @@
 
 ## Fase C — Cierre
 
-- [ ] T012 Runbook y arquitectura al día con lo verificado.
+- [x] T012 Runbook y arquitectura al día con lo verificado.
 - [ ] T013 CI: E2E también en PR y con sesión; build de la imagen del lab-runner.
 - [ ] T014 Limpieza acotada (106 T4) con `docker system df` antes/después; cierre de 106 y 012.
 

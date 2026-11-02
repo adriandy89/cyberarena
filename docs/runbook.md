@@ -1,6 +1,7 @@
 # Runbook — operación de entornos
 
-> Cómo arrancar, parar, depurar y hacer backup. Actualizado en F0; cada fase añade su sección.
+> Cómo arrancar, parar, depurar y hacer backup. Actualizado en F0; cada fase añade su sección
+> (producción y labs bajo demanda verificados en las fases 011 y 012, 2026-11-02).
 
 ## Prerrequisitos
 
@@ -98,83 +99,113 @@ curl -s http://localhost:3001/api/catalog/rooms/<slug> | jq '.tasks[].questions[
   renombrar rompe progreso — ver guide §reglas).
 - Las respuestas viven hasheadas (sha256) en la tabla `Answer`, jamás expuestas por la API.
 
-## Producción (fase 008)
+## Producción (fases 008 y 012)
 
-Stacks: `infra/stacks/proxy` (Caddy, TLS) + `infra/stacks/prod` (web+api+postgres).
-Ambos se ejecutan con `--project-directory` EN SU PROPIA CARPETA (montan archivos
-relativos: Caddyfile y secrets).
+Stacks: `infra/stacks/proxy` (Caddy, TLS) + `infra/stacks/prod` (postgres, api, web, lab-runner).
+Ambos se ejecutan con `--project-directory` EN SU PROPIA CARPETA (montan archivos relativos:
+Caddyfile, secretos y flags de labs). Despliegue verificado de punta a punta el 2026-11-02 (registro en
+`specs/012-despliegue-docker/tasks.md`).
 
 ### Despliegue desde cero
 
 ```bash
-# 1) Secretos (una vez; en Linux chmod 600 — en Windows NTFS no aplica)
-cd infra/stacks/prod/secrets
-openssl rand -hex 24 > postgres_password                  # SOLO alfanumérico (va en URL)
-openssl rand -base64 32 | tr -d '\n=+/' > better_auth_secret
-printf 'TuPasswordInicial-12345' > bootstrap_admin_password  # opcional (si no: se genera y loggea)
-cd ../../..   # raíz del repo
+# 1) Secretos (una vez): ver infra/stacks/prod/secrets/README.md. En Windows, el openssl de
+#    Git Bash escribe CRLF: los comandos del README ya lo quitan (`tr -d '\r\n'`).
 
 # 2) Environments
 cp infra/stacks/proxy/.env.example infra/stacks/proxy/.env   # SITE_ADDRESS (localhost o dominio)
-cp infra/stacks/prod/.env.example  infra/stacks/prod/.env    # WEB_ORIGIN etc.
+cp infra/stacks/prod/.env.example  infra/stacks/prod/.env    # WEB_ORIGIN, LABS_ENABLED…
 
-# 3) Proxy PRIMERO (define la red cyberarena_proxy)
+# 3) Flags de los labs para el runner (directorio montado de solo lectura)
+bash infra/scripts/lab-flags.sh infra/stacks/prod/lab-flags
+
+# 4) Comprobaciones (secretos sin \r y válidos, flags, puertos, versiones de Docker; no muestra valores)
+bash infra/scripts/prod-preflight.sh
+
+# 5) Proxy PRIMERO (define la red cyberarena_proxy)
 docker compose --project-directory infra/stacks/proxy -f infra/stacks/proxy/compose.yaml --env-file infra/stacks/proxy/.env up -d
 
-# 4) Producción (build + up; migraciones automáticas al arrancar la api)
+# 6) Producción (build + up; la api aplica migraciones al arrancar, sin red)
 docker compose --project-directory infra/stacks/prod -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
 
-# 5) Seed del contenido (one-off dentro de la red interna — ver abajo)
+# 7) Seed del contenido (idempotente; repítelo tras CADA rebuild de la api)
+bash infra/scripts/seed-prod.sh
+
+# 8) Smoke: TLS con la CA de Caddy, health, catálogo ES/EN, login admin, PDF, 118 páginas de rooms
+node infra/scripts/smoke-prod.mjs
 ```
+
+**Un solo lab-runner por host Docker.** Si el dev stack tiene su runner (`--profile labs`) encendido,
+para el de dev antes de levantar prod: los dos gestionarían los mismos proyectos `lab-*` y cada uno
+apagaría los labs que el otro arranca.
 
 ### Seed de contenido en producción
 
-El catálogo viaja con la imagen pero el seed corre aparte (la red backend es
-`internal: true` — sin egress — así que el one-off usa node+tsx directos):
-
-```bash
-PROD_PW=$(cat infra/stacks/prod/secrets/postgres_password)
-MSYS_NO_PATHCONV=1 docker run --rm --network cyberarena-prod-backend \
-  -v "$(pwd)/packages/content/dist:/app/content/dist:ro" \
-  -e "DATABASE_URL=postgresql://cyberarena:${PROD_PW}@postgres:5432/cyberarena?schema=public" \
-  --entrypoint sh cyberarena-prod-api \
-  -c 'TSX=$(ls /app/node_modules/.pnpm/tsx@*/node_modules/tsx/dist/cli.mjs | head -1); cd /app/packages/database && node "$TSX" prisma/seed.ts'
-```
-
-(Regenera `packages/content/dist` antes con `pnpm --filter @repo/content build`.)
+`seed-prod.sh` ejecuta el seed **dentro** del contenedor de la api con el contenido horneado en la imagen
+(`packages/content/dist`), y la contraseña de la BD nunca sale del contenedor. El español sale de la BD
+y el inglés de la imagen: tras cada rebuild de la api, vuelve a ejecutar el seed para que coincidan.
 
 ### Actualizar a una nueva versión
 
 ```bash
-git pull && pnpm install && pnpm build     # valida todo
+git pull && pnpm install && pnpm build     # valida todo (incluido el lint de labs)
+bash infra/scripts/prod-preflight.sh
 docker compose --project-directory infra/stacks/prod -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
-# el entrypoint aplica migraciones pendientes (MIGRATE_ON_BOOT=true); re-seed si cambió contenido
+bash infra/scripts/seed-prod.sh && node infra/scripts/smoke-prod.mjs
 ```
+
+### E2E contra producción
+
+```bash
+cd apps/web
+E2E_NO_SERVER=1 E2E_BASE_URL=https://localhost E2E_API_URL=https://localhost pnpm exec playwright test
+```
+
+El harness usa la cookie `__Secure-` y acepta la CA interna de Caddy; `apiLogin` espera si el limitador
+de better-auth responde 429 (3 inicios de sesión / 10 s / IP en producción). El test del reaper solo corre
+con `LAB_IDLE_TIMEOUT_MIN=1` (ver «Labs bajo demanda»).
 
 ### TLS
 
-- `SITE_ADDRESS=localhost` (default): certificado interno de Caddy. El navegador avisa
-  hasta que confíes en la CA local (`docker cp cyberarena-proxy-caddy-1:/data/caddy/pki/authorities/local/root.crt`
-  e importarla en el sistema).
-- Dominio real: `SITE_ADDRESS=tudominio.com` + `ACME_EMAIL=...` → Let's Encrypt
-  automático; añade `Strict-Transport-Security` al Caddyfile.
+- `SITE_ADDRESS=localhost` (default): certificado interno de Caddy. Para que el navegador confíe:
+  `docker cp cyberarena-proxy-caddy-1:/data/caddy/pki/authorities/local/root.crt ./caddy-root.crt` y, en
+  Windows, `certutil -user -addstore Root caddy-root.crt`. Con curl: `--cacert caddy-root.crt`.
+- Usa siempre `https://localhost` (el certificado no cubre `127.0.0.1`).
+- Dominio real: `SITE_ADDRESS=tudominio.com` + `ACME_EMAIL=...` → Let's Encrypt automático; añade
+  `Strict-Transport-Security` al Caddyfile.
 
 ### Backups y restore
 
+Los scripts exigen contenedor y BD destino explícitos (ya no hay valores por defecto que apunten a dev).
+
 ```bash
+# Backup con rotación (14 días) → backups/cyberarena-<fecha>.sql.gz
 bash infra/scripts/backup-db.sh cyberarena-prod-postgres-1 cyberarena cyberarena backups 14
-echo "cyberarena" | bash infra/scripts/restore-db.sh backups/<file>.sql.gz cyberarena-prod-postgres-1
+
+# Simulacro sin tocar producción: restaurar en una BD scratch, comparar y borrarla
+echo cyberarena_restore | bash infra/scripts/restore-db.sh backups/<file>.sql.gz cyberarena-prod-postgres-1 cyberarena cyberarena_restore
+docker exec cyberarena-prod-postgres-1 psql -U cyberarena -d cyberarena_restore -tAc 'SELECT count(*) FROM "User"'
+docker exec cyberarena-prod-postgres-1 psql -U cyberarena -d postgres -c 'DROP DATABASE cyberarena_restore'
+
+# Restore real (DROP + CREATE de la BD de producción): escribe el nombre para confirmar
+bash infra/scripts/restore-db.sh backups/<file>.sql.gz cyberarena-prod-postgres-1 cyberarena cyberarena
 ```
 
-Cron diario (Linux): `0 4 * * * cd /ruta/repo && bash infra/scripts/backup-db.sh ...`.
+Cron diario (Linux): `0 4 * * * cd /ruta/repo && bash infra/scripts/backup-db.sh cyberarena-prod-postgres-1`.
 
-### Checklist de seguridad (ADR-006)
+### Checklist de seguridad (ADR-006, ADR-015)
 
 - [x] Contenedores no-root (10001 api/web; caps mínimas postgres/caddy) + `cap_drop: ALL`
-- [x] `no-new-privileges` en todos; healthchecks en todos
-- [x] Secretos por compose secrets (postgres/auth/bootstrap) — no en yaml ni env
-- [x] Redes: `backend` interna (postgres sin egress), frontend, proxy pública
-- [x] API/Postgres jamás publicados; solo Caddy 80/443 (443/udp HTTP/3)
+- [x] `no-new-privileges` y healthchecks en todos (también Caddy y el lab-runner)
+- [x] Secretos por compose secrets (postgres/auth/bootstrap/lab-runner) — no en yaml ni env; sin `\r`
+- [x] Redes: `backend` interna (postgres sin egress), `labs-control` interna (solo api ↔ runner),
+      frontend, proxy pública
+- [x] Solo Caddy publica puertos (80/443); Postgres únicamente en `127.0.0.1:5433` (operación)
+- [x] lab-runner: único con `docker.sock`, sin puertos, token, manifiesto de labs inmutable, lint
+      de composes, `read_only`; corre como root (excepción documentada en ADR-015)
+- [x] Labs: `127.0.0.1`, `cap_drop: ALL`, `no-new-privileges` (salvo excepción documentada),
+      límites de CPU/memoria/procesos, `restart: "no"`
+- [x] Rate limit por IP real del cliente (`trust proxy`) y limitador propio de better-auth
 - [x] Cabeceras: nosniff, DENY frames, referrer-policy, permissions-policy
 - [x] Admin bootstrap solo con BD vacía (ADR-009); registro nunca otorga ADMIN
 
@@ -182,41 +213,78 @@ Cron diario (Linux): `0 4 * * * cd /ruta/repo && bash infra/scripts/backup-db.sh
 
 | Síntoma | Causa | Fix |
 |---|---|---|
+| La api no conecta a Postgres (auth failed) en el primer arranque | Secreto con `\r` (CRLF): Postgres guarda la contraseña con `\r` | `prod-preflight.sh` lo detecta; quitar el `\r` y recrear el volumen `pgdata` si ya se inicializó |
 | 502 desde Caddy a web | Next standalone ligó al hostname del contenedor | `HOSTNAME: 0.0.0.0` en el env de web (ya en el compose) |
-| `/api/*` 500 en prod | Los rewrites de Next son BUILD-TIME (no runtime) | Caddy enruta `/api/*` → api:3001 (ya en el Caddyfile; ADR-008 enmendado) |
-| One-off no puede instalar nada | Red `backend` es `internal: true` (sin egress) — corepack/pnpm no descargan | Usar node + `node_modules/.pnpm/tsx@*/...` directos (comando de seed) |
-| Puerto 5433 no accesible en Windows | Docker Desktop a veces no publica bindings loopback-only | Es operativa opcional: usa `docker exec` para psql/backup; o publica sin host_ip si tu red lo permite |
+| `/api/*` 404/500 en web:3000 directo | Los rewrites de Next son BUILD-TIME | La imagen se construye con `API_URL=http://api:3001`; por Caddy, `/api/*` va directo a la api |
+| Inglés vacío o en español tras un rebuild | El seed no se repitió | `bash infra/scripts/seed-prod.sh` |
+| Build: `cannot be accessed by the system` en `node_modules` | Enlaces de Linux escritos por contenedores de dev en el host | `rm -rf <paquete>/node_modules && pnpm install` (el compose de dev ya aísla todos) |
+| Labs que se apagan solos a los 5 min | Hay dos lab-runners en el mismo host | Deja solo uno (para el de dev) |
 | `mount src not a directory` (Caddyfile) | compose corrido con project-directory incorrecto | Usar `--project-directory infra/stacks/proxy` |
 | Migraciones no aplican | `MIGRATE_ON_BOOT` distinto de true | `docker compose logs api` para ver `[entrypoint]` |
+
+## Labs bajo demanda (fase 011)
+
+El estudiante arranca el lab desde la página del room; el **lab-runner** (único servicio con
+`docker.sock`, ADR-015) lo levanta y tres capas lo apagan cuando nadie lo usa:
+
+1. **Reaper de la api** (cada `LAB_SWEEP_SECONDS`): caduca reservas sin latido (`LAB_IDLE_TIMEOUT_MIN`,
+   10) o pasadas de su máximo (2 h, ampliable a 4 h), apaga los labs sin reservas y renueva el plazo de
+   los demás en el runner.
+2. **Plazos del runner**: si la api o la BD caen, cada lab muere al vencer su plazo (≤ 5 min). Los
+   proyectos `lab-*` que encuentra sin plazo (levantados a mano) se adoptan con 5 min de gracia.
+3. **`restart: "no"`** en todos los labs; SIGTERM al runner apaga todos los labs.
+
+```bash
+# Estado y operación (dentro del contenedor del runner, mismas reglas que la api)
+docker exec cyberarena-prod-lab-runner-1 node dist/cli.js health
+docker exec cyberarena-prod-lab-runner-1 node dist/cli.js ls
+docker exec cyberarena-prod-lab-runner-1 node dist/cli.js up <slug> --wait
+docker exec cyberarena-prod-lab-runner-1 node dist/cli.js down <slug>
+docker exec cyberarena-prod-lab-runner-1 node dist/cli.js down-all          # parada de emergencia
+
+# Smoke de todos los labs (up, sondeo HTTP o exec desde el host, down)
+node infra/scripts/labs-smoke.mjs --runner cyberarena-prod-lab-runner-1
+```
+
+- **Interruptor general**: `LABS_ENABLED=false` en `infra/stacks/prod/.env` → el LabPanel vuelve a los
+  comandos manuales. Desde la web, un admin tiene «Detener todos» en su dashboard.
+- **Revisión periódica**: `/api/health` (bloque `labs`) y `/status` muestran si el runner responde, cuántos
+  labs corren y si el barrido está al día; el estado pasa a `degraded` si el runner cae o el barrido lleva
+  3 intervalos sin ejecutarse. El dashboard de admin lista labs en uso, reservas y últimos eventos.
+- **Probar el reaper**: `LAB_IDLE_TIMEOUT_MIN=1 LAB_SWEEP_SECONDS=10 docker compose … up -d api` y vuelve a
+  los valores por defecto al terminar.
+- **Flags**: `bash infra/scripts/lab-flags.sh <dir>` copia `labs/<slug>/flags.env` (si existe) o
+  `flags.env.example` al directorio que monta el runner; un lab sin fichero queda «no disponible».
+- **Dev**: `docker compose … --profile labs up -d lab-runner` con `LAB_RUNNER_TOKEN` en
+  `infra/stacks/dev/.env` y flags en `infra/stacks/dev/lab-flags`; `LABS_ENABLED=true` en la api.
+- **Manual (sin runner)**: `docker compose -f labs/<slug>/compose.yaml --env-file labs/<slug>/flags.env.example up -d`
+  y `docker compose -p lab-<slug> down -v` (con el runner activo, un lab manual se apaga a los 5 min).
 
 ## Solución de problemas
 
 | Síntoma | Causa probable | Fix |
 |---|---|---|
 | `/api/health` devuelve `db: down` | Postgres aún arrancando o credenciales distintas | Espera healthcheck (`docker ps` → healthy) y revisa `DATABASE_URL` vs `POSTGRES_*` del stack `.env` |
-| Web da 500 en `/es` | API caída (la landing consulta health opcionalmente) o `NEXT_PUBLIC_API_URL` mal | Verifica api con curl; revisa `.env` |
+| Web da 500 en `/es` | API caída o `API_URL` mal (server-side, y horneado en el build para el rewrite `/api`) | Verifica la api con curl; revisa `API_URL` |
 | Hot-reload no responde en Windows | inotify no cruza el mount | El compose usa polling (`CHOKIDAR_USEPOLLING`) para web; para api se reinicia con `--watch`; si persiste usa variante B |
+| La web de dev en contenedor no ve un fichero nuevo | El watcher no detecta altas en el bind mount de Windows | `docker compose … restart web` |
+| La web de dev no hidrata en `127.0.0.1` | `next dev` (Next 16) bloquea recursos de dev de otro origen | Abre `http://localhost:3000` |
 | Puerto ocupado | Servicios previos | Cambia `API_PORT`/`WEB_PORT` en el `.env` del stack |
 | Prisma `P1001` | `DATABASE_URL` apunta mal | Debe apuntar al host publicado (`localhost:5432`) desde host, y a `postgres:5432` dentro de la red del stack |
 
-## Backups
+## Disco de Docker en Windows
+
+Docker Desktop guarda todo en `%LOCALAPPDATA%\Docker\wsl\disk\docker_data.vhdx`, que **crece pero no
+encoge solo**. Limpiar dentro de Docker (`docker builder prune -a`, `docker image prune -a`) libera espacio
+para Docker, no para Windows. Para devolverlo a C::
 
 ```bash
-# Backup (dump comprimido con fecha)
-bash infra/scripts/backup-db.sh
-
-# Restore (peligro: sobreescribe la BD destino)
-gunzip -c backups/<archivo>.sql.gz | docker exec -i <contenedor-postgres> psql -U $POSTGRES_USER -d $POSTGRES_DB
+# 1) Liberar bloques dentro de la VM (marca como libre lo borrado)
+docker run --rm --privileged --pid=host alpine:3.20 nsenter -t 1 -m -u -n -i fstrim -av
+# 2) En un PowerShell de ADMINISTRADOR, con Docker Desktop cerrado y tras `wsl --shutdown`:
+#    diskpart → select vdisk file="%LOCALAPPDATA%\Docker\wsl\disk\docker_data.vhdx"
+#               attach vdisk readonly → compact vdisk → detach vdisk
 ```
 
-Los backups del stack dev van a `backups/` (ignorado por git). En F8 se define rotación.
-
-## Labs (F7 — patrón previsto)
-
-```bash
-docker compose -f labs/<room-slug>/compose.yaml up -d   # levanta el lab aislado
-docker compose -f labs/<room-slug>/compose.yaml down -v # al terminar SIEMPRE down -v
-```
-
-Los labs NO publican puertos al host salvo los declarados en su compose; están en redes
-internas aisladas. Nunca conectar un lab a las redes del stack de la app.
+El 2026-11-02 esto devolvió 63 GB (123,8 → 60,5 GB). Nunca borres volúmenes (`docker volume prune`) sin
+revisar qué datos contienen: son de todos tus proyectos.
