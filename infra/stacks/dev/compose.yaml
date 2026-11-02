@@ -97,6 +97,7 @@ services:
       - /app/packages/database/node_modules
       - /app/packages/content/node_modules
       - /app/packages/ui/node_modules
+      - /app/apps/lab-runner/node_modules
       - pnpm-store:/pnpm/store
     depends_on:
       postgres:
@@ -178,6 +179,7 @@ services:
       - /app/packages/database/node_modules
       - /app/packages/content/node_modules
       - /app/packages/ui/node_modules
+      - /app/apps/lab-runner/node_modules
       - pnpm-store:/pnpm/store
     depends_on:
       api:

@@ -49,3 +49,6 @@
 - [ ] T906 Cola de espera cuando se alcanza la capacidad.
 - [ ] T907 Healthchecks por lab (hoy «listo» = contenedores en marcha).
 - [ ] T908 Temporizador de respaldo a nivel host (systemd/Task Scheduler) por si el runner no arranca.
+- [x] T909 BUG (encontrado en 012): el compose de dev no daba a `apps/lab-runner/node_modules` un volumen
+      anónimo, así que el `pnpm install` de los contenedores api/web escribía enlaces de Linux en el host
+      (ilegibles en Windows) y rompía el contexto de build. Añadido el volumen; `node_modules` regenerado.
