@@ -11,6 +11,9 @@
     en la imagen alpine) — cero builds de imágenes. (3) Añadir el room nuevo bajó el %
     de CS101 del admin de 100→67 y lo restauró a 100 al resolverlo (comportamiento
     correcto documentado en §6).
+  - 2026-11-02 la fase 011 (labs bajo demanda, ADR-015) saca de «fuera de alcance» el ciclo de vida
+    gestionado desde la API: un `lab-runner` con `docker.sock` arranca y apaga los labs desde la web.
+    También cambia el patrón de lab (`restart: "no"`, límites de recursos, bloque `x-cyberarena`).
 
 ## 1. Propósito
 
