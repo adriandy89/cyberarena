@@ -80,6 +80,18 @@ describe('validateCatalog', () => {
     });
   });
 
+  it('checks that a room lab exists when the lab list is given', () => {
+    const rooms = [{ ...room('linux-1'), lab: 'linux-explore' }];
+    const answers = answersFor(rooms);
+    expect(validateCatalog(catalogWith(rooms), answers, new Set(['linux-explore']))).toEqual([]);
+    expect(validateCatalog(catalogWith(rooms), answers, new Set(['other-lab']))).toContainEqual({
+      source: 'room:linux-1',
+      message: "lab 'linux-explore' does not exist (expected labs/linux-explore/compose.yaml)",
+    });
+    // Without the list (e.g. unit callers) the check is skipped.
+    expect(validateCatalog(catalogWith(rooms), answers)).toEqual([]);
+  });
+
   it('detects orphan answers', () => {
     const rooms = [room('linux-1')];
     const issues = validateCatalog(catalogWith(rooms), { 'ghost-t01-q01': ['FLAG{x}'] });

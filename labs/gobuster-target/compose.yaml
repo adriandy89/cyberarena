@@ -2,6 +2,9 @@
 # Web app with 12 hidden directories containing flags.
 name: lab-gobuster-target
 
+x-cyberarena:
+  access: http
+
 services:
   web:
     image: python:3.12-alpine
@@ -18,7 +21,10 @@ services:
     cap_drop: [ALL]
     cap_add: [CHOWN, SETUID, SETGID]
     security_opt: [no-new-privileges:true]
-    restart: unless-stopped
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks: [lab]
 
 networks:

@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import fg from 'fast-glob';
@@ -36,6 +37,8 @@ const CONTENT = path.join(ROOT, 'content');
 const PRIVATE = path.join(ROOT, 'private');
 const TRANSLATIONS = path.join(ROOT, 'translations');
 const DIST = path.join(ROOT, 'dist');
+// Lab stacks live at the repo root (labs/<slug>/compose.yaml).
+const LABS = path.resolve(ROOT, '../../labs');
 
 // CLI flags:
 //   --dry-run              validate everything, write nothing (safe for parallel checks)
@@ -212,7 +215,17 @@ async function main(): Promise<void> {
     generatedAt: new Date().toISOString(),
     paths: compiledPaths,
   };
-  const issues: ValidationIssue[] = validateCatalog(catalog, answers);
+  // The pruned monorepo inside the API Docker build has no labs/ folder: the
+  // check runs locally and in CI, where it does.
+  const labSlugs = existsSync(LABS)
+    ? new Set(
+        (await fg('*/compose.yaml', { cwd: LABS }))
+          .map((file) => file.split('/')[0] ?? '')
+          .filter((slug) => !slug.startsWith('_')),
+      )
+    : undefined;
+  if (!labSlugs) console.warn('content build: labs/ not found, skipping the lab existence check');
+  const issues: ValidationIssue[] = validateCatalog(catalog, answers, labSlugs);
 
   const allErrors = [
     ...parseErrors.map((e) => `[${e.file}] ${e.message}`),

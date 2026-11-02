@@ -4,6 +4,9 @@
 # zero risk to the host. Learn to spot and exploit the exposure.
 # Enter: docker exec -it lab-container-escape-shell-1 sh
 name: lab-container-escape
+
+x-cyberarena:
+  access: exec
 services:
   shell:
     image: alpine:3.20
@@ -19,9 +22,13 @@ services:
       FLAG_3: ${FLAG_3:?set FLAG_3}
     stdin_open: true
     tty: true
+    cap_drop: [ALL]
     cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE]
     security_opt: [no-new-privileges:true]
-    restart: unless-stopped
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks: [lab]
 networks: {lab: {name: lab-container-escape}}
 # named volume so the socket file is writable inside the container

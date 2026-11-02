@@ -5,6 +5,9 @@
 # Enter: docker exec -it lab-incident-response-victim-1 sh
 # Down:  docker compose -f labs/incident-response/compose.yaml --env-file labs/incident-response/flags.env down -v
 name: lab-incident-response
+
+x-cyberarena:
+  access: exec
 services:
   victim:
     image: alpine:3.20
@@ -17,9 +20,13 @@ services:
       FLAG_4: ${FLAG_4:?set FLAG_4}
     stdin_open: true
     tty: true
+    cap_drop: [ALL]
     cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER]
     security_opt: [no-new-privileges:true]
-    restart: unless-stopped
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks: [lab]
   c2-server:
     image: python:3.12-alpine
@@ -30,6 +37,9 @@ services:
     cap_drop: [ALL]
     cap_add: [CHOWN, SETUID, SETGID]
     security_opt: [no-new-privileges:true]
-    restart: unless-stopped
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks: [lab]
 networks: {lab: {name: lab-incident-response}}

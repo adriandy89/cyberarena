@@ -4,7 +4,7 @@
   "private": true,
   "description": "Starts and stops lab stacks on demand; the only service with Docker access (ADR-015)",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsx scripts/build-manifest.ts && tsc -p tsconfig.build.json",
     "manifest": "tsx scripts/build-manifest.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",

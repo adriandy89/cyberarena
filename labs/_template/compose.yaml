@@ -1,34 +1,49 @@
-# Lab template — one isolated compose stack per practical room (phase 007 fills real labs).
+# Lab template — one isolated compose stack per practical room (phases 007 and 011).
 #
 # Usage for a room with slug <room-slug>:
-#   1. Copy this folder to labs/<room-slug>/
-#   2. Copy flags.env.example -> flags.env and set the real flag values
-#      (seed them into the DB too — see docs/content-guide.md §flags)
-#   3. Adjust the vulnerable service(s) below and the published port
-#   4. Run:  docker compose -f labs/<room-slug>/compose.yaml --env-file labs/<room-slug>/flags.env up -d
-#   5. Tear down ALWAYS with:  docker compose -f labs/<room-slug>/compose.yaml down -v
+#   1. Copy this folder to labs/<room-slug>/ and rename the project/network below
+#   2. Put the real flag values in flags.env.example (FLAG_1=FLAG{...}) and the same
+#      values in packages/content/private/answers/<room>.yaml
+#   3. Adjust the vulnerable service(s) and the published port (unique, 127.0.0.1 only)
+#   4. `pnpm --filter @repo/lab-runner manifest` must pass: it lints this file (ADR-015)
+#   5. Manual run:  docker compose -f labs/<room-slug>/compose.yaml --env-file labs/<room-slug>/flags.env.example up -d
+#      Tear down:   docker compose -p lab-<room-slug> down -v
 #
-# SECURITY (constitution §1.4): labs never join the app networks; they publish at most
-# one port bound to localhost and run in their own isolated network.
+# SECURITY (constitution §1.4, ADR-015): labs never join the app networks, publish only
+# on 127.0.0.1, drop every capability, never restart on their own and have hard limits.
 name: lab-template
+
+x-cyberarena:
+  # http: the panel shows a link to `url` (or the first tcp port); exec: the panel shows
+  # `docker exec -it <project>-<service>-1 sh` for the first service with a TTY.
+  access: http
+  # url: http://127.0.0.1:18080/
+  # exceptions:            # only cap-drop, cap-add, security-opt and limits; always with a reason
+  #   - rule: limits
+  #     service: vulnerable-app
+  #     reason: why this lab needs more than 512m / 1 CPU / 256 pids
 
 services:
   vulnerable-app:
-    # Replace with the room's vulnerable image/build.
-    image: nginxdemos/hello:latest
+    # A pinned, prebuilt image (never :latest, never build:).
+    image: nginx:1.29-alpine
+    volumes:
+      # Only ./relative read-only binds (the runner serves them from a volume).
+      - ./site:/usr/share/nginx/html:ro
     environment:
-      # Flags are injected via flags.env, never hardcoded in the compose file.
-      FLAG_1: ${FLAG_1:?set FLAG_1 in labs/<room-slug>/flags.env}
+      # Flags are injected from the env file, never hardcoded in the compose file.
+      FLAG_1: ${FLAG_1:?set FLAG_1 in labs/<room-slug>/flags.env.example}
     ports:
       # Bind to loopback only: reachable from the student's machine, not the LAN.
       - '127.0.0.1:18080:80'
-    cap_drop:
-      - ALL
-    security_opt:
-      - no-new-privileges:true
-    restart: unless-stopped
-    networks:
-      - lab
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID, NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
+    networks: [lab]
 
 networks:
   lab:

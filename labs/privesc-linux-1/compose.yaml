@@ -6,6 +6,13 @@
 # Down:  docker compose -f labs/privesc-linux-1/compose.yaml --env-file labs/privesc-linux-1/flags.env down -v
 name: lab-privesc-linux-1
 
+x-cyberarena:
+  access: exec
+  exceptions:
+    - rule: security-opt
+      service: shell
+      reason: the SUID and sudo escalation vectors this room teaches need privilege gain, which no-new-privileges blocks
+
 services:
   shell:
     image: alpine:3.20
@@ -19,14 +26,19 @@ services:
       FLAG_4: ${FLAG_4:?set FLAG_4}
     stdin_open: true
     tty: true
+    cap_drop: [ALL]
     cap_add:
       - CHOWN
       - SETUID
       - SETGID
       - DAC_OVERRIDE
       - FOWNER
-    security_opt: [no-new-privileges:true]
-    restart: unless-stopped
+    # No no-new-privileges here (see x-cyberarena.exceptions): it would neuter
+    # the SUID/sudo vectors. Capabilities stay dropped to the allowlist.
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks: [lab]
 
 networks:

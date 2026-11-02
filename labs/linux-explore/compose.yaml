@@ -3,6 +3,9 @@
 # Interactive: docker exec. Pattern C.
 name: lab-linux-explore
 
+x-cyberarena:
+  access: exec
+
 services:
   shell:
     image: alpine:3.20
@@ -16,9 +19,13 @@ services:
       FLAG_4: ${FLAG_4:?set FLAG_4}
     stdin_open: true
     tty: true
+    cap_drop: [ALL]
     cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER]
     security_opt: [no-new-privileges:true]
-    restart: unless-stopped
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks: [lab]
 
 networks:

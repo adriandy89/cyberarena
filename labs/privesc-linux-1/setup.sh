@@ -4,6 +4,10 @@
 # Create user 'student' with no sudo rights
 adduser -D -s /bin/sh student 2>/dev/null || true
 
+# Tools for the escalation vectors. GNU find/bash/coreutils: busybox applets drop
+# a SUID-inherited euid, so `find -exec cat` or `sh -p` would run as student.
+apk add --no-cache sudo vim findutils bash coreutils >/dev/null 2>&1 || true
+
 # FLAG 1: readable only by root — requires SUID escalation
 echo "$FLAG_1" > /root/flag1.txt
 chmod 600 /root/flag1.txt
@@ -11,14 +15,12 @@ chmod 600 /root/flag1.txt
 # FLAG 2: SUID find binary — student can use find -exec to read it
 echo "$FLAG_2" > /home/student/flag2_suid.txt
 chmod 600 /home/student/flag2_suid.txt
-# Make find SUID root (the privesc vector)
+# Make (GNU) find SUID root (the privesc vector)
 chmod u+s /usr/bin/find
 
 # FLAG 3: sudo misconfig — vim can be run as root without password
 echo "$FLAG_3" > /opt/flag3_sudo.txt
 chmod 600 /opt/flag3_sudo.txt
-# Install sudo and vim if not present
-apk add --no-cache sudo vim >/dev/null 2>&1 || true
 # Allow student to run vim as root without password
 echo "student ALL=(root) NOPASSWD: /usr/bin/vim" >> /etc/sudoers
 

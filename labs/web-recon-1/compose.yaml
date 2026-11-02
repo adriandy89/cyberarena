@@ -7,6 +7,9 @@
 # Down:  docker compose -f labs/web-recon-1/compose.yaml down -v
 name: lab-web-recon-1
 
+x-cyberarena:
+  access: http
+
 services:
   web:
     image: nginx:1.29-alpine
@@ -42,7 +45,10 @@ services:
       - NET_BIND_SERVICE
     security_opt:
       - no-new-privileges:true
-    restart: unless-stopped
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
     networks:
       - lab
 

@@ -12,6 +12,15 @@
     sería un error: si el cliente también llega desde una IP privada (Docker Desktop, LAN), todos caen en
     un único cubo. Verificado contra la API de dev: con `X-Forwarded-For` A, la 31.ª respuesta en un
     minuto da 429 y la IP B sigue pasando; health no se limita.
+  - 2026-11-02 T005: los 39 labs pasan el lint (`restart: "no"`, 256m/0.5 CPU/128 pids — 256 pids en
+    nmap-playground —, `cap_drop: ALL` también en container-escape, privesc, linux-explore e
+    incident-response, bloque `x-cyberarena`). Smoke real de los 39 (up, GET 200 o `exec`, down): 39/39.
+    **privesc-linux-1 estaba roto desde su creación**: `no-new-privileges` bloqueaba SUID y sudo, y el
+    `chmod u+s /usr/bin/find` caía sobre el enlace de busybox, que baja al uid real. Ahora instala GNU
+    findutils/bash/coreutils, el SUID va al `find` real y el lab declara la excepción `security-opt`;
+    verificados los 4 vectores como `student` (SUID find, `find -exec bash -p`, `sudo vim`, cron).
+    En Docker Desktop el port-forward acepta TCP antes de que la app escuche: «listo» se comprueba con
+    una petición HTTP, no con el puerto (los labs Python tardan ~2 s).
 
 ## 1. Propósito
 

@@ -6,10 +6,15 @@ export interface ValidationIssue {
   message: string;
 }
 
-/** All cross-references and answer coverage rules (pure, unit tested). */
+/**
+ * All cross-references and answer coverage rules (pure, unit tested).
+ * `labSlugs` (the folders with a labs/<slug>/compose.yaml) enables the check
+ * that every room `lab` exists (phase 011).
+ */
 export function validateCatalog(
   catalog: Catalog,
   answers: Record<string, string[]>,
+  labSlugs?: ReadonlySet<string>,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const roomBySlug = new Map<string, CompiledRoom>();
@@ -42,6 +47,12 @@ export function validateCatalog(
           issues.push({
             source: `room:${room.slug}`,
             message: 'labUrl is set but lab is null (labUrl requires a lab slug)',
+          });
+        }
+        if (room.lab && labSlugs && !labSlugs.has(room.lab)) {
+          issues.push({
+            source: `room:${room.slug}`,
+            message: `lab '${room.lab}' does not exist (expected labs/${room.lab}/compose.yaml)`,
           });
         }
         room.tasks.forEach((task, taskIndex) => {
