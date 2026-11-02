@@ -2,6 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Link } from '../i18n/navigation';
+import { Byte } from './byte/byte';
+import { ArrowRight } from './icon';
 
 export interface PlayerQuestion {
   id: string;
@@ -27,7 +30,22 @@ interface SubmitResult {
 
 type QuestionState = { status: 'idle' } | { status: 'wrong' } | { status: 'correct'; xp: number };
 
-export function RoomPlayer({ roomSlug, tasks }: { roomSlug: string; tasks: PlayerTask[] }) {
+/** Where to go after finishing the room: the next room, or the next path at the end. */
+export interface PlayerNext {
+  href: string;
+  title: string;
+  kind: 'room' | 'path';
+}
+
+export function RoomPlayer({
+  roomSlug,
+  tasks,
+  next = null,
+}: {
+  roomSlug: string;
+  tasks: PlayerTask[];
+  next?: PlayerNext | null;
+}) {
   const t = useTranslations('RoomPlayer');
   const [current, setCurrent] = useState(0);
   const [solved, setSolved] = useState<Set<string>>(new Set());
@@ -121,9 +139,26 @@ export function RoomPlayer({ roomSlug, tasks }: { roomSlug: string; tasks: Playe
       </div>
 
       {roomCompleted && (
-        <p className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-400">
-          🎉 {t('roomCompleted')}
-        </p>
+        <div className="flex animate-pop flex-col gap-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 sm:flex-row sm:items-center">
+          <Byte mood="celebrate" size="sm" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-emerald-300">{t('roomCompleted')}</p>
+            {next ? (
+              <p className="mt-1 text-xs text-slate-400">
+                {next.kind === 'room' ? t('continueWithRoom') : t('continueWithPath')}
+              </p>
+            ) : null}
+          </div>
+          {next ? (
+            <Link
+              href={next.href}
+              className="btn-press inline-flex items-center gap-2 self-start rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-emerald-400 sm:self-auto"
+            >
+              <span className="max-w-[16rem] truncate">{next.title}</span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          ) : null}
+        </div>
       )}
 
       {/* task */}

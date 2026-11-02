@@ -134,7 +134,14 @@
     "comingSoon": "Player de rooms disponible en la próxima fase"
   },
   "RoomPage": {
-    "estimated": "{minutes} min estimados"
+    "estimated": "{minutes} min estimados",
+    "moduleLine": "Módulo {index} · {title}",
+    "position": "Room {index} de {total}",
+    "pagerLabel": "Navegación entre rooms",
+    "prevRoom": "Room anterior",
+    "nextRoom": "Siguiente room",
+    "nextPath": "Siguiente ruta",
+    "backToPath": "Volver a la ruta"
   },
   "RoomPlayer": {
     "taskOf": "Tarea {index} de {total}",
@@ -147,7 +154,9 @@
     "progress": "{solved}/{total} preguntas",
     "roomCompleted": "¡Room completado! Bonus de XP añadido.",
     "previous": "Anterior",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "continueWithRoom": "¿Seguimos? Este es el siguiente room de la ruta:",
+    "continueWithPath": "¡Has terminado la ruta! Tu siguiente reto:"
   },
   "PathProgress": {
     "overallProgress": "Progreso de la ruta",

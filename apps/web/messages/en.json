@@ -134,7 +134,14 @@
     "comingSoon": "Room player arrives in the next phase"
   },
   "RoomPage": {
-    "estimated": "est. {minutes} min"
+    "estimated": "est. {minutes} min",
+    "moduleLine": "Module {index} · {title}",
+    "position": "Room {index} of {total}",
+    "pagerLabel": "Room navigation",
+    "prevRoom": "Previous room",
+    "nextRoom": "Next room",
+    "nextPath": "Next path",
+    "backToPath": "Back to the path"
   },
   "RoomPlayer": {
     "taskOf": "Task {index} of {total}",
@@ -147,7 +154,9 @@
     "progress": "{solved}/{total} questions",
     "roomCompleted": "Room completed! XP bonus added.",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "continueWithRoom": "Shall we keep going? This is the next room in the path:",
+    "continueWithPath": "You finished the path! Your next challenge:"
   },
   "PathProgress": {
     "overallProgress": "Path progress",
