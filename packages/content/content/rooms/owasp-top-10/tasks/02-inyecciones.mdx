@@ -4,7 +4,7 @@ title: "Las inyecciones: código donde no debe ser"
 questions:
   - id: owasp-top-10-t02-q01
     prompt: "Una entrada ' OR 1=1-- en un login, ¿qué vulnerabilidad explota?"
-    hint: "La del #3 de OWASP: inyección SQL."
+    hint: "La familia A05 de OWASP 2025 (Injection), en su variante para bases de datos."
     kind: text
   - id: owasp-top-10-t02-q02
     prompt: "¿Qué defiende de SQLi por diseño (no por escapar strings a mano)?"
@@ -16,12 +16,13 @@ questions:
     kind: text
 ---
 
-## #3 Injection (SQL, XSS, comandos…)
+## A05 Injection (SQL, XSS, comandos…)
 
 Entrada del usuario interpretada como código:
 
 **SQLi** (la estrella): `' OR 1=1--` en el login devuelve la primera fila; con UNION
-se roban tablas; con sqlmap, la base entera (módulo 9).
+se roban tablas; con sqlmap, la base entera (lo usarás en el módulo de herramientas
+ofensivas).
 
 ```sql
 -- vulnerable
@@ -37,13 +38,14 @@ DOM (en el navegador). Prevención: escapar según contexto + CSP.
 **Command injection**: entrada que llega a `system("ping " + host)` → `; rm -rf /`.
 El `;`/`&&`/`` ` `` en campos que tocan la shell.
 
-## #2 Cryptographic Failures
+## A04 Cryptographic Failures
 
 HTTPS no forzado, contraseñas en MD5, datos sensibles en claro, claves hardcodeadas.
 Ya sabes del módulo crypto lo correcto: TLS, argon2/bcrypt, gestión de secretos.
 
-## #07 Authentication Failures
+## A07 Authentication Failures
 
-Login débil: sin rate limit (Hydra entra), contraseñas "123456", sesión sin expirar,
-2FA ausente, "secret questions" con respuestas públicas. El lockout + 2FA de tu
-módulo Hydra ES la mitigación.
+Login débil: sin rate limit (una herramienta como Hydra prueba miles de contraseñas),
+contraseñas "123456", sesión sin expirar, 2FA ausente, "secret questions" con
+respuestas públicas. El bloqueo por intentos + 2FA es justo lo que frena a Hydra
+(lo usarás en el módulo de herramientas ofensivas).

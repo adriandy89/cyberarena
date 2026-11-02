@@ -1,7 +1,7 @@
 {
   "slug": "owasp-top-10",
   "title": "OWASP Top 10 (2025)",
-  "description": "Los diez riesgos web más críticos: acceso roto, inyecciones, SSRF, supply chain y más.",
+  "description": "Los diez riesgos web más críticos (edición 2025): acceso roto, configuración insegura, cadena de suministro, inyecciones y más.",
   "rooms": [
     { "slug": "owasp-top-10" }
   ]

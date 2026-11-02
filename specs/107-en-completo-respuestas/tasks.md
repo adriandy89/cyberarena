@@ -36,6 +36,9 @@
 
 ## Bugs/Deuda
 
-- [ ] T901 DEUDA (contenido): el room `owasp-top-10` y su módulo se titulan "OWASP Top 10 (2025)" pero la
+- [x] T901 DEUDA (contenido): el room `owasp-top-10` y su módulo se titulan "OWASP Top 10 (2025)" pero la
       teoría y las preguntas usan la numeración de 2021 (p. ej. Injection #3). Alinear con la edición
       final de 2025 tras contrastarla con la fuente oficial (owasp.org), o retitular a 2021.
+      — Hecho 2026-11-02: alineado con top10.owasp.org/2025 (A01–A10 nuevos, SSRF dentro de A01, A10
+      Mishandling of Exceptional Conditions, 100 % en A01). `t03-q01` pasa de «SSRF» a un `choice` sobre A10
+      (misma id); `t03-q02` reetiquetada (A03 Supply Chain). ES y EN; verificado contra la API de dev.

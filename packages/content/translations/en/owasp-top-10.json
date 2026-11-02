@@ -1,14 +1,14 @@
 {
   "title": "OWASP Top 10 (2025)",
-  "description": "The ten most critical web application security risks.",
+  "description": "The ten most critical web application security risks according to OWASP 2025: broken access control (which now includes SSRF), misconfiguration, supply chain, injection and how they are exploited and prevented.",
   "tasks": {
     "1": {
-      "title": "Broken Access Control",
-      "body": "## #1 Broken Access Control (the undefeated king)\n\nThe application doesn't check WHO can do WHAT:\n\n- **IDOR**: `/api/facturas/1042` → you change it to `/api/facturas/1043` and see someone\n  else's invoice. The server identifies the object but doesn't check who owns it.\n- **Horizontal escalation** (accessing other users at your same level) and **vertical** (user\n  → admin: `/admin` reachable without the role).\n- 94% of the applications audited by OWASP have some flaw from this family.\n\n**Prevention**: check permissions ON THE SERVER on every request (deny by default),\nand never trust the client (your lesson from the web room!).\n\n## #4 Insecure Design\n\nDesigns that don't consider abuse: password recovery that asks for public\ndata, unlimited discount codes, \"secret\" security through obscurity. It isn't\na code bug: it's a product designed without thinking about attackers (threat modeling).\n\n## #5 Security Misconfiguration\n\nDangerous default configuration: debug enabled in production, default credentials\n(admin/admin), directory listing, public cloud buckets, CORS `*`.\nEverything you left \"for later\" falls under this point.",
+      "title": "Broken Access Control, misconfiguration and design",
+      "body": "## A01 Broken Access Control (the undefeated king)\n\nThe application doesn't check WHO can do WHAT:\n\n- **IDOR**: `/api/facturas/1042` → you change it to `/api/facturas/1043` and see someone\n  else's invoice. The server identifies the object but doesn't check who owns it.\n- **Horizontal escalation** (accessing other users at your same level) and **vertical** (user\n  → admin: `/admin` reachable without the role).\n- **SSRF** (Server-Side Request Forgery) also lives here since 2025: the server sends\n  requests wherever YOU tell it to, bypassing the limits of what you should be able to reach.\n  You'll see it in task 3.\n- In OWASP's 2025 data, **100%** of the applications tested had some form of flaw from\n  this family.\n\n**Prevention**: check permissions ON THE SERVER on every request (deny by default),\nand never trust the client (the lesson from the web hacking room!).\n\n## A02 Security Misconfiguration\n\nUp to #2 in 2025. Dangerous default configuration: debug enabled in production, default\ncredentials (admin/admin), directory listing, public cloud buckets, CORS `*`.\nEverything you left \"for later\" falls under this point.\n\n## A06 Insecure Design\n\nDesigns that don't consider abuse: password recovery that asks for public\ndata, unlimited discount codes, \"secret\" security through obscurity. It isn't\na code bug: it's a product designed without thinking about attackers (threat modeling).",
       "questions": {
         "owasp-top-10-t01-q01": {
           "prompt": "Changing /perfil/12 to /perfil/13 in the URL and seeing ANOTHER user's data: which OWASP risk is it?",
-          "hint": "Number 1 on the list since 2021: access control."
+          "hint": "Number 1 on the list since 2021 (and still in 2025): access control."
         },
         "owasp-top-10-t01-q02": {
           "prompt": "What is IDOR?",
@@ -34,11 +34,11 @@
     },
     "2": {
       "title": "Injections",
-      "body": "## #3 Injection (SQL, XSS, commands…)\n\nUser input interpreted as code:\n\n**SQLi** (the star): `' OR 1=1--` in the login returns the first row; with UNION\nyou steal tables; with sqlmap, the entire database (module 9).\n\n```sql\n-- vulnerable\nSELECT * FROM users WHERE email='$email';\n-- parameterized (the input is NEVER code)\nSELECT * FROM users WHERE email=$1;\n```\n\n**XSS**: injected JavaScript that runs in the victims' browsers (steals session cookies,\nkeyloggers). Three types: reflected (in the response), stored (saved in the DB: the worst),\nDOM (in the browser). Prevention: context-aware escaping + CSP.\n\n**Command injection**: input that reaches `system(\"ping \" + host)` → `; rm -rf /`.\nThe `;`/`&&`/`` ` `` in fields that touch the shell.\n\n## #2 Cryptographic Failures\n\nHTTPS not enforced, passwords in MD5, sensitive data in cleartext, hardcoded keys.\nYou already know the right way from the crypto module: TLS, argon2/bcrypt, secrets management.\n\n## #07 Authentication Failures\n\nWeak login: no rate limiting (Hydra gets in), \"123456\" passwords, sessions that never expire,\nno 2FA, \"secret questions\" with public answers. The lockout + 2FA from your\nHydra module IS the mitigation.",
+      "body": "## A05 Injection (SQL, XSS, commands…)\n\nUser input interpreted as code:\n\n**SQLi** (the star): `' OR 1=1--` in the login returns the first row; with UNION\nyou steal tables; with sqlmap, the entire database (you'll use it in the offensive\ntooling module).\n\n```sql\n-- vulnerable\nSELECT * FROM users WHERE email='$email';\n-- parameterized (the input is NEVER code)\nSELECT * FROM users WHERE email=$1;\n```\n\n**XSS**: injected JavaScript that runs in the victims' browsers (steals session cookies,\nkeyloggers). Three types: reflected (in the response), stored (saved in the DB: the worst),\nDOM (in the browser). Prevention: context-aware escaping + CSP.\n\n**Command injection**: input that reaches `system(\"ping \" + host)` → `; rm -rf /`.\nThe `;`/`&&`/`` ` `` in fields that touch the shell.\n\n## A04 Cryptographic Failures\n\nHTTPS not enforced, passwords in MD5, sensitive data in cleartext, hardcoded keys.\nYou already know the right way from the crypto module: TLS, argon2/bcrypt, secrets management.\n\n## A07 Authentication Failures\n\nWeak login: no rate limiting (a tool like Hydra tries thousands of passwords),\n\"123456\" passwords, sessions that never expire, no 2FA, \"secret questions\" with public\nanswers. Lockout after failed attempts + 2FA is exactly what stops Hydra (you'll use it\nin the offensive tooling module).",
       "questions": {
         "owasp-top-10-t02-q01": {
           "prompt": "An input like ' OR 1=1-- in a login form: which vulnerability does it exploit?",
-          "hint": "OWASP's #3: SQL injection."
+          "hint": "OWASP 2025's A05 family (Injection), in its database flavour."
         },
         "owasp-top-10-t02-q02": {
           "prompt": "What defends against SQLi by design (rather than by escaping strings by hand)?",
@@ -51,29 +51,35 @@
       }
     },
     "3": {
-      "title": "The tail",
-      "body": "## #10 SSRF (Server-Side Request Forgery)\n\nThe website fetches URLs for you (\"import this image\"): if you point it at\n`http://169.254.169.254/latest/meta-data/` (AWS metadata) or at internal services such as\n`http://localhost:6379/` (Redis without auth), the server —which CAN reach them— hands you\nthe response. It's THE classic route into the internal cloud.\n\n## #08 Software & Data Integrity (supply chain)\n\nUnverified pipelines and dependencies: the SolarWinds attack (2020) compromised the\nbuild delivered to thousands of customers. Mitigation: signatures, lockfiles (pnpm-lock.yaml!),\nSBOM, dependency review.\n\n## #06 Vulnerable & Outdated Components\n\nOld libraries with public CVEs = open doors that come with a manual. Log4Shell\n(CVE-2021-44228) was exactly this on a global scale. Mitigation: inventory +\n`npm audit`/dependabot + patch fast.\n\n## #09 Logging & Monitoring\n\nYour SOC module in reverse: if the app doesn't log accesses or errors, the attacker lives\nthere for months without being seen. Detection IS part of security.\n\n---\n\n## The complete Top 10 (2025) from memory\n\n1. Broken Access Control · 2. Cryptographic Failures · 3. Injection · 4. Insecure\nDesign · 5. Security Misconfiguration · 6. Vulnerable Components · 7. Auth Failures ·\n8. Integrity Failures · 9. Logging Failures · 10. SSRF.\n\nEach one will get dedicated labs in the **Jr Penetration Tester** path. You've completed\nCyber Security 101: the foundation is in place. 🎓",
+      "title": "Supply chain, exceptions and logging: the rest of the Top 10",
+      "body": "## A03 Software Supply Chain Failures\n\nNew in 2025: it widens the old \"Vulnerable & Outdated Components\" to the whole chain you\nuse to build and ship software.\n\n- **Components with public CVEs** = open doors that come with a manual. Log4Shell\n  (CVE-2021-44228) was exactly this on a global scale.\n- **Compromised dependencies and builds**: the SolarWinds attack (2020) poisoned the\n  build delivered to thousands of customers; a trojanized npm package steals keys on\n  every `install`.\n\nMitigation: inventory (SBOM), lockfiles (`pnpm-lock.yaml`!), `npm audit`/dependabot,\nreview new dependencies and patch fast.\n\n## A08 Software or Data Integrity Failures\n\nTrusting code or data without verifying its integrity: unsigned updates, plugins\ndownloaded from anywhere, serialized objects the server deserializes without checks.\nMitigation: digital signatures and verifying the integrity of everything that comes from\noutside before using it.\n\n## A09 Security Logging and Alerting Failures\n\nIt's the other side of a SOC's job (you'll see it in the defensive security module):\nif the app doesn't log accesses or errors, or nobody gets an alert when something odd\nhappens, the attacker lives there for months without being seen. In 2025 the name\nstresses **alerting**: a log nobody looks at detects nothing.\n\n## A10 Mishandling of Exceptional Conditions\n\nNew in 2025: what the application does when something goes wrong.\n\n- **Failing open**: if the payment or permission check throws an exception and the code\n  \"lets it through\", the error becomes a bypass.\n- **Errors that say too much**: a stack trace or a database error in the response hands\n  the attacker the map (and helps them fine-tune a SQL injection).\n- **Half-finished state**: a multi-step operation that gets interrupted and leaves\n  inconsistent data.\n\nMitigation: fail closed (deny by default on errors too), generic messages for the user\nwith the details only in the logs, and roll back the whole transaction if a step fails.\n\n## What about SSRF?\n\nIt no longer has its own slot: since 2025 it counts under **A01 Broken Access Control**.\nThe website fetches URLs for you (\"import this image\"): if you point it at\n`http://169.254.169.254/latest/meta-data/` (AWS metadata) or at internal services such as\n`http://localhost:6379/` (Redis without auth), the server —which CAN reach them— hands you\nthe response. It's THE classic route into the internal cloud.\n\n---\n\n## The complete Top 10 (2025) from memory\n\n1. Broken Access Control · 2. Security Misconfiguration · 3. Software Supply Chain\nFailures · 4. Cryptographic Failures · 5. Injection · 6. Insecure Design ·\n7. Authentication Failures · 8. Software or Data Integrity Failures · 9. Security\nLogging and Alerting Failures · 10. Mishandling of Exceptional Conditions.\n\nThe **Jr Penetration Tester** and **Web Application Pentesting** paths practice these\nfamilies with real labs; the next task gives you the first one.",
       "questions": {
         "owasp-top-10-t03-q01": {
-          "prompt": "A website lets the user provide an internal URL and the server fetches it. Which OWASP risk is it (#10)?",
-          "hint": "Server-Side Request Forgery: the server requests whatever YOU tell it to."
+          "prompt": "When the payment gateway times out, the service catches the exception and marks the order as paid (it 'fails open'). Which Top 10 2025 category is it?",
+          "hint": "It's the new 2025 category: what the application does when something goes wrong.",
+          "options": {
+            "a": "A05 Injection",
+            "b": "A09 Security Logging and Alerting Failures",
+            "c": "A10 Mishandling of Exceptional Conditions",
+            "d": "A04 Cryptographic Failures"
+          }
         },
         "owasp-top-10-t03-q02": {
-          "prompt": "A compromised npm dependency that steals keys on every install: which Top 10 entry is it?",
+          "prompt": "A compromised npm dependency that steals keys on every install: which Top 10 2025 entry is it?",
           "hint": "Software supply chain.",
           "options": {
-            "a": "#3 Injection",
-            "b": "#8 Software & Data Integrity Failures",
-            "c": "#9 Logging & Monitoring Failures",
-            "d": "#10 SSRF"
+            "a": "A05 Injection",
+            "b": "A03 Software Supply Chain Failures",
+            "c": "A09 Security Logging and Alerting Failures",
+            "d": "A01 Broken Access Control"
           }
         },
         "owasp-top-10-t03-q03": {
-          "prompt": "Why is 'insufficient logging & monitoring' a security risk in itself?",
+          "prompt": "Why is not logging or alerting on what happens in the application a security risk in itself?",
           "hint": "What happens if they attack and nobody notices?",
           "options": {
             "a": "It isn't: logs are optional",
-            "b": "Without logs/monitoring, attackers stay undetected for months",
+            "b": "Without logs and alerts, attackers stay undetected for months",
             "c": "Because they use up disk space",
             "d": "It only matters for billing"
           }

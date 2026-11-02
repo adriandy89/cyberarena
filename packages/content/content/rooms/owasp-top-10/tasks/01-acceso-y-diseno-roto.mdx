@@ -1,10 +1,10 @@
 ---
 index: 1
-title: "Broken Access Control y fallos de diseño"
+title: "Broken Access Control, configuración y diseño"
 questions:
   - id: owasp-top-10-t01-q01
     prompt: "Cambiar /perfil/12 por /perfil/13 en la URL y ver datos de OTRO usuario, ¿qué riesgo OWASP es?"
-    hint: "El nº1 de la lista desde 2021: el control de acceso."
+    hint: "El nº1 de la lista desde 2021 (y sigue siéndolo en 2025): el control de acceso."
     kind: text
   - id: owasp-top-10-t01-q02
     prompt: "¿Qué es IDOR?"
@@ -34,7 +34,7 @@ questions:
         label: "Solo protege si además se ofusca el JavaScript"
 ---
 
-## #1 Broken Access Control (el rey invicto)
+## A01 Broken Access Control (el rey invicto)
 
 La aplicación no verifica QUIÉN puede hacer QUÉ:
 
@@ -42,19 +42,23 @@ La aplicación no verifica QUIÉN puede hacer QUÉ:
   de otro. El servidor identifica el objeto pero no comprueba el dueño.
 - **Escalada horizontal** (acceder a otros usuarios como tú) y **vertical** (usuario
   → admin: `/admin` accesible sin rol).
-- El 94% de aplicaciones auditadas por OWASP tiene algún fallo de esta familia.
+- **SSRF** (Server-Side Request Forgery) también vive aquí desde 2025: el servidor hace
+  peticiones a donde TÚ le dices, saltándose los límites de lo que deberías alcanzar.
+  Lo verás en la tarea 3.
+- En los datos de OWASP 2025, el **100 %** de las aplicaciones analizadas tenía alguna
+  forma de fallo de esta familia.
 
 **Prevención**: verificar permisos EN EL SERVIDOR por cada petición (deny by default),
-nunca confiar en el cliente (¡tu lesson del room web!).
+nunca confiar en el cliente (¡la lección del room de hacking web!).
 
-## #4 Insecure Design
+## A02 Security Misconfiguration
+
+Sube al #2 en 2025. Configuración por defecto peligrosa: debug activo en producción,
+credenciales por defecto (admin/admin), directorios listados, cloud buckets públicos,
+CORS `*`. Cada cosa que dejaste "para luego" es este punto.
+
+## A06 Insecure Design
 
 Diseños que no contemplan abuso: recuperación de contraseña preguntando datos
 públicos, códigos de descuento sin límite, "secreta" seguridad por oscuridad. No es
 un bug de código: es el producto diseñado sin pensar en atacantes (threat modeling).
-
-## #5 Security Misconfiguration
-
-Configuración por defecto peligrosa: debug activo en producción, credenciales por
-defecto (admin/admin), directorios listados, cloud buckets públicos, CORS `*`.
-Cada cosa que dejaste "para luego" es este punto.

@@ -20,6 +20,9 @@
     mojibake y erratas.
   - **Modelos:** dos lotes (JrPT-B y Advanced) los bloqueó el filtro de seguridad de Opus por su
     temática ofensiva; se rehicieron con Sonnet con el mismo encargo y la misma revisión.
+  - 2026-11-02 T901 (deuda): el room OWASP Top 10 pasa a la numeración oficial de 2025, contrastada
+    con top10.owasp.org. De paso se quitan referencias a módulos que llegan después (Hydra, SOC, sqlmap)
+    y la frase «has cerrado Cyber Security 101», falsa desde la reordenación de la fase 010.
 
 ## 1. Propósito
 

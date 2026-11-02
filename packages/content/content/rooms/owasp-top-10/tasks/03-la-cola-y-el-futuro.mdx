@@ -1,70 +1,107 @@
 ---
 index: 3
-title: "Supply chain, SSRF y logging: la cola 6-10"
+title: "Supply chain, excepciones y logging: el resto del Top 10"
 questions:
   - id: owasp-top-10-t03-q01
-    prompt: "Una web permite al usuario indicar una URL interna y el servidor la consulta. ¿Qué riesgo OWASP (nº10)?"
-    hint: "Server-Side Request Forgery: el servidor pide lo que TÚ digas."
-    kind: text
+    prompt: "Cuando la pasarela de pago da timeout, el servicio captura la excepción y marca el pedido como pagado (falla 'en abierto'). ¿Qué categoría del Top 10 2025 es?"
+    hint: "Es la categoría nueva de 2025: qué hace la aplicación cuando algo sale mal."
+    kind: choice
+    options:
+      - id: a
+        label: "A05 Injection"
+      - id: b
+        label: "A09 Security Logging and Alerting Failures"
+      - id: c
+        label: "A10 Mishandling of Exceptional Conditions"
+      - id: d
+        label: "A04 Cryptographic Failures"
   - id: owasp-top-10-t03-q02
-    prompt: "Una dependencia npm comprometida que roba claves en cada instalación, ¿qué entrada del Top 10 es?"
+    prompt: "Una dependencia npm comprometida que roba claves en cada instalación, ¿qué entrada del Top 10 2025 es?"
     hint: "Cadena de suministro de software."
     kind: choice
     options:
       - id: a
-        label: "#3 Injection"
+        label: "A05 Injection"
       - id: b
-        label: "#8 Software & Data Integrity Failures"
+        label: "A03 Software Supply Chain Failures"
       - id: c
-        label: "#9 Logging & Monitoring Failures"
+        label: "A09 Security Logging and Alerting Failures"
       - id: d
-        label: "#10 SSRF"
+        label: "A01 Broken Access Control"
   - id: owasp-top-10-t03-q03
-    prompt: "¿Por qué 'logging & monitoring insuficiente' es un riesgo de seguridad en sí mismo?"
+    prompt: "¿Por qué no registrar ni alertar sobre lo que pasa en la aplicación es un riesgo de seguridad en sí mismo?"
     hint: "¿Qué pasa si atacan y nadie lo ve?"
     kind: choice
     options:
       - id: a
         label: "No lo es: los logs son opcionales"
       - id: b
-        label: "Sin logs/monitorización, los atacantes permanecen meses sin ser detectados"
+        label: "Sin logs ni alertas, los atacantes permanecen meses sin ser detectados"
       - id: c
         label: "Porque gastan disco"
       - id: d
         label: "Solo importa para facturación"
 ---
 
-## #10 SSRF (Server-Side Request Forgery)
+## A03 Software Supply Chain Failures
 
+Nueva en 2025: amplía la antigua "Vulnerable & Outdated Components" a toda la cadena
+con la que construyes y publicas software.
+
+- **Componentes con CVEs públicos** = puertas abiertas con manual. Log4Shell
+  (CVE-2021-44228) fue exactamente esto a escala mundial.
+- **Dependencias y builds comprometidos**: el ataque a SolarWinds (2020) envenenó el
+  build que recibieron miles de clientes; un paquete npm troyanizado roba claves en
+  cada `install`.
+
+Mitigación: inventario (SBOM), lockfiles (¡`pnpm-lock.yaml`!), `npm audit`/dependabot,
+revisar dependencias nuevas y parchear rápido.
+
+## A08 Software or Data Integrity Failures
+
+Confiar en código o datos sin verificar su integridad: actualizaciones sin firma,
+plugins descargados de cualquier sitio, objetos serializados que el servidor
+deserializa sin comprobar. Mitigación: firmas digitales y verificar la integridad de
+todo lo que llega de fuera antes de usarlo.
+
+## A09 Security Logging and Alerting Failures
+
+Es la otra cara del trabajo de un SOC (lo verás en el módulo de seguridad defensiva):
+si la app no registra accesos ni errores, o nadie recibe una alerta cuando algo raro
+pasa, el atacante vive meses sin ser visto. En 2025 el nombre subraya las **alertas**:
+un log que nadie mira no detecta nada.
+
+## A10 Mishandling of Exceptional Conditions
+
+Nueva en 2025: qué hace la aplicación cuando algo sale mal.
+
+- **Fallar en abierto**: si la comprobación de pago o de permisos lanza una excepción
+  y el código "deja pasar", el error se convierte en un bypass.
+- **Errores que hablan de más**: un stack trace o un error de base de datos en la
+  respuesta le regala al atacante el mapa (y le ayuda a afinar una inyección SQL).
+- **Estados a medias**: una operación de varios pasos que se interrumpe y deja datos
+  inconsistentes.
+
+Mitigación: fallar en cerrado (deny by default también ante errores), mensajes
+genéricos al usuario y detalle solo en los logs, y deshacer la transacción completa
+si un paso falla.
+
+## ¿Y SSRF?
+
+Ya no tiene puesto propio: desde 2025 cuenta dentro de **A01 Broken Access Control**.
 La web pide URLs por ti ("importa esta imagen"): si apuntas a
 `http://169.254.169.254/latest/meta-data/` (metadata de AWS) o a servicios internos
 `http://localhost:6379/` (Redis sin auth), el servidor —que SÍ puede llegar ahí— te
 devuelve la respuesta. Es LA vía clásica hacia la nube interna.
 
-## #08 Software & Data Integrity (supply chain)
-
-Pipelines y dependencias sin verificar: el ataque a SolarWinds (2020) comprometió el
-build de miles de clientes. Mitigación: firmas, lockfiles (¡pnpm-lock.yaml!),
-SBOM, revisión de dependencias.
-
-## #06 Vulnerable & Outdated Components
-
-Librerías viejas con CVEs públicos = puertas abiertas con manual. Log4Shell
-(CVE-2021-44228) fue exactamente esto a escala mundial. Mitigación: inventario +
-`npm audit`/dependabot + parchear rápido.
-
-## #09 Logging & Monitoring
-
-Tu módulo SOC al revés: si la app no registra accesos ni errores, el atacante vive
-meses sin ser visto. La detección ES parte de la seguridad.
-
 ---
 
 ## El Top 10 completo (2025) de memoria
 
-1. Broken Access Control · 2. Cryptographic Failures · 3. Injection · 4. Insecure
-Design · 5. Security Misconfiguration · 6. Vulnerable Components · 7. Auth Failures ·
-8. Integrity Failures · 9. Logging Failures · 10. SSRF.
+1. Broken Access Control · 2. Security Misconfiguration · 3. Software Supply Chain
+Failures · 4. Cryptographic Failures · 5. Injection · 6. Insecure Design ·
+7. Authentication Failures · 8. Software or Data Integrity Failures · 9. Security
+Logging and Alerting Failures · 10. Mishandling of Exceptional Conditions.
 
-Cada uno tendrá labs dedicados en el path **Jr Penetration Tester**. Has cerrado
-Cyber Security 101: la base está. 🎓
+Los paths **Jr Penetration Tester** y **Web Application Pentesting** practican estas
+familias con labs reales; en la tarea siguiente tienes el primero.

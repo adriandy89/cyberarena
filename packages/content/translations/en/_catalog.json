@@ -72,7 +72,7 @@
     },
     "owasp-top-10": {
       "title": "OWASP Top 10 (2025)",
-      "description": "The ten most critical web risks: broken access control, injections, SSRF, supply chain and more."
+      "description": "The ten most critical web risks (2025 edition): broken access control, misconfiguration, supply chain, injection and more."
     },
     "pentest-foundations": {
       "title": "Penetration Testing Foundations",

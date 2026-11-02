@@ -30,9 +30,6 @@ owasp-top-10-t02-q03:
   - stored XSS
   - XSS almacenado
   - XSS persistente
-owasp-top-10-t03-q01:
-  - SSRF
-  - Server-Side Request Forgery
-  - Server Side Request Forgery
+owasp-top-10-t03-q01: c
 owasp-top-10-t03-q02: b
 owasp-top-10-t03-q03: b
