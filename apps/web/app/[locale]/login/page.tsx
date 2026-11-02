@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { safeNextPath } from '@repo/shared';
+import { useRouter } from '../../../i18n/navigation';
 import { authClient } from '../../../lib/auth-client';
 
 type Mode = 'signin' | 'signup';
@@ -46,7 +47,9 @@ export default function LoginPage() {
         setError(mapError(result.error.code, result.error.message ?? '', t));
         return;
       }
-      router.push('/dashboard');
+      // Return to where the student came from (e.g. a room), else the dashboard.
+      const next = safeNextPath(new URLSearchParams(window.location.search).get('next'));
+      router.push(next ?? '/dashboard');
       router.refresh();
     } catch {
       setError(t('errors.generic'));

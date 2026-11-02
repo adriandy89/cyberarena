@@ -295,9 +295,12 @@
   transform-origin: center;
 }
 
-/* mirror for direction="left" (independent `scale` composes with animations) */
-.root[data-dir='left'] .bot {
-  scale: -1 1;
+/* mirror for direction="left": a static wrapper, so it never fights the .bot animations */
+.mirror {
+  transform-origin: 60px 70px;
+}
+.root[data-dir='left'] .mirror {
+  transform: scaleX(-1);
 }
 
 /* ---------- idle (default) ---------- */

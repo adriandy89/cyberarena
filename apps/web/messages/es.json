@@ -156,7 +156,9 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "continueWithRoom": "¿Seguimos? Este es el siguiente room de la ruta:",
-    "continueWithPath": "¡Has terminado la ruta! Tu siguiente reto:"
+    "continueWithPath": "¡Has terminado la ruta! Tu siguiente reto:",
+    "guestBanner": "Estás explorando como invitado: puedes leerlo todo, pero para enviar respuestas y ganar XP necesitas una cuenta.",
+    "authRequired": "Necesitas iniciar sesión para enviar respuestas."
   },
   "PathProgress": {
     "overallProgress": "Progreso de la ruta",

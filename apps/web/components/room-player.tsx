@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link } from '../i18n/navigation';
 import { Byte } from './byte/byte';
-import { ArrowRight } from './icon';
+import { useByte } from './byte/byte-provider';
+import { ArrowRight, LogIn } from './icon';
 
 export interface PlayerQuestion {
   id: string;
@@ -28,7 +29,8 @@ interface SubmitResult {
   roomCompleted: boolean;
 }
 
-type QuestionState = { status: 'idle' } | { status: 'wrong' } | { status: 'correct'; xp: number };
+type QuestionState =
+  { status: 'idle' } | { status: 'wrong' } | { status: 'auth' } | { status: 'correct'; xp: number };
 
 /** Where to go after finishing the room: the next room, or the next path at the end. */
 export interface PlayerNext {
@@ -47,15 +49,17 @@ export function RoomPlayer({
   next?: PlayerNext | null;
 }) {
   const t = useTranslations('RoomPlayer');
+  const tByte = useTranslations('Byte.companion');
+  const { react } = useByte();
+  const loginHref = `/login?next=${encodeURIComponent(`/rooms/${roomSlug}`)}`;
+  const [guest, setGuest] = useState(false);
   const [current, setCurrent] = useState(0);
   const [solved, setSolved] = useState<Set<string>>(new Set());
   const [states, setStates] = useState<Record<string, QuestionState>>({});
   const [hintsOpen, setHintsOpen] = useState<Set<string>>(new Set());
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [roomCompleted, setRoomCompleted] = useState(false);
-  const [totalQuestions] = useState(
-    tasks.reduce((sum, task) => sum + task.questions.length, 0),
-  );
+  const [totalQuestions] = useState(tasks.reduce((sum, task) => sum + task.questions.length, 0));
 
   useEffect(() => {
     void (async () => {
@@ -63,8 +67,15 @@ export function RoomPlayer({
         const response = await fetch(`/api/rooms/${roomSlug}/progress`, {
           credentials: 'include',
         });
+        if (response.status === 401) {
+          setGuest(true);
+          return;
+        }
         if (!response.ok) return;
-        const data = (await response.json()) as { solvedQuestionIds: string[]; roomCompleted: boolean };
+        const data = (await response.json()) as {
+          solvedQuestionIds: string[];
+          roomCompleted: boolean;
+        };
         setSolved(new Set(data.solvedQuestionIds));
         setRoomCompleted(data.roomCompleted);
       } catch {
@@ -84,14 +95,20 @@ export function RoomPlayer({
           body: JSON.stringify({ questionId, answer }),
         });
         if (response.status === 401) {
-          setStates((prev) => ({ ...prev, [questionId]: { status: 'wrong' } }));
+          // Not a wrong answer: the student just needs a session (spec 010 T013).
+          setGuest(true);
+          setStates((prev) => ({ ...prev, [questionId]: { status: 'auth' } }));
+          react('authRequired', { action: { label: tByte('login'), href: loginHref } });
           return;
         }
         if (!response.ok) return;
         const data = (await response.json()) as SubmitResult;
         if (data.correct) {
           setSolved((prev) => new Set(prev).add(questionId));
-          setStates((prev) => ({ ...prev, [questionId]: { status: 'correct', xp: data.xpAwarded } }));
+          setStates((prev) => ({
+            ...prev,
+            [questionId]: { status: 'correct', xp: data.xpAwarded },
+          }));
           if (data.roomCompleted) setRoomCompleted(true);
         } else {
           setStates((prev) => ({ ...prev, [questionId]: { status: 'wrong' } }));
@@ -100,7 +117,7 @@ export function RoomPlayer({
         // network error: keep idle so the student can retry
       }
     },
-    [roomSlug, solved],
+    [roomSlug, solved, react, tByte, loginHref],
   );
 
   const task = tasks[current]!;
@@ -137,6 +154,20 @@ export function RoomPlayer({
           {t('progress', { solved: solvedCount, total: totalQuestions })}
         </span>
       </div>
+
+      {guest && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 text-sm text-cyan-100">
+          <Byte mood="point" size="xs" />
+          <p className="flex-1">{t('guestBanner')}</p>
+          <Link
+            href={loginHref}
+            className="btn-press inline-flex items-center gap-2 rounded-lg border border-cyan-400/40 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition-colors hover:bg-cyan-400/10"
+          >
+            <LogIn size={14} aria-hidden="true" />
+            {tByte('login')}
+          </Link>
+        </div>
+      )}
 
       {roomCompleted && (
         <div className="flex animate-pop flex-col gap-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 sm:flex-row sm:items-center">
@@ -182,7 +213,10 @@ export function RoomPlayer({
             const state = states[question.id];
             const isSolved = solved.has(question.id);
             return (
-              <li key={question.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-4">
+              <li
+                key={question.id}
+                className="rounded-lg border border-slate-800 bg-slate-950/60 p-4"
+              >
                 <p className="text-sm font-medium text-slate-200">
                   <span className="mr-2 text-slate-500">{i + 1}.</span>
                   {question.prompt}
@@ -235,7 +269,9 @@ export function RoomPlayer({
                               name={question.id}
                               value={option.id}
                               checked={inputs[question.id] === option.id}
-                              onChange={() => setInputs((prev) => ({ ...prev, [question.id]: option.id }))}
+                              onChange={() =>
+                                setInputs((prev) => ({ ...prev, [question.id]: option.id }))
+                              }
                               className="mt-1 accent-emerald-500"
                             />
                             <span>{option.label}</span>
@@ -270,6 +306,15 @@ export function RoomPlayer({
                       </>
                     )}
                   </form>
+                )}
+
+                {state?.status === 'auth' && !isSolved && (
+                  <p className="mt-2 text-sm text-cyan-300">
+                    {t('authRequired')}{' '}
+                    <Link href={loginHref} className="font-semibold underline underline-offset-2">
+                      {tByte('login')}
+                    </Link>
+                  </p>
                 )}
 
                 {state?.status === 'wrong' && !isSolved && (
