@@ -4,20 +4,64 @@
   "tasks": {
     "1": {
       "title": "Pretexting, vishing and influence principles",
+      "body": "## The script before the tool\n\nA good social engineering attack is prepared like a pentest: recon\nfirst. The OSINT from the previous room provides the material for the pretext:\n\n- LinkedIn → org chart, who approves payments, who just joined\n  (new hires say yes to everything).\n- Corporate social media → trips, suppliers, projects (\"I'm calling on behalf\n  of the Delta project team you saw in the post\").\n- Website/public records → executives' ID/tax numbers, reception phone numbers,\n  office hours.\n\nWith that, the **pretext** is built: a character, a context and a request\nthat fits both. \"I'm David, from Microsoft 365 support, we've detected\nan attempt to access your account and I need to verify a code\"\nworks because every piece is plausible.\n\n## Cialdini's principles applied to the attack\n\n| Principle | In the attack |\n|---|---|\n| Authority | \"I'm from the bank/IT/the police\" |\n| Urgency | \"In 30 minutes everything gets locked\" |\n| Scarcity | \"Only 2 spots left / it ends today\" |\n| Reciprocity | \"I'll give you the report for free, just validate your email\" |\n| Social proof | \"All your colleagues have already done it\" |\n| Commitment | \"Can you confirm it's you? — great, now the code\" |\n\nVishing = the call that combines authority + urgency against support or\nfinance. The famous real cases (Twitter 2020, Uber 2022) started\nexactly like this: a convincing call to a helpdesk asking for an\nMFA reset.\n\n## Physical and in-person vectors\n\n- **Tailgating**: slipping through the door right behind someone else's badge.\n- **USB drops**: memory sticks planted in the parking lot (\"nóminas_2026.xlsx -\n  accelerator\").\n- **QR baiting** (quishing): codes that replace legitimate\n  posters.\n\n## The defender's side\n\nThe defenses that work are procedural, not technical: verification\nchannels (call BACK on the official number), limits on what is\nNEVER requested by phone (nobody legitimate asks for MFA codes), blame-free\nreporting, and measured simulations. The employee is not \"the weakest link\"\nif the system is designed so that a single call is not enough.",
       "questions": {
-        "social-engineering-t01-q01": { "prompt": "What is the technique of building a credible identity/fake scenario before the contact?" },
-        "social-engineering-t01-q02": { "prompt": "What is social engineering over the phone called?" },
-        "social-engineering-t01-q03": { "prompt": "Cialdini described 6 persuasion principles. Name the two exploited by 'I'm from the bank, there is ACTIVE fraud on your account right now'." },
-        "social-engineering-t01-q04": { "prompt": "What is tailgating (or piggybacking) in physical security?" }
+        "social-engineering-t01-q01": {
+          "prompt": "What is the technique of building a credible identity/fake scenario before the contact?",
+          "hint": "Pretexting — the script and the character that legitimize the request"
+        },
+        "social-engineering-t01-q02": {
+          "prompt": "What is social engineering over the phone called?",
+          "hint": "Vishing (voice phishing) — smishing is the SMS version"
+        },
+        "social-engineering-t01-q03": {
+          "prompt": "Cialdini described 6 persuasion principles. Name the two exploited by 'I'm from the bank, there is ACTIVE fraud on your account right now' (answer in the form 'X and Y').",
+          "hint": "Urgency/scarcity (act now) + authority (I'm your bank) — the others are reciprocity, commitment, liking and social proof"
+        },
+        "social-engineering-t01-q04": {
+          "prompt": "What is tailgating (or piggybacking) in physical security?",
+          "hint": "Think about the courtesy of holding the door for whoever is behind you without asking for their badge.",
+          "options": {
+            "a": "Remotely cloning an employee's RFID card",
+            "b": "Entering a controlled area by closely following someone authorized",
+            "c": "Leaving infected USB sticks in the company's parking lot",
+            "d": "Looking over someone's shoulder while they type their PIN"
+          }
+        }
       }
     },
     "2": {
       "title": "MFA fatigue, quishing and deepfakes",
+      "body": "## MFA is not the end: push fatigue\n\nThe MFA prompt has become the new battlefield. With valid\ncredentials (stuffing/phishing), the attacker fires approval prompts\nin a loop:\n\n```\n23:47  Approve sign-in?  [Deny] [Accept]\n23:48  Approve sign-in?  ...\n23:52  ... (they sleep badly and accept \"to make it stop\")\n```\n\nReal cases (Uber 2022, Cisco 2022): purchased credentials +\na WhatsApp message to the target (\"we're IT, you're about to get a prompt, accept it\") +\npush approved. Mitigations that work today:\n\n- **Number matching** (the digit that has to match).\n- A prompt with **context and location** (\"are you in Moscow?\").\n- Rate limiting of prompts + an alert on bursts.\n\n## Quishing: the QR that jumps the barriers\n\nThe QR code moves phishing out of email (where there is sandboxing, scanned URLs,\nanti-spoofing) and onto the personal phone (where there is nothing). A poster in the\nparking lot, a restaurant menu, a letter about a \"new payroll portal\" —\nscanning is an almost reflexive act of trust. The URL behind it sometimes\nisn't even looked at. Defense: URL extractors in the email gateway ALSO\nfor QR codes embedded in images + specific training.\n\n## Deepfakes: forged authority\n\nVoice synthesis (a 3-second sample is enough) and real-time video\nhave already been used for real fraud: the Arup scam ($25M in 2024) was\na full video call with deepfake \"colleagues\". Against this, the\nprocedure matters more than the technology:\n\n- **Two-channel rule**: every financial instruction is confirmed\n  through a second channel initiated by the recipient.\n- Personal/per-team **code words** to verify each other on\n  sensitive calls.\n- Amount limits with asynchronous approval (not on the same call).\n\n## The common framework\n\nAll these vectors share a structure: **forged authority +\nurgency + a channel where verifying is hard**. Auditing processes with\nthat template (who can request what? how is it verified? what happens if\nthe channel is compromised?) is threat modeling applied to humans — the\nperfect bridge to the threat modeling room.",
       "questions": {
-        "social-engineering-t02-q01": { "prompt": "What does the MFA fatigue (push bombing) attack consist of?" },
-        "social-engineering-t02-q02": { "prompt": "Which MFA app setting eliminates push bombing by requiring a number shown on screen to be matched?" },
-        "social-engineering-t02-q03": { "prompt": "What is phishing via QR codes called?" },
-        "social-engineering-t02-q04": { "prompt": "What makes voice/video deepfakes especially effective against financial approval processes?" }
+        "social-engineering-t02-q01": {
+          "prompt": "What does the MFA fatigue (push bombing) attack consist of?",
+          "hint": "Picture the victim receiving one approval notification after another at 3am.",
+          "options": {
+            "a": "Cloning the victim's SIM to receive their SMS codes",
+            "b": "Brute-forcing every 6-digit TOTP code",
+            "c": "Sending bursts of MFA prompts until the victim approves one to make them stop",
+            "d": "Stealing the victim's phone to approve the login"
+          }
+        },
+        "social-engineering-t02-q02": {
+          "prompt": "Which MFA app setting eliminates push bombing by requiring a number shown on screen to be matched?",
+          "hint": "Number matching (shows a number you must type on your phone) — Microsoft enabled it by default in 2023"
+        },
+        "social-engineering-t02-q03": {
+          "prompt": "What is phishing via QR codes called?",
+          "hint": "Quishing (QR + phishing): it bypasses email link scanners and lands on the personal phone, outside MDM"
+        },
+        "social-engineering-t02-q04": {
+          "prompt": "What makes voice/video deepfakes especially effective against financial approval processes?",
+          "hint": "Remember the Arup case in 2024 ($25M): a full video call with fake 'colleagues'.",
+          "options": {
+            "a": "They impersonate authority (CEO/CFO) in real time and defeat call-back verification",
+            "b": "They carry embedded malware that approves the payment automatically",
+            "c": "They only work if the victim has no antivirus",
+            "d": "They are always sent from the company's legitimate email domain"
+          }
+        }
       }
     }
   }

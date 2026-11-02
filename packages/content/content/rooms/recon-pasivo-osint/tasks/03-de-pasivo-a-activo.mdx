@@ -5,7 +5,16 @@ questions:
   - id: recon-pasivo-osint-t03-q01
     prompt: "¿Cuál es la diferencia FUNDAMENTAL entre recon pasivo y activo?"
     hint: "¿El objetivo puede detectar lo que haces?"
-    kind: text
+    kind: choice
+    options:
+      - id: a
+        label: "El pasivo usa herramientas gratuitas; el activo, herramientas de pago"
+      - id: b
+        label: "El pasivo es manual; el activo está siempre automatizado"
+      - id: c
+        label: "El activo solo se aplica a webs; el pasivo, a redes internas"
+      - id: d
+        label: "En el pasivo el objetivo no puede detectarte; en el activo sí, porque le envías paquetes"
   - id: recon-pasivo-osint-t03-q02
     prompt: "Has recopilado: 15 subdominios, 3 emails de empleados y un panel de Jenkins expuesto. ¿Cuál es tu siguiente paso LÓGICO en la fase activa?"
     hint: "Verificar qué hay vivo y escuchando."

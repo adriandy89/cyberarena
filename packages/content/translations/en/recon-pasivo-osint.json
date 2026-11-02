@@ -4,68 +4,117 @@
   "tasks": {
     "1": {
       "title": "Subdomains",
+      "body": "## Certificate Transparency: the legal snitch\n\nSince 2018, ALL TLS certificates must be recorded in the public\n**Certificate Transparency (CT)** logs. This means that every subdomain someone\nissued a certificate for is visible at:\n\n```bash\n# crt.sh — the most widely used search engine (replace victima.com)\ncurl -s \"https://crt.sh/?q=%25.victima.com&output=json\" | jq -r '.[].name_val' | sort -u\n```\n\nTools that automate it: `sublist3r`, `assetfinder`, `amass` (the most complete).\n\n## Other subdomain gold mines\n\n- **Public DNS**: `dig any victima.com`; MX/NS/TXT records reveal providers.\n- **Wayback Machine** (web.archive.org): old versions of the website with links to\n  subdomains that no longer exist on the current site.\n- **Google dorks**: `site:*.victima.com -www` (we'll see them below).\n- **VirusTotal/Shodan**: aggregators that have already indexed those subdomains.\n\n## The risk of the forgotten\n\n`staging.victima.com` with an admin panel and default credentials, an\nunauthenticated `jenkins.victima.com`, an exposed `.git/` on `dev.victima.com` —\nall real, all found in seconds with CT logs. \"Temporarily exposed\"\nenvironments last for years.",
       "questions": {
         "recon-pasivo-osint-t01-q01": {
-          "prompt": "What public database records ALL TLS certificates?"
+          "prompt": "What public database records ALL TLS certificates?",
+          "hint": "Certificate Transparency logs. The most widely used site to query them: crt.sh"
         },
         "recon-pasivo-osint-t01-q02": {
-          "prompt": "What DNS records reveal service locations?"
+          "prompt": "What DNS records reveal service locations?",
+          "hint": "SRV records in DNS."
         },
         "recon-pasivo-osint-t01-q03": {
-          "prompt": "Why is dev.victima.com more dangerous than victima.com?"
+          "prompt": "Why is dev.victima.com more dangerous than victima.com?",
+          "hint": "Development environments tend to have weaker security…",
+          "options": {
+            "a": "Because dev has more bandwidth",
+            "b": "Development/staging environments often have default credentials, debug enabled and forgotten real data",
+            "c": "Because nobody visits it",
+            "d": "Because it uses a different CDN"
+          }
         }
       }
     },
     "2": {
       "title": "Google dorks and metadata",
+      "body": "## Google dorks: the search engine as a weapon\n\nGoogle's advanced operators filter results with surgical precision:\n\n```text\nsite:victima.com filetype:pdf          → all PDFs on the domain\nsite:victima.com inurl:admin           → pages with \"admin\" in the URL\nsite:*.victima.com -www                → indexed subdomains\nfiletype:env DB_PASSWORD               → exposed .env files (on any website!)\nsite:victima.com intitle:\"index of\"    → directory listings\n```\n\nThe **GHDB** (at exploit-db.com/google-hacking-database) catalogs thousands of dorks by\ncategory: credentials, error messages, vulnerable panels. Start there.\n\n## Document metadata\n\nPDF and Office documents carry embedded metadata: the author (the employee's name and email),\nthe file path on their PC (`C:\\Users\\jperez\\Documentos\\`), the software used, and sometimes\ncomments that were \"visibly\" deleted but can still be recovered.\n\nTools: `exiftool informe.pdf`, `metagoofil` (finds and extracts in bulk).\n\n## Human OSINT (for the report)\n\nLinkedIn reveals the structure of the IT team (who is the AD admin? Usernames\nusually follow a pattern: `jperez`, `j.perez` — they get tested against the corporate\nlogin in the active phase). The company's GitHub: code with forgotten\ncredentials (gitleaks automates this).\n\nAll of this without sending A SINGLE packet to the target: the sources are third parties\nthat have already indexed that information.",
       "questions": {
         "recon-pasivo-osint-t02-q01": {
-          "prompt": "What Google dork finds exposed config files?"
+          "prompt": "What Google dork finds exposed config files?",
+          "hint": "site:victima.com filetype:env OR filetype:conf"
         },
         "recon-pasivo-osint-t02-q02": {
-          "prompt": "What is GHDB?"
+          "prompt": "What is GHDB?",
+          "hint": "Exploit-DB maintains it: dorks catalogued by category.",
+          "options": {
+            "a": "An alternative search engine to Google",
+            "b": "A public database of catalogued dorks that find exposed files, credentials and panels",
+            "c": "A pentest framework",
+            "d": "A Burp plugin"
+          }
         },
         "recon-pasivo-osint-t02-q03": {
-          "prompt": "What metadata leak is common in PDFs?"
+          "prompt": "What metadata leak is common in PDFs?",
+          "hint": "Documents store who created them...",
+          "options": {
+            "a": "The corporate Wi-Fi password",
+            "b": "The private key of the website's TLS certificate",
+            "c": "Usernames, emails and internal paths of the employees' computers",
+            "d": "The perimeter firewall rules"
+          }
         }
       }
     },
     "3": {
       "title": "Passive to active",
+      "body": "## The invisible border\n\n| Passive | Active |\n|---|---|\n| Queries to third parties (CT, Google, archive) | Packets TO the target |\n| Undetectable | Detectable (logs, IDS, WAF) |\n| Historical/aggregated information | Real current state |\n| Always safe | Only with authorization |\n\nYou do NOT move to active until the scope is confirmed and you have written authorization\n(the rules of engagement from module 1). Launching a scan against an out-of-scope host\nis a legal incident.\n\n## Transition checklist (your method)\n\nAfter the passive phase, your target list should have:\n\n1. **IPs/ranges** confirmed as belonging to the client (whois, DNS, CT logs).\n2. **Subdomains** resolved to live IPs.\n3. **Web surface**: URLs, panels, APIs detected.\n4. **Potential users** (for credential attacks later on).\n\nThe next module (active recon) turns that list into: what is alive, what is running\nand which version it has. The Nmap module automates it.\n\n> **Take note**: every passive finding feeds the active phase. Every active finding\n> feeds exploitation. It's a chain — and the pentester who skips links\n> misses findings.",
       "questions": {
         "recon-pasivo-osint-t03-q01": {
-          "prompt": "What is the FUNDAMENTAL passive vs active difference?"
+          "prompt": "What is the FUNDAMENTAL passive vs active difference?",
+          "hint": "Can the target detect what you are doing?",
+          "options": {
+            "a": "Passive uses free tools; active uses paid tools",
+            "b": "Passive is manual; active is always automated",
+            "c": "Active only applies to websites; passive to internal networks",
+            "d": "In passive recon the target can't detect you; in active it can, because you send it packets"
+          }
         },
         "recon-pasivo-osint-t03-q02": {
-          "prompt": "After passive, what is your next LOGICAL active step?"
+          "prompt": "You have collected: 15 subdomains, 3 employee emails and an exposed Jenkins panel. What is your next LOGICAL step in the active phase?",
+          "hint": "Verify what is alive and listening.",
+          "options": {
+            "a": "Launch an exploit against Jenkins immediately",
+            "b": "Discover which hosts are alive and which ports/services they offer (host discovery + port scan)",
+            "c": "Send a phishing email",
+            "d": "Write the final report"
+          }
         }
       }
     },
     "4": {
       "title": "Lab: OSINT against a real company",
+      "body": "## Practice: OSINT against TechCorp\n\nThe lab simulates the corporate website of \"TechCorp Solutions\". Everything you need is\nPUBLICLY accessible — no exploits, just knowing where to look:\n\n### 1. robots.txt\n```bash\ncurl http://127.0.0.1:18091/robots.txt\n```\n\n### 2. Source code (HTML comments)\n```bash\ncurl -s http://127.0.0.1:18091/about | grep -i flag\ncurl -s http://127.0.0.1:18091/ | grep -i admin\n```\n\n### 3. Configuration files\n```bash\ncurl http://127.0.0.1:18091/.env\n```\n\n### 4. Follow the clues\nThe HTML comments on the home page reveal that there is an admin panel. Follow the clue.\n\n**This is exactly what an attacker does in the first 5 minutes against\nany corporate website — without sending a single attack packet.**",
       "questions": {
         "recon-pasivo-osint-t04-q01": {
-          "prompt": "Read the robots.txt flag."
+          "prompt": "Read the robots.txt flag.",
+          "hint": "curl http://127.0.0.1:18091/robots.txt"
         },
         "recon-pasivo-osint-t04-q02": {
-          "prompt": "Find the flag in an HTML comment on /about."
+          "prompt": "Find the flag in an HTML comment on /about.",
+          "hint": "curl http://127.0.0.1:18091/about | grep FLAG"
         },
         "recon-pasivo-osint-t04-q03": {
-          "prompt": "The .env file is accessible. Submit its flag."
+          "prompt": "The .env file is accessible. Submit its flag.",
+          "hint": "curl http://127.0.0.1:18091/.env"
         },
         "recon-pasivo-osint-t04-q04": {
-          "prompt": "Follow the admin panel hint. Visit it and submit the flag."
+          "prompt": "Follow the admin panel hint. Visit it and submit the flag.",
+          "hint": "curl -s http://127.0.0.1:18091/ | grep admin → then curl /admin/panel"
         }
       }
     },
     "5": {
       "title": "Lab: DNS enumeration",
+      "body": "## Zone Transfer: the DNS dump\n\nThe internal DNS of victima.com allows AXFR (zone transfer) to anyone:\n\n```bash\n# Normal query (record by record):\ncurl \"http://127.0.0.1:18098/dig?name=www.victima.com\"\n\n# Zone transfer (ALL records at once):\ncurl \"http://127.0.0.1:18098/axfr?server=ns1.victima.com\"\n```\n\nThe AXFR returns 14 records, including:\n- `staging.victima.com` with a flag in the note field\n- `internal.victima.com` with another flag\n- `secret-admin.victima.com` — a hidden panel nobody should know about\n- `_ldap._tcp` — reveals a Domain Controller\n\nIn a real pentest, an open AXFR is a critical finding: it exposes ALL of the\norganization's internal infrastructure in a single request.",
       "questions": {
         "recon-pasivo-osint-t05-q01": {
-          "prompt": "Perform AXFR against ns1.victima.com. Submit the staging flag."
+          "prompt": "Perform AXFR against ns1.victima.com. Submit the staging flag.",
+          "hint": "curl 'http://127.0.0.1:18098/axfr?server=ns1.victima.com'"
         },
         "recon-pasivo-osint-t05-q02": {
-          "prompt": "How many records does the zone transfer return?"
+          "prompt": "How many records does the zone transfer return?",
+          "hint": "Count the entries in the AXFR JSON."
         }
       }
     }

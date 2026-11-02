@@ -3,12 +3,12 @@ index: 1
 title: "Tipos de scan: elegir la herramienta correcta"
 questions:
   - id: nmap-pro-t01-q01
-    prompt: "¿Qué scan envía paquetes TCP SIN flags (null scan)?"
+    prompt: "¿Qué flag de Nmap lanza el scan que envía paquetes TCP SIN flags (null scan)?"
     hint: "-sN"
     kind: text
   - id: nmap-pro-t01-q02
     prompt: "¿Qué scan es MÁS sigiloso contra IDS que firman SYN scans?"
-    hint: "Fragmenta los paquetes para que el IDS no los reensamble."
+    hint: "Si el IDS busca el patrón SYN, ¿qué scans no envían SYN?"
     kind: choice
     options:
       - id: a

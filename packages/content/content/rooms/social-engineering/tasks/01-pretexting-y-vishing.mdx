@@ -3,7 +3,7 @@ index: 1
 title: "Pretexting, vishing y los principios de influencia"
 questions:
   - id: social-engineering-t01-q01
-    prompt: "¿Cómo se llama la técnica de construir una identidad/falsa escenario creíble (ser 'el técnico de soporte de la operadora') antes del contacto?"
+    prompt: "¿Cómo se llama la técnica de construir una identidad falsa y un escenario creíble (ser 'el técnico de soporte de la operadora') antes del contacto?"
     hint: "Pretexting — el guion y el personaje que legitiman la petición"
     kind: text
   - id: social-engineering-t01-q02
@@ -11,13 +11,22 @@ questions:
     hint: "Vishing (voice phishing) — el smishing es por SMS"
     kind: text
   - id: social-engineering-t01-q03
-    prompt: "Cialdini describió 6 principios de persuasión. Nombra los dos que explota un 'soy del banco, hay un fraude ACTIVO en tu cuenta ahora mismo'."
+    prompt: "Cialdini describió 6 principios de persuasión. Nombra los dos que explota un 'soy del banco, hay un fraude ACTIVO en tu cuenta ahora mismo' (responde con el formato 'X y Y')."
     hint: "Urgencia/escasez (acto ya) + autoridad (soy tu banco) — también reciprocidad, compromiso, simpatía y prueba social"
     kind: text
   - id: social-engineering-t01-q04
     prompt: "¿Qué es el tailgating (o piggybacking) en seguridad física?"
-    hint: "Entrar a una zona controlada siguiendo a alguien con badge legítimo — aprovecha la cortesía de sujetar la puerta"
-    kind: text
+    hint: "Piensa en la cortesía de sujetarle la puerta a quien viene detrás sin pedirle el badge."
+    kind: choice
+    options:
+      - id: a
+        label: "Clonar a distancia la tarjeta RFID de un empleado"
+      - id: b
+        label: "Entrar a una zona controlada siguiendo de cerca a alguien autorizado"
+      - id: c
+        label: "Dejar memorias USB infectadas en el parking de la empresa"
+      - id: d
+        label: "Mirar por encima del hombro mientras alguien teclea su PIN"
 ---
 
 ## El guion antes que la herramienta
@@ -43,7 +52,7 @@ funciona porque cada pieza es plausible.
 |---|---|
 | Autoridad | "Soy del banco/de IT/de la policía" |
 | Urgencia | "En 30 minutos se bloquea todo" |
-| Escarsez | "Solo quedan 2 plazas / hoy acaba" |
+| Escasez | "Solo quedan 2 plazas / hoy acaba" |
 | Reciprocidad | "Te regalo el informe, solo pide validar tu email" |
 | Prueba social | "Todos tus compañeros ya lo hicieron" |
 | Compromiso | "¿Me confirmas que eres tú? — vale, ahora el código" |

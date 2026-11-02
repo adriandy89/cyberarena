@@ -1,10 +1,26 @@
 # Respuestas del room recon-pasivo-osint.
 # PRIVADO: el seed lo hashea a la tabla Answer.
-recon-pasivo-osint-t01-q01: Certificate Transparency
-recon-pasivo-osint-t01-q02: SRV
+recon-pasivo-osint-t01-q01:
+  - "Certificate Transparency"
+  - "Certificate Transparency logs"
+  - "Certificate Transparency log"
+  - "logs de Certificate Transparency"
+  - "CT logs"
+  - CT
+recon-pasivo-osint-t01-q02:
+  - SRV
+  - "registros SRV"
+  - "registro SRV"
+  - "SRV records"
+  - "SRV record"
 recon-pasivo-osint-t01-q03: b
-recon-pasivo-osint-t02-q01: site:victima.com filetype:env
+recon-pasivo-osint-t02-q01:
+  - "site:victima.com filetype:env"
+  - "site:victima.com filetype:env OR filetype:conf"
+  - "site:victima.com filetype:conf"
+  - "site:victima.com ext:env"
+  - "filetype:env site:victima.com"
 recon-pasivo-osint-t02-q02: b
-recon-pasivo-osint-t02-q03: "nombres de usuario, emails y rutas internas de los empleados"
-recon-pasivo-osint-t03-q01: "en el pasivo el objetivo no puede detectarlo; en el activo si (envias paquetes al objetivo)"
+recon-pasivo-osint-t02-q03: c
+recon-pasivo-osint-t03-q01: d
 recon-pasivo-osint-t03-q02: b

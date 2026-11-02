@@ -4,43 +4,79 @@
   "tasks": {
     "1": {
       "title": "Proxy and Target",
+      "body": "## Recap: setup in 30 seconds\n\nYou already set up the proxy in *Web Hacking* (CS101); review it and add the step that was missing,\nthe certificate to intercept HTTPS:\n\n1. Burp Proxy > Options: listens on `127.0.0.1:8080` (default).\n2. Browser: HTTP proxy set to `127.0.0.1:8080` (or FoxyProxy to toggle it on and off).\n3. Visit `http://burp` in the browser → Burp's CA certificate → install it as a\n   trusted CA (for HTTPS).\n\n## The daily workflow\n\n```text\nBrowser → Burp Proxy → HTTP History → (analyze) → Repeater → (modify/repeat)\n```\n\n- **Intercept ON**: freezes every request so you can edit it LIVE.\n- **Intercept OFF** (recommended by default): everything flows freely, but it is SAVED in\n  **HTTP History** — review it later with filters.\n\n## Target: the site map\n\nThe **Target > Site map** tab builds a tree with ALL the discovered URLs\n(through browsing or through fuzzing from Burp). It's your inventory of the target:\n- Automatically discovered paths\n- Parameters of each endpoint\n- Response headers of each URL\n\nRight-click any request in the History → **\"Send to Repeater\"** (Ctrl+R) or\n**\"Send to Intruder\"** (Ctrl+I) to take it to the next level.",
       "questions": {
         "burp-suite-pro-t01-q01": {
-          "prompt": "What tab shows ALL HTTP history?"
+          "prompt": "What tab shows ALL HTTP history?",
+          "hint": "Proxy > HTTP History (not Intercept)."
         },
         "burp-suite-pro-t01-q02": {
-          "prompt": "What tab shows the site as a directory tree?"
+          "prompt": "What tab shows the site as a directory tree?",
+          "hint": "Target > Site map"
         },
         "burp-suite-pro-t01-q03": {
-          "prompt": "What advantage does Repeater have?"
+          "prompt": "What advantage does 'Send to Repeater' (Ctrl+R) have over resending the request from the browser?",
+          "hint": "In the browser you can't easily edit headers/body.",
+          "options": {
+            "a": "It's faster",
+            "b": "It lets you modify any part of the request and resend it repeatedly without touching the browser",
+            "c": "It loads the page better",
+            "d": "None: it does the same thing"
+          }
         }
       }
     },
     "2": {
       "title": "Repeater",
+      "body": "## Repeater: the same request, N times, N variations\n\nYou receive a request from the History in Repeater and you have TOTAL control:\n\n```http\nGET /producto?id=1 HTTP/1.1\nHost: tienda.local\nCookie: sesion=abc123\n```\n\nYou edit `id=1' OR 1=1--` → **Send** → examine the response (status, headers, body).\nEdit again → Send. Repeat. Without touching the browser.\n\n### The 4 views of the response\n\n- **Pretty**: formatted (headers on top, body rendered with syntax highlighting)\n- **Raw**: exactly as it arrives (bytes in plain text)\n- **Render**: as the browser would paint it (for XSS: you see whether your script runs!)\n- **Hex**: bytes in hexadecimal (for binaries, encoding issues)\n\n### Real use cases\n\n```text\n1. SQLi:  change id=1 → id=1' OR 1=1-- and see if the error changes\n2. XSS:   inject <script> into a parameter → Render → does it run?\n3. IDOR:  change /perfil/1024 → /perfil/1025 → do you see someone else's data?\n4. Auth:  tamper with cookies/tokens → does it accept a modified one?\n5. Logic: precio=100 → precio=1 in the cart's POST\n```\n\n**Pro shortcut**: right-click any browser request that Burp\ncaptured → \"Send to Repeater\" → modify → observe. It's 80% of manual web work.",
       "questions": {
         "burp-suite-pro-t02-q01": {
-          "prompt": "What view renders the response as the browser would?"
+          "prompt": "What view renders the response as the browser would?",
+          "hint": "Render (vs Pretty/Raw/Hex)."
         },
         "burp-suite-pro-t02-q02": {
-          "prompt": "How would you test SQLi in Repeater?"
+          "prompt": "How would you test SQLi in Repeater?",
+          "hint": "Repeater is for editing the request by hand and resending it.",
+          "options": {
+            "a": "Turn on Intercept and wait for the victim to log in",
+            "b": "Open the Hex view of the response and resend the request unchanged",
+            "c": "Replace the value of the id parameter with a payload (e.g. 1' OR 1=1--) and click Send",
+            "d": "Send the request to Target > Site map and sort by Length"
+          }
         },
         "burp-suite-pro-t02-q03": {
-          "prompt": "What section shows headers and status?"
+          "prompt": "What section shows headers and status?",
+          "hint": "Response panel: the Pretty view shows everything.",
+          "options": {
+            "a": "Only in Hex",
+            "b": "Response panel in Pretty/Raw view",
+            "c": "They can't be seen",
+            "d": "Only in Intruder"
+          }
         }
       }
     },
     "3": {
       "title": "Intruder",
+      "body": "## Intruder: from manual to automatic\n\n1. **Send to Intruder** (Ctrl+I) from any request.\n2. **Positions**: mark with § what you want to replace:\n   ```http\n   POST /login HTTP/1.1\n   username=§admin§&password=§password123§\n   ```\n3. **Payloads**: assign lists to each position.\n4. **Start attack**: Intruder runs every combination.\n\n### The 4 attack types\n\n| Type | What it does | When |\n|---|---|---|\n| **Sniper** | one list, one position at a time | testing 1 parameter |\n| **Battering ram** | the SAME list in ALL positions | the same password in user and pass |\n| **Pitchfork** | parallel lists (user[i], pass[i]) | paired user/password |\n| **Cluster bomb** | Cartesian product (every combination) | real brute force |\n\n### The trick: reading the results\n\nIntruder shows a table with every attempt. The key: **sort by Length**.\n\n```text\nPayload: password1   Length: 4523   Status: 302   ← redirect (login OK!)\nPayload: password2   Length: 4523   Status: 302   ← same... wait\nPayload: password3   Length: 4523   Status: 302\nPayload: rockyou     Length: 8234   Status: 200   ← DIFFERENT! investigate this one\n```\n\nA Length or Status that differs from the general pattern = a different response = a possible success.\n\n### Real Intruder cases\n\n- **Login brute force**: Cluster bomb (users × passwords)\n- **Mass IDOR**: Sniper with IDs 1-1000 on /perfil/§id§\n- **Parameter fuzzing**: Sniper with XSS/SQLi payloads\n- **Rate limit bypass**: Pitchfork with rotated tokens\n\nWith Burp mastered (Proxy → Repeater → Intruder), you can test ANY web\napplication. The next modules in the path apply these techniques against the OWASP flaws\nwith labs.",
       "questions": {
         "burp-suite-pro-t03-q01": {
-          "prompt": "What symbol marks payload positions?"
+          "prompt": "What symbol marks payload positions?",
+          "hint": "§value§ (the section signs)."
         },
         "burp-suite-pro-t03-q02": {
-          "prompt": "What attack type tests one list one position?"
+          "prompt": "What attack type tests one list one position?",
+          "hint": "Sniper: one position at a time."
         },
         "burp-suite-pro-t03-q03": {
-          "prompt": "With 1000 payloads, how do you find successes?"
+          "prompt": "With 1000 payloads, how do you find successes?",
+          "hint": "Sort by response length or status.",
+          "options": {
+            "a": "Manually, one by one",
+            "b": "By sorting the results by Length or Status: successful ones usually have a response different from the rest",
+            "c": "It can't be done",
+            "d": "Only with the Pro version"
+          }
         }
       }
     }

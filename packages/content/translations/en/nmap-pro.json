@@ -4,43 +4,67 @@
   "tasks": {
     "1": {
       "title": "Scan types",
+      "body": "## The complete scan menu\n\n| Flag | Name | How it works | Best for |\n|---|---|---|---|\n| `-sS` | SYN | SYN → RST (without connecting) | fast, the standard |\n| `-sT` | Connect | full handshake | when you don't have root |\n| `-sN` | NULL | packet with no flags | evading basic firewalls |\n| `-sF` | FIN | FIN flag only | same |\n| `-sX` | XMAS | FIN+PSH+URG (lit up like a tree) | same |\n| `-sU` | UDP | UDP packets | DNS/SNMP/DHCP |\n| `-sA` | ACK | ACK flag only | mapping firewall rules |\n\n## FIN/NULL/XMAS: the \"weird\" scans that work\n\nOld firewalls only filter SYN packets (the ones that try to CONNECT). A\nFIN or NULL packet sent to an OPEN port on a Unix host gets no response (the stack\nsilently ignores it). A CLOSED port answers with RST.\n\n```text\nFIN → open port       →  silence      ← open!\nFIN → closed port     →  RST          ← closed\nFIN → firewall        →  nothing      ← filtered (ambiguous with open)\n```\n\nTheir weak point: modern firewalls and Windows answer RST to EVERYTHING (a deviation\nfrom the RFC), which makes it impossible to tell the states apart. But against a Linux host\nwithout a stateful firewall: it works.\n\n## ACK scan (-sA): the firewall map\n\nIt doesn't detect open ports — it detects WHICH PORTS the firewall FILTERS (unfiltered vs\nfiltered). You use it AFTER a SYN scan to understand the rules.\n\n```bash\nnmap -sA -p 80,443,8080 10.10.10.5   # what does the FW filter?\n```",
       "questions": {
         "nmap-pro-t01-q01": {
-          "prompt": "What scan sends TCP with NO flags?"
+          "prompt": "Which Nmap flag launches the scan that sends TCP packets with NO flags (null scan)?",
+          "hint": "-sN"
         },
         "nmap-pro-t01-q02": {
-          "prompt": "Which scans are MORE stealthy against SYN-signature IDS?"
+          "prompt": "Which scans are MORE stealthy against SYN-signature IDS?",
+          "hint": "If the IDS looks for the SYN pattern, which scans don't send SYN?",
+          "options": {
+            "a": "TCP connect (-sT)",
+            "b": "FIN/XMAS/NULL scans (-sF/-sX/-sN)",
+            "c": "Ping sweep (-sn)",
+            "d": "UDP scan (-sU)"
+          }
         },
         "nmap-pro-t01-q03": {
-          "prompt": "In FIN scan, what response means OPEN?"
+          "prompt": "In FIN scan, what response means OPEN?",
+          "hint": "In FIN scans, the absence of a response is meaningful..."
         }
       }
     },
     "2": {
       "title": "Evasion",
+      "body": "## The three layers of evasion\n\n### 1. Timing templates (-T)\n\n```bash\nnmap -T0 10.10.10.5    # paranoid: 5 min between packets. Undetectable by rate-based IDS\nnmap -T2 10.10.10.5    # polite: slow but reasonable\nnmap -T4 10.10.10.5    # aggressive: fast (the default in labs)\nnmap -T5 10.10.10.5    # insane: VERY fast, loses results, SOS in the SIEM\n```\n\n### 2. Fragmentation and decoys\n\n```bash\nnmap -f 10.10.10.5           # fragments probes into 8-byte packets\nnmap -ff 10.10.10.5          # even smaller fragments\nnmap -D RND:10 10.10.10.5    # 10 random decoy IPs + yours\nnmap -S <spoof_ip> 10.10.10.5  # full spoofing (only works with a zombie scan)\nnmap --source-port 53 10.10.10.5   # source port 53 (DNS): many FWs allow it\n```\n\n### 3. Decoys in practice\n\n`-D` makes the target see the scan coming from 11 IPs (10 fake ones + yours). The\nadmin has to investigate 11 sources. In an AUTHORIZED pentest, decoys are\nagreed in advance (the SOC must be able to tell legitimate traffic apart from the test).\n\n## In real pentest life\n\nEvasion is NEVER total: a SIEM with correlation detects patterns even if you fragment.\nEvasion slows down and complicates detection, and in white/grey-box engagements it is\ncoordinated with the SOC (time window, known source IPs).\n\nIn CTFs and labs: `-T4` and off you go. In a client's production environment: coordinate, use `-T2`,\nand limit the port scope.",
       "questions": {
         "nmap-pro-t02-q01": {
-          "prompt": "What Nmap flag fragments packets?"
+          "prompt": "What Nmap flag fragments packets?",
+          "hint": "-f (or -ff for smaller fragments)"
         },
         "nmap-pro-t02-q02": {
-          "prompt": "What option adds decoy IPs?"
+          "prompt": "What option adds decoy IPs?",
+          "hint": "-D decoy (adds decoy IPs)"
         },
         "nmap-pro-t02-q03": {
-          "prompt": "What timing template is SLOWEST?"
+          "prompt": "What timing template is SLOWEST?",
+          "hint": "T5 = insane (fast/noisy); T0 = paranoid...",
+          "options": {
+            "a": "-T5 (insane)",
+            "b": "-T0 (paranoid)",
+            "c": "-T3 (normal, default)",
+            "d": "Timing doesn't matter"
+          }
         }
       }
     },
     "3": {
       "title": "NSE and outputs",
+      "body": "## NSE: 600+ ready-made scripts\n\n```bash\n# Useful categories\nnmap --script vuln 10.10.10.5            # looks for known vulnerabilities\nnmap --script auth 10.10.10.5            # tries anonymous/default logins\nnmap --script discovery 10.10.10.5       # enumerates information\nnmap --script smb-vuln* 10.10.10.5       # all the SMB ones\n\n# Specific ones you will ALWAYS use in Windows pentests\nnmap --script smb-vuln-ms17-010.nse -p 445 10.10.10.5   # EternalBlue\nnmap --script smb-enum-shares.nse -p 445 10.10.10.5     # SMB shares\n\n# Web\nnmap --script http-enum.nse -p 80 10.10.10.5            # common paths\nnmap --script http-title.nse -p 80 10.10.10.5           # page titles\nnmap --script ssl-heartbleed.nse -p 443 10.10.10.5      # Heartbleed\n```\n\n## Outputs: the evidence for the report\n\n```bash\nnmap -sV -oA escaneo_inicial 10.10.10.5\n# generates: escaneo_inicial.nmap (human), .gnmap (grep), .xml (parseable)\n```\n\n- **`-oN`** (normal): the readable output — paste it straight into the report.\n- **`-oG`** (grepable): one line per port — processable with `grep`, `awk`.\n- **`-oX`** (XML): for tools like `searchsploit --nmap`.\n- **`-oA`**: all three at once.\n\n```bash\n# Real pipeline: nmap → grep → searchsploit\nnmap -sV -oG - 10.10.10.5 | grep open | grep -oP '\\S+/\\w+ open \\S+ \\S+' \nsearchsploit --nmap escaneo_inicial.xml    # suggests exploits by version\n```\n\n## Your Nmap cheat sheet (copy it)\n\n```bash\nnmap -sn CIDR                    # discovery\nnmap -sS -p- --min-rate 5000 IP  # fast full range\nnmap -sV -sC -p PUERTOS IP       # versions + default scripts\nnmap -sU --top-ports 20 IP       # basic UDP\nnmap --script vuln -p PUERTOS IP # vulnerabilities\n```\n\nWith Nmap mastered, you can move on to the web module: Burp Suite does for HTTP what Nmap\ndoes for TCP.",
       "questions": {
         "nmap-pro-t03-q01": {
-          "prompt": "What command runs all vuln NSE scripts?"
+          "prompt": "What command runs all vuln NSE scripts?",
+          "hint": "--script vuln"
         },
         "nmap-pro-t03-q02": {
-          "prompt": "What output format is best for grep?"
+          "prompt": "What output format is best for grep?",
+          "hint": "-oG (grepable). -oN normal, -oX XML, -oA all of them."
         },
         "nmap-pro-t03-q03": {
-          "prompt": "What NSE script checks EternalBlue?"
+          "prompt": "What NSE script checks EternalBlue?",
+          "hint": "ms17-010"
         }
       }
     }

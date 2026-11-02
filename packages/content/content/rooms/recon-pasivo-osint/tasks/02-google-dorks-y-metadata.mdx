@@ -22,7 +22,16 @@ questions:
   - id: recon-pasivo-osint-t02-q03
     prompt: "¿Qué fuga de metadata es común en documentos PDF/Word publicados en webs corporativas?"
     hint: "Los documentos guardan quién los creó..."
-    kind: text
+    kind: choice
+    options:
+      - id: a
+        label: "La contraseña del Wi-Fi corporativo"
+      - id: b
+        label: "La clave privada del certificado TLS de la web"
+      - id: c
+        label: "Nombres de usuario, emails y rutas internas de los equipos de los empleados"
+      - id: d
+        label: "Las reglas del firewall perimetral"
 ---
 
 ## Google dorks: el buscador como arma

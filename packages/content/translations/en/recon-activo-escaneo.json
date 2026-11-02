@@ -4,57 +4,97 @@
   "tasks": {
     "1": {
       "title": "Host discovery",
+      "body": "## The first sweep\n\nBefore scanning ports, you need to know WHO is alive in the range:\n\n```bash\n# Nmap ping sweep (ICMP + ARP on local networks)\nnmap -sn 10.10.10.0/24           # -sn = no port scan, discovery only\nnmap -sn -PR 10.10.10.0/24       # ARP only (local networks: the most reliable)\n\n# Classic alternatives\nfping -asg 10.10.10.0/24         # fast and quiet\narp-scan --localnet              # pure ARP: finds what blocks ICMP\n```\n\n## Why ARP > ICMP on local networks\n\nA well-configured firewall blocks (inbound) ICMP ping. But **ARP** is required\nfor the network to work: if the machine doesn't answer ARP, it can't communicate. That's why\n`arp-scan` on the same subnet finds EVERYTHING that is powered on, even \"hidden\" hosts.\n\nOn remote (non-local) networks, ARP doesn't get through — ICMP, TCP SYN to common ports\n(80, 443) and UDP are used instead. Nmap combines techniques with `-sn` by default.\n\n## The expected result\n\nA list of live IPs. Each one is a target for the port scan in the next task.\nIn an internal network pentest, this sweep can uncover forgotten machines (the\nprinter with open FTP, the lab Raspberry Pi, the Windows Server 2003 that\nnobody patches).\n\n> **Noise**: a ping sweep of a /24 is VERY visible in any SIEM. In engagements with\n> stealth rules, the window and technique are agreed with the client.",
       "questions": {
         "recon-activo-escaneo-t01-q01": {
-          "prompt": "What tool sends ICMP pings to a range?"
+          "prompt": "What tool sends ICMP pings to a range?",
+          "hint": "nmap -sn with the range option."
         },
         "recon-activo-escaneo-t01-q02": {
-          "prompt": "What layer-2 protocol discovers hosts even with ICMP firewall?"
+          "prompt": "What layer-2 protocol discovers hosts even with ICMP firewall?",
+          "hint": "You already met it in the cmd room: arp -a"
         },
         "recon-activo-escaneo-t01-q03": {
-          "prompt": "A host responds to ARP but not ping. Is it alive?"
+          "prompt": "A host responds to ARP but not ping. Is it alive?",
+          "hint": "ARP is layer 2: if it answers, the interface exists.",
+          "options": {
+            "a": "No: ping is the only indicator",
+            "b": "Yes: the ARP reply proves the machine is powered on and connected (it only blocks ICMP)",
+            "c": "Only if it also answers HTTP",
+            "d": "Impossible to know"
+          }
         }
       }
     },
     "2": {
       "title": "Port scanning",
+      "body": "## Anatomy of a scan\n\nThe most common port scan (**SYN scan**, `-sS` in Nmap):\n\n```text\nScanner          →  SYN    →  Port 22        (are you open?)\nScanner  ←  SYN-ACK  ←      Port 22        (yes, open)\nScanner          →  RST    →  Port 22        (thanks, leaving without connecting)\n```\n\nIt never completes the handshake → the service does NOT record it in its application logs\n(although the firewall may see it). It's fast and semi-stealthy.\n\nThe THREE states that matter:\n\n| State | Meaning | Action |\n|---|---|---|\n| **open** | something is listening there | enumerate the version |\n| **closed** | the machine answers RST: nobody is listening | move on |\n| **filtered** | a firewall/IDS swallows the packet | an interesting port all the same |\n\n```bash\nnmap -sS -p- 10.10.10.5        # SYN scan of ALL ports (65535)\nnmap -sS --top-ports 100 10.10.10.5   # the 100 most common (fast)\n```\n\n## TCP connect scan vs SYN scan\n\n- `-sT` (connect): completes the handshake. Slower, more noise in the app logs.\n- `-sS` (SYN): the classic — it requires root but it's the pentester's standard.\n\n## UDP (the unfinished business)\n\nUDP has no handshake: scanning it is slow and ambiguous (was the packet lost or is the port\nopen?). `nmap -sU --top-ports 50` covers DNS(53), SNMP(161), DHCP(67). A forgotten UDP\nservice (SNMP with the `public` community) is pure gold on corporate networks.",
       "questions": {
         "recon-activo-escaneo-t02-q01": {
-          "prompt": "What does a SYN scan send on receiving SYN-ACK?"
+          "prompt": "What does a SYN (half-open) scan send, and what does it do when it receives a SYN-ACK?",
+          "hint": "It's called half-open for a reason: it never finishes the handshake.",
+          "options": {
+            "a": "It sends SYN and, on receiving SYN-ACK, completes the handshake with an ACK",
+            "b": "It sends SYN and, on receiving SYN-ACK, replies RST without completing the connection",
+            "c": "It sends FIN and, on receiving SYN-ACK, marks the port as filtered",
+            "d": "It sends ACK and, on receiving SYN-ACK, repeats the probe over UDP"
+          }
         },
         "recon-activo-escaneo-t02-q02": {
-          "prompt": "What are the three main port states?"
+          "prompt": "What are the three main port states?",
+          "hint": "open, closed, filtered"
         },
         "recon-activo-escaneo-t02-q03": {
-          "prompt": "What state indicates a firewall blocking?"
+          "prompt": "What state indicates a firewall blocking?",
+          "hint": "You don't know whether it's open: something is swallowing the packet.",
+          "options": {
+            "a": "closed",
+            "b": "filtered",
+            "c": "open",
+            "d": "unfiltered"
+          }
         }
       }
     },
     "3": {
       "title": "Versions",
+      "body": "## The flag that changes everything: -sV\n\n```bash\nnmap -sV -sS -p 22,80,443,445 10.10.10.5\n```\n\nWithout `-sV`, Nmap says \"port 80 open\". With `-sV`:\n\n```text\nPORT   STATE SERVICE VERSION\n22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3\n80/tcp open  http    Apache httpd 2.4.49 ((Unix))\n443/tcp open  ssl/https Apache httpd 2.4.49\n445/tcp open  netbios-ssn Samba smbd 4.6.2\n```\n\n**That output is the input for the exploit**: exact version → searchsploit → CVE.\n\n## OS detection and NSE scripts\n\n```bash\nnmap -O 10.10.10.5              # guesses the OS from the TCP/IP stack\nnmap -sV --script=banner 10.10.10.5    # grabs the services' banners\nnmap --script vuln 10.10.10.5    # scripts for known vulnerabilities (noisy!)\n```\n\n**NSE scripts** (Nmap Scripting Engine) are the heavy artillery: from detecting\nEternalBlue (`smb-vuln-ms17-010`) to enumerating SMB users\n(`smb-enum-users.nse`). There are 600+ official ones: `ls /usr/share/nmap/scripts/`.\n\n## The complete professional workflow (memorize it)\n\n```bash\n# 1. Who is alive\nnmap -sn 10.10.10.0/24\n# 2. Which ports (fast scan first)\nnmap -sS --top-ports 100 -oA scan_rapido <vivos>\n# 3. All ports on the interesting hosts\nnmap -sS -p- -oA scan_completo <objetivo>\n# 4. Versions + scripts on the open ports\nnmap -sV -sC -p <abiertos> -oA scan_versiones <objetivo>\n# 5. searchsploit <version> → exploit\n```\n\n`-oA` saves in three formats (normal, grepable, XML) for later processing. `-sC`\nruns the \"default\" scripts (safe and useful).\n\nWith this workflow you can enumerate any network in minutes. The next module (Nmap\nPro) takes it to a professional level, and after that Burp Suite does the same for\nweb applications.",
       "questions": {
         "recon-activo-escaneo-t03-q01": {
-          "prompt": "What Nmap flag detects service version?"
+          "prompt": "What Nmap flag detects service version?",
+          "hint": "Service version: -sV"
         },
         "recon-activo-escaneo-t03-q02": {
-          "prompt": "What NSE script identifies the OS?"
+          "prompt": "Which Nmap NSE script reads the welcome message each service sends on connect (which often reveals the software and its version)?",
+          "hint": "The script is named after that welcome message."
         },
         "recon-activo-escaneo-t03-q03": {
-          "prompt": "You see Apache 2.4.49. What is your NEXT action?"
+          "prompt": "You see Apache 2.4.49. What is your NEXT action?",
+          "hint": "That Apache has CVE-2021-41773 (path traversal).",
+          "options": {
+            "a": "Ignore port 80: it's just a website",
+            "b": "searchsploit apache 2.4.49 and check whether the CVE applies (path traversal + RCE)",
+            "c": "Close nmap and write the report",
+            "d": "Scan port 443 instead"
+          }
         }
       }
     },
     "4": {
       "title": "Lab: DNS enumeration and zone transfer",
+      "body": "## DNS as a map (which they sometimes hand you whole)\n\nA target's DNS enumerates its infrastructure: subdomains, mail servers,\nnameservers, and sometimes — internal hosts nobody intended to publish. The\nlab simulates a `dig` and an AXFR:\n\n```bash\ncd labs/dns-enumerate && cp flags.env.example flags.env\ndocker compose --env-file flags.env up -d\n\n# Normal queries (what anyone can see):\ncurl -s \"http://127.0.0.1:18098/dig?name=victima.com\" | jq .\ncurl -s \"http://127.0.0.1:18098/dig?name=www.victima.com\" | jq .\ncurl -s \"http://127.0.0.1:18098/dig?name=vpn.victima.com\" | jq .   # NXDOMAIN?\n\n# The real dig equivalent:\n# dig victima.com ANY && dig vpn.victima.com\n```\n\n## Zone transfer (AXFR): the full dump\n\nAXFR is the REPLICATION mechanism between nameservers: it transfers the\nENTIRE zone (every record). A misconfigured NS allows it for\nany client:\n\n```bash\ncurl -s \"http://127.0.0.1:18098/axfr?server=ns1.victima.com\" | jq .\n\n# In real life:\n# dig @ns1.victima.com victima.com AXFR\n```\n\nNotice what the dump reveals that normal queries do NOT: internal\nhosts (vpn, staging, intranet), IP addresses from private segments\nand \"forgotten\" records. It's the classic OSINT/active finding: zero\nexploitation, maximum map.\n\n## Subdomain hunting (beyond the lab)\n\n| Technique | Tool |\n|---|---|\n| Open AXFR | `dig @ns AXFR` (increasingly rare, but it still happens) |\n| Subdomain brute force | `gobuster dns -d dominio -w wordlist.txt` |\n| Certificate Transparency | crt.sh — certificates reveal hosts |\n| Passive DNS | SecurityTrails, VirusTotal |\n\n**Defense**: restrict AXFR to the IPs of the slave NSs\n(`allow-transfer { slaves; };` in BIND), and separate the internal DNS from the\nexternal one (split-horizon): .int hosts must not live in the public zone\nNOR on the same server that serves it.",
       "questions": {
         "recon-activo-escaneo-t04-q01": {
-          "prompt": "Query /dig for vpn.victima.com. What IP does it answer? (x.x.x.x format)"
+          "prompt": "Query /dig for vpn.victima.com. What IP does it answer? (x.x.x.x format)",
+          "hint": "curl 'http://127.0.0.1:18098/dig?name=vpn.victima.com' — the real-world equivalent: dig vpn.victima.com"
         },
         "recon-activo-escaneo-t04-q02": {
-          "prompt": "The nameservers allow AXFR to anyone. Dump the zone and submit the flag annotated on the staging record."
+          "prompt": "The nameservers allow AXFR to anyone. Dump the zone and submit the flag annotated on the staging record.",
+          "hint": "curl 'http://127.0.0.1:18098/axfr?server=ns1.victima.com' — in real life: dig @ns1.victima.com victima.com AXFR"
         },
         "recon-activo-escaneo-t04-q03": {
-          "prompt": "The dump lists hosts you did not know about (including a secret admin panel). Query the internal environment record (internal.victima.com) and submit its flag."
+          "prompt": "The dump lists hosts you did not know about (including a secret admin panel). Query the internal environment record (internal.victima.com) and submit its flag.",
+          "hint": "curl 'http://127.0.0.1:18098/dig?name=internal.victima.com' — the name is discovered IN the AXFR listing"
         }
       }
     }

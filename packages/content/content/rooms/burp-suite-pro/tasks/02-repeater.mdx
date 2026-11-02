@@ -8,8 +8,17 @@ questions:
     kind: text
   - id: burp-suite-pro-t02-q02
     prompt: "Quieres probar SQLi en un parámetro id. ¿Cómo lo harías en Repeater?"
-    hint: "Modifica el valor del parámetro y reenvía."
-    kind: text
+    hint: "Repeater sirve para editar la petición a mano y reenviarla."
+    kind: choice
+    options:
+      - id: a
+        label: "Activar Intercept y esperar a que la víctima haga login"
+      - id: b
+        label: "Abrir la vista Hex de la respuesta y reenviar la petición sin cambios"
+      - id: c
+        label: "Cambiar el valor del parámetro id por un payload (p. ej. 1' OR 1=1--) y pulsar Send"
+      - id: d
+        label: "Enviar la petición a Target > Site map y ordenar por Length"
   - id: burp-suite-pro-t02-q03
     prompt: "¿Qué sección de Repeater muestra las cabeceras de respuesta y el status code?"
     hint: "Response panel: Pretty view muestra todo."

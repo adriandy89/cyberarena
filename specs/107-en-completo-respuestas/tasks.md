@@ -18,7 +18,7 @@
       steganography, criptografia-pki, web-hacking-basico, owasp-top-10, explotacion-basica, reverse-engineering.
 - [ ] T006 [US1,US2] Lote CS101-III: herramientas-ofensivas, defensa-introduccion, phishing-forensics,
       threat-modeling, seguridad-soluciones, herramientas-defensivas, malware-analysis, ciberseguridad-como-carrera.
-- [ ] T007 [US1,US2] Lote JrPT-A: pentest-foundations, recon-pasivo-osint, social-engineering,
+- [x] T007 [US1,US2] Lote JrPT-A: pentest-foundations, recon-pasivo-osint, social-engineering,
       recon-activo-escaneo, nmap-pro, burp-suite-pro.
 - [x] T008 [US1,US2] Lote JrPT-B: scripting-pentest, privesc-linux, privesc-windows, password-attacks,
       pivoting-y-tunneling, active-directory-ataque.

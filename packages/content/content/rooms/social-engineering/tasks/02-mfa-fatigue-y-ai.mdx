@@ -4,8 +4,17 @@ title: "MFA fatigue, quishing y deepfakes"
 questions:
   - id: social-engineering-t02-q01
     prompt: "¿En qué consiste el ataque de MFA fatigue (push bombing)?"
-    hint: "Enviar prompts MFA en ráfaga hasta que la víctima, harta (o confundida a las 3am), aprueba 'para que pare'"
-    kind: text
+    hint: "Imagina a la víctima recibiendo una notificación de aprobación tras otra a las 3am."
+    kind: choice
+    options:
+      - id: a
+        label: "Clonar la SIM de la víctima para recibir sus códigos por SMS"
+      - id: b
+        label: "Probar por fuerza bruta todos los códigos TOTP de 6 dígitos"
+      - id: c
+        label: "Enviar prompts MFA en ráfaga hasta que la víctima apruebe uno para que paren"
+      - id: d
+        label: "Robar el móvil de la víctima para aprobar el acceso"
   - id: social-engineering-t02-q02
     prompt: "¿Qué ajuste de la app MFA elimina el push bombing al exigir coincidir un número mostrado en pantalla?"
     hint: "Number matching (muestra un dígito que debes teclear en el móvil) — Microsoft lo activó por defecto en 2023"
@@ -15,9 +24,18 @@ questions:
     hint: "Quishing (QR + phishing): rodea analizadores de email de links y cae en el móvil personal, fuera del MDM"
     kind: text
   - id: social-engineering-t02-q04
-    prompt: "¿Qué hace los deepfakes de voz/video especialmente efectivos contra los procesos de aprobación financiera?"
-    hint: "Imitan a la autoridad real (CEO/CFO) en tiempo real — vencen el 'llamar a verificar' si el número también está comprometido; el caso Arup 2024 (25M$) fue una videollamada deepfake completa"
-    kind: text
+    prompt: "¿Qué hace que los deepfakes de voz/video sean especialmente efectivos contra los procesos de aprobación financiera?"
+    hint: "Recuerda el caso Arup 2024 (25M$): una videollamada completa con 'compañeros' falsos."
+    kind: choice
+    options:
+      - id: a
+        label: "Suplantan en tiempo real a la autoridad (CEO/CFO) y vencen la verificación por llamada"
+      - id: b
+        label: "Llevan malware incrustado que aprueba el pago automáticamente"
+      - id: c
+        label: "Solo funcionan si la víctima no tiene antivirus"
+      - id: d
+        label: "Se envían siempre desde el dominio de correo legítimo de la empresa"
 ---
 
 ## MFA no es el final: fatiga el push

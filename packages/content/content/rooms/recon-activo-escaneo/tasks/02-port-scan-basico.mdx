@@ -4,8 +4,17 @@ title: "Port scan básico: ¿qué puertas están abiertas?"
 questions:
   - id: recon-activo-escaneo-t02-q01
     prompt: "¿Qué envía un SYN scan (half-open) y qué hace al recibir SYN-ACK?"
-    hint: "Envía SYN; al recibir SYN-ACK responde RST (no completa la conexión)."
-    kind: text
+    hint: "Por algo se llama half-open: nunca termina el handshake."
+    kind: choice
+    options:
+      - id: a
+        label: "Envía SYN y, al recibir SYN-ACK, completa el handshake con un ACK"
+      - id: b
+        label: "Envía SYN y, al recibir SYN-ACK, responde RST sin completar la conexión"
+      - id: c
+        label: "Envía FIN y, al recibir SYN-ACK, marca el puerto como filtered"
+      - id: d
+        label: "Envía ACK y, al recibir SYN-ACK, repite la prueba por UDP"
   - id: recon-activo-escaneo-t02-q02
     prompt: "¿Qué estados de puerto reporta Nmap? (los tres principales)"
     hint: "open, closed, filtered"

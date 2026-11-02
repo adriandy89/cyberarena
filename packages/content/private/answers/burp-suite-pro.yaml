@@ -1,11 +1,24 @@
 # Respuestas del room burp-suite-pro.
 # PRIVADO: el seed lo hashea a la tabla Answer.
-burp-suite-pro-t01-q01: HTTP History
-burp-suite-pro-t01-q02: Site map
+burp-suite-pro-t01-q01:
+  - "HTTP History"
+  - "Proxy > HTTP History"
+burp-suite-pro-t01-q02:
+  - "Site map"
+  - Sitemap
+  - "Target > Site map"
+  - "Target > Sitemap"
 burp-suite-pro-t01-q03: b
 burp-suite-pro-t02-q01: Render
-burp-suite-pro-t02-q02: "cambiar el valor del parametro id por un payload y enviar"
+burp-suite-pro-t02-q02: c
 burp-suite-pro-t02-q03: b
-burp-suite-pro-t03-q01: "§"
+burp-suite-pro-t03-q01:
+  - "§"
+  - "§§"
+  - "section sign"
+  - "signo de sección"
+  - "signo de seccion"
+  - "símbolo de sección"
+  - "simbolo de seccion"
 burp-suite-pro-t03-q02: Sniper
 burp-suite-pro-t03-q03: b
