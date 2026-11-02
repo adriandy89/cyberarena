@@ -82,6 +82,26 @@ en secreto Docker, manifiesto inmutable dentro de la imagen, lint de composes, s
 runtime, `read_only` + tmpfs, `cap_drop: ALL`, `no-new-privileges`, límites de recursos. Postgres de
 prod solo en `127.0.0.1` para que ningún lab lo alcance por la gateway del bridge.
 
-## Spike T002 — resultado
+## Spike T002 — resultado (2026-11-02, Docker Desktop: Engine 29.9.2, Compose 5.6.1)
 
-_(pendiente)_
+Se ejecutó `docker compose` dentro de `docker:29-cli` (trae el plugin compose v5.6.1 en
+`/usr/local/libexec/docker/cli-plugins/`) con `docker.sock`, los labs montados en `/labs:ro` y el
+volumen de assets en `/assets`.
+
+| Prueba | Resultado |
+|---|---|
+| `sqli-basico`: bind `./site` → `volumes: !override` con `type: volume` + `subpath: sqli-basico/site` | ✅ `up --wait` correcto; `GET 127.0.0.1:18081` → 200 desde el host; montaje `RW:false` |
+| `privesc-linux-1`: bind de **un fichero** (`./setup.sh`) → `subpath: privesc-linux-1/setup.sh` | ✅ el fichero se monta y es de solo lectura (`touch` → read-only) |
+| `docker compose config` con el override | ✅ el bind original desaparece; queda solo el volumen |
+| `docker compose -p <proyecto> down -v` **sin** `-f` ni `--env-file` | ✅ apaga por etiqueta de proyecto: el runner no necesita las flags para apagar |
+| El volumen `external` sobrevive a `down -v` | ✅ |
+
+Conclusiones para la implementación:
+
+- Se adopta el diseño del volumen de assets (no hace falta el plan B del mirror mount).
+- `docker compose ls --all` lista **todos** los proyectos del host (también de otros proyectos del
+  usuario): el runner filtra estrictamente por los nombres de proyecto del manifiesto.
+- El runner usa `docker:29-cli` como base de la que copiar el CLI y el plugin compose.
+- **privesc-linux-1 no se puede resolver hoy**: con `no-new-privileges` el SUID de `find` (busybox) y
+  `sudo vim` no escalan (`NoNewPrivs: 1`; sudo lo dice explícitamente). T005 lo declara como excepción
+  documentada del lint y vuelve a verificar los vectores.

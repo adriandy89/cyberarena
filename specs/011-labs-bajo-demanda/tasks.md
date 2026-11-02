@@ -5,7 +5,7 @@
 ## Fase A — Specs y base
 
 - [x] T001 spec/plan/tasks 011; ADR-015 (runner con `docker.sock`); changelog de la 007; ROADMAP.
-- [ ] T002 Spike: compose dentro de un contenedor con volumen de assets, `volume.subpath` (directorio y
+- [x] T002 Spike: compose dentro de un contenedor con volumen de assets, `volume.subpath` (directorio y
       fichero suelto) y `!override`; resultado en `plan.md`.
 - [ ] T003 Throttling real: `trust proxy`, `x-forwarded-for` desde el SSR, `@SkipThrottle` en health y
       catálogo, límites por ruta, `rateLimit` de better-auth; tests.
