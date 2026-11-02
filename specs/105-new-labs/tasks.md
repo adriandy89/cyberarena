@@ -84,3 +84,16 @@ E2E 11/11 contra `next start`.
   origen desde fuera → la técnica se práctica con docker exec (pivot).
 
 ## Estado: 18/18 labs implementados ✅
+
+## Sweep final (2026-11-02, mismo día)
+
+Auditoría labs↔rooms: ningún room referencia labs inexistentes, pero 5
+labs no estaban cableados en frontmatter. Resultado del sweep:
+- 4 ya tenían tasks teóricas (spec 104) — añadidas preguntas de flag:
+  sqli-blind (oráculo booleano verificado F=✅/Z=❌; /status oráculo sobre
+  config.api_key), xss-advanced (DOM/bypass/CSP), ssrf-deep y
+  crypto-puzzle ya tenían flags.
+- dns-enumerate: task 4 NUEVA en recon-activo-escaneo + wiring del lab.
+- Catálogo final del sweep: 51 rooms / 410 answers / 142 tasks.
+- Verificación local completa: build 5/5, lint 9/9, typecheck 10/10,
+  test 6/6, E2E 11/11. ROADMAP actualizado con F13/F14.
