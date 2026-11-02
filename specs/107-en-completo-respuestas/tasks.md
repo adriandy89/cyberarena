@@ -31,7 +31,7 @@
 
 ## Fase C — Cierre
 
-- [ ] T012 [US3] Cobertura EN obligatoria en el build (`--strict-en` por defecto); E2E `/en` (teoría en
+- [x] T012 [US3] Cobertura EN obligatoria en el build (`--strict-en` por defecto); E2E `/en` (teoría en
       inglés y respuesta alternativa aceptada); verificación completa; changelog; ROADMAP.
 
 ## Bugs/Deuda

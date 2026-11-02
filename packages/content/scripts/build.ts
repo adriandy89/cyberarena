@@ -40,10 +40,10 @@ const DIST = path.join(ROOT, 'dist');
 // CLI flags:
 //   --dry-run              validate everything, write nothing (safe for parallel checks)
 //   --en-report[=a,b]      list missing EN items for every room (or only those slugs)
-//   --strict-en            fail when any EN item is missing
+//   --allow-en-gaps        do not fail on missing EN items (default: fail — spec 107)
 const ARGS = process.argv.slice(2);
 const DRY_RUN = ARGS.includes('--dry-run');
-const STRICT_EN = ARGS.includes('--strict-en');
+const STRICT_EN = !ARGS.includes('--allow-en-gaps');
 const EN_REPORT_ARG = ARGS.find((arg) => arg.startsWith('--en-report'));
 const EN_REPORT: string[] | null = EN_REPORT_ARG
   ? (EN_REPORT_ARG.split('=')[1] ?? '').split(',').filter(Boolean)

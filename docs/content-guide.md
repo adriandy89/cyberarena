@@ -105,8 +105,13 @@ respuestas de texto de 4+ palabras en lenguaje natural.
    (fase 007) y se siembran igual por el pipeline.
 8. **Orden de rutas** (fase 010): cada path declara `order` único; dos rutas con el mismo
    `order` rompen el build.
-9. **Bilingüe**: todo path y módulo necesita su entrada en `translations/en/_catalog.json`;
-   si falta, el build falla. Al crear un módulo nuevo, añade su traducción en el mismo cambio.
+9. **Bilingüe obligatorio** (fases 010 y 107): todo path y módulo necesita su entrada en
+   `translations/en/_catalog.json`, y todo room su `translations/en/<room>.json` completo: título,
+   descripción y, por tarea, `title` y `body`; por pregunta, `prompt`, `hint` (si el español la
+   tiene) y `options` (`{ "a": "…" }`) en las de test. Si falta algo, **el build falla**.
+   - `pnpm --filter @repo/content exec tsx scripts/build.ts --dry-run --en-report=<slug>` lista
+     lo que falta sin escribir `dist/`; `--allow-en-gaps` solo para borradores locales.
+   - En el cuerpo EN, los bloques de código se copian idénticos: solo se traducen los comentarios.
 10. **Avisos de orden** (no bloquean, pero revísalos): el build avisa si un room es más fácil
     que el anterior de su módulo (los `info` no cuentan) o si una tarea enlaza
     `/rooms/<slug>` a un room que llega más tarde. Evita frases como «el siguiente módulo»

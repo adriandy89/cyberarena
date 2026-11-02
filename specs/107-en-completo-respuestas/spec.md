@@ -1,10 +1,25 @@
 # Spec 107 — Inglés completo y respuestas que se puedan acertar
 
-- **Estado:** en curso
+- **Estado:** completada (2026-11-02)
 - **Creada:** 2026-11-02
 - **Changelog:**
   - 2026-11-02 primera versión, a partir de la deuda T902 de la fase 010 y de la auditoría de
     respuestas hecha al cerrarla.
+  - 2026-11-02 completada. Contenido en 8 lotes de rooms trabajados en paralelo por agentes (sin
+    solaparse) y revisados uno a uno antes de cada commit. Resultado: **0 elementos sin EN** (antes
+    995) y **0 respuestas-frase** (antes 86); ~70 preguntas pasaron a  con la misma id y
+    cientos de respuestas aceptan variantes ES/EN. Verificación: lint/typecheck/test/build en verde
+    (shared 36, content 20, api 67), seed doble estable ( guardados), E2E 24/24 contra
+    un stack local, incluido  (teoría EN y "Rules of Engagement" aceptada).
+  - **Errores de contenido encontrados y corregidos de paso** (no estaban en el alcance inicial):
+    flag de bienvenida mal escrita en la guía; dos preguntas de flag sin solución (pedían la flag
+    de otro lab o repetían la anterior); pregunta de chisel que pedía el servidor y esperaba el
+    cliente; pregunta de LSASS que pedía una herramienta de Sysinternals; consejo falso «CAT evade
+    un filtro sensible a mayúsculas»; reto de SSRF que no decía qué lab levantar; año de RockYou;
+    script  descrito como detección de SO; enunciados en inglés dentro del español,
+    mojibake y erratas.
+  - **Modelos:** dos lotes (JrPT-B y Advanced) los bloqueó el filtro de seguridad de Opus por su
+    temática ofensiva; se rehicieron con Sonnet con el mismo encargo y la misma revisión.
 
 ## 1. Propósito
 
@@ -49,10 +64,10 @@ Además, las respuestas no son justas:
 
 ## 4. Criterios de éxito
 
-- [ ] 0 elementos sin EN en el informe de cobertura; el build falla si aparece uno nuevo.
-- [ ] 0 respuestas de texto en lenguaje natural de 4+ palabras.
-- [ ] Una pregunta con alternativas se acierta en ES y en EN (test de API + E2E en `/en`).
-- [ ] `pnpm lint && typecheck && test && build` y `pnpm test:e2e` en verde; seed doble estable.
+- [x] 0 elementos sin EN en el informe de cobertura; el build falla si aparece uno nuevo.
+- [x] 0 respuestas de texto en lenguaje natural de 4+ palabras.
+- [x] Una pregunta con alternativas se acierta en ES y en EN (test de API + E2E en `/en`).
+- [x] `pnpm lint && typecheck && test && build` y `pnpm test:e2e` en verde; seed doble estable.
 
 ## 5. Fuera de alcance
 
