@@ -69,3 +69,32 @@ export interface LabsInfo {
   maxRunning: number;
   idleTimeoutMinutes: number;
 }
+
+/** GET /api/admin/labs: what an admin sees about labs (phase 011). */
+export interface AdminLabsOverview {
+  info: LabsInfo;
+  health: {
+    enabled: boolean;
+    runner: 'up' | 'down' | 'disabled';
+    running: number | null;
+    lastSweepAt: string | null;
+    sweepOk: boolean | null;
+    stale: boolean;
+  };
+  lastSweep: {
+    at: string;
+    ok: boolean;
+    expired: number;
+    stopped: string[];
+    renewed: number;
+    notRunning: string[];
+    error?: string;
+  } | null;
+  labs: Array<{
+    slug: string;
+    roomSlug: string | null;
+    state: LabState;
+    users: Array<{ userId: string; name: string | null; email: string | null; startedAt: string; lastSeenAt: string; maxUntil: string }>;
+  }>;
+  events: Array<{ at: string; labSlug: string; type: string; user: { name: string; email: string } | null; detail: unknown }>;
+}

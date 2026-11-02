@@ -79,6 +79,9 @@ services:
       LABS_ENABLED: ${LABS_ENABLED:-false}
       LAB_RUNNER_URL: http://lab-runner:4100
       LAB_RUNNER_TOKEN: ${LAB_RUNNER_TOKEN:-}
+      # Tunable in dev to watch the reaper work (defaults are the agreed policy).
+      LAB_IDLE_TIMEOUT_MIN: ${LAB_IDLE_TIMEOUT_MIN:-10}
+      LAB_SWEEP_SECONDS: ${LAB_SWEEP_SECONDS:-60}
     ports:
       - '${API_PORT:-3001}:3001'
     volumes:

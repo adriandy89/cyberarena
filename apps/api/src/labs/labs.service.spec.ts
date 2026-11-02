@@ -1,7 +1,10 @@
 import { HttpException } from '@nestjs/common';
 import { beforeEach, describe, expect, it } from 'vitest';
+import type { AuthUser } from '../auth/auth-module-types';
 import type { PrismaService } from '../prisma/prisma.service';
+import { AdminLabsController } from './admin-labs.controller';
 import { loadLabsConfig, type LabsConfig } from './labs.config';
+import { LabsReaper } from './labs.reaper';
 import { LabsService } from './labs.service';
 import { RunnerRejectedError, RunnerUnavailableError, type LabRunnerClient, type RunnerLabView } from './runner.client';
 
@@ -16,7 +19,11 @@ interface LeaseRow {
 /** In-memory Prisma for the tables the labs service touches; transactions roll back on error. */
 class FakePrisma {
   leases = new Map<string, LeaseRow>();
-  events: Array<{ labSlug: string; userId: string | null; type: string; detail?: unknown }> = [];
+  events: Array<{ labSlug: string; userId: string | null; type: string; detail?: unknown; at: Date }> = [];
+  users = [
+    { id: 'ana', name: 'Ana', email: 'ana@test' },
+    { id: 'bob', name: 'Bob', email: 'bob@test' },
+  ];
   rooms = [
     { slug: 'sqli-basico', lab: 'sqli-basico', extraLabs: ['sqli-blind'] },
     { slug: 'privesc-linux', lab: 'privesc-linux-1', extraLabs: [] },
@@ -46,14 +53,38 @@ class FakePrisma {
       this.leases.delete(where.userId);
       return {};
     },
+    deleteMany: async ({ where = {} }: { where?: { labSlug?: string } }) => {
+      let count = 0;
+      for (const [userId, row] of this.leases) {
+        if (where.labSlug === undefined || row.labSlug === where.labSlug) {
+          this.leases.delete(userId);
+          count++;
+        }
+      }
+      return { count };
+    },
   };
 
   labEvent = {
     create: async ({ data }: { data: { labSlug: string; userId: string | null; type: string; detail?: unknown } }) => {
-      this.events.push(data);
-      return data;
+      const event = { ...data, at: this.clock() };
+      this.events.push(event);
+      return event;
+    },
+    findMany: async () => [...this.events].reverse().map((event) => ({ ...event, detail: event.detail ?? null })),
+    deleteMany: async ({ where }: { where: { at: { lt: Date } } }) => {
+      const before = this.events.length;
+      this.events = this.events.filter((event) => event.at >= where.at.lt);
+      return { count: before - this.events.length };
     },
   };
+
+  user = {
+    findMany: async ({ where }: { where: { id: { in: string[] } } }) =>
+      this.users.filter((user) => where.id.in.includes(user.id)),
+  };
+
+  clock: () => Date = () => new Date();
 
   room = { findMany: async () => this.rooms };
 
@@ -111,7 +142,19 @@ class FakeRunner {
   }
   async renew(slugs: string[], ttl: number) {
     this.calls.push(`renew ${slugs.join(',')} ${ttl}`);
+    if (this.failWith) throw this.failWith;
     return { renewed: slugs, notRunning: [] };
+  }
+  async health() {
+    if (this.failWith) throw this.failWith;
+    return { ok: true, running: [...this.state.values()].filter((state) => state !== 'stopped').length };
+  }
+  async list() {
+    return [...this.state.keys()].map((slug) => this.view(slug));
+  }
+  async downAll() {
+    this.calls.push('down-all');
+    this.state.clear();
   }
 }
 
@@ -144,6 +187,7 @@ async function codeOf(promise: Promise<unknown>): Promise<{ status: number; body
 
 beforeEach(() => {
   prisma = new FakePrisma();
+  prisma.clock = () => now;
   runner = new FakeRunner();
   config = loadLabsConfig({ LABS_ENABLED: 'true', LAB_RUNNER_TOKEN: TOKEN });
   now = new Date('2026-11-02T10:00:00Z');
@@ -309,5 +353,120 @@ describe('loadLabsConfig', () => {
     expect(() =>
       loadLabsConfig({ LAB_SESSION_MAX_MIN: '300', LAB_SESSION_CAP_MIN: '240' }),
     ).toThrow(/CAP/);
+  });
+});
+
+describe('LabsReaper', () => {
+  function makeReaper(overrides: Partial<LabsConfig> = {}) {
+    const service = makeService(overrides);
+    const reaper = new LabsReaper(
+      prisma as unknown as PrismaService,
+      { ...config, ...overrides },
+      runner as unknown as LabRunnerClient,
+      service,
+    );
+    reaper.clock = () => now;
+    return { service, reaper };
+  }
+
+  it('expires idle and overdue leases, stops labs nobody holds and renews the rest', async () => {
+    const { service, reaper } = makeReaper();
+    await service.start('sqli-basico', 'ana');
+    await service.start('xss-reflejado', 'bob');
+    await service.start('xss-reflejado', 'cid');
+    now = new Date(now.getTime() + 8 * MIN);
+    await service.heartbeat('xss-reflejado', 'cid'); // only cid keeps its page open
+    now = new Date(now.getTime() + 3 * MIN);
+    runner.calls = [];
+    const result = await reaper.sweep();
+    expect(result).toMatchObject({ ok: true, runnerUp: true, expired: 2, stopped: ['sqli-basico'], renewed: 1 });
+    expect([...prisma.leases.keys()]).toEqual(['cid']);
+    expect(prisma.events.filter((event) => event.type === 'EXPIRE_IDLE').map((event) => event.userId).sort()).toEqual(['ana', 'bob']);
+    expect(runner.calls).toEqual(['down sqli-basico', 'renew xss-reflejado 180']);
+  });
+
+  it('expires a lease at maxUntil even with heartbeats', async () => {
+    const { service, reaper } = makeReaper();
+    await service.start('sqli-basico', 'ana');
+    now = new Date(now.getTime() + 120 * MIN);
+    prisma.leases.get('ana')!.lastSeenAt = now;
+    await reaper.sweep();
+    expect(prisma.events.at(-1)).toMatchObject({ type: 'EXPIRE_MAX', userId: 'ana' });
+  });
+
+  it('keeps expiring leases when the runner is down (the runner deadline stops the lab)', async () => {
+    const { service, reaper } = makeReaper();
+    await service.start('sqli-basico', 'ana');
+    now = new Date(now.getTime() + 11 * MIN);
+    runner.failWith = new RunnerUnavailableError('down');
+    const result = await reaper.sweep();
+    expect(result).toMatchObject({ ok: true, runnerUp: false, expired: 1, stopped: [] });
+    expect(prisma.leases.size).toBe(0);
+  });
+
+  it('prunes audit events older than 30 days', async () => {
+    const { service, reaper } = makeReaper();
+    await service.start('sqli-basico', 'ana');
+    await service.stop('sqli-basico', 'ana');
+    now = new Date(now.getTime() + 31 * 24 * 60 * MIN);
+    await reaper.sweep();
+    expect(prisma.events).toEqual([]);
+  });
+
+  it('reports its health: stale before the first sweep, runner state, disabled', async () => {
+    const { reaper } = makeReaper();
+    expect(await reaper.snapshot()).toMatchObject({ enabled: true, runner: 'up', stale: true, lastSweepAt: null });
+    await reaper.sweep();
+    expect(await reaper.snapshot()).toMatchObject({ stale: false, sweepOk: true });
+    now = new Date(now.getTime() + 4 * MIN);
+    expect((await reaper.snapshot()).stale).toBe(true);
+    runner.failWith = new RunnerUnavailableError('down');
+    expect((await reaper.snapshot()).runner).toBe('down');
+    expect(await makeReaper({ enabled: false }).reaper.snapshot()).toMatchObject({ enabled: false, runner: 'disabled' });
+  });
+});
+
+describe('AdminLabsController', () => {
+  function makeAdmin() {
+    const service = makeService();
+    const reaper = new LabsReaper(prisma as unknown as PrismaService, config, runner as unknown as LabRunnerClient, service);
+    reaper.clock = () => now;
+    const controller = new AdminLabsController(
+      prisma as unknown as PrismaService,
+      service,
+      reaper,
+      runner as unknown as LabRunnerClient,
+    );
+    return { service, controller };
+  }
+  const admin = { id: 'root' } as AuthUser;
+
+  it('lists labs in use with their users and the latest events', async () => {
+    const { service, controller } = makeAdmin();
+    await service.start('sqli-basico', 'ana');
+    await service.start('sqli-basico', 'bob');
+    const overview = await controller.overview();
+    expect(overview.labs).toEqual([
+      expect.objectContaining({
+        slug: 'sqli-basico',
+        roomSlug: 'sqli-basico',
+        state: 'starting',
+        users: [expect.objectContaining({ email: 'ana@test' }), expect.objectContaining({ email: 'bob@test' })],
+      }),
+    ]);
+    expect(overview.events[0]).toMatchObject({ type: 'START', user: { email: 'bob@test' } });
+  });
+
+  it('stops one lab or everything, ending the leases', async () => {
+    const { service, controller } = makeAdmin();
+    await service.start('sqli-basico', 'ana');
+    await service.start('xss-reflejado', 'bob');
+    await controller.stop('sqli-basico', admin);
+    expect([...prisma.leases.keys()]).toEqual(['bob']);
+    expect(runner.calls).toContain('down sqli-basico');
+    await controller.stopAll(admin);
+    expect(prisma.leases.size).toBe(0);
+    expect(runner.calls).toContain('down-all');
+    expect(prisma.events.map((event) => event.type).slice(-2)).toEqual(['ADMIN_STOP', 'STOP_ALL']);
   });
 });

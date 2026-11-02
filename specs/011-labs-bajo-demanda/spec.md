@@ -26,6 +26,12 @@
     `restart=no`, 256 MB/128 pids/0,5 CPU; sin renovar, se apaga al vencer el plazo; un lab levantado a
     mano se adopta y se apaga a los 60 s; SIGTERM al runner apaga todos los labs; al arrancar adopta lo
     que encuentra. La imagen no contiene ningún `.env`.
+  - 2026-11-02 T009–T010, verificado en vivo (API de dev + runner real, inactividad 1 min, barrido 10 s):
+    `GET /api/labs` público; arrancar → `running` y HTTP 200 en 127.0.0.1:18081; un segundo usuario
+    comparte el lab (`users=2`); segundo lab sin `switch` → 409 `LAB_OTHER_ACTIVE`; ampliar fuera de la
+    ventana → `LAB_CANNOT_EXTEND`; al detener uno, el lab sigue para el otro; sin latidos, el reaper
+    caduca la reserva (`EXPIRE_IDLE`) y apaga el lab; `/api/health` informa del barrido. El bloqueo
+    consultivo se comprobó contra Postgres real (se mantiene en la transacción y se libera al terminar).
 
 ## 1. Propósito
 

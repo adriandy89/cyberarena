@@ -5,6 +5,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/auth-module-types';
 import { SessionGuard } from '../auth/session.guard';
 import { RATE_LIMITS } from '../http/rate-limits';
+import { LabsService } from '../labs/labs.service';
 import { RoomsService } from './rooms.service';
 
 const submitAnswerSchema = z.object({
@@ -15,7 +16,10 @@ const submitAnswerSchema = z.object({
 @Controller('rooms')
 @UseGuards(SessionGuard)
 export class RoomsController {
-  constructor(private readonly rooms: RoomsService) {}
+  constructor(
+    private readonly rooms: RoomsService,
+    private readonly labs: LabsService,
+  ) {}
 
   /** Checks an answer server-side (hash comparison, ADR-011) and awards XP. */
   @Throttle(RATE_LIMITS.answers)
@@ -25,6 +29,8 @@ export class RoomsController {
     @Body({ schema: submitAnswerSchema }) body: { questionId: string; answer: string },
     @CurrentUser() user: AuthUser,
   ) {
+    // Working on the room counts as using its lab (phase 011): best effort.
+    void this.labs.touchForRoom(user.id, slug).catch(() => undefined);
     return this.rooms.submitAnswer(user.id, slug, body.questionId, body.answer);
   }
 
