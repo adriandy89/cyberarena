@@ -11,7 +11,7 @@
   - la api carga también el `.env` de la raíz (`pnpm dev`);
   - el stack de dev compila dependencias, migra y hace el seed al arrancar;
   - verificado en un clon nuevo.
-- [ ] T004 README en inglés (open source) con captura, `LICENSE` (MIT), `CONTRIBUTING.md`, `SECURITY.md` y la descripción del proyecto.
+- [x] T004 README en inglés (open source) con captura, `LICENSE` (MIT), `CONTRIBUTING.md`, `SECURITY.md` y la descripción del proyecto.
 - [ ] T005 Cierre: gate, registro, 012 T901 (primer run de GitHub Actions) y ROADMAP.
 
 ## Registro
@@ -90,3 +90,24 @@
   - Para que `next dev` arrancara hubo que parar la web de la variante A: comparten `apps/web/.next/dev` (anotado en el runbook).
 - **Limpieza:** contenedores, red y volúmenes `ca-oss_*` borrados (sin `down -v`, para no tocar `cyberarena-lab-assets`), procesos de prueba terminados y clon borrado.
 - **Gate:** `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
+
+### 2026-11-02 — T004, documentación open source
+
+- **`README.md` en inglés**, con la captura `docs/assets/image.jpg`. Secciones:
+  - funcionalidades;
+  - contenido (tabla de paths);
+  - arquitectura y stack;
+  - arranque local paso a paso: opción A (Docker) y opción B (`pnpm dev`), ambas verificadas en T003;
+  - labs;
+  - despliegue;
+  - desarrollo;
+  - estructura;
+  - documentación;
+  - seguridad;
+  - contribución;
+  - licencia, con un aviso de no afiliación con TryHackMe.
+- **`LICENSE`** MIT; `"license": "MIT"` en `package.json`.
+- **`CONTRIBUTING.md`:** flujo SDD, Conventional Commits, el gate, idiomas, contenido y reglas de los labs.
+- **`SECURITY.md`:** reporte privado por GitHub. El alcance excluye las vulnerabilidades intencionadas y las respuestas del repo, y hay recomendaciones de despliegue.
+- **Descripción del proyecto** sin "personal" en `package.json` y en los metadatos de la web (ES/EN).
+- Todos los enlaces relativos del README, CONTRIBUTING y SECURITY apuntan a ficheros existentes.

@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "CyberArena — Aprende ciberseguridad practicando",
-    "description": "Plataforma personal de aprendizaje de ciberseguridad estilo TryHackMe: rutas de novato a experto, rooms con flags, labs Docker y gamificación."
+    "description": "Plataforma open source de aprendizaje de ciberseguridad: rutas de novato a experto, rooms con flags, labs Docker aislados y gamificación."
   },
   "HomePage": {
     "hero": {

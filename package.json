@@ -2,7 +2,8 @@
   "name": "cyberarena",
   "version": "0.1.0",
   "private": true,
-  "description": "Plataforma personal de aprendizaje de ciberseguridad estilo TryHackMe: rutas, rooms, flags, labs Docker y gamificación. Bilingüe ES/EN.",
+  "description": "Open-source, self-hosted cybersecurity learning platform: guided paths, rooms with flags, on-demand Docker labs and gamification. Bilingual (ES/EN).",
+  "license": "MIT",
   "packageManager": "pnpm@11.18.0",
   "engines": {
     "node": ">=22.0.0"
