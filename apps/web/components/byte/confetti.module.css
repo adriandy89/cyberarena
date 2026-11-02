@@ -1,0 +1,30 @@
+.layer {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  z-index: 50;
+}
+
+.piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  animation: burst var(--duration) cubic-bezier(0.2, 0.7, 0.4, 1) var(--delay) forwards;
+}
+
+@keyframes burst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(calc(var(--x) * 0.7), var(--peak)) rotate(calc(var(--r) * 0.5));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--y)) rotate(var(--r));
+  }
+}

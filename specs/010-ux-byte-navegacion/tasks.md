@@ -16,7 +16,7 @@
 
 - [x] T004 [US3,US5,US7] `byte.tsx` + `byte.module.css` (12 estados, SSR, reduced-motion)
       + galería `/[locale]/dev/byte` (solo dev).
-- [ ] T005 [US3,US5] `byte-bubble.tsx` (typewriter, aria-live), `byte-scene.tsx`, `confetti.tsx`.
+- [x] T005 [US3,US5] `byte-bubble.tsx` (typewriter, aria-live), `byte-scene.tsx`, `confetti.tsx`.
 - [ ] T006 [US3] `byte-provider.tsx` + `useByte()` (cola por prioridad) + namespace `Byte` es/en.
 - [ ] T007 [US5] `byte-companion.tsx` (full/mini/off persistido, tips por página, se aparta).
 

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { BYTE_MOODS, Byte, type ByteSize } from '../../../../components/byte/byte';
+import { ByteScene } from '../../../../components/byte/byte-scene';
 
 const SIZES: ByteSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 
@@ -43,6 +44,18 @@ export default function ByteGalleryPage() {
           <Byte mood="point" direction="left" size="md" />
           <code className="font-mono text-xs text-slate-500">point · left</code>
         </div>
+      </div>
+
+      <h2 className="mt-12 text-lg font-semibold">Scenes</h2>
+      <div className="mt-4 grid gap-6 rounded-xl border border-slate-800 bg-slate-900/40 p-6 md:grid-cols-2">
+        <ByteScene mood="wave" message="Row layout with a typed message for sections." typing />
+        <ByteScene mood="sad" tone="danger" message="Danger tone, used for wrong answers." />
+        <ByteScene mood="hint" tone="warn" message="Warn tone, used for hints." layout="column" />
+        <ByteScene mood="celebrate" tone="success" message="Success tone with actions." layout="column">
+          <span className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-slate-950">
+            Action
+          </span>
+        </ByteScene>
       </div>
     </div>
   );
