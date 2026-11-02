@@ -117,30 +117,76 @@ respuestas de texto de 4+ palabras en lenguaje natural.
     `/rooms/<slug>` a un room que llega más tarde. Evita frases como «el siguiente módulo»
     cuando el contenido está en otra ruta: nombra la ruta o el módulo.
 
-## Labs (fase 007)
+## Labs (fases 007 y 011)
 
 Los rooms con laboratorio declaran en el frontmatter `lab: <slug>` y opcionalmente
 `labUrl` (la URL del servicio principal, ej. `http://127.0.0.1:18080` — validación:
-`labUrl` exige `lab`). El room player muestra el **LabPanel** con los comandos up/down.
+`labUrl` exige `lab`). Si alguna tarea usa un **segundo lab**, decláralo en
+`extraLabs: [<slug>]` (requiere `lab`; no puede repetirlo). El build comprueba que cada
+slug tiene su `labs/<slug>/compose.yaml`.
 
-Patrón de lab declarativo (ver `labs/web-recon-1/` como referencia):
+El room player muestra el **LabPanel**:
+
+- con `LABS_ENABLED=true` (fase 011, ADR-015) el estudiante arranca el lab con un clic; corre
+  en el servidor, se comparte entre quienes lo usan a la vez y se apaga solo (10 min sin la
+  página abierta, 2 h por sesión ampliables a 4 h, 1 lab por estudiante, 3 a la vez);
+- sin él, muestra los comandos `docker compose` para levantarlo a mano.
+
+Patrón de lab declarativo (ver `labs/_template/` y `labs/web-recon-1/`):
 
 ```
 labs/<slug>/
-├── compose.yaml        # imagen pública + entrypoint que sustituye placeholders
-├── site/               # plantillas con __FLAG_n__ (montadas read-only)
+├── compose.yaml        # imagen pública con tag fijo + bloque x-cyberarena
+├── site/               # ficheros del servicio (montados :ro)
 ├── README.md           # objetivo, servicios, puertos, prerrequisitos
-└── flags.env.example   # FLAG_n=placeholder (flags.env real va gitignored)
+└── flags.env.example   # FLAG_n=FLAG{...}: los valores reales del lab
 ```
 
-**Convención flags↔respuestas (revisión humana)**: los valores de `flags.env` del lab
-deben coincidir con `private/answers/<room>.yaml` (la comparación es case-insensitive).
-El pipeline NO puede validar esta coincidencia (el env no se commitea): al crear un
-lab, verifica ambos lados antes de publicar el room.
+```yaml
+name: lab-<slug>
+x-cyberarena:
+  access: http            # http: enlace a `url` (o al primer puerto tcp); exec: docker exec
+  # url: http://127.0.0.1:18080/
+  # exceptions:           # solo cap-drop, cap-add, security-opt o limits, siempre con motivo
+  #   - { rule: limits, service: web, reason: "por qué necesita más de 512m / 1 CPU / 256 pids" }
+services:
+  web:
+    image: python:3.12-alpine
+    volumes: ['./site:/site:ro']
+    environment:
+      FLAG_1: ${FLAG_1:?set FLAG_1}
+    ports: ['127.0.0.1:18117:8080']
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
+    networks: [lab]
+networks:
+  lab:
+    name: lab-<slug>
+```
 
-Reglas de seguridad del lab (ya en la plantilla y en `labs/_template`): red interna
-aislada, puertos publicados solo en `127.0.0.1`, `cap_drop: ALL` + caps mínimas,
-`no-new-privileges`, y `down -v` SIEMPRE al terminar.
+**Lint obligatorio** (`pnpm --filter @repo/lab-runner manifest`, parte de `pnpm build`):
+puertos solo en `127.0.0.1` y únicos entre labs; nada de `privileged`, red/pid/ipc del host,
+dispositivos ni `build:`; volúmenes solo `./relativos:ro` o con nombre (nunca `docker.sock`
+ni rutas absolutas); `cap_drop: [ALL]` + `cap_add` de la lista blanca (CHOWN, SETUID, SETGID,
+DAC_OVERRIDE, FOWNER, NET_BIND_SERVICE); `no-new-privileges`; límites `mem_limit` ≤ 512m,
+`cpus` ≤ 1, `pids_limit` ≤ 256; `restart: "no"`; solo se interpolan `${FLAG_n}` definidas en
+`flags.env.example`.
+
+**«Listo» ≠ «contenedor arrancado»**: la app tarda unos segundos en escuchar (los labs Python
+~2 s). Explícalo en la tarea si el lab necesita más.
+
+**Convención flags↔respuestas (revisión humana)**: los valores de `flags.env.example`
+deben coincidir con `private/answers/<room>.yaml` (la comparación es case-insensitive).
+Para el lab-runner, `infra/scripts/lab-flags.sh <dir>` copia esos ficheros (o un
+`flags.env` local, gitignored, si existe) al directorio de flags que monta el runner.
+
+Comprueba un lab nuevo de punta a punta con el smoke:
+`node infra/scripts/labs-smoke.mjs --runner cyberarena-dev-lab-runner-1 <slug>`.
 
 ## Flujo de publicación
 

@@ -24,7 +24,7 @@
 | F15 | `010-ux-byte-navegacion` | ✅ completada (2026-11-02) | Shell de navegación, mascota Byte, animaciones accesibles, reestructuración del orden de contenidos |
 | F16 | `107-en-completo-respuestas` | ✅ completada (2026-11-02) | Teoría, pistas y opciones en inglés; respuestas con alternativas; fin de las respuestas-frase |
 | F17 | `106-depth-certs-prod` | 🔄 en curso (T1–T2 ✅; T3–T4 en la 012) | 8 rooms teóricas, certificados PDF, stack prod verificado |
-| F18 | `011-labs-bajo-demanda` | 🔄 en curso | Labs que se arrancan y apagan desde la web: lab-runner, reservas con latido, reaper, seguridad |
+| F18 | `011-labs-bajo-demanda` | ✅ completada (2026-11-02) | Labs que se arrancan y apagan desde la web: lab-runner, reservas con latido, reaper, seguridad |
 | F19 | `012-despliegue-docker` | ⬜ pendiente | Despliegue Docker completo (proxy + prod + lab-runner) probado de punta a punta; limpieza |
 
 ## Convenciones

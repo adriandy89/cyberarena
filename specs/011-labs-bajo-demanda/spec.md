@@ -1,6 +1,6 @@
 # Spec 011 — Labs bajo demanda
 
-- **Estado:** en curso
+- **Estado:** completada (2026-11-02)
 - **Creada:** 2026-11-02
 - **Changelog:**
   - 2026-11-02 primera versión, a partir de la petición del usuario: «levantar los labs y apagarlos desde
@@ -32,6 +32,15 @@
     ventana → `LAB_CANNOT_EXTEND`; al detener uno, el lab sigue para el otro; sin latidos, el reaper
     caduca la reserva (`EXPIRE_IDLE`) y apaga el lab; `/api/health` informa del barrido. El bloqueo
     consultivo se comprobó contra Postgres real (se mantiene en la transacción y se libera al terminar).
+  - 2026-11-02 T011–T014 y cierre. Web probada en Chromium (invitado, iniciar, en marcha, pestaña del
+    lab extra, detener, `/en`, 390 px, panel admin y `/status`). E2E completo 28/28 contra el dev stack
+    (incluido `labs.spec` con el reaper a 1 min). Smoke de los 39 labs a través del runner: 39/39. Con
+    la API parada, el runner apagó el lab él solo al vencer su plazo (~5 min: el plazo inicial es la
+    gracia de 300 s, mayor que el `ttl` de renovación de 180 s).
+  - **Hallazgos de entorno** (no son bugs de la app): el `next dev` en contenedor sobre un bind mount de
+    Windows no detecta ficheros nuevos hasta reiniciar el contenedor; `next dev` de Next 16 no hidrata si
+    se abre por `127.0.0.1` en vez de `localhost` (bloquea recursos de dev de otro origen); el harness
+    E2E ahora ata la cookie de sesión al host de `E2E_BASE_URL`.
 
 ## 1. Propósito
 
@@ -101,13 +110,17 @@ los labs para que puedan correr de forma desatendida.
 
 ## 4. Criterios de éxito
 
-- [ ] Un lab arrancado desde la web se apaga solo a los 10 min de cerrar la pestaña (TTL corto en test).
-- [ ] Con la API parada, el runner apaga los labs al vencer su plazo; al reiniciar el runner, barre.
-- [ ] Un lab levantado a mano se adopta y se apaga a los 5 min si nadie lo reserva.
-- [ ] Dos usuarios comparten un lab; al detenerlo uno, el otro sigue. 1 lab por usuario y 3 globales.
-- [ ] El lint rechaza un compose inseguro; los 39 labs lo pasan.
-- [ ] E2E `labs.spec` en verde con el runner simulado; smoke de labs reales en el dev stack.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
+- [x] Un lab arrancado desde la web se apaga solo a los 10 min de cerrar la pestaña (TTL corto en test:
+      prueba en vivo de la API y E2E `labs.spec` con inactividad de 1 min).
+- [x] Con la API parada, el runner apaga los labs al vencer su plazo; al reiniciar el runner, barre.
+- [x] Un lab levantado a mano se adopta y se apaga a los 5 min si nadie lo reserva (probado con gracia
+      de 60 s en dev).
+- [x] Dos usuarios comparten un lab; al detenerlo uno, el otro sigue. 1 lab por usuario y 3 globales
+      (compartir y 1 por usuario en vivo y en E2E; la capacidad global en tests unitarios).
+- [x] El lint rechaza un compose inseguro; los 39 labs lo pasan.
+- [x] E2E `labs.spec` en verde (con el runner real del dev stack; también vale con el simulado); smoke de
+      labs reales 39/39.
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
 
 ## 5. Fuera de alcance (T9xx)
 
