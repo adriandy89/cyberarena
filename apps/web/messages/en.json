@@ -7,51 +7,36 @@
     "hero": {
       "badge": "Novice → Expert",
       "title": "Your personal cybersecurity arena",
-      "subtitle": "Learning paths with guided rooms, flag challenges, isolated Docker labs and a progress system with XP, levels and streaks. From Cyber Security 101 to Red Teaming.",
+      "subtitle": "Learning paths with guided rooms, flag challenges, isolated Docker labs and a progress system with XP, levels and streaks. From Cyber Security 101 to advanced red teaming.",
       "ctaPrimary": "Explore paths",
-      "ctaSecondary": "System status",
-      "disclaimer": "Educational content only, to practice in controlled local environments."
+      "ctaSecondary": "Browse hacktivities",
+      "disclaimer": "Educational content only, to practice in controlled local environments.",
+      "byte": "Hi! I'm Byte, your companion. I'll be with you in every room, every flag and every level-up."
     },
     "roadmap": {
       "title": "Learning roadmap",
-      "subtitle": "Five paths, novice to expert, in the recommended order."
+      "subtitle": "{count, plural, one {# path} other {# paths}}, from beginner to expert, in the recommended order."
     },
-    "paths": [
-      {
-        "slug": "cyber-security-101",
-        "title": "Cyber Security 101",
-        "description": "Fundamentals: Linux, Windows & AD, networking, cryptography, basic exploitation, web hacking and defense.",
-        "level": "beginner"
+    "stats": {
+      "paths": "Paths",
+      "modules": "Modules",
+      "rooms": "Rooms",
+      "hours": "Hours of content"
+    },
+    "how": {
+      "title": "How it works",
+      "learn": {
+        "title": "Learn with guided rooms",
+        "description": "Each room mixes short theory, tasks and questions. Byte gives you hints when you get stuck."
       },
-      {
-        "slug": "jr-penetration-tester",
-        "title": "Jr Penetration Tester",
-        "description": "Reconnaissance, Nmap, Burp Suite, Metasploit, privilege escalation, OWASP and Active Directory.",
-        "level": "intermediate"
+      "practice": {
+        "title": "Practice in real labs",
+        "description": "Spin up isolated Docker labs on your machine and capture flags from vulnerable services."
       },
-      {
-        "slug": "web-application-pentesting",
-        "title": "Web Application Pentesting",
-        "description": "OWASP in depth, APIs, injections and chained web exploitation.",
-        "level": "intermediate"
-      },
-      {
-        "slug": "web-application-red-teaming",
-        "title": "Web Application Red Teaming",
-        "description": "Evasion, advanced payloads and offensive engagements against web applications.",
-        "level": "advanced"
-      },
-      {
-        "slug": "red-teaming",
-        "title": "Red Teaming",
-        "description": "Advanced AD, Kerberos, containers, cloud/IAM and AI/LLM exploitation (PT2 level).",
-        "level": "advanced"
+      "progress": {
+        "title": "Level up",
+        "description": "Earn XP, keep your streak, unlock badges and get a certificate for every path."
       }
-    ],
-    "levels": {
-      "beginner": "Beginner",
-      "intermediate": "Intermediate",
-      "advanced": "Advanced"
     }
   },
   "StatusPage": {
