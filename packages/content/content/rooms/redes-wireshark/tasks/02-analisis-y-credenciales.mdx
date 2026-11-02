@@ -20,9 +20,18 @@ questions:
     hint: "Follow TCP Stream."
     kind: text
   - id: redes-wireshark-t02-q03
-    prompt: "¿Por qué HTTPS no muestra el contenido en Wireshark sin la clave del servidor?"
-    hint: "TLS cifra la capa de aplicación."
-    kind: text
+    prompt: "¿Por qué Wireshark no muestra el contenido de una conexión HTTPS si no tienes la clave del servidor?"
+    hint: "Mira el árbol de «TLS/HTTPS: lo que NO puedes ver»: ¿qué partes quedan visibles y cuál no?"
+    kind: choice
+    options:
+      - id: a
+        label: "Porque Wireshark no puede capturar tráfico en el puerto 443"
+      - id: b
+        label: "Porque HTTPS comprime los paquetes y Wireshark no sabe descomprimirlos"
+      - id: c
+        label: "Porque TLS cifra la capa de aplicación: sin la clave no se puede descifrar el contenido"
+      - id: d
+        label: "Porque el modo promiscuo descarta los paquetes cifrados"
 ---
 
 ## Encontrar oro en la captura

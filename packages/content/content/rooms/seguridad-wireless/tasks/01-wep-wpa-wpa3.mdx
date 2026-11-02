@@ -3,21 +3,48 @@ index: 1
 title: "WEP, WPA2 y el 4-way handshake"
 questions:
   - id: seguridad-wireless-t01-q01
-    prompt: "¿Por qué WEP se rompe en minutos (la debilidad de diseño)?"
-    hint: "Su RC4 con IVs de 24 bits: se repiten y filtran la clave con ~10k paquetes capturados (aircrack-ng los consume en vivo)"
-    kind: text
+    prompt: "¿Cuál es la debilidad de diseño que hace que WEP se rompa en minutos?"
+    hint: "Mira la fila de WEP en la tabla: qué cifrado usa y qué tamaño tiene su vector de inicialización (IV). ¿Qué pasa cuando un IV tan pequeño se repite?"
+    kind: choice
+    options:
+      - id: a
+        label: "Usa AES con claves de 64 bits, demasiado cortas frente a la fuerza bruta por GPU"
+      - id: b
+        label: "Envía la contraseña en claro dentro de cada beacon del punto de acceso"
+      - id: c
+        label: "Usa RC4 con IVs de 24 bits que se repiten y filtran la clave con pocos paquetes capturados"
+      - id: d
+        label: "Depende de un PIN WPS de 8 dígitos que se adivina por fuerza bruta"
   - id: seguridad-wireless-t01-q02
     prompt: "¿Qué intercambio establece la clave de sesión en WPA2-Personal y es EL objetivo de captura en una auditoría?"
     hint: "El 4-way handshake (WPA handshake): de él se derivan las claves y contra él se crackea la PSK offline"
     kind: text
   - id: seguridad-wireless-t01-q03
-    prompt: "En WPA-Personal, ¿qué dos datos componen el material que hashcat/aircrack necesitan para romper la contraseña offline?"
-    hint: "El SSID + la contraseña (PBKDF2-HMAC-SHA1, 4096 iteraciones): por eso SSIDs comunes tienen tablas precomputadas (rainbow de SSIDs)"
-    kind: text
+    prompt: "En WPA-Personal, ¿qué dos datos se combinan (PBKDF2, 4096 iteraciones) para derivar la clave que hashcat/aircrack prueban al romper la contraseña offline?"
+    hint: "Repasa «El detalle del SSID»: uno de los dos datos actúa como salt, y por eso los nombres de red por defecto tienen tablas precomputadas."
+    kind: choice
+    options:
+      - id: a
+        label: "El SSID (como salt) y la contraseña (PSK)"
+      - id: b
+        label: "La dirección MAC del AP y el número de canal"
+      - id: c
+        label: "El IV de 24 bits y la clave RC4"
+      - id: d
+        label: "El certificado del servidor RADIUS y su clave privada"
   - id: seguridad-wireless-t01-q04
-    prompt: "¿Qué ataque de WPA3 cerró el offline-cracking del handshake y cómo se llama la debilidad que lo sustituyó si la config es débil?"
-    hint: "SAE (Simultaneous Authentication of Equals, dragonfly) elimina el handshake crackeable; la degradación a WPA2 ( downgrade / Dragonblood) es la nueva frontera"
-    kind: text
+    prompt: "¿Qué mecanismo de WPA3 eliminó el cracking offline del handshake y qué debilidad práctica queda si la configuración es débil?"
+    hint: "Mira la última fila de la tabla y la sección «WPA3»: un intercambio tipo Dragonfly… y lo que ocurre con el transition mode mal configurado."
+    kind: choice
+    options:
+      - id: a
+        label: "TKIP; la reutilización de IVs de 24 bits"
+      - id: b
+        label: "WPS; la fuerza bruta del PIN de 8 dígitos"
+      - id: c
+        label: "EAP-TLS; la falta de una PKI propia"
+      - id: d
+        label: "SAE (Dragonfly); los downgrades a WPA2 (transition mode) y bugs como Dragonblood"
 ---
 
 ## La línea evolutiva

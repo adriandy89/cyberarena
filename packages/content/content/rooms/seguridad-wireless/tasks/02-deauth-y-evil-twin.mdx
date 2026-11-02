@@ -3,21 +3,57 @@ index: 2
 title: "Deauth y evil twin: atacar la confianza"
 questions:
   - id: seguridad-wireless-t02-q01
-    prompt: "¿Qué hace un ataque de deautenticación y qué gestiona (administra) explotar?"
-    hint: "Frames de desconexion falsificados hacia el AP o el cliente (no están autenticados en 802.11): fuerza reconexiones — cada una, un handshake fresco que capturar"
-    kind: text
+    prompt: "¿Qué hace un ataque de deautenticación y qué debilidad del 802.11 aprovecha?"
+    hint: "Repasa «Deauth: el empujón»: ¿van autenticados los frames de gestión en el 802.11 clásico? ¿Y qué gana el atacante cada vez que el cliente se reconecta?"
+    kind: choice
+    options:
+      - id: a
+        label: "Satura el canal con ruido de radio hasta que el AP se reinicia y olvida su PSK"
+      - id: b
+        label: "Falsifica frames de desconexión (no autenticados en 802.11) y fuerza reconexiones con handshakes frescos"
+      - id: c
+        label: "Clona el ESSID del AP legítimo para que los clientes se conecten al atacante"
+      - id: d
+        label: "Descifra los frames de datos usando la contraseña por defecto del router"
   - id: seguridad-wireless-t02-q02
     prompt: "¿Qué es un evil twin?"
-    hint: "Un AP falso con el mismo ESSID (y a veces mejor señal) que el legítimo: el cliente se conecta a ti y todo su tráfico pasa por el atacante"
-    kind: text
+    hint: "Mira el diagrama de «Evil twin: la copia»: ¿qué nombre de red anuncia el AP del atacante y por qué el cliente se conecta a él?"
+    kind: choice
+    options:
+      - id: a
+        label: "Un AP falso que anuncia el mismo ESSID que el legítimo para que los clientes se conecten a él"
+      - id: b
+        label: "Un repetidor legítimo que amplía la cobertura de la red"
+      - id: c
+        label: "Un malware que clona la tarjeta WiFi de la víctima"
+      - id: d
+        label: "Una segunda captura del handshake para crackearlo el doble de rápido"
   - id: seguridad-wireless-t02-q03
-    prompt: "¿Qué mecanismo de WPA-Enterprise (802.1X) podría haber evitado el credential capture del evil twin y qué exige desplegarlo?"
-    hint: "Validar el certificado del servidor (802.1X/EAP-TLS): exige PKI propia — la mayoría de usuarios pulsa 'aceptar' al warning y adiós"
-    kind: text
+    prompt: "En WPA-Enterprise (802.1X), ¿qué mecanismo habría evitado la captura de credenciales del evil twin y qué exige desplegarlo?"
+    hint: "El AP falso no puede presentar la identidad criptográfica del servidor legítimo… siempre que el cliente la compruebe y el usuario no pulse 'aceptar' en el aviso."
+    kind: choice
+    options:
+      - id: a
+        label: "Ocultar el SSID; no exige nada adicional"
+      - id: b
+        label: "Filtrar por dirección MAC; exige mantener una lista blanca de clientes"
+      - id: c
+        label: "Validar el certificado del servidor (EAP-TLS); exige una PKI propia"
+      - id: d
+        label: "Activar WPS; exige un PIN de 8 dígitos por dispositivo"
   - id: seguridad-wireless-t02-q04
     prompt: "¿Por qué las redes abiertas con captive portal son el hábitat natural del evil twin?"
-    hint: "El usuario está entrenado a aceptar certificados raros y logins en portales: el falso portal pide credenciales y las recoge"
-    kind: text
+    hint: "Piensa en los hábitos del usuario, no en la criptografía: en el aire «el combate es de UX y entrenamiento»."
+    kind: choice
+    options:
+      - id: a
+        label: "Porque usan WPA3 y SAE no protege las páginas de login"
+      - id: b
+        label: "Porque los portales cautivos comparten la PSK con todos los clientes"
+      - id: c
+        label: "Porque el AP legítimo de una red abierta no emite beacons"
+      - id: d
+        label: "Porque el usuario está habituado a aceptar portales de login y certificados raros, así que no sospecha"
 ---
 
 ## Deauth: el empujón

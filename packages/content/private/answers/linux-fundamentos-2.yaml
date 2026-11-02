@@ -4,8 +4,14 @@ linux-fundamentos-2-t01-q01: b
 linux-fundamentos-2-t01-q02: chmod u+x script.sh
 linux-fundamentos-2-t01-q03: "754"
 linux-fundamentos-2-t02-q01: /etc/passwd
-linux-fundamentos-2-t02-q02: SUID
+linux-fundamentos-2-t02-q02:
+  - SUID
+  - bit SUID
+  - SUID bit
+  - setuid
 linux-fundamentos-2-t02-q03: b
 linux-fundamentos-2-t03-q01: ps aux
-linux-fundamentos-2-t03-q02: SIGKILL
+linux-fundamentos-2-t03-q02:
+  - SIGKILL
+  - KILL
 linux-fundamentos-2-t03-q03: systemctl

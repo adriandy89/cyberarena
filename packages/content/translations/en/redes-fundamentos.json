@@ -3,47 +3,78 @@
   "description": "The layered model, IPs and ports, TCP vs UDP, and the complete journey of an HTTP request.",
   "tasks": {
     "1": {
-      "title": "Layers, IPs and ports",
+      "title": "Layers, IPs and ports: the address of everything",
+      "body": "## The layered model (the practical 4-layer one)\n\n```text\nApplication   HTTP, DNS, SSH, SMTP     ← what you see\nTransport     TCP / UDP + ports        ← who is talking to whom\nInternet      IP + routing             ← which way the packet goes\nAccess        Ethernet/WiFi, MAC       ← the physical hop\n```\n\nEach layer wraps the previous one (encapsulation): an HTTP message travels inside a TCP\nsegment, which travels inside an IP packet, which travels inside a frame. When you capture\ntraffic with Wireshark (the last room of this module) you'll literally \"undress\" the packet\nlayer by layer.\n\n## IP: the home address\n\n- **Private IP** (RFC1918): `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` — your LAN.\n  Behind a NAT they share a single public IP.\n- **Port** (0-65535): the \"room number\". **IP+port = socket**, the\n  full address of a conversation.\n\n| Port | Service |\n|---|---|\n| 22 | SSH |\n| 80 / 443 | HTTP / HTTPS |\n| 53 | DNS |\n| 445 | SMB (Windows) |\n| 3389 | RDP |\n\nPorts <1024 are \"well-known\" and require privileges to open.\n\n## TCP vs UDP\n\n- **TCP**: reliable, connection-oriented (three-way handshake SYN → SYN-ACK → ACK). HTTP, SSH, SMB.\n- **UDP**: connectionless, \"fire and pray\". DNS, streaming, DHCP. And Kerberos!\n\nThe port scanning you'll do with Nmap (Jr Penetration Tester path) lives exactly\nin this layer: sending SYNs and reading the replies is all a port scan is.",
       "questions": {
         "redes-fundamentos-t01-q01": {
-          "prompt": "Which transport layer protocol guarantees delivery (SYN handshake)?"
+          "prompt": "Which transport-layer protocol guarantees delivery (SYN, SYN-ACK, ACK handshake)?",
+          "hint": "The one for reliable connections."
         },
         "redes-fundamentos-t01-q02": {
-          "prompt": "What port does HTTPS use by default?"
+          "prompt": "Which port does HTTPS use by default?",
+          "hint": "HTTP runs on 80; its secure version uses 443."
         },
         "redes-fundamentos-t01-q03": {
-          "prompt": "A non-routable private IP is..."
+          "prompt": "A private IP that is NOT routable on the internet is...",
+          "hint": "RFC1918: three classic ranges.",
+          "options": {
+            "a": "8.8.8.8",
+            "b": "192.168.1.50",
+            "c": "1.1.1.1",
+            "d": "9.9.9.9"
+          }
         }
       }
     },
     "2": {
-      "title": "DNS: the internet phone book",
+      "title": "DNS: the internet's phone book",
+      "body": "## From name to IP in a second\n\nYou type `tryhackme.com` and this happens:\n\n1. The **resolver** (your DNS, e.g. 8.8.8.8) checks its cache.\n2. It asks the **root servers** → \"who handles .com?\" → the **TLD** servers.\n3. TLD → \"ask the nameservers of tryhackme.com\".\n4. The authoritative nameserver replies with the **A record** (the IP).\n\nAll in milliseconds, and hierarchical: root → TLD → authoritative.\n\n## Records you'll recognize forever\n\n| Record | What it is |\n|---|---|\n| **A / AAAA** | name → IP (IPv4 / IPv6) |\n| **CNAME** | alias to another name |\n| **MX** | mail servers |\n| **TXT** | free text (SPF, verifications…) |\n| **NS** | the domain's nameservers |\n| **SRV** | where a service lives (the AD ones!) |\n\n## DNS for attacking (and defending)\n\n```bash\nnslookup tryhackme.com          # basic query\ndig tryhackme.com ANY +noall +answer\ndig axfr @ns1.victima.com victima.com    # zone transfer: the JACKPOT (if misconfigured)\n```\n\nEnumerating subdomains (`dev.`, `staging.`, `vpn.`…) with tools like sublist3r or\nCertificate Transparency queries (crt.sh) uncovers assets the company forgot\nexisted — without sending A SINGLE packet to the target (pure passive recon).",
       "questions": {
         "redes-fundamentos-t02-q01": {
-          "prompt": "What DNS record translates a name to an IPv4 address?"
+          "prompt": "Which DNS record type translates a name into an IP (IPv4)?",
+          "hint": "The most common one: A for Address."
         },
         "redes-fundamentos-t02-q02": {
-          "prompt": "What record points a name to ANOTHER name (alias)?"
+          "prompt": "Which record points a name to ANOTHER name (an alias)?",
+          "hint": "Canonical Name."
         },
         "redes-fundamentos-t02-q03": {
-          "prompt": "In pentesting, why is DNS gold for reconnaissance?"
+          "prompt": "In pentesting, why is DNS gold for reconnaissance?",
+          "hint": "Subdomains = attack surface.",
+          "options": {
+            "a": "Because it contains the domain's passwords",
+            "b": "Its records reveal subdomains, internal IPs and hidden services: more surface to attack",
+            "c": "Because it blocks scanners",
+            "d": "Because it encrypts all traffic"
+          }
         }
       }
     },
     "3": {
       "title": "The complete journey of an HTTP request",
+      "body": "## Ana types http://victima.com/login into her browser\n\n1. **DNS**: `victima.com` → `93.184.216.34` (the phone book answers).\n2. **ARP** (if they're on the same network): who has the gateway's MAC?\n3. **TCP**: SYN → SYN-ACK → ACK handshake against port 80.\n4. **HTTP**: Ana sends:\n\n```http\nGET /login HTTP/1.1\nHost: victima.com\nUser-Agent: Mozilla/5.0 ...\nCookie: sesion=abc123\n```\n\n5. The server responds:\n\n```http\nHTTP/1.1 200 OK\nContent-Type: text/html\nSet-Cookie: sesion=abc123; HttpOnly\n\n<html>... formulario de login ...</html>\n```\n\n## Codes you'll read every day\n\n- **2xx** success (200 OK, 201 Created)\n- **3xx** redirect (301, 302)\n- **4xx** your fault (400, 401 unauthenticated, 403 forbidden, **404** doesn't exist)\n- **5xx** the server's fault (500, 502, 503)\n\n## HTTPS: the same journey + TLS\n\nWith HTTPS, right after the TCP handshake comes the **TLS handshake**: the server presents\nits **certificate**, both sides agree on the encryption and from then on EVERYTHING travels\nencrypted (headers included — only the domain name in SNI is visible). As an attacker on\nthe same network you'll see the connection… but not its content. As a defender, TLS stops\nsniffing but not application attacks (SQLi travels INSIDE HTTPS all the same).\n\nMethods: GET (request), POST (send), PUT/PATCH (update), DELETE (delete). In the\nWeb Hacking module you'll abuse all of them.",
       "questions": {
         "redes-fundamentos-t03-q01": {
-          "prompt": "What HTTP code indicates not found?"
+          "prompt": "Which HTTP status code means 'not found'?",
+          "hint": "The famous error cat."
         },
         "redes-fundamentos-t03-q02": {
-          "prompt": "What HTTP header tells the server how to authenticate?"
+          "prompt": "Which HTTP header does the browser send to tell the server how it is authenticating?",
+          "hint": "Authorization."
         },
         "redes-fundamentos-t03-q03": {
-          "prompt": "What HTTP method is used to SEND data?"
+          "prompt": "Which HTTP method is used to SEND data to the server (forms, APIs)?",
+          "hint": "It's not GET."
         },
         "redes-fundamentos-t03-q04": {
-          "prompt": "In DNS→TCP→TLS→HTTP, what step does HTTPS add?"
+          "prompt": "In the DNS→TCP→TLS→HTTP flow, which step does HTTPS add on top of everything else?",
+          "hint": "The final S.",
+          "options": {
+            "a": "Compression",
+            "b": "Encryption and server verification (certificate) with TLS",
+            "c": "Name translation",
+            "d": "Faster routing"
+          }
         }
       }
     }

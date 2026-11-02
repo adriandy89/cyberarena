@@ -4,34 +4,55 @@
   "tasks": {
     "1": {
       "title": "What is offensive cybersecurity?",
+      "body": "**Offensive cybersecurity** is the discipline that looks for vulnerabilities by attacking\nsystems *with permission*, to prove they exist so they can be fixed. Its best-known\nprofessionals:\n\n- **Pentester**: runs penetration tests whose scope is set by contract.\n- **Red teamer**: simulates a realistic adversary, including the human layer.\n- **Bug bounty hunter**: hunts for flaws in public reward programs.\n\nIts counterpart is **defensive** security (SOC, blue team, forensics): detecting,\nresponding and hardening. Each side needs the other: in this path you'll learn the\noffensive side first because it teaches *how things break*, which is the foundation\nfor knowing how to protect them.\n\n## The phases of a penetration test\n\n1. **Reconnaissance** (*recon*): gathering information. If you don't touch the\n   target's systems, it's **passive** (OSINT, DNS, search engines); if you interact\n   with them (scans), it's **active**.\n2. **Enumeration and analysis**: mapping services, versions and attack surfaces.\n3. **Exploitation**: abusing a specific vulnerability.\n4. **Post-exploitation**: privilege escalation, lateral movement, persistence.\n5. **Reporting**: the most important part of the job — evidence, impact and remediation.",
       "questions": {
         "intro-ciberseguridad-ofensiva-t01-q01": {
-          "prompt": "Which of these best describes a pentester's job?"
+          "prompt": "Which of these descriptions best defines a pentester's job?",
+          "hint": "Think of \"authorized\" as the key word.",
+          "options": {
+            "a": "Attacks systems without permission to show off their skills",
+            "b": "Assesses systems with written authorization to find and report flaws",
+            "c": "Installs firewalls and manages security patches",
+            "d": "Analyzes malware to build antivirus software"
+          }
         },
         "intro-ciberseguridad-ofensiva-t01-q02": {
-          "prompt": "What is the initial phase of a pentest called, where information is gathered without directly interacting with the target?"
+          "prompt": "What is the initial phase of a pentest called, where information about the target is gathered without directly interacting with it?",
+          "hint": "It's done \"from a distance\": search engines, certificates, public DNS…"
         }
       }
     },
     "2": {
       "title": "Ethics and legality: the line you never cross",
+      "body": "All the learning on this platform happens in **controlled local labs**\n(containers you spin up yourself). The same discipline applies outside: the\ndifference between a professional and a criminal isn't technique, it's **authorization**.\n\n## The pillar: explicit, written authorization\n\n- **Rules of engagement / contract**: defines the scope (systems, networks, time windows),\n  the types of tests allowed and the emergency contacts. Without it, there is no test.\n- **Bug bounty programs** (public platforms): they are the \"authorization\" of the\n  open-scope world: always respect their scope and disclosure policy.\n- **Responsible disclosure**: you found a flaw outside a program → the right\n  path is to notify the owner through private channels and give them time to fix it,\n  never to publish it first.\n\n## What you never do\n\n- Attack systems without permission (illegal almost everywhere, with or without \"good intentions\").\n- Go beyond the agreed scope \"because you could\".\n- Keep, exfiltrate or publish real user data.\n- Install permanent backdoors outside what was agreed.\n\nMastering the technique is half the craft; the other half is the judgment of when\nto use it.",
       "questions": {
         "intro-ciberseguridad-ofensiva-t02-q01": {
-          "prompt": "What document defines WHAT can be tested, WHEN and HOW in a professional pentest?"
+          "prompt": "What document defines WHAT can be tested, WHEN and HOW in a professional penetration test?",
+          "hint": "It's signed before you start and sets the boundaries (scope)."
         },
         "intro-ciberseguridad-ofensiva-t02-q02": {
-          "prompt": "A colleague finds a SQLi on a public website with no bug bounty program and proposes exploiting it 'just to prove it exists'. What does a professional do?"
+          "prompt": "A colleague finds a SQLi on a public website with no bug bounty program and suggests exploiting it \"just to prove it exists\". What does a professional do?",
+          "hint": "Without prior authorization there is no valid test.",
+          "options": {
+            "a": "Exploits it carefully, without damaging data, and tells the company afterwards",
+            "b": "Reports the company to the police for being vulnerable",
+            "c": "Doesn't exploit it: without written authorization it's illegal, even with good intentions",
+            "d": "Exploits it and posts the finding on social media to pressure them into fixing it"
+          }
         }
       }
     },
     "3": {
       "title": "Rooms, tasks and flags: how you'll learn here",
+      "body": "## How hands-on learning works\n\nEach room is split into **tasks**: a guide like this one and, at the end, **questions**\nyou must answer by actually doing things (running commands, inspecting responses,\nsolving challenges). There are three types:\n\n- **Text**: you type the exact answer (usually a word or a command).\n- **Multiple choice**: you pick the correct option.\n- **Flag**: a secret in the format `FLAG{texto_en_snake_case}` that you'll find by\n  solving the exercise. Flag comparisons ignore case and extra whitespace,\n  but the format must be exact: `FLAG{...}` in uppercase.\n\n## Your first flag\n\nThere are no machines here yet, so we're giving you the first one so you can practice\nthe format. The CyberArena welcome flag is:\n\n```text\nFLAG{bienvenido_a_cyberarena}\n```\n\nKeep it: you'll need it for the final question of this task. From the next\nroom on, you'll have to **earn** your flags: they'll be hidden in Docker labs\nthat you spin up on your machine, in command output or inside vulnerable services.\n\n## Progress and XP\n\nEach correct answer earns XP based on the room type (walkthrough < challenge <\ncapstone), keeps your daily streak going and moves your level forward. Mistakes cost\nnothing: experiment, break the lab, spin it up again — that's how you learn.",
       "questions": {
         "intro-ciberseguridad-ofensiva-t03-q01": {
-          "prompt": "What is the exact format of flags on this platform?"
+          "prompt": "What is the exact format of the flags on this platform?",
+          "hint": "UPPERCASE, curly braces and snake_case inside."
         },
         "intro-ciberseguridad-ofensiva-t03-q02": {
-          "prompt": "Demonstrate you understand the format: submit the welcome flag."
+          "prompt": "Show that you understand the format: submit the welcome flag.",
+          "hint": "You saw it in the guide, right up above."
         }
       }
     }

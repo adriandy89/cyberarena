@@ -3,44 +3,74 @@
   "description": "Capture, filter and analyze network traffic with Wireshark and tcpdump.",
   "tasks": {
     "1": {
-      "title": "Capturing and filtering",
+      "title": "Capturing and filtering: Wireshark basics",
+      "body": "## Your first capture\n\n1. Open Wireshark → select your active interface (eth0/wlan0)\n2. Click Start (blue icon)\n3. Browse to any website → you'll see packets in real time\n4. Stop (red icon)\n\n## Display Filters (your everyday tool)\n\n```text\nhttp                          → HTTP only\ntcp.port == 443               → HTTPS only\nip.addr == 10.10.10.5         → traffic to/from that IP\nip.src == 10.10.10.5          → only traffic from that IP\ndns                           → DNS queries only\ntcp.flags.syn == 1            → SYNs only (connection starts)\nhttp.request.method == \"POST\" → POSTs only\n!(http or dns)                → everything EXCEPT HTTP and DNS\n```\n\n## The 3-pane layout\n\n```text\n┌──────────────────────────────────────────┐\n│ 1. Packet List: one packet per line      │\n│    (no., time, source, dest, protocol)   │\n├──────────────────────────────────────────┤\n│ 2. Packet Details: the protocol layers   │\n│    (Ethernet → IP → TCP → HTTP → Data)   │\n│    Click ▶ to expand each layer          │\n├──────────────────────────────────────────┤\n│ 3. Packet Bytes: the raw hex dump        │\n│    (what literally travels)              │\n└──────────────────────────────────────────┘\n```\n\n**Right-click a packet → Follow → TCP Stream**: rebuilds the complete conversation\nin plain text. It's the fastest way to see HTTP credentials, FTP commands\nor Telnet sessions.",
       "questions": {
         "redes-wireshark-t01-q01": {
-          "prompt": "What Wireshark filter shows ONLY HTTP traffic?"
+          "prompt": "Which Wireshark filter shows ONLY HTTP traffic?",
+          "hint": "The protocol name in the display filter."
         },
         "redes-wireshark-t01-q02": {
-          "prompt": "What filter shows traffic for a specific IP only?"
+          "prompt": "Which display filter shows only the traffic to/from the IP 10.10.10.5?",
+          "hint": "ip.addr == 10.10.10.5"
         },
         "redes-wireshark-t01-q03": {
-          "prompt": "What is promiscuous mode in network capture?"
+          "prompt": "What is 'promiscuous mode' in network capture?",
+          "hint": "Listening to ALL the traffic on the network, not just what's addressed to you.",
+          "options": {
+            "a": "It only captures HTTP packets",
+            "b": "The interface captures ALL packets passing through it, not just those addressed to your MAC",
+            "c": "It speeds up the capture",
+            "d": "It encrypts the traffic"
+          }
         }
       }
     },
     "2": {
       "title": "Analysis: finding credentials in traffic",
+      "body": "## Finding gold in the capture\n\n### HTTP Basic Auth\n```text\nFilter: http.authorization\nClick the packet → HTTP → Authorization: Basic dXNlcjpwYXNzd29yZA==\nBase64 decode: user:password\n```\n\n### FTP (credentials in cleartext)\n```text\nFilter: ftp\nYou'll see: USER anonymous\n            PASS user@example.com\n            USER admin\n            PASS SuperSecret123  ← in plain text!\n```\n\n### Telnet (everything in cleartext)\n```text\nFilter: telnet\nFollow TCP Stream → the full session as text: login, password, commands\n```\n\n## TCP Stream: the reconstruction\n\n**Right-click any TCP packet → Follow → TCP Stream**:\n\n```text\nPOST /login HTTP/1.1\nHost: app.victima.com\nContent-Type: application/x-www-form-urlencoded\n\nusername=admin&password=P@ssw0rd123   ← the password in cleartext\n```\n\nIt's the #1 tool of the traffic analyst — and of the attacker on the same network (MITM).\n\n## TLS/HTTPS: what you CAN'T see\n\n```text\nTransport Layer Security    (port 443)\n├── Client Hello            (visible: SNI = domain)\n├── Server Hello + Cert     (visible: certificate)\n├── Key Exchange            (visible: public parameters)\n└── Encrypted Data          (INVISIBLE without the key)\n```\n\nWith TLS, Wireshark only shows metadata (IPs, the domain via SNI, sizes). The\ncontent stays encrypted — that's why HTTPS is essential. To see TLS content\nyou need the server's private key (or a TLS proxy such as Burp/mitmproxy).\n\n## tcpdump: Wireshark without a GUI\n\n```bash\n# Capture on a specific interface\ntcpdump -i eth0 -w captura.pcap          # save to a file (open it in Wireshark)\ntcpdump -i eth0 port 80                  # HTTP only\ntcpdump -i eth0 host 10.10.10.5          # a single IP only\ntcpdump -i eth0 -A port 21               # FTP in ASCII (credentials!)\n```\n\nOn servers without a GUI, tcpdump captures → you download the .pcap → you open it in\nWireshark on your own machine.",
       "questions": {
         "redes-wireshark-t02-q01": {
-          "prompt": "Which protocol sends credentials IN PLAIN TEXT?"
+          "prompt": "Which protocol sends credentials IN PLAIN TEXT over the network?",
+          "hint": "HTTP Basic Auth, FTP, Telnet — no encryption.",
+          "options": {
+            "a": "HTTPS",
+            "b": "HTTP Basic Auth, FTP, Telnet — all unencrypted",
+            "c": "SSH",
+            "d": "None: everything is encrypted"
+          }
         },
         "redes-wireshark-t02-q02": {
-          "prompt": "What Wireshark option reconstructs a complete TCP conversation?"
+          "prompt": "Which Wireshark option rebuilds a complete TCP conversation?",
+          "hint": "Follow TCP Stream."
         },
         "redes-wireshark-t02-q03": {
-          "prompt": "Why cannot HTTPS content be seen without the server key?"
+          "prompt": "Why doesn't Wireshark show the content of an HTTPS connection if you don't have the server's key?",
+          "hint": "Look at the tree in \"TLS/HTTPS: what you CAN'T see\": which parts stay visible and which one doesn't?",
+          "options": {
+            "a": "Because Wireshark can't capture traffic on port 443",
+            "b": "Because HTTPS compresses packets and Wireshark can't decompress them",
+            "c": "Because TLS encrypts the application layer: without the key the content can't be decrypted",
+            "d": "Because promiscuous mode drops encrypted packets"
+          }
         }
       }
     },
     "3": {
-      "title": "Lab: credential hunting in captures",
+      "title": "Lab: hunting credentials in captures",
+      "body": "## Three captures, three sins\n\nThe lab serves real `.pcap` captures (generated packet by packet). Download them and\nopen them in Wireshark — or analyze them with `strings`/`grep` if you don't have a GUI:\n\n```bash\ncurl -O http://127.0.0.1:18104/capture-http.pcap\ncurl -O http://127.0.0.1:18104/capture-ftp.pcap\ncurl -O http://127.0.0.1:18104/capture-dns.pcap\n```\n\n## Sin 1: plain HTTP with Basic Auth\n\nBasic Auth sends `base64(usuario:contraseña)` — and base64 **is not encryption**,\nit's encoding. Over HTTP (without TLS) the credentials travel in cleartext on every\nrequest:\n\n```bash\n# In Wireshark: filter  http.authorization\n# Without Wireshark:\ngrep -a \"Basic\" capture-http.pcap | grep -o \"Basic [A-Za-z0-9+/=]*\"\necho \"YWRtaW46...\" | base64 -d      # → admin:FLAG{...}\n```\n\n**Lesson**: without HTTPS, Basic Auth means shouting your password.\n\n## Sin 2: FTP\n\nFTP authenticates in cleartext by design (1990): the `USER` and `PASS` commands\ntravel in readable form. Filter `ftp.pass` in Wireshark and you'll see the password\nright there in the dissection pane.\n\n```bash\ngrep -ao \"PASS [A-Za-z0-9{}_.-]*\" capture-ftp.pcap\n```\n\n**Lesson**: FTP is still alive on internal networks; SFTP/FTPS exist for a reason.\n\n## Sin 3: DNS tunnel\n\nHTTP traffic to strange IPs gets blocked... but DNS always gets through. In the\ncapture, several queries to `tunnel.evil-c2.example` carry **base32-encoded\nsubdomains** with exfiltrated data:\n\n```bash\n# In Wireshark: filter  dns && dns.qry.name contains \"tunnel\"\n# The long subdomains, concatenated (without session-start./data/.chunk2), are base32:\necho \"<subdominio-completo>\" | base32 -d\n```\n\nBase32 (A-Z, 2-7) was chosen here precisely because those characters are valid\nin DNS labels. **Lesson**: monitor DNS queries with abnormally long,\nhigh-entropy labels.",
       "questions": {
         "redes-wireshark-t03-q01": {
-          "prompt": "Download capture-http.pcap from the lab and find the Authorization: Basic credentials. What password travels in base64?"
+          "prompt": "Download capture-http.pcap from the lab and find the credentials in the Authorization: Basic header. What is the password travelling in base64?",
+          "hint": "curl -O http://127.0.0.1:18104/capture-http.pcap — search for 'Basic' and decode it: echo <b64> | base64 -d"
         },
         "redes-wireshark-t03-q02": {
-          "prompt": "In capture-ftp.pcap, what password does user backup_svc send in cleartext?"
+          "prompt": "In capture-ftp.pcap, which password does the user backup_svc send in cleartext?",
+          "hint": "FTP encrypts NOTHING: filter ftp.pass in Wireshark or search for 'PASS' with strings/grep"
         },
         "redes-wireshark-t03-q03": {
-          "prompt": "capture-dns.pcap contains a DNS tunnel to tunnel.evil-c2.example. Concatenate the long subdomains (strip session-start./data) and decode the base32. Submit the flag."
+          "prompt": "capture-dns.pcap contains a DNS tunnel to tunnel.evil-c2.example. Concatenate the long subdomains (removing session-start./data) and decode the base32. Submit the flag.",
+          "hint": "echo <concatenated-subdomain> | base32 -d — the parts are split between the session-start.* query and the *.data.* query"
         }
       }
     }

@@ -3,10 +3,18 @@
 redes-fundamentos-t01-q01: TCP
 redes-fundamentos-t01-q02: "443"
 redes-fundamentos-t01-q03: b
-redes-fundamentos-t02-q01: A
-redes-fundamentos-t02-q02: CNAME
+redes-fundamentos-t02-q01:
+  - A
+  - registro A
+  - A record
+redes-fundamentos-t02-q02:
+  - CNAME
+  - registro CNAME
+  - CNAME record
 redes-fundamentos-t02-q03: b
-redes-fundamentos-t03-q01: "404"
+redes-fundamentos-t03-q01:
+  - "404"
+  - 404 Not Found
 redes-fundamentos-t03-q02: Authorization
 redes-fundamentos-t03-q03: POST
 redes-fundamentos-t03-q04: b

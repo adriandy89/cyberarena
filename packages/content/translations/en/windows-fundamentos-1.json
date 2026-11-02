@@ -3,41 +3,70 @@
   "description": "Editions and architecture, the Registry, UAC and management tools.",
   "tasks": {
     "1": {
-      "title": "Editions, architecture and C: drive",
+      "title": "Editions, architecture and the C: drive",
+      "body": "## One ecosystem, many editions\n\n**Home** (consumer), **Pro** (domain + BitLocker + Remote Desktop), **Enterprise**\n(full GPOs, corporate) and **Server** (the domain controllers you'll attack\nin Active Directory). The edition determines which attack/abuse techniques exist.\n\n## The file system: NTFS and its key folders\n\n| Path | What's there |\n|---|---|\n| `C:\\Windows` | the system (System32 = critical binaries) |\n| `C:\\Program Files` | 64-bit software |\n| `C:\\Program Files (x86)` | 32-bit software |\n| `C:\\Users\\<usuario>` | profiles (Documents, Desktop, NTUSER.DAT…) |\n| `C:\\ProgramData` | application data (hidden, writable by users) |\n\nNTFS brings **granular ACLs** (richer than rwx), **alternate data streams (ADS)** to\nhide data (`archivo.txt:oculto`) and **journaling**. In AD you'll also see mapped network\ndrives and shared resources (`\\\\servidor\\recurso`).\n\nManagement tools you should already recognize: **Control Panel**, **Computer\nManagement** (local users, services, Event Viewer) and **msconfig/taskmgr**\nfor processes and startup.",
       "questions": {
         "windows-fundamentos-1-t01-q01": {
-          "prompt": "Which folder on C: contains user profiles?"
+          "prompt": "Which folder in C:\\ contains the users' profiles?",
+          "hint": "Spanish Windows displays it as 'Usuarios', but on disk it has another name."
         },
         "windows-fundamentos-1-t01-q02": {
-          "prompt": "Which Windows program is the hub for configuration?"
+          "prompt": "Which Windows program is the 'switchboard' for configuration, hardware and users (with sections such as System or Network)?",
+          "hint": "The panel made of panels.",
+          "options": {
+            "a": "File Explorer",
+            "b": "Control Panel",
+            "c": "Computer Management",
+            "d": "Windows Registry"
+          }
         }
       }
     },
     "2": {
-      "title": "The Registry",
+      "title": "The Registry: the system's database",
+      "body": "## Five hives that will rule your enumeration\n\n```text\nHKEY_CLASSES_ROOT   (HKCR)  file associations\nHKEY_CURRENT_USER   (HKCU)  current user's configuration\nHKEY_LOCAL_MACHINE  (HKLM)  configuration of the WHOLE machine  ← the gold mine\nHKEY_USERS          (HKU)   all loaded profiles\nHKEY_CURRENT_CONFIG         current hardware profile\n```\n\nOpen the editor with **regedit** (or from a terminal: `reg query ...`). Paths you'll\nmemorize forever:\n\n```powershell\n# Autostart (classic persistence):\nHKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\nHKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\n\n# Exact system version (enumeration):\nHKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\n```\n\nEvery installed program leaves a trace in `HKLM\\SOFTWARE`. Every portable program\n(one that runs without being installed) also leaves one in `HKCU\\SOFTWARE`. The\nRegistry is the fastest way to answer: WHAT is installed, WHAT starts on its own and\nWHICH exact version of Windows is it?",
       "questions": {
         "windows-fundamentos-1-t02-q01": {
-          "prompt": "What graphical tool opens the Registry Editor?"
+          "prompt": "Which graphical tool opens the Registry Editor?",
+          "hint": "regedit. That one, exactly as written."
         },
         "windows-fundamentos-1-t02-q02": {
-          "prompt": "Which registry hive contains the current user config?"
+          "prompt": "Which Registry branch (hive) contains the current user's configuration (HK...)?",
+          "hint": "Current User."
         },
         "windows-fundamentos-1-t02-q03": {
-          "prompt": "Why does an attacker love the Run key?"
+          "prompt": "Why does an attacker love the Run key (program autostart)?",
+          "hint": "It runs every time…",
+          "options": {
+            "a": "It lets you change the wallpaper",
+            "b": "It's persistence: whatever you write there runs at every logon",
+            "c": "It stores passwords in cleartext",
+            "d": "It speeds up system boot"
+          }
         }
       }
     },
     "3": {
-      "title": "UAC and sessions",
+      "title": "UAC, sessions and the 'Run as administrator' button",
+      "body": "## UAC: the nightclub bouncer\n\n**UAC** (User Account Control) separates two security tokens:\n\n- **Filtered token**: your normal session — no access to critical areas of the system.\n- **Elevated token**: when you click \"Yes\" on the UAC prompt — access to `C:\\Windows`,\n  `HKLM`, taking ownership of files, opening low ports…\n\nA normal process run by an Administrator user does NOT have the elevated token by default:\nthat's why a malicious binary with normal privileges can't, for example, write\nto `C:\\Windows\\System32`. **UAC bypasses** = techniques that trick trusted\nauto-elevating processes into handing over the full token.\n\n## Special accounts you should know\n\n- **Administrator**: the all-powerful local account (sometimes disabled).\n- **SYSTEM (LocalSystem)**: the context of system services — MORE powerful\n  than Administrator in certain internal respects.\n- **Guest**: limited access, almost always disabled.\n\nWhen you compromise a Windows machine, your typical goal is: normal user →\nUAC bypass → Administrator → migration to SYSTEM → credential theft →\nActive Directory. That complete path is practiced in the path's AD module.",
       "questions": {
         "windows-fundamentos-1-t03-q01": {
-          "prompt": "What mechanism asks for confirmation and elevates privileges?"
+          "prompt": "What is the mechanism called that asks for confirmation (and elevates privileges) when a program needs administrator permissions?",
+          "hint": "Acronym of User Account Control."
         },
         "windows-fundamentos-1-t03-q02": {
-          "prompt": "What privileges does an as-administrator process have?"
+          "prompt": "What privileges does a process launched 'as administrator' have compared with a normal one?",
+          "hint": "Two tokens, two worlds.",
+          "options": {
+            "a": "The same: only the icon changes",
+            "b": "Full access to HKLM, system files and taking ownership of processes",
+            "c": "It can only change the wallpaper",
+            "d": "None: it's an exam trick"
+          }
         },
         "windows-fundamentos-1-t03-q03": {
-          "prompt": "Which built-in account has ALL privileges?"
+          "prompt": "Which built-in Windows account has ALL privileges (more than Administrator)?",
+          "hint": "The one that doesn't even show up in the user list."
         }
       }
     }

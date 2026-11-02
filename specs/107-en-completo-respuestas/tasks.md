@@ -12,7 +12,7 @@
 
 ## Fase B — Contenido (8 lotes de rooms sin solaparse; cada lote: teoría/pistas/opciones EN + respuestas justas)
 
-- [ ] T004 [US1,US2] Lote CS101-I: intro-ciberseguridad-ofensiva, recon-web-basico, linux-fundamentos-1/2/3,
+- [x] T004 [US1,US2] Lote CS101-I: intro-ciberseguridad-ofensiva, recon-web-basico, linux-fundamentos-1/2/3,
       redes-fundamentos, seguridad-wireless, redes-wireshark, windows-fundamentos-1.
 - [x] T005 [US1,US2] Lote CS101-II: active-directory-basico, linea-de-comandos-windows, criptografia-basica,
       steganography, criptografia-pki, web-hacking-basico, owasp-top-10, explotacion-basica, reverse-engineering.
@@ -36,4 +36,6 @@
 
 ## Bugs/Deuda
 
-- (vacío)
+- [ ] T901 DEUDA (contenido): el room `owasp-top-10` y su módulo se titulan "OWASP Top 10 (2025)" pero la
+      teoría y las preguntas usan la numeración de 2021 (p. ej. Injection #3). Alinear con la edición
+      final de 2025 tras contrastarla con la fuente oficial (owasp.org), o retitular a 2021.

@@ -4,15 +4,26 @@
   "tasks": {
     "1": {
       "title": "robots.txt and hidden paths",
+      "body": "## Spin up the lab\n\nUse the command in the **Laboratory** panel on this page (above). When the container\nis ready, check it:\n\n```bash\ncurl http://127.0.0.1:18080/\n```\n\nYou should see the welcome page. Nothing sensitive… at first glance.\n\n## robots.txt: the map that websites give away\n\n`robots.txt` is a public file that tells search engines what NOT to index. The irony\nis obvious: **you've just been handed the list of interesting places**.\n\n```bash\ncurl http://127.0.0.1:18080/robots.txt\n```\n\nThe `Disallow:` line contains a path. Visit it:\n\n```bash\ncurl http://127.0.0.1:18080/secreto/\n```\n\nYour first real lab flag is waiting there. Keep it for the final question of\nthis task.\n\n> In a real pentest, robots.txt, sitemap.xml and backup files (`.old`, `.bak`,\n> `.git/`) are the first stops of passive reconnaissance.",
       "questions": {
-        "recon-web-basico-t01-q01": { "prompt": "According to the lab's robots.txt, which path (starting with /) is requested not to be indexed?" },
-        "recon-web-basico-t01-q02": { "prompt": "Visit that path with curl (or your browser) and submit the flag it contains." }
+        "recon-web-basico-t01-q01": {
+          "prompt": "According to the lab's robots.txt, which path (starting with /) does it ask not to be indexed?",
+          "hint": "curl http://127.0.0.1:18080/robots.txt"
+        },
+        "recon-web-basico-t01-q02": {
+          "prompt": "Visit that path with curl (or your browser) and submit the flag it contains.",
+          "hint": "curl http://127.0.0.1:18080/secreto/"
+        }
       }
     },
     "2": {
       "title": "Headers that say too much",
+      "body": "## The response says more than the body\n\nHTTP response headers reveal information about the server (Server, X-Powered-By) and\nsometimes contain **forgotten secrets**. Ask the server for just the headers:\n\n```bash\ncurl -I http://127.0.0.1:18080/\n```\n\nAmong the usual ones there's a custom `X-…` header that shouldn't be there.\nThe flag it contains is the final answer of this room.\n\n## When you're done\n\nALWAYS destroy the lab when you finish:\n\n```bash\ndocker compose -f labs/web-recon-1/compose.yaml --env-file labs/web-recon-1/flags.env down -v\n```\n\nLabs are ephemeral: spin up → practice → destroy. In your next session it will be\nclean again.",
       "questions": {
-        "recon-web-basico-t02-q01": { "prompt": "Submit the flag hidden in the server's response headers." }
+        "recon-web-basico-t02-q01": {
+          "prompt": "Submit the flag hidden in the server's response headers.",
+          "hint": "curl -I http://127.0.0.1:18080/ and look at the X-… headers"
+        }
       }
     }
   }

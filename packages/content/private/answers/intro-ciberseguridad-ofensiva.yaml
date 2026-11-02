@@ -1,8 +1,22 @@
 # Respuestas del room intro-ciberseguridad-ofensiva.
 # PRIVADO: nunca se sirve al cliente; el seed lo hashea a la tabla Answer (ADR-010).
 intro-ciberseguridad-ofensiva-t01-q01: b
-intro-ciberseguridad-ofensiva-t01-q02: reconocimiento
-intro-ciberseguridad-ofensiva-t02-q01: regla de compromiso
+intro-ciberseguridad-ofensiva-t01-q02:
+  - reconocimiento
+  - reconocimiento pasivo
+  - recon
+  - reconnaissance
+  - passive reconnaissance
+  - passive recon
+intro-ciberseguridad-ofensiva-t02-q01:
+  - regla de compromiso
+  - reglas de compromiso
+  - rules of engagement
+  - rule of engagement
+  - RoE
 intro-ciberseguridad-ofensiva-t02-q02: c
-intro-ciberseguridad-ofensiva-t03-q01: FLAG{texto_en_snake_case}
+intro-ciberseguridad-ofensiva-t03-q01:
+  - FLAG{texto_en_snake_case}
+  - FLAG{text_in_snake_case}
+  - FLAG{...}
 intro-ciberseguridad-ofensiva-t03-q02: FLAG{bienvenido_a_cyberarena}

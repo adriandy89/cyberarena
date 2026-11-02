@@ -4,34 +4,92 @@
   "tasks": {
     "1": {
       "title": "Who am I and where am I?",
+      "body": "## Identity and location\n\nTwo existential questions of the terminal, answered by two commands:\n\n```bash\nwhoami     # your user\npwd        # your current directory (print working directory)\n```\n\nThe **prompt** gives you clues too: `usuario@host:~$` means you're in your home\n(`~` is the shortcut for `/home/tu-usuario`). The `$` means a regular user; if you saw `#`,\nyou'd be root (careful with what you type!).\n\n## Basic navigation\n\n```bash\nls          # list contents\nls -l       # details: permissions, size, date\nls -la      # details + hidden files (those starting with .)\ncd /etc     # go to an absolute directory\ncd Documentos   # relative (from wherever you are)\ncd ..       # go up one level\ncd ~        # back to home\ncd -        # back to the previous directory\n```\n\nTip: the **Tab** key autocompletes names — use it mercilessly. And `Ctrl+L` clears the\nscreen (faster than typing `clear`).\n\n## Standard hierarchy (FHS)\n\nIn Linux everything hangs from `/` (the root of the system, not to be confused with the root user):\n\n| Path | Contents |\n|---|---|\n| `/home` | users' personal folders |\n| `/etc` | system configuration |\n| `/var/log` | logs |\n| `/tmp` | temporary files |\n| `/usr/bin` | installed executables |\n\nUnlike Windows, there's no `C:\\`: paths use `/` and there are no drive letters.",
       "questions": {
-        "linux-fundamentos-1-t01-q01": { "prompt": "Which command shows your current username?" },
-        "linux-fundamentos-1-t01-q02": { "prompt": "Which command prints the current working directory?" },
-        "linux-fundamentos-1-t01-q03": { "prompt": "What symbol represents the current user's home directory?" }
+        "linux-fundamentos-1-t01-q01": {
+          "prompt": "Which command shows your current username?",
+          "hint": "Think of 'who am I' squashed into one word."
+        },
+        "linux-fundamentos-1-t01-q02": {
+          "prompt": "Which command prints the current working directory (which folder you're in)?",
+          "hint": "Print Working Directory."
+        },
+        "linux-fundamentos-1-t01-q03": {
+          "prompt": "Which symbol represents the current user's home directory?",
+          "hint": "On a Spanish keyboard the tilde lives on AltGr+4; on a US keyboard, Shift plus the key left of 1.",
+          "options": {
+            "a": "/",
+            "b": "~",
+            "c": "@",
+            "d": "$HOME$"
+          }
+        }
       }
     },
     "2": {
       "title": "Create, copy, move and destroy",
+      "body": "## The life cycle of a file\n\n```bash\nmkdir -p proyectos/ctf/notas    # create the whole branch of directories\ntouch informe.txt               # create it empty (or update its date if it exists)\ncp informe.txt copia.txt        # copy\nmv copia.txt ~/Documentos/      # move (and rename: mv a.txt b.txt!)\ncat informe.txt                 # view the whole content\nhead -n 5 informe.txt           # first 5 lines\ntail -f /var/log/syslog         # follow a log live (Ctrl+C to exit)\nrm copia.txt                    # delete a file\nrm -rf proyectos                # delete a directory and everything in it — NO TRASH BIN\n```\n\n`rm -rf` doesn't forgive: there's no Ctrl+Z. Read it twice before pressing Enter, especially\nif it starts with `/` or contains `*`.\n\n## Finding things\n\n```bash\nfind /etc -name \"*.conf\"            # files by name\nfind / -type f -size +100M 2>/dev/null   # huge files (errors to /dev/null)\ngrep -i \"error\" app.log             # text inside files (-i ignores case)\ngrep -r \"password\" ./configuración  # recursive search\n```\n\n## Your first self-contained flag\n\nThe flag exercises in this room are solved with local tools. Decode\nthis in your terminal (it's Base64):\n\n```bash\necho \"RkxBR3tjb21hbmRvc19kZWxfdGlhbn0=\" | base64 -d\n```\n\nThe result is this task's flag. Welcome to the art of decoding :)",
       "questions": {
-        "linux-fundamentos-1-t02-q01": { "prompt": "Which command creates a directory (and its parents if missing) in one line?" },
-        "linux-fundamentos-1-t02-q02": { "prompt": "Which delete command is irreversible and feared (no trash)?" },
-        "linux-fundamentos-1-t02-q03": { "prompt": "If you run 'touch notas.txt' and the file does NOT exist, what happens?" },
-        "linux-fundamentos-1-t02-q04": { "prompt": "Decode the Base64 from the guide and submit the flag." }
+        "linux-fundamentos-1-t02-q01": {
+          "prompt": "Which command creates a directory (and its parents if they are missing) in a single line?",
+          "hint": "mkdir with the 'parents' option."
+        },
+        "linux-fundamentos-1-t02-q02": {
+          "prompt": "Which delete command is irreversible and feared (no trash bin)?",
+          "hint": "Remove recursive force."
+        },
+        "linux-fundamentos-1-t02-q03": {
+          "prompt": "If you run 'touch notas.txt' and the file does NOT exist, what happens?",
+          "hint": "touch does two different things depending on the case.",
+          "options": {
+            "a": "An error: touch only updates the dates of existing files",
+            "b": "It creates the empty file",
+            "c": "It opens an editor so you can write it",
+            "d": "Nothing: touch is an alias of cat"
+          }
+        },
+        "linux-fundamentos-1-t02-q04": {
+          "prompt": "Decode the Base64 from the guide and submit the flag.",
+          "hint": "echo <string> | base64 -d"
+        }
       }
     },
     "3": {
       "title": "Help, pipes and redirection",
+      "body": "## Nobody knows every command\n\n```bash\nman ls          # full manual (q to quit)\nls --help       # summary of options\nman -k password # search the manuals by keyword (apropos)\n```\n\n## Pipes and redirection: the UNIX philosophy\n\nEach command does ONE thing well; you compose them with `|` (pipe):\n\n```bash\ncat acceso.log | grep \"401\" | wc -l        # how many unauthorized accesses?\nps aux | grep nginx                        # nginx processes\nhistory | grep ssh                         # which ssh commands have I run?\n```\n\nOutput redirection:\n\n```bash\necho \"hola\" > saludo.txt     # create/overwrite\necho \"otra línea\" >> saludo.txt   # add (append)\ncomando 2> errores.txt       # only stderr to a file\ncomando > /dev/null 2>&1     # total silence (everything into the void)\n```\n\n## Star commands for later\n\n```bash\nsort | uniq -c | sort -nr    # top repeated lines (you'll see this A LOT in CTFs)\ncut -d: -f1 /etc/passwd      # first column of a file delimited by :\nawk '{print $1}'             # first column of whitespace-separated text\n```\n\nWith navigation, files and pipes you're already dangerous in a terminal. The next\nroom in the module: permissions, users and processes — where privilege escalation begins.",
       "questions": {
-        "linux-fundamentos-1-t03-q01": { "prompt": "Which command shows the manual for another command?" },
-        "linux-fundamentos-1-t03-q02": { "prompt": "What character pipes the output of one command into the input of another?" },
-        "linux-fundamentos-1-t03-q03": { "prompt": "What does 'history | grep ssh' do?" }
+        "linux-fundamentos-1-t03-q01": {
+          "prompt": "Which command shows the manual of another command (e.g. with 'ls' as its argument)?",
+          "hint": "The classic for manual pages."
+        },
+        "linux-fundamentos-1-t03-q02": {
+          "prompt": "Which character connects the output of one command to the input of another?",
+          "hint": "It's called a pipe."
+        },
+        "linux-fundamentos-1-t03-q03": {
+          "prompt": "What does 'history | grep ssh' do?",
+          "hint": "Two commands, one pipe.",
+          "options": {
+            "a": "Shows the full history and opens ssh",
+            "b": "Filters the history, keeping only the lines that contain ssh",
+            "c": "Deletes the ssh commands from the history",
+            "d": "Saves the history to an ssh server"
+          }
+        }
       }
     },
     "4": {
       "title": "Lab: explore the real system",
+      "body": "## Practice in the lab\n\nSpin up the lab (panel above) and log in with:\n```bash\ndocker exec -it lab-linux-explore-shell-1 su - explorer\n```\n\n### Exercise 1: hidden dotfile\n```bash\nls -la ~                          # -a shows hidden files (those starting with .)\ncat ~/.secret_flag                # there's the flag!\n```\n\n### Exercise 2: search system files\n```bash\ngrep FLAG /etc/passwd             # look for the word FLAG in passwd\n```\n\nThese are EXACTLY the commands you'll use on every compromised machine.",
       "questions": {
-        "linux-fundamentos-1-t04-q01": { "prompt": "Start the lab and find the hidden file (dotfile) in your home. Submit the flag." },
-        "linux-fundamentos-1-t04-q02": { "prompt": "Find the flag hidden in a comment in a system file under /etc/." }
+        "linux-fundamentos-1-t04-q01": {
+          "prompt": "Start the lab and find the hidden file (dotfile) in your home. Submit the flag.",
+          "hint": "ls -la ~ | grep secret | cat"
+        },
+        "linux-fundamentos-1-t04-q02": {
+          "prompt": "Find the flag hidden in a comment inside a system file under /etc/.",
+          "hint": "grep FLAG /etc/passwd"
+        }
       }
     }
   }

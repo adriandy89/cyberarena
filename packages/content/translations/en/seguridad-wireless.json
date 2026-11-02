@@ -4,20 +4,88 @@
   "tasks": {
     "1": {
       "title": "WEP, WPA2 and the 4-way handshake",
+      "body": "## The evolutionary line\n\n| Generation | Year | Key | Broken by |\n|---|---|---|---|\n| WEP | 1999 | RC4, 24-bit IV | Statistics (minutes) |\n| WPA-TKIP | 2003 | patch on top of WEP | TKIP (deprecated) |\n| WPA2-CCMP | 2004 | AES + 4-way handshake | Offline cracking of a weak PSK |\n| WPA3-SAE | 2018 | password-authenticated | Downgrade/implementation bugs |\n\n## The 4-way handshake (the heart of WPA2)\n\nFour messages between the client and the AP that prove both know the\nPSK **without revealing it** and derive the session keys. The attacker only\nneeds to CAPTURE it:\n\n```bash\n# Audit of YOUR network (aircrack-ng suite):\nsudo airmon-ng start wlan0                  # monitor mode\nsudo airodump-ng wlan0mon                   # see networks and clients\nsudo airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF -w captura wlan0mon\n# (wait for a client to connect — or force it: task 2)\n\n# Offline crack of the captured handshake:\naircrack-ng -w /usr/share/wordlists/rockyou.txt captura-01.cap\n# hashcat equivalent: -m 22000 (hcxpaxke/hccapx format)\n```\n\nThe brute force is offline (GPU speed) but the derivation is\nEXPENSIVE (PBKDF2 4096×): a PSK of 12+ random characters holds out for\ndecades. \"MiFibra-2024\" falls within the hour.\n\n## The SSID detail\n\nThe PSK is hashed with the SSID as its salt — that's why default SSIDs\n(\"MOVISTAR_XXXX\") have massive precomputed tables (36k SSIDs ×\nrockyou). Changing the default SSID breaks those tables. It's the most\nunderrated technical reason behind \"rename your WiFi\".\n\n## WPA3: SAE\n\nSAE replaces the handshake with a Dragonfly-style exchange where every\nattempt requires interacting with the AP: there's nothing to crack\noffline. The practical weaknesses today: downgrades to WPA2\n(misconfigured transition mode), implementation bugs (Dragonblood)\nand... the user connecting to the evil twin without the cryptography\nmattering at all — the next task.",
       "questions": {
-        "seguridad-wireless-t01-q01": { "prompt": "Why does WEP break in minutes (the design weakness)?" },
-        "seguridad-wireless-t01-q02": { "prompt": "Which exchange establishes the session key in WPA2-Personal and is THE capture target in an audit?" },
-        "seguridad-wireless-t01-q03": { "prompt": "In WPA-Personal, which two pieces compose the material hashcat/aircrack need to crack the password offline?" },
-        "seguridad-wireless-t01-q04": { "prompt": "Which WPA3 mechanism killed offline handshake cracking, and what is the weakness that replaces it in weak configs?" }
+        "seguridad-wireless-t01-q01": {
+          "prompt": "What is the design weakness that makes WEP break in minutes?",
+          "hint": "Look at the WEP row in the table: which cipher it uses and how big its initialization vector (IV) is. What happens when such a small IV repeats?",
+          "options": {
+            "a": "It uses AES with 64-bit keys, too short to resist GPU brute force",
+            "b": "It sends the password in cleartext inside every access point's beacon",
+            "c": "It uses RC4 with 24-bit IVs that repeat and leak the key after few captured packets",
+            "d": "It relies on an 8-digit WPS PIN that can be brute-forced"
+          }
+        },
+        "seguridad-wireless-t01-q02": {
+          "prompt": "Which exchange establishes the session key in WPA2-Personal and is THE capture target in an audit?",
+          "hint": "The 4-way handshake (WPA handshake): the keys are derived from it, and the PSK is cracked offline against it"
+        },
+        "seguridad-wireless-t01-q03": {
+          "prompt": "In WPA-Personal, which two pieces of data are combined (PBKDF2, 4096 iterations) to derive the key that hashcat/aircrack test when cracking the password offline?",
+          "hint": "Review \"The SSID detail\": one of the two pieces acts as a salt, which is why default network names have precomputed tables.",
+          "options": {
+            "a": "The SSID (as salt) and the password (PSK)",
+            "b": "The AP's MAC address and the channel number",
+            "c": "The 24-bit IV and the RC4 key",
+            "d": "The RADIUS server certificate and its private key"
+          }
+        },
+        "seguridad-wireless-t01-q04": {
+          "prompt": "Which WPA3 mechanism eliminated offline handshake cracking, and what practical weakness remains when the configuration is weak?",
+          "hint": "Look at the last row of the table and the \"WPA3\" section: a Dragonfly-style exchange… and what happens with a misconfigured transition mode.",
+          "options": {
+            "a": "TKIP; the reuse of 24-bit IVs",
+            "b": "WPS; brute-forcing the 8-digit PIN",
+            "c": "EAP-TLS; the lack of an in-house PKI",
+            "d": "SAE (Dragonfly); downgrades to WPA2 (transition mode) and bugs such as Dragonblood"
+          }
+        }
       }
     },
     "2": {
       "title": "Deauth and evil twin: attacking trust",
+      "body": "## Deauth: the shove\n\nClassic 802.11 doesn't authenticate management frames: anyone can\ninject a \"disconnect\" signed as if it came from the AP:\n\n```bash\n# Against YOUR lab network:\nsudo aireplay-ng -0 3 -a AA:BB:CC:DD:EE:FF -c CLIENTMAC wlan0mon\n#   -0 3: 3 deauth packets\n#   The client reconnects → a fresh handshake in your capture\n```\n\nWith WPA3 management frames are protected (SAE/PMF) and the classic deauth\ndies. With WPA2 it still works on every network without\n`ieee80211w=1` (protected management frames) — which is almost all of them.\n\n## Evil twin: the copy\n\n```\n[Victim] ──connects──▶ [Attacker AP \"MiFibra-A1B2\"] ──internet──▶ [MITM attacker]\n                              same ESSID, channel with a better signal or after a mass deauth\n```\n\nThe modern kit (wifiphisher, hostapd + dnsmasq):\n\n```bash\n# hostapd with the cloned ESSID + dnsmasq serving fake DHCP/DNS\n# → phishing of the portal (router, Google, office) → credentials\n# → or HTTPS stripping + installation (the hard way, detected by the browser)\n```\n\nCorrect cryptography (HTTPS with HSTS) survives the MITM; a\nuser asked to log in on a fake portal doesn't. That's why the evil twin is\nthe phishing of the air: the fight is about UX and training, not ciphers.\n\n## Legitimate wireless auditing — the complete kit\n\n| Phase | Tool |\n|---|---|\n| Monitor mode + discovery | airmon-ng, airodump-ng, kismet |\n| Handshake capture | airodump-ng (+ a targeted deauth) |\n| Offline crack | aircrack-ng / hashcat -m 22000 |\n| Rogue detection | kismet (twin AP alerts), Wireshark |\n| WPS (the other hole) | reaver (WPS PIN brute force — networks with WPS enabled) |\n\n**The legal framework**: in almost every jurisdiction, intercepting other people's\nnetworks (even \"just capturing\") is a crime. These techniques are\npracticed on YOUR lab network (an old AP + two WiFi cards\nthat support monitor mode — the classic Alfa AWUS036ACH) or on\nplatforms with dedicated environments.",
       "questions": {
-        "seguridad-wireless-t02-q01": { "prompt": "What does a deauthentication attack do and what does it exploit?" },
-        "seguridad-wireless-t02-q02": { "prompt": "What is an evil twin?" },
-        "seguridad-wireless-t02-q03": { "prompt": "Which WPA-Enterprise (802.1X) mechanism could have prevented evil twin credential capture and what does deploying it require?" },
-        "seguridad-wireless-t02-q04": { "prompt": "Why are open networks with captive portals the evil twin's natural habitat?" }
+        "seguridad-wireless-t02-q01": {
+          "prompt": "What does a deauthentication attack do, and which 802.11 weakness does it exploit?",
+          "hint": "Review \"Deauth: the shove\": are management frames authenticated in classic 802.11? And what does the attacker gain every time the client reconnects?",
+          "options": {
+            "a": "It floods the channel with radio noise until the AP reboots and forgets its PSK",
+            "b": "It forges disconnection frames (unauthenticated in 802.11) and forces reconnections with fresh handshakes",
+            "c": "It clones the legitimate AP's ESSID so that clients connect to the attacker",
+            "d": "It decrypts data frames using the router's default password"
+          }
+        },
+        "seguridad-wireless-t02-q02": {
+          "prompt": "What is an evil twin?",
+          "hint": "Look at the diagram in \"Evil twin: the copy\": which network name does the attacker's AP advertise, and why does the client connect to it?",
+          "options": {
+            "a": "A fake AP advertising the same ESSID as the legitimate one so that clients connect to it",
+            "b": "A legitimate repeater that extends the network's coverage",
+            "c": "Malware that clones the victim's WiFi card",
+            "d": "A second handshake capture to crack it twice as fast"
+          }
+        },
+        "seguridad-wireless-t02-q03": {
+          "prompt": "In WPA-Enterprise (802.1X), which mechanism would have prevented the evil twin's credential capture, and what does deploying it require?",
+          "hint": "The fake AP can't present the legitimate server's cryptographic identity… as long as the client checks it and the user doesn't click 'accept' on the warning.",
+          "options": {
+            "a": "Hiding the SSID; it requires nothing else",
+            "b": "MAC address filtering; it requires maintaining a client allowlist",
+            "c": "Validating the server certificate (EAP-TLS); it requires your own PKI",
+            "d": "Enabling WPS; it requires an 8-digit PIN per device"
+          }
+        },
+        "seguridad-wireless-t02-q04": {
+          "prompt": "Why are open networks with a captive portal the evil twin's natural habitat?",
+          "hint": "Think about user habits, not cryptography: over the air \"the fight is about UX and training\".",
+          "options": {
+            "a": "Because they use WPA3 and SAE doesn't protect login pages",
+            "b": "Because captive portals share the PSK with every client",
+            "c": "Because the legitimate AP of an open network doesn't send beacons",
+            "d": "Because users are used to accepting login portals and odd certificates, so they don't get suspicious"
+          }
+        }
       }
     }
   }

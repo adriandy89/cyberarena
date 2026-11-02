@@ -4,33 +4,82 @@
   "tasks": {
     "1": {
       "title": "Reading permissions like a professional",
+      "body": "## Anatomy of an ls -l\n\n```text\n-rwxr-x--- 1 ana dev 2048 nov 1 12:00 script.sh\n│└┬┘└┬┘└┬┘     └─ group\n│ │  │  └── others (the rest of the world)\n│ │  └───── group (dev)\n│ └──────── owner (ana)\n└────────── type: - file, d directory, l link\n```\n\nEach trio adds up with **r=4, w=2, x=1**:\n\n- `rwx` = 7 · `r-x` = 5 · `r--` = 4 · `---` = 0\n- That's why `chmod 754 script.sh` leaves the file exactly as `rwxr-xr--`.\n\nOn **directories**, `x` doesn't mean \"execute\" but **being able to enter** (cd). A directory\nwith `r` but no `x` lists names but doesn't let you access them.\n\n## Changing permissions and owners\n\n```bash\nchmod u+x script.sh        # symbolic: u/g/o/a + - r/w/x\nchmod 754 script.sh        # octal: owner-group-others\nchown ana:dev script.sh    # change owner and group (requires privileges)\n```\n\n`sudo` runs things as root: `sudo chown root:root fichero`. Use it with respect, and check\n`sudo -l` (what can I do as root?) — a CTF enumeration classic.",
       "questions": {
-        "linux-fundamentos-2-t01-q01": { "prompt": "In '-rwxr-x---', what does the second trio (r-x) mean and for whom?" },
-        "linux-fundamentos-2-t01-q02": { "prompt": "Which command adds execute permission to the owner of 'script.sh' (symbolic mode)?" },
-        "linux-fundamentos-2-t01-q03": { "prompt": "What octal value equals rwxr-xr--?" }
+        "linux-fundamentos-2-t01-q01": {
+          "prompt": "In '-rwxr-x---', what does the second trio (r-x) mean, and for whom?",
+          "hint": "owner, group, others — in that order.",
+          "options": {
+            "a": "The owner can read and write",
+            "b": "The group can read and execute, but not write",
+            "c": "Any user can execute",
+            "d": "Nobody but root can read"
+          }
+        },
+        "linux-fundamentos-2-t01-q02": {
+          "prompt": "Which command (symbolic mode) ADDS execute permission ONLY for the owner of a file? Give the exact command for script.sh.",
+          "hint": "chmod who(+|-)what file."
+        },
+        "linux-fundamentos-2-t01-q03": {
+          "prompt": "Which octal value equals rwxr-xr-- (owner everything, group read+execute, others read only)?",
+          "hint": "r=4, w=2, x=1. Add up each trio: 7, 5 and…"
+        }
       }
     },
     "2": {
       "title": "Users, groups and the SUID bit",
+      "body": "## Where users live\n\n```bash\ncat /etc/passwd    # users: name:x:uid:gid:home:shell\ncat /etc/group     # groups\ncat /etc/shadow    # password hashes (only root can read it!)\nid                 # who am I: uid, gid and groups\nsudo -l            # which commands I can run as root\n```\n\nIn `/etc/passwd`, the `x` field points to `/etc/shadow`. If some service writes\nusers by hand and forgets that `x` (leaving the hash in plain sight), you already have a\nproblem — you'll see it in future labs.\n\n## SUID: the bit that grants powers\n\nWhen the **SUID** bit is set, the binary runs with its **owner's** permissions.\nThat's why `/usr/bin/passwd` can edit `/etc/shadow` even when a regular user runs it:\n\n```bash\nls -l /usr/bin/passwd\n# -rwsr-xr-x 1 root root ... /usr/bin/passwd\n#     ↑ the 's' where the owner's x would be = SUID\n```\n\nTo find SUID binaries across a whole machine (classic privesc enumeration):\n\n```bash\nfind / -perm -4000 -type f 2>/dev/null\n```\n\nThe security question is always: is there any **writable** SUID binary or any \"abusable\"\nbinary (look it up on GTFOBins)? The first case is direct escalation.",
       "questions": {
-        "linux-fundamentos-2-t02-q01": { "prompt": "Which plain-text file lists local system users?" },
-        "linux-fundamentos-2-t02-q02": { "prompt": "Which special bit makes a binary run with its OWNER's permissions (e.g. root)?" },
-        "linux-fundamentos-2-t02-q03": { "prompt": "A binary -rwsr-xr-x root root is SUID root and world-writable. What's the risk?" }
+        "linux-fundamentos-2-t02-q01": {
+          "prompt": "Which plain-text file lists the system's local users?",
+          "hint": "Each user is one line with 7 fields delimited by :"
+        },
+        "linux-fundamentos-2-t02-q02": {
+          "prompt": "Which special bit makes a binary run with its OWNER's permissions (e.g. root) even when another user launches it?",
+          "hint": "The s that shows up where the owner's x would be."
+        },
+        "linux-fundamentos-2-t02-q03": {
+          "prompt": "A binary -rwsr-xr-x root root is SUID root and writable by anyone. What is the risk?",
+          "hint": "If anyone can replace it…",
+          "options": {
+            "a": "None: SUID only affects the access date",
+            "b": "Immediate escalation: anyone can replace the binary and root will run it",
+            "c": "It just uses more memory",
+            "d": "It breaks the system logs"
+          }
+        }
       }
     },
     "3": {
       "title": "Processes and services",
+      "body": "## Everything that runs is a process\n\n```bash\nps aux                     # all processes, with their user\nps aux | grep sshd         # is ssh running?\ntop / htop                 # live processes (CPU, memory)\nkill <PID>                 # SIGTERM: \"please, terminate\"\nkill -9 <PID>              # SIGKILL: immediate death, no cleanup\n```\n\nEvery process has an owner. Seeing a process running as **root** that shouldn't be\n(your app, a script) is gold for an attacker — and an alert for a defender.\n\n## Services with systemd\n\n```bash\nsystemctl status nginx     # status of a service\nsystemctl list-units --type=service --state=running\njournalctl -u nginx -f     # the service's logs, live\n```\n\nServices (daemons, names ending in `d`: `sshd`, `systemd-resolved`) usually\nstart with the system and run as root or under dedicated accounts (`www-data`).\n\n## Express enumeration of a machine\n\nWhen you compromise a Linux machine, this will be your first round:\n\n```bash\nwhoami && id               # who am I\nsudo -l                    # what can I escalate\nfind / -perm -4000 -type f 2>/dev/null   # SUID\nps aux | head -20          # what is running and AS whom\ncat /etc/crontab           # scheduled tasks\n```\n\nSave these commands: you'll repeat this list in every lab of the path. You've finished\nthe Linux basics — in the next modules you'll use them to attack for real.",
       "questions": {
-        "linux-fundamentos-2-t03-q01": { "prompt": "Which command lists all system processes with their user (classic BSD syntax)?" },
-        "linux-fundamentos-2-t03-q02": { "prompt": "What signal does 'kill -9' send?" },
-        "linux-fundamentos-2-t03-q03": { "prompt": "Which command manages services on a modern systemd system?" }
+        "linux-fundamentos-2-t03-q01": {
+          "prompt": "Which command lists every process on the system along with its user (classic BSD syntax)?",
+          "hint": "Two letters plus options; we showed it to you filtering nginx with grep."
+        },
+        "linux-fundamentos-2-t03-q02": {
+          "prompt": "Which signal does 'kill -9' send to a process?",
+          "hint": "The one that can't be caught or ignored."
+        },
+        "linux-fundamentos-2-t03-q03": {
+          "prompt": "Which command manages services on a modern systemd system (just one)?",
+          "hint": "The 'control' in systemctl… is the command itself."
+        }
       }
     },
     "4": {
       "title": "Lab: permissions and processes on a real system",
+      "body": "## Practice in the lab\n\n### Exercise 1: searching logs\n```bash\ngrep -r \"secret\" /var/log/        # recursive: searches every file\n```\n\n### Exercise 2: group permissions\n```bash\nid                                 # check that you're in the flagreaders group\nfind / -name \"*flag*\" 2>/dev/null # find the files with flag in their name\nls -la /opt/group_only_flag.txt    # look at the permissions: r--r-----\ncat /opt/group_only_flag.txt       # you can read it because you're in the group\n```\n\nThe lesson: Unix permissions aren't just rwx for the owner — the group AND others matter.",
       "questions": {
-        "linux-fundamentos-2-t04-q01": { "prompt": "Find the flag in an application log (use recursive grep)." },
-        "linux-fundamentos-2-t04-q02": { "prompt": "Read the flag in a file only the 'flagreaders' group can view (you are a member)." }
+        "linux-fundamentos-2-t04-q01": {
+          "prompt": "Find the flag in an application log (use a recursive grep).",
+          "hint": "grep -r secret /var/log/"
+        },
+        "linux-fundamentos-2-t04-q02": {
+          "prompt": "Read the flag in a file that only the 'flagreaders' group can see (you're already a member).",
+          "hint": "find / -name '*flag*' 2>/dev/null | grep group | cat"
+        }
       }
     }
   }

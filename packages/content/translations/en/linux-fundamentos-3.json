@@ -2,19 +2,67 @@
   "title": "Linux Fundamentals III: packages, networking and automation",
   "description": "Install software, understand ports and connections from the terminal, and take your first steps with bash and cron.",
   "tasks": {
-    "1": { "title": "Packages: install and update", "questions": {
-      "linux-fundamentos-3-t01-q01": { "prompt": "On Debian/Ubuntu, which command downloads and installs a package (e.g. nmap) in one step?" },
-      "linux-fundamentos-3-t01-q02": { "prompt": "Which distribution family uses dnf/rpm instead of apt/deb?" }
-    }},
-    "2": { "title": "Networking from the terminal", "questions": {
-      "linux-fundamentos-3-t02-q01": { "prompt": "Which command lists LISTENING ports with their process (successor of netstat)?" },
-      "linux-fundamentos-3-t02-q02": { "prompt": "Which tool downloads/shows a URL and handles POST with JSON?" },
-      "linux-fundamentos-3-t02-q03": { "prompt": "Is a port listening on 127.0.0.1:8080 accessible from another machine on the network?" }
-    }},
-    "3": { "title": "Your first script and scheduled tasks", "questions": {
-      "linux-fundamentos-3-t03-q01": { "prompt": "What line does a bash script start with to tell the system which interpreter to use?" },
-      "linux-fundamentos-3-t03-q02": { "prompt": "Which daemon executes scheduled tasks (crontab expressions)?" },
-      "linux-fundamentos-3-t03-q03": { "prompt": "In cron, what expression means 'every day at 03:30 AM'?" }
-    }}
+    "1": {
+      "title": "Packages: install and update",
+      "body": "## The package manager is your app store\n\n| Family | Install | Search | Update everything |\n|---|---|---|---|\n| Debian/Ubuntu | `apt install nmap` | `apt search nmap` | `apt update && apt upgrade` |\n| Fedora/RHEL | `dnf install nmap` | `dnf search nmap` | `dnf upgrade` |\n| Arch | `pacman -S nmap` | `pacman -Ss nmap` | `pacman -Syu` |\n| Alpine | `apk add nmap` | `apk search nmap` | `apk upgrade` |\n\nGolden rule: ALWAYS install from official (signed) repositories. A `.deb` or\n`.rpm` downloaded from some random website is the classic way to install a backdoor.\n\n```bash\napt update          # refresh the indexes (ALWAYS first)\napt upgrade         # apply updates\napt remove nmap     # uninstall\ndpkg -l | grep nmap # is it installed? (package level)\n```\n\nKeeping the system up to date is the most cost-effective mitigation there is — both for\nyour machines and for the ones you're going to audit (old versions = known CVEs?).",
+      "questions": {
+        "linux-fundamentos-3-t01-q01": {
+          "prompt": "On Debian/Ubuntu, which command DOWNLOADS and installs a package (e.g. nmap) in a single step?",
+          "hint": "Like apt-get install… but without the '-get'."
+        },
+        "linux-fundamentos-3-t01-q02": {
+          "prompt": "Which distribution family uses dnf/rpm instead of apt/deb?",
+          "hint": "The one with the red hat.",
+          "options": {
+            "a": "Arch Linux",
+            "b": "Fedora/RHEL",
+            "c": "Alpine",
+            "d": "openSUSE"
+          }
+        }
+      }
+    },
+    "2": {
+      "title": "Networking from the terminal",
+      "body": "## Which ports do I have open, and who is using them?\n\n```bash\nip a                    # my interfaces and IPs (successor of ifconfig)\nss -tulpn               # listening TCP/UDP ports + process\nping -c 3 8.8.8.8       # is there a way out to the internet?\ntraceroute 8.8.8.8      # the path of hops\n```\n\n`ss -tulpn` is one of the first things you'll run on a compromised machine:\n**a service listening only on 127.0.0.1** = a classic possible lateral move\n(bound to localhost, reachable through an SSH tunnel). Listening on `0.0.0.0` = all\ninterfaces, potentially exposed.\n\n## curl: your HTTP Swiss Army knife\n\n```bash\ncurl http://127.0.0.1:8080/           # simple GET\ncurl -I http://ejemplo.com/           # headers only\ncurl -X POST -H 'Content-Type: application/json' \\\n     -d '{\"user\":\"ana\"}' http://api.local/login\ncurl -o archivo.zip URL               # download\n```\n\nYou already know curl from the recon lab — here it becomes an everyday tool. In the\nNetworking module we'll dig deeper into TCP/IP, DNS and Wireshark captures.",
+      "questions": {
+        "linux-fundamentos-3-t02-q01": {
+          "prompt": "Which command lists LISTENING ports along with their process (the successor of netstat)?",
+          "hint": "Two s's; the -l option means listening, -p means process."
+        },
+        "linux-fundamentos-3-t02-q02": {
+          "prompt": "Which tool downloads/shows a URL and sends POST requests with JSON (you'll use it with every API)?",
+          "hint": "The c stands for client."
+        },
+        "linux-fundamentos-3-t02-q03": {
+          "prompt": "Is a port in LISTEN state on 127.0.0.1:8080 reachable from another machine on the network?",
+          "hint": "Think about the interface it's listening on.",
+          "options": {
+            "a": "Yes, every LISTEN port is public",
+            "b": "No: only from the machine itself (loopback)",
+            "c": "Only if the firewall is open",
+            "d": "It depends on the protocol"
+          }
+        }
+      }
+    },
+    "3": {
+      "title": "Your first script and scheduled tasks",
+      "body": "## Scripts: saving commands for the future\n\n```bash\n#!/usr/bin/env bash\n# enumerar.sh — first reconnaissance round on a machine\nset -e\necho \"== identidad ==\"; whoami; id\necho \"== suid ==\";    find / -perm -4000 -type f 2>/dev/null\necho \"== puertos ==\"; ss -tulpn | head -15\n```\n\nSave it as `enumerar.sh`, give it execute permission and run it:\n\n```bash\nchmod +x enumerar.sh\n./enumerar.sh            # or bash enumerar.sh\n```\n\nVariables (`DESTINO=10.10.10.5`, then `$DESTINO`), loops (`for puerto in 22 80 443`) and\nconditionals turn commands into your own tools. In the scripting module of the\nJr Pentester path you'll build a port scanner in bash and Python.\n\n## Cron: time runs code too\n\n```bash\ncrontab -e               # edit YOUR tasks\ncat /etc/crontab         # system tasks\nls -la /etc/cron.d/      # per-package tasks\n```\n\nFormat: `minuto hora día-del-mes mes día-de-la-semana comando` (minute, hour, day of month, month, day of week, command).\n\n```\n30 3 * * * /usr/local/bin/backup.sh\n```\n\nFor an attacker, a root cron job that runs a writable script is immediate\nescalation; for a defender, reviewing cron is part of hunting for persistence.\nLinux module complete — Windows and Active Directory are waiting for you.",
+      "questions": {
+        "linux-fundamentos-3-t03-q01": {
+          "prompt": "Which line does a bash script start with so the system knows which interpreter to use?",
+          "hint": "Shebang: hash, exclamation mark, path."
+        },
+        "linux-fundamentos-3-t03-q02": {
+          "prompt": "Which daemon runs scheduled tasks (crontab expressions)?",
+          "hint": "It's named like the /etc/crontab file."
+        },
+        "linux-fundamentos-3-t03-q03": {
+          "prompt": "In cron, which expression means 'every day at 03:30 in the morning'?",
+          "hint": "minute hour day month weekday."
+        }
+      }
+    }
   }
 }
