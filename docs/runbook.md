@@ -7,39 +7,53 @@
 
 - Docker Desktop 29+ (con Compose v5) corriendo.
 - Node 22+ y pnpm 11 (`corepack enable` si falta).
-- Copia de `.env.example` → `.env` en la raíz y en `infra/stacks/dev/`.
+- Copia de `.env.example` → `.env` en `infra/stacks/dev/` (y en la raíz para la variante B).
 
 ## Desarrollo
 
-### Variante A — todo en Docker (verificada 2026-11-01)
+Las dos variantes se verificaron desde un clon limpio el 2026-11-02 (fase 014); son las que explica el
+`README.md`.
+
+### Variante A — todo en Docker (solo hace falta Docker)
 
 ```bash
-# Variables del stack
-cp infra/stacks/dev/.env.example infra/stacks/dev/.env   # ajusta secretos
+# Variables del stack (los valores por defecto sirven tal cual)
+cp infra/stacks/dev/.env.example infra/stacks/dev/.env
 
-# Levanta postgres + mailpit + api + web (hot-reload por volúmenes).
-# El primer arranque instala dependencias dentro de los contenedores (~3 min);
-# los siguientes arrancan en segundos gracias al volumen pnpm-store.
+# Levanta postgres + mailpit + api + web (hot-reload por volúmenes). El api instala
+# dependencias, compila los paquetes compartidos, migra y hace el seed ANTES de
+# arrancar (idempotente); la web espera a que el api esté sano. Primer arranque
+# ~3-4 min (`up` vuelve cuando el api está listo); los siguientes, segundos.
 docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d
 
-# Logs
-docker compose --project-directory . -f infra/stacks/dev/compose.yaml logs -f api web
+# Contraseña del admin inicial (si no fijaste BOOTSTRAP_ADMIN_PASSWORD)
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env logs api | grep "initial admin"
 
-# Migraciones/seed desde host apuntando al postgres del stack (puerto publicado)
-pnpm db:migrate && pnpm db:seed
+# Logs
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env logs -f api web
+
+# Recargar el contenido tras editarlo: el reinicio recompila y repite el seed
+docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env restart api
 
 # Parar (borra contenedores, conserva volúmenes de datos)
 docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env down
 ```
 
+Todos los comandos llevan `--env-file`: el compose exige `POSTGRES_PASSWORD` incluso para `logs`.
+
 ### Variante B — mixed (infra en Docker, dev servers en host; mejor DX en Windows)
 
 ```bash
+corepack enable && pnpm install
+cp .env.example .env                       # DATABASE_URL ya coincide con el stack de dev
 docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d postgres mailpit
-pnpm install
+pnpm build                                 # un clon limpio no tiene dist/ ni el catálogo compilado
 pnpm db:migrate && pnpm db:seed
-pnpm dev          # web :3000 + api :3001 con hot-reload
+pnpm dev          # web :3000 + api :3001 con hot-reload (el api lee el .env de la raíz)
 ```
+
+No mezcles las dos variantes sobre la misma carpeta a la vez: comparten `apps/web/.next` y `next dev`
+se niega a arrancar si el otro sigue vivo.
 
 ### Verificación de humo (smoke test)
 
@@ -49,7 +63,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/es   # 200
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/en   # 200
 ```
 
-Puertos: web 3000 · api 3001 · postgres 5432 · mailpit UI 8025 / SMTP 1025.
+Puertos: web 3000 · api 3001 · postgres 5432 · mailpit UI 8025 / SMTP 1025 (en `127.0.0.1`).
 
 ## Autenticación (fase 001)
 

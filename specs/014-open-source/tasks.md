@@ -6,7 +6,7 @@
 - [x] T002 Auditoría de credenciales (árbol + historial) con registro. Arreglos:
   - retornos de carro literales en `infra/stacks/prod/secrets/README.md`;
   - contraseña generada del admin inicial con `node:crypto` en lugar de `Math.random`.
-- [ ] T003 Arranque local desde un clon limpio:
+- [x] T003 Arranque local desde un clon limpio:
   - plantillas de entorno completas y coherentes;
   - la api carga también el `.env` de la raíz (`pnpm dev`);
   - el stack de dev compila dependencias, migra y hace el seed al arrancar;
@@ -39,3 +39,54 @@
   - `infra/stacks/prod/secrets/README.md` llevaba retornos de carro literales (una edición antigua convirtió el texto `\r` en el carácter) y git lo trataba como binario: restaurado y pasado a LF;
   - la contraseña generada del admin inicial usaba `Math.random`: ahora usa `crypto.randomInt`, con test.
   - `Math.random` solo queda en la mascota Byte y en los E2E.
+
+### 2026-11-02 — T003, arranque desde un clon limpio
+
+**Problemas encontrados** (el "revalidado" de 000 T901 se hizo sobre una copia de trabajo ya compilada):
+
+- **Variante A (todo en Docker):**
+  - en un clon limpio no existen `packages/*/dist`, el cliente Prisma ni el catálogo, así que el api no compilaba;
+  - el api arrancaba antes de migrar: el bootstrap del admin fallaba (no hay tablas) y no se reintenta hasta el siguiente arranque;
+  - `API_PORT` cambiaba también el puerto interno, lo que rompía la web y el healthcheck.
+- **Variante B (`pnpm dev`):**
+  - el api solo leía `apps/api/.env` (`ConfigModule` con el cwd del paquete), nunca el `.env` de la raíz;
+  - `DATABASE_URL` del ejemplo de la raíz usaba una contraseña distinta de la del stack de dev;
+  - el SMTP de mailpit no estaba publicado.
+- **Plantillas:** faltaban variables que sí usan el código y los compose:
+  - `LAB_IDLE_TIMEOUT_MIN`, `LAB_SWEEP_SECONDS`, `LAB_BIND_ADDRESS` y `LAB_PUBLIC_HOST`;
+  - `LAB_UNLEASED_GRACE_SECONDS`, `LAB_LOOP_SECONDS` y `TRUST_PROXY`.
+
+**Arreglos:**
+
+- El api del stack de dev compila sus dependencias (`turbo run build --filter=@repo/api^...`), migra y hace el seed antes de `nest start`.
+- La web espera a que el api esté sano.
+- `start_period` pasa a 600 s.
+- `API_PORT` interno fijo en 3001.
+- SMTP de mailpit en `127.0.0.1:1025`.
+- `ConfigModule` lee `.env` y `../../.env`; las variables ya definidas siempre ganan.
+- Plantillas completas y coherentes.
+- Runbook alineado con todo lo anterior.
+
+**Verificación** en un clon nuevo del HEAD con los cambios aplicados:
+
+- Proyecto aparte (`-p ca-oss`) con otros puertos, sin tocar el stack de dev del usuario.
+- `core.autocrlf=true`, como un usuario de Windows.
+- **Variante A:**
+  - `up -d` sobre un store de pnpm vacío tardó 3 min 30 s. Compiló `shared`/`content`/`database`, aplicó 11 migraciones, hizo el seed (59 rooms, 491 preguntas), creó el admin con contraseña generada y la web arrancó al quedar sano el api.
+  - El comando del README para leer la contraseña funcionó, después de añadirle el `--env-file` que faltaba: lo detectó la propia prueba.
+  - Smoke `smoke-prod.mjs` contra la web:
+    - salud con la BD `up`;
+    - cabeceras;
+    - `/es`, `/en`, paths, hacktivities y status;
+    - catálogo de 4 paths y 59 rooms, con el EN en inglés;
+    - login de admin y su rol;
+    - endpoint de certificados.
+  - Solo fallan los 3 checks que exigen el runner de labs, apagado por defecto en dev.
+- **Variante B:**
+  - `pnpm install` 1 min 19 s; `pnpm build` en verde (6/6);
+  - `db:migrate`/`db:seed` con el `.env` de la raíz;
+  - `pnpm dev`: el api conecta a la BD leyendo el `.env` de la raíz, la web sirve `/es` y reenvía `/api`;
+  - mismo smoke con login de admin, en verde salvo los 3 checks de labs.
+  - Para que `next dev` arrancara hubo que parar la web de la variante A: comparten `apps/web/.next/dev` (anotado en el runbook).
+- **Limpieza:** contenedores, red y volúmenes `ca-oss_*` borrados (sin `down -v`, para no tocar `cyberarena-lab-assets`), procesos de prueba terminados y clon borrado.
+- **Gate:** `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.

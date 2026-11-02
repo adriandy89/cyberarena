@@ -14,7 +14,9 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    // `pnpm dev` runs the api from apps/api: also read the monorepo root .env.
+    // Variables already set (Docker, CI) always win over both files.
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '../../.env'] }),
     // Global rate limiting: 120 requests / minute / IP by default (constitution §1.5).
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
