@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -36,8 +38,8 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
+    <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

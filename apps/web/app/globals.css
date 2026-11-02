@@ -3,137 +3,191 @@
 /* Tailwind must also scan the shared UI package source (internal package). */
 @source '../../../packages/ui/src';
 
-:root {
-  color-scheme: dark;
+/* === Design tokens (ADR-014) ===
+ * Palette stays slate + emerald; semantic aliases are for new components.
+ * Every --animate-* token becomes an `animate-*` utility. */
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-accent: var(--color-emerald-400);
+  --color-accent-strong: var(--color-emerald-500);
+  --color-xp: var(--color-amber-300);
+  --color-lab: var(--color-violet-400);
+  --color-danger: var(--color-red-400);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --animate-fade-in: fade-in 0.4s var(--ease-out-expo) both;
+  --animate-fade-in-delayed: fade-in 0.5s var(--ease-out-expo) 0.1s both;
+  --animate-slide-right: slide-in-right 0.3s var(--ease-out-expo) both;
+  --animate-slide-left: slide-in-left 0.3s var(--ease-out-expo) both;
+  --animate-scale-in: scale-in 0.25s var(--ease-out-expo) both;
+  --animate-pop: pop 0.45s var(--ease-spring) both;
+  --animate-shake: shake 0.4s ease-in-out;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-bounce-xp: bounce-xp 0.5s var(--ease-spring);
+  --animate-progress: progress-fill 0.8s var(--ease-out-expo);
+  --animate-page-in: page-in 0.35s var(--ease-out-expo) both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-drift: drift 18s ease-in-out infinite alternate;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pop {
+    0% { opacity: 0; transform: scale(0.6); }
+    70% { opacity: 1; transform: scale(1.08); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(16 185 129 / 0.35); }
+    50% { box-shadow: 0 0 0 8px rgb(16 185 129 / 0); }
+  }
+  @keyframes bounce-xp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  @keyframes progress-fill {
+    from { width: 0%; }
+  }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes drift {
+    from { transform: translate3d(-4%, -2%, 0) scale(1); }
+    to { transform: translate3d(4%, 3%, 0) scale(1.08); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
-/* === Animations & Micro-interactions === */
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
 
-/* Fade-in on initial load */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem; /* sticky header */
+  }
+
+  ::selection {
+    background: rgb(16 185 129 / 0.3);
+    color: var(--color-slate-50);
+  }
+
+  /* Visible focus for every interactive control (spec 010 §3.19). */
+  :focus-visible {
+    outline: 2px solid rgb(52 211 153 / 0.7);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
-@keyframes fade-in-delayed {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+/* === Utilities === */
+
+@utility card-hover {
+  transition:
+    transform 0.2s var(--ease-out-expo),
+    box-shadow 0.2s var(--ease-out-expo),
+    border-color 0.2s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 25px rgb(0 0 0 / 0.3),
+      0 0 0 1px rgb(16 185 129 / 0.15);
+  }
 }
 
-@keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(24px); }
-  to { opacity: 1; transform: translateX(0); }
+@utility btn-press {
+  transition: transform 0.1s ease;
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
 }
 
-@keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-24px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes bounce-xp {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-
-@keyframes progress-fill {
-  from { width: 0%; }
-}
-
-/* Application classes */
-.animate-fade-in {
-  animation: fade-in 0.4s ease-out both;
-}
-
-.animate-fade-in-delayed {
-  animation: fade-in-delayed 0.5s ease-out 0.1s both;
-}
-
-.animate-slide-right {
-  animation: slide-in-right 0.3s ease-out both;
-}
-
-.animate-slide-left {
-  animation: slide-in-left 0.3s ease-out both;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.25s ease-out both;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-bounce-xp {
-  animation: bounce-xp 0.4s ease-out;
-}
-
-.animate-progress {
-  animation: progress-fill 0.8s ease-out;
-}
-
-/* Card hover effects */
-.card-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(16, 185, 129, 0.15);
-}
-
-/* Smooth link transitions */
-.link-transition {
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-}
-
-/* Button press effect */
-.btn-press {
-  transition: all 0.1s ease;
-}
-
-.btn-press:active {
-  transform: scale(0.97);
-}
-
-/* Staggered list items */
-.stagger-1 { animation: fade-in 0.4s ease-out 0.05s both; }
-.stagger-2 { animation: fade-in 0.4s ease-out 0.1s both; }
-.stagger-3 { animation: fade-in 0.4s ease-out 0.15s both; }
-.stagger-4 { animation: fade-in 0.4s ease-out 0.2s both; }
-.stagger-5 { animation: fade-in 0.4s ease-out 0.25s both; }
-
-/* Skeleton shimmer for loading */
-.skeleton {
+@utility skeleton {
   background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
 }
 
-/* Smooth progress bar */
-.progress-smooth {
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+@utility progress-smooth {
+  transition: width 0.6s var(--ease-out-expo);
 }
 
-/* Focus ring */
-.focus-ring:focus-visible {
-  outline: 2px solid rgb(16 185 129 / 0.5);
-  outline-offset: 2px;
+/* Subtle cyber grid used behind heroes. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(rgb(148 163 184 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 184 / 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Scroll-driven reveal; content stays visible where unsupported. */
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 22%;
+  }
+}
+
+/* === Reduced motion (ADR-014): loops and decorative motion off === */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .card-hover:hover,
+  .btn-press:active {
+    transform: none;
+  }
+
+  .reveal {
+    animation: none;
+  }
 }

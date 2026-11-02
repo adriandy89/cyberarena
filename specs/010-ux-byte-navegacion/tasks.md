@@ -8,7 +8,7 @@
 
 ## Fase B — Fundamentos visuales
 
-- [ ] T002 [US7] `globals.css`: `@theme` (tokens, easings, `--animate-*`), política
+- [x] T002 [US7] `globals.css`: `@theme` (tokens, easings, `--animate-*`), política
       reduced-motion global, limpieza de clases muertas, foco visible; fuentes Geist.
 - [ ] T003 lucide-react + `components/icon.tsx`; emoji de UI → iconos.
 
