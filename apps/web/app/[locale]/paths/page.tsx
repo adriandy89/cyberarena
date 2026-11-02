@@ -102,7 +102,7 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
                         {t('hours', { hours: Math.max(1, Math.round(path.estimatedMinutes / 60)) })}
                       </span>
                     </p>
-                    <ul className="mt-4 flex flex-wrap gap-2" aria-label={t('preview')}>
+                    <ul className="mt-4 flex flex-wrap gap-2">
                       {path.rooms.slice(0, PREVIEW_ROOMS).map((room) => (
                         <li
                           key={room.slug}

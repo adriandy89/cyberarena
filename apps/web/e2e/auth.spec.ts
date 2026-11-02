@@ -29,7 +29,7 @@ test.describe('auth flow (ES)', () => {
     // Dashboard greets the new user (generous timeout for CI)
     await expect(page).toHaveURL(/dashboard/, { timeout: 30_000 });
 
-    // Sign out from the home page (dashboard has no header menu)
+    // Sign out from the shared header (any page has it since spec 010)
     await page.goto('/es');
     await expect(page.getByRole('button', { name: 'Salir' })).toBeVisible({ timeout: 15_000 });
     await page.getByRole('button', { name: 'Salir' }).click();

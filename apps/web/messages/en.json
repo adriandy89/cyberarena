@@ -131,7 +131,6 @@
     },
     "byteHint": "Starting from scratch? Go in order: each path prepares you for the next one.",
     "hours": "≈ {hours} h",
-    "preview": "Some rooms in this path",
     "moreRooms": "+{count} more"
   },
   "RoomPage": {

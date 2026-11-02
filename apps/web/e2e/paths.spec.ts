@@ -4,12 +4,17 @@ test.describe('paths pages (guest)', () => {
   test('/es/paths lists Cyber Security 101 with rooms', async ({ page }) => {
     await page.goto('/es/paths');
     await expect(page.getByText('Cyber Security 101').first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Introducción a la ciberseguridad ofensiva/ }).first()).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Introducción a la ciberseguridad ofensiva/ }).first(),
+    ).toBeVisible();
   });
 
   test('path detail shows guest teaser and room structure', async ({ page }) => {
     await page.goto('/es/paths/cyber-security-101');
-    await expect(page.getByText('Empieza tu viaje en ciberseguridad')).toBeVisible();
+    // module titles also appear in the module index (spec 010): target the heading
+    await expect(
+      page.getByRole('heading', { name: 'Empieza tu viaje en ciberseguridad' }),
+    ).toBeVisible();
     await expect(page.getByText(/Inicia sesión para guardar tu progreso/)).toBeVisible();
     // module percent is hidden for guests — no % bars on room rows
     await expect(page.getByText(/Linux Fundamentos I/).first()).toBeVisible();

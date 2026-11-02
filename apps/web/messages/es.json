@@ -131,7 +131,6 @@
     },
     "byteHint": "Si empiezas desde cero, ve en orden: cada ruta prepara la siguiente.",
     "hours": "≈ {hours} h",
-    "preview": "Algunos rooms de la ruta",
     "moreRooms": "+{count} más"
   },
   "RoomPage": {
