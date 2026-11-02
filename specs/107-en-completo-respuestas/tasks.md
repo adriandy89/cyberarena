@@ -20,7 +20,7 @@
       threat-modeling, seguridad-soluciones, herramientas-defensivas, malware-analysis, ciberseguridad-como-carrera.
 - [ ] T007 [US1,US2] Lote JrPT-A: pentest-foundations, recon-pasivo-osint, social-engineering,
       recon-activo-escaneo, nmap-pro, burp-suite-pro.
-- [ ] T008 [US1,US2] Lote JrPT-B: scripting-pentest, privesc-linux, privesc-windows, password-attacks,
+- [x] T008 [US1,US2] Lote JrPT-B: scripting-pentest, privesc-linux, privesc-windows, password-attacks,
       pivoting-y-tunneling, active-directory-ataque.
 - [ ] T009 [US1,US2] Lote WebApp-A: sqli-basico, xss-reflejado, ssrf-basico, command-injection, file-upload,
       log-forging.

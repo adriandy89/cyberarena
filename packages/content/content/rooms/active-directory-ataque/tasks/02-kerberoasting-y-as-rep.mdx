@@ -3,26 +3,35 @@ index: 2
 title: "Kerberoasting y AS-REP Roasting: robar tickets"
 questions:
   - id: active-directory-ataque-t02-q01
-    prompt: "¿Qué ataque pide tickets de servicio (TGS) de cuentas con SPN y los crackea offline?"
-    hint: "Kerberoasting ( GetUserSPNs de impacket)."
+    prompt: ¿Qué ataque pide tickets de servicio (TGS) de cuentas con SPN y los crackea offline?
+    hint: Kerberoasting ( GetUserSPNs de impacket).
     kind: text
   - id: active-directory-ataque-t02-q02
-    prompt: "¿Qué condición debe tener una cuenta para ser vulnerable a AS-REP Roasting?"
-    hint: "Sin pre-autenticación Kerberos (DONT_REQ_PREAUTH)."
-    kind: text
-  - id: active-directory-ataque-t02-q03
-    prompt: "¿Por qué Kerberoasting es 'silencioso' para el atacante?"
-    hint: "El DC NO puede distinguir la petición de una legítima."
+    prompt: ¿Qué condición debe cumplir una cuenta para ser vulnerable a AS-REP Roasting?
+    hint: Es una opción de la cuenta que afecta a cómo se autentica ante el KDC al pedir el TGT.
     kind: choice
     options:
       - id: a
-        label: "Porque usa el puerto 443"
+        label: Ser miembro de Domain Admins
       - id: b
-        label: "Pedir un TGS es una operación Kerberos normal; el DC no puede distinguir intención maliciosa, y el cracking es offline"
+        label: Tener un SPN registrado
       - id: c
-        label: "Porque borra los logs"
+        label: No requerir pre-autenticación Kerberos (DONT_REQ_PREAUTH)
       - id: d
-        label: "Porque va cifrado"
+        label: Tener la contraseña caducada
+  - id: active-directory-ataque-t02-q03
+    prompt: ¿Por qué Kerberoasting es 'silencioso' para el atacante?
+    hint: El DC NO puede distinguir la petición de una legítima.
+    kind: choice
+    options:
+      - id: a
+        label: Porque usa el puerto 443
+      - id: b
+        label: Pedir un TGS es una operación Kerberos normal; el DC no puede distinguir intención maliciosa, y el cracking es offline
+      - id: c
+        label: Porque borra los logs
+      - id: d
+        label: Porque va cifrado
 ---
 
 ## Kerberoasting: el ataque elegante

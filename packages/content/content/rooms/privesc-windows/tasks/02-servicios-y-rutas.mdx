@@ -3,16 +3,34 @@ index: 2
 title: "Servicios: unquoted paths y binarios escribibles"
 questions:
   - id: privesc-windows-t02-q01
-    prompt: "Un servicio corre: C:\\Program Files\\A\\B\\service.exe (SIN comillas). ¿Por qué es peligroso?"
-    hint: "Windows resuelve espacios ambiguos probando rutas: C:\\Program.exe primero."
-    kind: text
+    prompt: Un servicio corre C:\Program Files\A\B\service.exe (SIN comillas y con espacios). ¿Por qué es peligroso?
+    hint: Windows resuelve las rutas ambiguas probando candidatos de más corto a más largo.
+    kind: choice
+    options:
+      - id: a
+        label: Porque el servicio no puede arrancar nunca
+      - id: b
+        label: "Windows resuelve los espacios probando rutas anteriores: C:\\Program.exe se ejecuta primero si existe"
+      - id: c
+        label: Porque las rutas con espacios se cifran
+      - id: d
+        label: Porque obliga al servicio a correr como usuario normal
   - id: privesc-windows-t02-q02
-    prompt: "El servicio 'CustomSvc' corre como LocalSystem y su binario C:\\services\\custom.exe es escribible por todos. ¿Cómo escalas?"
-    hint: "Sustituye el binario por una shell y reinicia el servicio."
-    kind: text
+    prompt: El servicio 'CustomSvc' corre como LocalSystem y su binario C:\services\custom.exe es escribible por todos. ¿Cómo escalas privilegios?
+    hint: Piensa en qué ejecutará el servicio cuando lo vuelvas a arrancar.
+    kind: choice
+    options:
+      - id: a
+        label: Sustituir el binario por una shell y reiniciar el servicio
+      - id: b
+        label: Desinstalar el servicio y esperar al siguiente reinicio
+      - id: c
+        label: Cambiar el nombre del servicio en el registro
+      - id: d
+        label: Solo leer el binario con un editor hexadecimal
   - id: privesc-windows-t02-q03
-    prompt: "¿Qué comando reinicia un servicio de Windows desde cmd?"
-    hint: "sc stop / sc start, o net stop / net start"
+    prompt: ¿Qué comando reinicia un servicio de Windows desde cmd?
+    hint: sc stop / sc start, o net stop / net start
     kind: text
 ---
 

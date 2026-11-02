@@ -1,28 +1,37 @@
 ---
 index: 3
-title: "Pass-the-Hash, Pass-the-Ticket y movimiento lateral"
+title: Pass-the-Hash, Pass-the-Ticket y movimiento lateral
 questions:
   - id: active-directory-ataque-t03-q01
-    prompt: "¿Qué ataque usa el HASH NTLM de un usuario (sin conocer la contraseña) para autenticarse?"
-    hint: "Pass-the-Hash (PtH). psexec/smbexec/wmiexec de impacket lo hacen."
+    prompt: ¿Qué ataque usa el HASH NTLM de un usuario (sin conocer la contraseña) para autenticarse?
+    hint: Pass-the-Hash (PtH). psexec/smbexec/wmiexec de impacket lo hacen.
     kind: text
   - id: active-directory-ataque-t03-q02
-    prompt: "Comprometes un servidor con credenciales de un Domain Admin en memoria. ¿Qué haces?"
-    hint: "Mimikatz extrae credenciales de LSASS."
-    kind: text
-  - id: active-directory-ataque-t03-q03
-    prompt: "¿Qué herramienta de Sysinternals vuelca credenciales del proceso LSASS?"
-    hint: "procdump o comsvcs.dll MiniDump. Mimikatz las procesa."
+    prompt: Comprometes un servidor donde hay credenciales de un Domain Admin en memoria. ¿Qué haces?
+    hint: Piensa en qué proceso de Windows guarda esas credenciales y qué herramienta las lee.
     kind: choice
     options:
       - id: a
-        label: "Task Manager"
+        label: Reinicias el servidor para que las credenciales se muestren en pantalla
       - id: b
-        label: "Mimikatz (o procdump + mimikatz offline)"
+        label: Borras el registro de eventos y cierras la sesión
       - id: c
-        label: "Wireshark"
+        label: Lanzas nmap contra el controlador de dominio
       - id: d
-        label: "Nmap"
+        label: Extraes las credenciales de LSASS con mimikatz
+  - id: active-directory-ataque-t03-q03
+    prompt: "¿Qué herramienta extrae las credenciales de LSASS, ya sea de su memoria en vivo o de un volcado hecho con procdump?"
+    hint: procdump o comsvcs.dll MiniDump. Mimikatz las procesa.
+    kind: choice
+    options:
+      - id: a
+        label: Task Manager
+      - id: b
+        label: Mimikatz (en vivo o sobre un volcado de procdump)
+      - id: c
+        label: Wireshark
+      - id: d
+        label: Nmap
 ---
 
 ## Pass-the-Hash: no necesitas la contraseña

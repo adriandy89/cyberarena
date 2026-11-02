@@ -3,21 +3,30 @@ index: 3
 title: "Sin SSH: chisel y socat"
 questions:
   - id: pivoting-y-tunneling-t03-q01
-    prompt: "¿En qué lenguaje está escrito chisel (lo que le da su binario único multiplataforma que subes al pivote)?"
-    hint: "Go — mismo motivo por el que los C2 modernos también lo usan"
+    prompt: ¿En qué lenguaje está escrito chisel (lo que le da su binario único multiplataforma que subes al pivote)?
+    hint: Go — mismo motivo por el que los C2 modernos también lo usan
     kind: text
   - id: pivoting-y-tunneling-t03-q02
-    prompt: "Escribe el comando del SERVIDOR de chisel en el pivote 10.10.10.5 para abrir un SOCKS5 en su puerto 1080 hacia tu Kali (la conexión la inicia el pivote hacia tu 443)."
-    hint: "chisel server -p 8000 --reverse en TU Kali; en el pivote: chisel client https://TU_IP:8000 R:socks"
+    prompt: "Escribe el comando del CLIENTE de chisel en el pivote 10.10.10.5 para abrir un SOCKS5 reverso hacia tu Kali (que escucha en el puerto 443; usa TU_IP como tu dirección)."
+    hint: "En TU Kali: chisel server -p 443 --reverse; en el pivote: chisel client https://TU_IP:443 R:socks"
     kind: text
   - id: pivoting-y-tunneling-t03-q03
     prompt: "Con socat: ¿qué opción de socat en el pivote reenvía un puerto local hacia otro host (relay TCP puro, sin cifrar) tipo 'port forward' mínimo?"
-    hint: "socat TCP-LISTEN:8080,fork TCP:192.168.1.20:80 — escucha 8080 y relaya al interno"
+    hint: socat TCP-LISTEN:8080,fork TCP:192.168.1.20:80 — escucha 8080 y relaya al interno
     kind: text
   - id: pivoting-y-tunneling-t03-q04
-    prompt: "¿Qué ventaja CLAVE tiene el modo reverse de chisel (--reverse) en redes con firewall de salida estricto?"
-    hint: "La conexión la INICIA el pivote hacia tu servidor (puerto 443 típico): no necesitas exponer puertos ni que el firewall permita entrantes hacia el pivote"
-    kind: text
+    prompt: ¿Qué ventaja CLAVE tiene el modo reverse de chisel (--reverse) en redes con firewall de salida estricto?
+    hint: Piensa en quién inicia la conexión y qué reglas de firewall necesita eso en el segmento interno.
+    kind: choice
+    options:
+      - id: a
+        label: Cifra el tráfico con una clave más fuerte que SSH
+      - id: b
+        label: Permite escanear UDP a través del túnel
+      - id: c
+        label: La conexión la inicia el pivote hacia fuera (saliente), sin puertos entrantes
+      - id: d
+        label: Evita tener que ejecutar ningún binario en el pivote
 ---
 
 ## Cuando no hay SSH

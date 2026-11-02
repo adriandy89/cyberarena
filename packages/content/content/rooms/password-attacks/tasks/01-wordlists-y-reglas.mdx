@@ -1,22 +1,31 @@
 ---
 index: 1
-title: "Wordlists y reglas de mangling"
+title: Wordlists y reglas de mangling
 questions:
   - id: password-attacks-t01-q01
-    prompt: "¿Cómo se llama LA wordlist de 14 millones de contraseñas filtradas que viene por defecto en Kali (/usr/share/wordlists/rockyou.txt)?"
+    prompt: ¿Cómo se llama LA wordlist de 14 millones de contraseñas filtradas que viene por defecto en Kali (/usr/share/wordlists/rockyou.txt)?
     hint: "rockyou.txt (del breach de RockYou 2009) — viene gzipeada: gunzip una vez"
     kind: text
   - id: password-attacks-t01-q02
-    prompt: "¿Qué herramienta genera wordlists personalizadas a partir del perfil de la víctima (nombre, empresa, fecha de nacimiento, deportes) con un perfil mentira?"
-    hint: "CUPP — responde sus preguntas interactivas y crea la lista a medida"
+    prompt: ¿Qué herramienta genera wordlists personalizadas a partir del perfil de la víctima (nombre, empresa, fecha de nacimiento, deportes) con un perfil mentira?
+    hint: CUPP — responde sus preguntas interactivas y crea la lista a medida
     kind: text
   - id: password-attacks-t01-q03
-    prompt: "En hashcat, ¿qué son las REGLAS (rules) aplicadas a una wordlist?"
-    hint: "Transformaciones por línea: capitalizar, añadir año, leetspeak, duplicar — best64.rule es la colección estándar"
-    kind: text
+    prompt: En hashcat, ¿qué son las REGLAS (rules) aplicadas a una wordlist?
+    hint: "Piensa en lo que hace la gente con su contraseña base: capitalizar, añadir el año... best64.rule es la colección estándar."
+    kind: choice
+    options:
+      - id: a
+        label: Normas legales que limitan qué contraseñas se pueden probar
+      - id: b
+        label: Filtros que descartan las palabras demasiado cortas de la wordlist
+      - id: c
+        label: Transformaciones que se aplican a cada palabra de la wordlist (capitalizar, sufijos, leetspeak)
+      - id: d
+        label: Límites de velocidad que protegen el hash objetivo
   - id: password-attacks-t01-q04
-    prompt: "Escribe el comando hashcat para romper un hash NTLM (/tmp/hash.txt) con rockyou + la regla best64 usando la GPU."
-    hint: "hashcat -m 1000 /tmp/hash.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule"
+    prompt: Escribe el comando hashcat para romper un hash NTLM (/tmp/hash.txt) con rockyou + la regla best64 usando la GPU.
+    hint: hashcat -m 1000 /tmp/hash.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
     kind: text
 ---
 

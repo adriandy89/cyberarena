@@ -3,21 +3,48 @@ index: 2
 title: "Offline vs online: dos juegos distintos"
 questions:
   - id: password-attacks-t02-q01
-    prompt: "¿Qué limita la velocidad de un ataque ONLINE (contra un login real) y no existe en el cracking OFFLINE de hashes?"
-    hint: "La red y las contramedidas: rate limit, lockout de cuenta, logs, captcha — offline solo te limita tu GPU"
-    kind: text
+    prompt: ¿Qué limita la velocidad de un ataque ONLINE (contra un login real) y no existe en el cracking OFFLINE de hashes?
+    hint: Offline solo te limita tu GPU; online hay un servicio que se defiende.
+    kind: choice
+    options:
+      - id: a
+        label: La longitud máxima del hash
+      - id: b
+        label: El tamaño de la wordlist, que solo se usa offline
+      - id: c
+        label: La versión de hashcat instalada
+      - id: d
+        label: Rate limit, lockout de cuenta y logs (contramedidas del servicio remoto)
   - id: password-attacks-t02-q02
-    prompt: "¿Cómo se llama el ataque online que prueba UNA contraseña (tipo Verano2026!) contra MUCHAS cuentas, en vez de muchas contraseñas contra una?"
-    hint: "Password spraying — evita lockouts quedando bajo el umbral por cuenta"
+    prompt: ¿Cómo se llama el ataque online que prueba UNA contraseña (tipo Verano2026!) contra MUCHAS cuentas, en vez de muchas contraseñas contra una?
+    hint: Password spraying — evita lockouts quedando bajo el umbral por cuenta
     kind: text
   - id: password-attacks-t02-q03
-    prompt: "¿Qué es el credential stuffing?"
-    hint: "Reutilizar pares usuario:contraseña de breaches anteriores contra el login objetivo — funciona porque la gente reutiliza"
-    kind: text
+    prompt: ¿Qué es el credential stuffing?
+    hint: Funciona porque la gente reutiliza contraseñas entre servicios.
+    kind: choice
+    options:
+      - id: a
+        label: Reutilizar credenciales filtradas de otros breaches contra el login objetivo
+      - id: b
+        label: Rellenar una wordlist con contraseñas aleatorias
+      - id: c
+        label: Crackear hashes de un volcado de LSASS
+      - id: d
+        label: Probar una sola contraseña contra muchas cuentas
   - id: password-attacks-t02-q04
-    prompt: "En un spray con hydra contra SMB de un DC (10.10.10.10), ¿qué opción limita el número de intentos por usuario antes de saltar al siguiente?"
-    hint: "En spraying real se usa -e nsr o listas emparejadas; la clave es 1 intento/usuario/ronda con pausas — hydra: -L users.txt -p 'Verano2026!' sin -P"
-    kind: text
+    prompt: En un spray con hydra contra SMB de un DC (10.10.10.10), ¿qué estrategia evita el lockout de cuentas?
+    hint: "1 intento/usuario/ronda con pausas; en hydra: -L users.txt y una contraseña fija con -p, sin -P."
+    kind: choice
+    options:
+      - id: a
+        label: Probar 1000 contraseñas contra un solo usuario lo más rápido posible
+      - id: b
+        label: Un intento por usuario y ronda (con -p fija, sin -P), con pausas entre rondas
+      - id: c
+        label: Lanzar tantos hilos como sea posible para terminar antes del bloqueo
+      - id: d
+        label: Usar solo -P con la wordlist completa contra el usuario administrador
 ---
 
 ## La diferencia fundamental

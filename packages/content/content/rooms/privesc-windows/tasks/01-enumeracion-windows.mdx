@@ -3,17 +3,26 @@ index: 1
 title: "Enumeración: WinPEAS y la lista manual"
 questions:
   - id: privesc-windows-t01-q01
-    prompt: "¿Qué comando muestra TUS privilegios actuales (busca SeImpersonate!)?"
-    hint: "whoami /priv"
+    prompt: ¿Qué comando muestra TUS privilegios actuales (busca SeImpersonate!)?
+    hint: whoami /priv
     kind: text
   - id: privesc-windows-t01-q02
-    prompt: "¿Qué privilegios permiten impersonar tokens de otros procesos (el ataque Potato)?"
-    hint: "SeImpersonatePrivilege o SeAssignPrimaryTokenPrivilege."
+    prompt: ¿Qué privilegios permiten impersonar tokens de otros procesos (el ataque Potato)?
+    hint: SeImpersonatePrivilege o SeAssignPrimaryTokenPrivilege.
     kind: text
   - id: privesc-windows-t01-q03
-    prompt: "¿Qué tarea de Windows lista los servicios con su cuenta de ejecución y ruta del binario?"
-    hint: "wmic service get name,startname,pathname o Get-Service + Get-CimInstance."
-    kind: text
+    prompt: ¿Qué comando de Windows lista los servicios con su cuenta de ejecución (startname) y la ruta de su binario?
+    hint: Es una consulta WMI sobre servicios; también se puede lograr con Get-CimInstance en PowerShell.
+    kind: choice
+    options:
+      - id: a
+        label: wmic qfe list
+      - id: b
+        label: wmic service get name,startname,pathname
+      - id: c
+        label: whoami /priv
+      - id: d
+        label: schtasks /query /fo LIST /v
 ---
 
 ## La lista manual de privesc Windows

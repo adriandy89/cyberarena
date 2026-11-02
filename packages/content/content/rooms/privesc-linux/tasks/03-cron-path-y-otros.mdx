@@ -1,28 +1,37 @@
 ---
 index: 3
-title: "Cron, PATH hijacking y el resto del arsenal"
+title: Cron, PATH hijacking y el resto del arsenal
 questions:
   - id: privesc-linux-t03-q01
-    prompt: "Un cron job de root ejecuta /opt/scripts/backup.sh que llama 'tar' SIN ruta absoluta. ¿Cómo escalas?"
-    hint: "Crea un binario 'tar' malicioso en un directorio que esté antes en PATH."
-    kind: text
+    prompt: Un cron job de root ejecuta /opt/scripts/backup.sh, que llama a 'tar' SIN ruta absoluta. ¿Cómo escalas privilegios?
+    hint: Piensa en cómo el sistema busca un binario cuando no se indica su ruta completa.
+    kind: choice
+    options:
+      - id: a
+        label: Reiniciar el servicio cron con sudo
+      - id: b
+        label: Borrar /usr/bin/tar para que el script falle
+      - id: c
+        label: Crear un binario tar malicioso en un directorio que esté antes en el PATH del cron
+      - id: d
+        label: Cambiar el hostname de la máquina
   - id: privesc-linux-t03-q02
-    prompt: "¿Qué capability de Linux permite a un binario escuchar en puertos privilegiados sin ser root?"
+    prompt: ¿Qué capability de Linux permite a un binario escuchar en puertos privilegiados sin ser root?
     hint: "cap_net_bind_service. La herramienta para ver capabilities: getcap."
     kind: text
   - id: privesc-linux-t03-q03
-    prompt: "Encuentras una credencial en un archivo de configuración (DB_PASSWORD=xyz en /opt/app/.env). ¿Qué haces?"
-    hint: "Prueba reutilización de credenciales..."
+    prompt: Encuentras una credencial en un archivo de configuración (DB_PASSWORD=xyz en /opt/app/.env). ¿Qué haces?
+    hint: Prueba reutilización de credenciales...
     kind: choice
     options:
       - id: a
         label: "Nada: solo sirve para la base de datos"
       - id: b
-        label: "Probarla como contraseña de root y de otros usuarios (password reuse es ubicuo)"
+        label: Probarla como contraseña de root y de otros usuarios (password reuse es ubicuo)
       - id: c
-        label: "Borrarla para ayudar"
+        label: Borrarla para ayudar
       - id: d
-        label: "Solo si es base64"
+        label: Solo si es base64
 ---
 
 ## Cron jobs: el tiempo ejecuta como root

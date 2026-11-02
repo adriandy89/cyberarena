@@ -4,43 +4,85 @@
   "tasks": {
     "1": {
       "title": "Enumerating",
+      "body": "## BloodHound: the treasure map\n\n```bash\n# 1. Collection (on the compromised machine)\nSharpHound.exe -c All                # collects the ENTIRE domain into a .zip\n# or from Linux with impacket:\nbloodhound-python -u user -p pass -d corp.local -dc dc01.corp.local -c All\n\n# 2. Analysis (on your machine with the BloodHound GUI)\n# Import the .zip → the graph is drawn → \"Find Shortest Path to Domain Admins\"\n```\n\nBloodHound answers the magic question: **\"How do I get from MY current user to Domain\nAdmin?\"** The typical paths it uncovers:\n\n- Your user → member of `Help Desk` → can reset an admin's password\n- Your user → has a session on a server → that server has a service with\n  Domain Admin credentials\n- Your user → can write to a GPO → the GPO applies to the DC\n\n## PowerView / Manual enumeration\n\n```powershell\n# Classic PowerShell module (predates BloodHound)\nGet-DomainUser                          # all users\nGet-DomainGroup \"Domain Admins\" -Members\nGet-NetComputer                         # all computers\nFind-LocalAdminAccess                   # where am I local admin?\nGet-DomainGPO                           # group policies\n```\n\n## The professional workflow\n\n1. Shell on any machine in the domain (phishing, exploit, open share).\n2. **Enumerate** with BloodHound → graph of paths.\n3. Follow the shortest path (often 2-3 hops).\n4. At each hop: the technique from the next task (Kerberoast, Pass-the-Hash, etc.).\n\n> Without BloodHound, enumerating AD by hand is like looking for a book in a library with no\n> catalog: possible, but brutally slow.\n",
       "questions": {
         "active-directory-ataque-t01-q01": {
-          "prompt": "What tool maps the domain as an attack graph?"
+          "prompt": "What tool maps the domain as an attack graph?",
+          "hint": "BloodHound (by SpectreOps)."
         },
         "active-directory-ataque-t01-q02": {
-          "prompt": "What BloodHound info is GOLD?"
+          "prompt": "What BloodHound info is GOLD?",
+          "hint": "Hidden relationships: 'this user is admin of that server'.",
+          "options": {
+            "a": "Plaintext passwords",
+            "b": "Attack paths: my user → group X → admin of Y → Domain Admin",
+            "c": "The Windows version",
+            "d": "Only a list of users"
+          }
         },
         "active-directory-ataque-t01-q03": {
-          "prompt": "What cmd command lists domain users?"
+          "prompt": "What cmd command lists domain users?",
+          "hint": "From the basic AD room: net user /domain"
         }
       }
     },
     "2": {
       "title": "Kerberoasting",
+      "body": "## Kerberoasting: the elegant attack\n\nRecall Kerberos (CS101): you request a **TGT**, then a **TGS** for each service.\nThe TGS is encrypted with the service account's PASSWORD.\n\n**Kerberoasting**: you request TGSs for service accounts (with a registered SPN) and\ncrack them OFFLINE with john/hashcat:\n\n```bash\n# With impacket (from Linux):\nGetUserSPNs.py corp.local/usuario:password -dc-ip 10.10.10.10 -request\n# Output: $krb5tgs$23$*svc_sql$CORP.LOCAL*... (crackable hash)\n\n# Cracking:\njohn --wordlist=rockyou.txt hashes.txt\nhashcat -m 13100 hashes.txt rockyou.txt\n```\n\n**Why it works**: the DC cheerfully hands the TGS to ANY authenticated user.\nIt does not know you are going to crack it on your machine. Zero footprint on the DC.\n\n## AS-REP Roasting: no initial password\n\nAccounts configured WITHOUT pre-authentication (`DONT_REQ_PREAUTH`): you can request their\nAS-REP directly (without knowing their password) — and the AS-REP contains material\nencrypted with the account's password → crackable offline.\n\n```bash\nGetNPUsers.py corp.local/ -usersfile users.txt -no-pass -dc-ip 10.10.10.10\n```\n\n## Mitigation (for the report)\n\n- Service accounts with LONG passwords (25+ chars) or better: **gMSA** (group\n  Managed Service Accounts, automatically rotated passwords).\n- Disable `DONT_REQ_PREAUTH` on all accounts.\n- Monitoring: alert on mass TGS requests from a single user.\n",
       "questions": {
         "active-directory-ataque-t02-q01": {
-          "prompt": "What attack requests TGS for SPN accounts?"
+          "prompt": "What attack requests TGS for SPN accounts?",
+          "hint": "Kerberoasting (impacket's GetUserSPNs)."
         },
         "active-directory-ataque-t02-q02": {
-          "prompt": "What condition enables AS-REP Roasting?"
+          "prompt": "What condition must an account meet to be vulnerable to AS-REP Roasting?",
+          "hint": "It is an account option that affects how it authenticates to the KDC when requesting the TGT.",
+          "options": {
+            "a": "Being a member of Domain Admins",
+            "b": "Having a registered SPN",
+            "c": "Not requiring Kerberos pre-authentication (DONT_REQ_PREAUTH)",
+            "d": "Having an expired password"
+          }
         },
         "active-directory-ataque-t02-q03": {
-          "prompt": "Why is Kerberoasting silent?"
+          "prompt": "Why is Kerberoasting silent?",
+          "hint": "The DC CANNOT tell the request apart from a legitimate one.",
+          "options": {
+            "a": "Because it uses port 443",
+            "b": "Requesting a TGS is a normal Kerberos operation; the DC cannot tell malicious intent, and the cracking is offline",
+            "c": "Because it deletes the logs",
+            "d": "Because it is encrypted"
+          }
         }
       }
     },
     "3": {
       "title": "PtH and lateral movement",
+      "body": "## Pass-the-Hash: you do not need the password\n\nNTLM authenticates with the HASH, not the plaintext password. If you have the NTLM hash\n(obtained from a dump, from a service, from a cracked Kerberoast), you can authenticate:\n\n```bash\n# With impacket (from Linux):\npsexec.py -hashes :NT_HASH admin@10.10.10.10     # shell as admin\nsmbexec.py -hashes aad3b435b51404eeaad3b435b51404ee:NT_HASH admin@10.10.10.10\nwmiexec.py -hashes :NT_HASH admin@10.10.10.10\n```\n\nWith a Domain Admin's hash → SYSTEM shell on the DC → domain compromised.\n\n## Mimikatz: the master key\n\nWhen you compromise a Windows machine with other users' credentials in memory (LSASS):\n\n```cmd\n:: 1. Dump LSASS (you need admin or SYSTEM)\nprocdump -ma lsass.exe lsass.dmp\n\n:: 2. Extract credentials with mimikatz\nmimikatz # sekurlsa::logonpasswords\n:: Output: users, NTLM hashes, Kerberos tickets in memory\n```\n\nMimikatz reveals EVERYTHING the system remembers: plaintext passwords from previous\nsessions, NTLM hashes, TGT/TGS tickets. That is why the goal is to reach a server\nwhere an admin has logged in recently.\n\n## Lateral movement: the complete plan\n\n```text\n1. Shell as a normal user on any machine in the domain\n2. BloodHound → who has a session on my machine? where am I local admin?\n3. Kerberoast → crack a service account's password\n4. Pass-the-Hash with that credential → access to a new server\n5. On the new server: mimikatz → credentials of someone more privileged\n6. Repeat until Domain Admin → DC → entire domain\n```\n\n**The entire chain is what BloodHound visualizes**. Every edge in the graph is a\ntechnique from this room. In the path's advanced labs you will practice it end to end.\n\nWith Active Directory wrapped up, the path's last module turns you into a scripter:\nautomating your own arsenal.\n",
       "questions": {
         "active-directory-ataque-t03-q01": {
-          "prompt": "What attack uses NTLM hash without the password?"
+          "prompt": "What attack uses NTLM hash without the password?",
+          "hint": "Pass-the-Hash (PtH). impacket's psexec/smbexec/wmiexec do it."
         },
         "active-directory-ataque-t03-q02": {
-          "prompt": "You find Domain Admin creds in memory. What tool extracts them?"
+          "prompt": "You compromise a server that has a Domain Admin's credentials in memory. What do you do?",
+          "hint": "Think about which Windows process stores those credentials and which tool reads them.",
+          "options": {
+            "a": "Reboot the server so the credentials show up on screen",
+            "b": "Clear the event log and log off",
+            "c": "Run nmap against the domain controller",
+            "d": "Extract the credentials from LSASS with mimikatz"
+          }
         },
         "active-directory-ataque-t03-q03": {
-          "prompt": "What Sysinternals tool dumps LSASS?"
+          "prompt": "Which tool extracts credentials from LSASS, either from its live memory or from a dump taken with procdump?",
+          "hint": "procdump or comsvcs.dll MiniDump. Mimikatz processes them.",
+          "options": {
+            "a": "Task Manager",
+            "b": "Mimikatz (live or on a procdump dump)",
+            "c": "Wireshark",
+            "d": "Nmap"
+          }
         }
       }
     }
