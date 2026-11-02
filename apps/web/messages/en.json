@@ -267,5 +267,163 @@
     "enabled": "2FA enabled successfully.",
     "disabled": "2FA disabled.",
     "backupCodes": "Backup codes (save them somewhere safe):"
+  },
+  "Byte": {
+    "companion": {
+      "label": "Byte, your learning companion",
+      "talk": "Ask Byte for a tip",
+      "minimize": "Minimize Byte",
+      "expand": "Expand Byte",
+      "hide": "Hide Byte",
+      "show": "Show Byte",
+      "dismiss": "Dismiss message",
+      "login": "Sign in",
+      "retry": "Retry"
+    },
+    "events": {
+      "answerCorrect": [
+        "Nice catch! That's correct.",
+        "Correct. That's how an attacker thinks (one of the good ones).",
+        "That's it! My sensors confirm the hit.",
+        "Perfect. One step closer to the next level.",
+        "Got it! On to the next question.",
+        "Answer verified. I like the way you work."
+      ],
+      "answerWrong": [
+        "Close. Re-read the task calmly: the answer is usually there.",
+        "Not quite, but you're on the right track. Try again.",
+        "My sensors say no. Check casing, spaces and format.",
+        "Failing is learning too. Another go?",
+        "Incorrect. Look again at the command or output they ask for.",
+        "Even the best pentesters miss sometimes. Again!"
+      ],
+      "answerWrongRepeated": [
+        "That's a few attempts. Why not open the hint? That's what it's for.",
+        "Stuck detected. The hint will give you the missing push.",
+        "Breathe, re-read the task and take a look at the hint.",
+        "Asking for help is what pros do: try the hint.",
+        "Here's a deal: check the hint and we'll solve it together."
+      ],
+      "hintOpened": [
+        "Good call. Read the hint and connect it to the theory.",
+        "Hint unlocked. Now pay attention to the details.",
+        "Hints don't cost XP: use them freely.",
+        "This should make it click. You've got this!",
+        "Hint on screen. I'd have asked for it too."
+      ],
+      "roomCompleted": [
+        "Room complete! XP bonus unlocked.",
+        "Mission accomplished! This room is yours.",
+        "You did it! Shall we take on the next challenge?",
+        "Room cleared. Yesterday's you didn't know all this.",
+        "100% complete! My circuits are partying."
+      ],
+      "levelUp": [
+        "Level up! You're now level {level}: {name}.",
+        "Level {level} unlocked ({name})! Things are getting serious.",
+        "Boom! Level {level}. Your skills are growing.",
+        "Level {level} reached. Keep escalating… privileges included.",
+        "Congratulations! You reached level {level}: {name}."
+      ],
+      "authRequired": [
+        "You need to sign in to save your progress.",
+        "Good answer… but I can't save it without a session! Sign in for a moment.",
+        "Sign in and I'll record every correct answer and every XP point.",
+        "No session, no XP. Sign in and we'll pick up where you left off.",
+        "I need to know who you are to save your achievements. Sign in?"
+      ],
+      "networkError": [
+        "Oops, I lost the connection to the server. Please try again.",
+        "Network error: my antennas have no signal. Retry in a few seconds.",
+        "I couldn't send your answer. This attempt doesn't count as a miss.",
+        "The server isn't responding. Check your connection and try again.",
+        "Packet lost on the way. Shall we resend it?"
+      ]
+    },
+    "greetings": {
+      "morning": [
+        "Good morning! Shall we start with a room?",
+        "Coffee ready, terminal open. Good morning!",
+        "Good morning! Today is a great day to capture flags."
+      ],
+      "afternoon": [
+        "Good afternoon! Shall we keep learning?",
+        "Perfect afternoon for some reconnaissance.",
+        "Hello again! Your rooms are waiting."
+      ],
+      "evening": [
+        "Good evening! One room before you log off.",
+        "The night belongs to (ethical) hackers. Shall we?",
+        "Hi! A couple of questions and your streak stays alive."
+      ],
+      "night": [
+        "Up late? I don't sleep either: I'm a robot.",
+        "Night mode on. But remember to rest.",
+        "The best ideas arrive after midnight… and so do the worst."
+      ]
+    },
+    "tips": [
+      "Don't reuse passwords: a password manager is your best ally.",
+      "Turn on two-factor authentication (2FA) wherever you can.",
+      "Before attacking, enumerate: reconnaissance decides everything else.",
+      "Read command output in full: details hide the flags.",
+      "On Linux, man <command> is the manual you always have at hand.",
+      "The principle of least privilege limits the impact of any intrusion.",
+      "A backup you have never restored is not a backup.",
+      "HTTPS encrypts the transport; it doesn't fix a vulnerable app.",
+      "Always validate on the server: the user controls the client.",
+      "Parameterized queries put an end to SQL injection.",
+      "Take notes while you practice: your future self will thank you.",
+      "Logs tell stories. Learn to read them.",
+      "Every open port is a door: ask what's behind it.",
+      "Keep software up to date: many breaches use already-patched bugs.",
+      "Hashing isn't encryption: hashes aren't decrypted, they're cracked.",
+      "Only practice in authorized environments, like the CyberArena labs.",
+      "Be wary of messages that push urgency: it's phishing's favorite trick.",
+      "Three correct answers a day keep your streak alive.",
+      "Flags usually look like FLAG{...}: copy them in full.",
+      "If you get stuck, switch rooms and come back with a fresh mind."
+    ],
+    "pageTips": {
+      "home": [
+        "Starting from scratch? Cyber Security 101 is your first stop.",
+        "Every path goes from easy to hard. Follow the order and you won't get lost."
+      ],
+      "paths": [
+        "Paths are ordered from beginner to expert. Start with the first one.",
+        "Every completed path earns you a downloadable certificate."
+      ],
+      "path": [
+        "Use \"Continue\" to resume your first pending room.",
+        "Rooms tagged lab include a Docker environment to practice in."
+      ],
+      "room": [
+        "Read the whole task before answering: clues are usually in the text.",
+        "Use the ← and → keys to move between tasks.",
+        "If you miss several times, open the hint: it doesn't cost XP."
+      ],
+      "hacktivities": [
+        "Sort by \"Recommended\" to see rooms in path order.",
+        "Turn on \"Labs only\" if you feel like something hands-on."
+      ],
+      "leaderboard": [
+        "The monthly ranking resets every month: there's always a chance to climb.",
+        "Every completed room adds an extra XP bonus."
+      ],
+      "dashboard": [
+        "Your streak counts when you get at least three answers right per day.",
+        "From here you can continue right where you left off."
+      ],
+      "login": [
+        "With an account I keep your progress, XP and certificates.",
+        "You can enable two-factor authentication from your dashboard."
+      ],
+      "status": [
+        "If the API or the database fail, check docs/runbook.md."
+      ],
+      "certificate": [
+        "You can download your certificate as PDF or print it."
+      ]
+    }
   }
 }

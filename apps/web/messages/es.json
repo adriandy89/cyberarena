@@ -267,5 +267,163 @@
     "enabled": "2FA activado correctamente.",
     "disabled": "2FA desactivado.",
     "backupCodes": "Códigos de backup (guárdalos en lugar seguro):"
+  },
+  "Byte": {
+    "companion": {
+      "label": "Byte, tu compañero de aprendizaje",
+      "talk": "Pedir un consejo a Byte",
+      "minimize": "Minimizar a Byte",
+      "expand": "Ampliar a Byte",
+      "hide": "Ocultar a Byte",
+      "show": "Mostrar a Byte",
+      "dismiss": "Cerrar mensaje",
+      "login": "Iniciar sesión",
+      "retry": "Reintentar"
+    },
+    "events": {
+      "answerCorrect": [
+        "¡Bien visto! Respuesta correcta.",
+        "Correcto. Así se piensa como un atacante (de los buenos).",
+        "¡Eso es! Mis sensores confirman el acierto.",
+        "Perfecto. Un paso más cerca del siguiente nivel.",
+        "¡Lo tienes! Vamos a por la siguiente pregunta.",
+        "Respuesta verificada. Me gusta cómo trabajas."
+      ],
+      "answerWrong": [
+        "Casi. Relee la tarea con calma: la respuesta suele estar ahí.",
+        "No es eso, pero vas por buen camino. Prueba otra vez.",
+        "Mis sensores dicen que no. Revisa mayúsculas, espacios y formato.",
+        "Fallar también es aprender. ¿Otro intento?",
+        "Incorrecto. Vuelve a mirar el comando o la salida que te piden.",
+        "Ni los mejores pentesters aciertan siempre a la primera. ¡Otra!"
+      ],
+      "answerWrongRepeated": [
+        "Llevas varios intentos. ¿Y si abres la pista? Para eso está.",
+        "Atasco detectado. La pista te dará el empujón que falta.",
+        "Respira, relee la tarea y echa un vistazo a la pista.",
+        "Pedir ayuda es de profesionales: prueba con la pista.",
+        "Te propongo un trato: mira la pista y lo resolvemos juntos."
+      ],
+      "hintOpened": [
+        "Buena decisión. Lee la pista y conéctala con la teoría.",
+        "Pista desbloqueada. Ahora fíjate en los detalles.",
+        "Las pistas no restan XP: úsalas sin miedo.",
+        "Con esto debería encajar todo. ¡Tú puedes!",
+        "Pista en pantalla. Yo también la habría pedido."
+      ],
+      "roomCompleted": [
+        "¡Room completado! Bonus de XP desbloqueado.",
+        "¡Misión cumplida! Este room ya es tuyo.",
+        "¡Lo lograste! ¿Vamos a por el siguiente reto?",
+        "Room superado. Tu yo de ayer no sabía todo esto.",
+        "¡Completado al 100 %! Mis circuitos están de fiesta."
+      ],
+      "levelUp": [
+        "¡Subida de nivel! Ahora eres nivel {level}: {name}.",
+        "¡Nivel {level} desbloqueado ({name})! Esto se pone serio.",
+        "¡Bum! Nivel {level}. Tus skills crecen.",
+        "Nivel {level} alcanzado. Sigue escalando… privilegios incluidos.",
+        "¡Enhorabuena! Has llegado al nivel {level}: {name}."
+      ],
+      "authRequired": [
+        "Para guardar tu progreso necesitas iniciar sesión.",
+        "¡Buena respuesta… pero sin sesión no puedo guardarla! Entra un momento.",
+        "Inicia sesión y apuntaré cada acierto y cada punto de XP.",
+        "Sin sesión no hay XP. Entra y seguimos donde lo dejaste.",
+        "Necesito saber quién eres para guardar tus logros. ¿Entras?"
+      ],
+      "networkError": [
+        "Uy, he perdido la conexión con el servidor. Inténtalo de nuevo.",
+        "Error de red: mis antenas no reciben señal. Reintenta en unos segundos.",
+        "No he podido enviar tu respuesta. Este intento no cuenta como fallo.",
+        "El servidor no responde. Comprueba tu conexión y vuelve a probar.",
+        "Paquete perdido por el camino. ¿Lo reenviamos?"
+      ]
+    },
+    "greetings": {
+      "morning": [
+        "¡Buenos días! ¿Empezamos con un room?",
+        "Café listo, terminal abierta. ¡Buenos días!",
+        "¡Buenos días! Hoy es un gran día para capturar flags."
+      ],
+      "afternoon": [
+        "¡Buenas tardes! ¿Seguimos aprendiendo?",
+        "Tarde perfecta para un poco de reconocimiento.",
+        "¡Hola de nuevo! Tus rooms te esperan."
+      ],
+      "evening": [
+        "¡Buenas noches! Un room antes de desconectar.",
+        "La noche es de los hackers (éticos). ¿Vamos?",
+        "¡Hola! Un par de preguntas y mantienes la racha."
+      ],
+      "night": [
+        "¿Trasnochando? Yo tampoco duermo: soy un robot.",
+        "Modo nocturno activado. Pero acuérdate de descansar.",
+        "Las mejores ideas llegan de madrugada… y las peores también."
+      ]
+    },
+    "tips": [
+      "No reutilices contraseñas: un gestor de contraseñas es tu mejor aliado.",
+      "Activa la verificación en dos pasos (2FA) siempre que puedas.",
+      "Antes de atacar, enumera: el reconocimiento decide todo lo demás.",
+      "Lee la salida de los comandos entera: los detalles esconden las flags.",
+      "En Linux, man <comando> es el manual que siempre tienes a mano.",
+      "El principio de mínimo privilegio reduce el impacto de cualquier intrusión.",
+      "Una copia de seguridad que nunca has restaurado no es una copia de seguridad.",
+      "HTTPS cifra el transporte; no arregla una aplicación vulnerable.",
+      "Valida siempre en el servidor: el cliente lo controla el usuario.",
+      "Las consultas parametrizadas acaban con la inyección SQL.",
+      "Toma notas mientras practicas: tu yo del futuro te lo agradecerá.",
+      "Los logs cuentan historias. Aprende a leerlos.",
+      "Cada puerto abierto es una puerta: pregúntate qué hay detrás.",
+      "Mantén el software al día: muchas brechas usan fallos ya parcheados.",
+      "Hashear no es cifrar: los hashes no se descifran, se crackean.",
+      "Practica solo en entornos autorizados, como los labs de CyberArena.",
+      "Desconfía de los mensajes con prisa y urgencia: es el truco favorito del phishing.",
+      "Tres aciertos al día mantienen viva tu racha.",
+      "Las flags suelen tener el formato FLAG{...}: cópialas completas.",
+      "Si te atascas, cambia de room y vuelve luego con la mente fresca."
+    ],
+    "pageTips": {
+      "home": [
+        "Si empiezas desde cero, Cyber Security 101 es tu primera parada.",
+        "Cada ruta va de lo fácil a lo difícil. Sigue el orden y no te perderás."
+      ],
+      "paths": [
+        "Las rutas están ordenadas de novato a experto. Empieza por la primera.",
+        "Cada ruta completada te da un certificado descargable."
+      ],
+      "path": [
+        "Usa «Continuar» para retomar el primer room que tengas pendiente.",
+        "Los rooms con la etiqueta lab incluyen un entorno Docker para practicar."
+      ],
+      "room": [
+        "Lee la tarea completa antes de responder: las pistas suelen estar en el texto.",
+        "Usa las flechas ← y → del teclado para moverte entre tareas.",
+        "Si fallas varias veces, abre la pista: no resta XP."
+      ],
+      "hacktivities": [
+        "Ordena por «Recomendado» para ver los rooms en el orden de las rutas.",
+        "Activa «Solo con labs» si te apetece algo práctico."
+      ],
+      "leaderboard": [
+        "La clasificación mensual se reinicia cada mes: siempre hay opción de subir.",
+        "Cada room completado suma un bonus de XP extra."
+      ],
+      "dashboard": [
+        "Tu racha cuenta si aciertas al menos tres preguntas al día.",
+        "Desde aquí puedes continuar justo donde lo dejaste."
+      ],
+      "login": [
+        "Con una cuenta guardo tu progreso, tu XP y tus certificados.",
+        "Puedes activar la verificación en dos pasos desde tu panel."
+      ],
+      "status": [
+        "Si la API o la base de datos fallan, revisa docs/runbook.md."
+      ],
+      "certificate": [
+        "Puedes descargar tu certificado en PDF o imprimirlo."
+      ]
+    }
   }
 }
