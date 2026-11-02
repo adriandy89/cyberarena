@@ -58,7 +58,8 @@ function envValue(file, key) {
 try {
   // TLS + health.
   const live = await get('/api/health/live');
-  check('TLS with Caddy internal CA + /api/health/live', live.status === 200);
+  const https = BASE.startsWith('https:');
+  check(https ? 'TLS with Caddy internal CA + /api/health/live' : '/api/health/live (plain HTTP, LAN)', live.status === 200);
   const health = await get('/api/health');
   check(
     '/api/health: ok, db up, labs runner up',
@@ -97,7 +98,8 @@ try {
     body: JSON.stringify({ email, password }),
   });
   const cookie = (signIn.headers.get('set-cookie') ?? '').split(';')[0];
-  check('admin sign-in (secure cookie)', signIn.status === 200 && cookie.startsWith('__Secure-'), cookie.split('=')[0]);
+  // better-auth only prefixes the cookie with __Secure- over HTTPS.
+  check('admin sign-in', signIn.status === 200 && (!https || cookie.startsWith('__Secure-')), cookie.split('=')[0]);
   const me = await get('/api/users/me', { headers: { Cookie: cookie } });
   check('admin role', me.json?.role === 'ADMIN');
   const adminLabs = await get('/api/admin/labs', { headers: { Cookie: cookie } });

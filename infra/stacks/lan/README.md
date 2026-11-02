@@ -1,8 +1,9 @@
 # Despliegue en la LAN (fase 013)
 
-CyberArena completo (Caddy + Postgres + api + web + lab-runner) en un servidor de tu red, accesible desde
-cualquier navegador de la LAN en `https://<IP-del-servidor>`. Un solo proyecto Docker (`cyberarena-prod`)
-con sus propias redes.
+CyberArena completo (Postgres + api + web + lab-runner) en un servidor de tu red, accesible desde cualquier
+navegador de la LAN en `http://<IP-del-servidor>:<WEB_PORT>` (por defecto 3080). Un solo proyecto Docker
+(`cyberarena-prod`) con sus propias redes y sin proxy inverso: la web se publica directamente en su
+puerto y reenvía `/api` a la api por la red interna del proyecto.
 
 ## Estructura en el servidor
 
@@ -11,8 +12,8 @@ con sus propias redes.
 ├── repo/                  # git clone — NO se modifica nunca (solo git pull)
 └── stack/                 # todo lo propio del servidor
     ├── cyberarena.sh -> ../repo/infra/stacks/lan/cyberarena.sh
-    ├── .env               # IP, rutas, política de labs (cyberarena.sh init)
-    ├── secrets/           # contraseñas y tokens (generados, chmod 600)
+    ├── .env               # IP, puerto, política de labs (cyberarena.sh init)
+    ├── secrets/           # contraseñas y tokens (carpeta 700, ficheros 644)
     ├── lab-flags/         # flags de los labs para el runner
     └── backups/           # volcados de la BD
 ```
@@ -31,8 +32,7 @@ cd ~/cyberarena/stack
 `init` muestra **una vez** la contraseña del admin inicial (`admin@cyberarena.local`); también queda en
 `secrets/bootstrap_admin_password`. Nunca sobrescribe secretos existentes.
 
-Abre `https://<IP>` y acepta el aviso del navegador (certificado de la CA interna de Caddy). Para que no
-avise, importa la CA: `docker exec cyberarena-prod-caddy-1 cat /data/caddy/pki/authorities/local/root.crt`.
+¿Otro puerto? Cambia `WEB_PORT` y el puerto de `WEB_ORIGIN` en `.env` y ejecuta `./cyberarena.sh up`.
 
 ## Día a día
 
@@ -57,7 +57,8 @@ Los labs de terminal (`docker exec …`) se usan desde una sesión SSH en el ser
 
 ## Notas
 
+- Sin HTTPS: pensado para tu LAN. Las contraseñas viajan en claro por la red local.
 - Un solo lab-runner por host Docker (si tienes otro CyberArena en la misma máquina, páralo).
-- Puertos que usa: 80 y 443 (Caddy), `127.0.0.1:5433` (Postgres, solo operación) y los de los labs
+- Puertos que usa: `WEB_PORT` (3080), `127.0.0.1:5433` (Postgres, solo operación) y los de los labs
   (18080–18116, 18153/udp, 18180/18443/18844, 28021–28901) mientras estén encendidos.
 - Más detalle: `docs/runbook.md` (producción y labs bajo demanda).

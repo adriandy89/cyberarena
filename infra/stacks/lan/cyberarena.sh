@@ -27,6 +27,10 @@ dc() {
     --env-file "$STACK_DIR/.env" "$@"
 }
 
+env_value() {
+  grep -E "^$1=" "$STACK_DIR/.env" 2>/dev/null | tail -1 | cut -d= -f2-
+}
+
 lan_ip() {
   ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i = 1; i <= NF; i++) if ($i == "src") { print $(i + 1); exit }}'
 }
@@ -94,7 +98,9 @@ cmd_preflight() {
   labs=$(find "$REPO_DIR/labs" -mindepth 2 -maxdepth 2 -name compose.yaml -not -path '*/_*' | wc -l)
   flags=$(find "$STACK_DIR/lab-flags" -name '*.env' 2>/dev/null | wc -l)
   [ "$flags" -ge "$labs" ] && ok "$flags lab flag files" || bad "$flags/$labs lab flag files (./cyberarena.sh init)"
-  for port in 80 443 5433; do
+  local web_port
+  web_port=$(env_value WEB_PORT)
+  for port in "${web_port:-3080}" "$(env_value POSTGRES_PORT)"; do
     if ss -ltnH "( sport = :$port )" | grep -q .; then
       if docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.Ports}}' | grep -q ":$port->"; then
         ok "port $port (this stack)"
@@ -120,11 +126,9 @@ cmd_seed() {
 
 cmd_up() {
   cmd_preflight
-  dc up -d --build --wait
+  dc up -d --build --wait --remove-orphans
   cmd_seed
-  local site
-  site=$(grep -E '^SITE_ADDRESS=' "$STACK_DIR/.env" | cut -d= -f2)
-  echo "CyberArena is up: https://$site"
+  echo "CyberArena is up: $(env_value WEB_ORIGIN)"
 }
 
 cmd_update() {

@@ -8,6 +8,10 @@
     carpeta aparte y la configuración del servidor fuera del clon, para que `git pull` nunca choque.
     Decisiones: labs expuestos en la IP de la LAN mientras están encendidos; HTTPS con la CA interna de
     Caddy aceptando el aviso del navegador (sin instalar la CA).
+  - 2026-11-02 **cambio de decisión del usuario: sin Caddy.** Es solo para la LAN: la web se publica
+    directamente en un puerto propio (`WEB_PORT`, 3080) por HTTP y reenvía `/api` a la api por la red del
+    proyecto; nada en 80/443, sin conflictos con los demás proyectos del mini PC. Las cabeceras de
+    seguridad pasan a la propia web (Next) para no perderlas sin proxy.
 
 ## 1. Propósito
 
@@ -26,8 +30,8 @@ LAN hace falta:
    runner reescribe los puertos en el override que ya genera.
 2. **api/web**: `LAB_PUBLIC_HOST` llega a la web (`GET /api/labs`) y el room sustituye `127.0.0.1:<puerto
    de lab>` por ese host en teoría, enunciados, pistas y opciones; el panel de lab muestra ese host.
-3. **Kit LAN** (`infra/stacks/lan/`): overlay de compose (Caddy dentro del mismo proyecto, red propia,
-   contexto de build desde `REPO_DIR`), plantilla de `.env` y `cyberarena.sh`
+3. **Kit LAN** (`infra/stacks/lan/`): overlay de compose (web publicada en `WEB_PORT` sin proxy, red
+   propia, contexto de build desde `REPO_DIR`), plantilla de `.env` y `cyberarena.sh`
    (`init|preflight|up|down|destroy|ps|logs|seed|update|backup|labs`). Se usa desde una carpeta de stack
    **fuera** del clon; el clon no se modifica.
 4. **Servidor**: `~/cyberarena/repo` (clon de GitHub) y `~/cyberarena/stack` (`.env`, `secrets/`,
@@ -35,8 +39,8 @@ LAN hace falta:
 
 ## 3. Criterios de éxito
 
-- [ ] Desde el PC del usuario, `https://192.168.1.20` sirve la plataforma (smoke en verde).
-- [ ] Un lab arrancado desde la web es accesible en `http://192.168.1.20:<puerto>` y su flag se acepta.
+- [ ] Desde el PC del usuario, `http://192.168.1.20:3080` sirve la plataforma (smoke en verde).
+- [ ] Un lab arrancado desde la web es accesible en `http://192.168.1.20:<puerto del lab>` y su flag se acepta.
 - [ ] `git -C ~/cyberarena/repo status` limpio tras desplegar; `./cyberarena.sh update` hace `pull` + rebuild.
 - [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
 
@@ -45,4 +49,4 @@ LAN hace falta:
 Con `LAB_BIND_ADDRESS` en la IP de la LAN, cualquier equipo de la red alcanza los labs (apps vulnerables a
 propósito) mientras están encendidos. Por eso es opcional, por defecto desactivado, y los labs siguen
 apagándose solos (fase 011). La API, Postgres (`127.0.0.1:5433`) y el runner siguen sin exponerse; solo
-Caddy publica 80/443.
+la web publica su puerto. Sin TLS: el tráfico (también contraseñas) va en claro dentro de la LAN.

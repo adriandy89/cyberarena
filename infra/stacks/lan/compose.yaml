@@ -6,8 +6,9 @@
 #   ~/cyberarena/repo    git clone (untouched)
 #   ~/cyberarena/stack   .env, secrets/, lab-flags/, backups/, cyberarena.sh -> repo
 #
-# Run it through cyberarena.sh (see README.md). Everything is ONE compose project
-# with its own networks: Caddy joins the stack instead of a separate proxy stack.
+# Run it through cyberarena.sh (see README.md). ONE compose project with its own
+# networks and no reverse proxy: the web is published on WEB_PORT over plain
+# HTTP for the LAN, and proxies /api to the api inside the project network.
 services:
   api:
     build:
@@ -15,47 +16,16 @@ services:
   web:
     build:
       context: ${REPO_DIR}
+    ports:
+      # The only port the platform publishes (labs publish theirs while running).
+      - '${WEB_PORT:-3080}:3000'
   lab-runner:
     build:
       context: ${REPO_DIR}
 
-  caddy:
-    image: caddy:2.10-alpine
-    ports:
-      - '80:80'
-      - '443:443'
-      - '443:443/udp' # HTTP/3
-    environment:
-      # The LAN IP: Caddy serves it over HTTPS with its internal CA.
-      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in the stack .env}
-    volumes:
-      - ${REPO_DIR}/infra/stacks/proxy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    cap_drop: [ALL]
-    cap_add: [NET_BIND_SERVICE, CHOWN, SETUID, SETGID, DAC_OVERRIDE]
-    security_opt: [no-new-privileges:true]
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1:2019/config/']
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    depends_on:
-      api:
-        condition: service_healthy
-      web:
-        condition: service_started
-    restart: unless-stopped
-    networks: [proxy]
-
-volumes:
-  caddy_data:
-  caddy_config:
-
 networks:
-  # The prod file expects an external proxy network; here Caddy is part of the
-  # project, so the network is created (and removed) with it.
+  # The prod file joins api and web to an external proxy network (Caddy). Here
+  # there is no proxy: the network is the project's own and goes away with it.
   proxy:
-    name: cyberarena-lan-proxy
+    name: cyberarena-lan-net
     external: false
