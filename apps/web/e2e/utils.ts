@@ -1,6 +1,8 @@
 import { request, expect, type APIRequestContext, type BrowserContextOptions } from '@playwright/test';
 
 const API_URL = process.env.E2E_API_URL ?? 'http://localhost:3001';
+// Same default as playwright.config.ts; the session cookie must match its host.
+const BASE_URL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000';
 
 export interface TestUser {
   email: string;
@@ -45,7 +47,11 @@ export async function apiLogin(user: TestUser): Promise<string> {
   }
 }
 
-/** Browser context options carrying the session cookie (same-origin via rewrite). */
+/**
+ * Browser context options carrying the session cookie (same-origin via rewrite).
+ * The cookie is scoped to the host of E2E_BASE_URL: pages that set their own
+ * cookies (NEXT_LOCALE on /en) would otherwise drop the extra Cookie header.
+ */
 export function sessionCookieOptions(cookieHeader: string): BrowserContextOptions {
   const [name, value] = cookieHeader.split('=');
   return {
@@ -55,7 +61,7 @@ export function sessionCookieOptions(cookieHeader: string): BrowserContextOption
         {
           name: name!,
           value: value ?? '',
-          domain: '127.0.0.1',
+          domain: new URL(BASE_URL).hostname,
           path: '/',
           expires: -1,
           httpOnly: true,

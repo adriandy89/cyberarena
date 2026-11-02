@@ -34,7 +34,8 @@
 
 ## Fase E — Cierre
 
-- [ ] T013 E2E `labs.spec.ts` con el runner simulado; `infra/scripts/labs-smoke.sh`.
+- [x] T013 E2E `labs.spec.ts` (se salta si los labs están desactivados; vale con runner real o simulado);
+      `infra/scripts/labs-smoke.mjs` (Node en lugar de bash: lee el manifiesto JSON sin depender de `jq`).
 - [ ] T014 Verificación completa en el dev stack con labs reales; content-guide; cierre de la spec.
 
 ## Bugs/Deuda
