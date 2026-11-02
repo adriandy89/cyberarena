@@ -3,6 +3,7 @@
   "title": "Jr Penetration Tester",
   "description": "De novato a junior: metodología, recon OSINT/activo, Social Engineering, herramientas, privesc, AD, pivoting, passwords y scripting.",
   "level": "intermediate",
+  "order": 2,
   "modules": [
     {
       "slug": "pentest-foundations"

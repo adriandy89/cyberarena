@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { Catalog, CompiledRoom } from './schemas';
 import { validateCatalog } from './validate';
 
-function room(slug: string, taskIndexes: number[] = [1], questionIds: string[][] = [['q']]): CompiledRoom {
+function room(
+  slug: string,
+  taskIndexes: number[] = [1],
+  questionIds: string[][] = [['q']],
+): CompiledRoom {
   return {
     slug,
     title: `Room ${slug}`,
@@ -70,7 +74,10 @@ describe('validateCatalog', () => {
   it('detects missing answers', () => {
     const rooms = [room('linux-1')];
     const issues = validateCatalog(catalogWith(rooms), {});
-    expect(issues).toContainEqual({ source: 'answers', message: "missing answer for 'linux-1-t01-q0q'" });
+    expect(issues).toContainEqual({
+      source: 'answers',
+      message: "missing answer for 'linux-1-t01-q0q'",
+    });
   });
 
   it('detects orphan answers', () => {

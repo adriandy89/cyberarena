@@ -1,0 +1,162 @@
+{
+  "paths": {
+    "cyber-security-101": {
+      "title": "Cyber Security 101",
+      "description": "Your starting point in cybersecurity: offensive and defensive fundamentals, Linux, Windows, networking, cryptography, web hacking and OWASP, with hands-on practice from day one."
+    },
+    "jr-penetration-tester": {
+      "title": "Jr Penetration Tester",
+      "description": "From beginner to junior: methodology, OSINT and active recon, social engineering, tooling, privilege escalation, AD, pivoting, passwords and scripting."
+    },
+    "webapp-pentesting": {
+      "title": "Web Application Pentesting",
+      "description": "Offensive web specialization with real labs: SQLi, XSS, SSRF, command injection, file upload, auth bypass, race conditions and API security."
+    },
+    "advanced-pentesting": {
+      "title": "Advanced Pentesting (Red Team / PT2)",
+      "description": "Expert level: binary exploitation, WAF evasion, advanced Active Directory, container escape, cloud IAM and AI/LLM exploitation."
+    }
+  },
+  "modules": {
+    "start-your-cyber-journey": {
+      "title": "Start Your Cyber Journey",
+      "description": "What offensive security is, how to work ethically and legally, and how hands-on learning with rooms and flags is structured."
+    },
+    "linux-fundamentals": {
+      "title": "Linux Fundamentals",
+      "description": "Terminal, file system, permissions and SUID, users, processes, packages, networking and automation: the base to attack and defend Linux systems."
+    },
+    "windows-ad-fundamentals": {
+      "title": "Windows and Active Directory Fundamentals",
+      "description": "The operating system of the corporate world: editions, Registry, UAC and the domain model with Kerberos."
+    },
+    "command-line": {
+      "title": "Command Line",
+      "description": "CMD and PowerShell: automation in the Windows world, from network diagnostics to object pipelines."
+    },
+    "networking": {
+      "title": "Networking",
+      "description": "Networking basics, Wireshark and wireless security: traffic as evidence and the air as the perimeter."
+    },
+    "cryptography": {
+      "title": "Cryptography",
+      "description": "Encryption, hashing, cracking, PKI and digital certificates, with practice."
+    },
+    "exploitation-basics": {
+      "title": "Exploitation Basics",
+      "description": "CVEs and public exploits, Metasploit, shells and binary reverse engineering with a lab."
+    },
+    "web-hacking": {
+      "title": "Web Hacking",
+      "description": "Anatomy of a web application, inspection with DevTools, client-side validation and Burp Suite as a full proxy."
+    },
+    "offensive-tooling": {
+      "title": "Offensive Security Tooling",
+      "description": "The offensive arsenal: Burp Suite, Nmap, Hydra and password attack theory (wordlists, rules, spraying, NTLM)."
+    },
+    "defensive-security": {
+      "title": "Defensive Security",
+      "description": "The other side: threat modeling, the SOC, phishing forensics, log analysis and the incident lifecycle."
+    },
+    "security-solutions": {
+      "title": "Security Solutions",
+      "description": "The technology of defense: SIEM, firewalls, IDS/IPS and vulnerability scanners."
+    },
+    "defensive-tooling": {
+      "title": "Defensive Security Tooling",
+      "description": "The defender's tools: SIEM and EDR in practice, REMnux/FLARE and the malware analysis method."
+    },
+    "cyber-career": {
+      "title": "Cyber Career",
+      "description": "Professional principles, a map of roles in the industry and your next learning step."
+    },
+    "owasp-top-10": {
+      "title": "OWASP Top 10 (2025)",
+      "description": "The ten most critical web risks: broken access control, injections, SSRF, supply chain and more."
+    },
+    "pentest-foundations": {
+      "title": "Penetration Testing Foundations",
+      "description": "Professional methodology: pentest phases, frameworks (PTES/OSSTMM), the cyber kill chain and the art of reporting."
+    },
+    "recon-pasivo": {
+      "title": "Passive Reconnaissance",
+      "description": "Deep OSINT and social engineering: the public information that feeds attacks on the human factor."
+    },
+    "recon-activo": {
+      "title": "Active Reconnaissance",
+      "description": "Host discovery, port scanning and version detection: the first direct contact with the target."
+    },
+    "nmap": {
+      "title": "Nmap Pro",
+      "description": "Advanced scan types, firewall/IDS evasion, NSE scripting and machine-readable outputs."
+    },
+    "burp-suite": {
+      "title": "Burp Suite",
+      "description": "Proxy, Repeater and Intruder in depth: the professional web testing workflow."
+    },
+    "privesc": {
+      "title": "Privilege Escalation",
+      "description": "Linux (SUID, sudo, cron, PATH) and Windows (services, tokens, AlwaysInstallElevated): from user to root/SYSTEM."
+    },
+    "active-directory": {
+      "title": "Active Directory",
+      "description": "BloodHound, Kerberoasting, Pass-the-Hash and lateral movement: compromising the whole domain."
+    },
+    "scripting": {
+      "title": "Scripting for Pentesters",
+      "description": "A bash scanner, a Python fuzzer and chaining tools together: build your own arsenal."
+    },
+    "pivoting": {
+      "title": "Pivoting and Tunneling",
+      "description": "SSH forwarding, proxychains SOCKS and chisel: moving through the internal network from a single foothold."
+    },
+    "mobile": {
+      "title": "Mobile Security",
+      "description": "Auditing Android apps: the APK inside out, static analysis and dynamic analysis with Frida."
+    },
+    "sqli": {
+      "title": "SQL Injection",
+      "description": "Hands-on SQLi exploitation against a real lab: detection, bypass, UNION SELECT and extraction."
+    },
+    "xss": {
+      "title": "Cross-Site Scripting (XSS)",
+      "description": "Reflected and stored XSS against a real lab: JavaScript injection, cookie theft and bypass payloads."
+    },
+    "ssrf": {
+      "title": "Server-Side Request Forgery",
+      "description": "SSRF with a real lab: reaching internal services, configs with secrets and cloud metadata (the Capital One attack)."
+    },
+    "injection-misc": {
+      "title": "Command Injection, File Upload and Log Injection",
+      "description": "OS command execution, file upload bypass and log injection (CRLF/XSS in logs): RCE and forgery with real labs."
+    },
+    "auth": {
+      "title": "Authentication Bypass",
+      "description": "Weak Basic Auth, JWT attacks, IDOR, session hijacking and prediction: five ways to get around authentication."
+    },
+    "api-logic": {
+      "title": "API and Logic Flaws",
+      "description": "TOCTOU race conditions, API attacks (BOLA/BFLA), GraphQL and WebSockets against dedicated labs."
+    },
+    "web-red-team": {
+      "title": "Web Red Teaming",
+      "description": "WAF bypass, polymorphic payloads, layered encoding, C2 beaconing with jitter and detection evasion."
+    },
+    "ad-avanzado": {
+      "title": "Advanced Active Directory",
+      "description": "Kerberos delegation (unconstrained/constrained/RBCD), ADCS abuse (ESC1-ESC8), NTLM relay and trust attacks."
+    },
+    "containers-cloud": {
+      "title": "Containers & Cloud",
+      "description": "Container escape (privileged, docker.sock, capabilities) and IAM misconfigurations in AWS/Azure."
+    },
+    "ai-llm-exploitation": {
+      "title": "AI/LLM Exploitation",
+      "description": "Direct and indirect prompt injection, tool abuse, exfiltration via markdown and the frontier of offensive security."
+    },
+    "binary-exploitation": {
+      "title": "Binary Exploitation",
+      "description": "The full classic stack overflow: the stack, EIP, shellcode and modern mitigations with ROP."
+    }
+  }
+}

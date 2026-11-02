@@ -7,14 +7,20 @@
 export interface RoomTranslation {
   title?: string;
   description?: string;
-  tasks?: Record<string, {
-    title?: string;
-    body?: string;
-    questions?: Record<string, {
-      prompt?: string;
-      hint?: string | null;
-    }>;
-  }>;
+  tasks?: Record<
+    string,
+    {
+      title?: string;
+      body?: string;
+      questions?: Record<
+        string,
+        {
+          prompt?: string;
+          hint?: string | null;
+        }
+      >;
+    }
+  >;
 }
 
 export interface ContentTranslations {
@@ -26,7 +32,16 @@ export interface ContentTranslations {
  * Commands and flags are NEVER translated (they must stay identical).
  */
 export function applyRoomTranslation(
-  room: { title: string; description: string; tasks: Array<{ index: number; title: string; body: string; questions: Array<{ id: string; prompt: string; hint: string | null }> }> },
+  room: {
+    title: string;
+    description: string;
+    tasks: Array<{
+      index: number;
+      title: string;
+      body: string;
+      questions: Array<{ id: string; prompt: string; hint: string | null }>;
+    }>;
+  },
   translation: RoomTranslation | undefined,
 ): void {
   if (!translation) return;
@@ -46,4 +61,58 @@ export function applyRoomTranslation(
       if (qT.hint !== undefined) question.hint = qT.hint;
     }
   }
+}
+
+/** Title + description pair for a translated path or module. */
+export interface TextTranslation {
+  title: string;
+  description: string;
+}
+
+/**
+ * EN texts for paths and modules (translations/<locale>/_catalog.json).
+ * Rooms keep their own per-room files.
+ */
+export interface CatalogTranslation {
+  paths: Record<string, TextTranslation>;
+  modules: Record<string, TextTranslation>;
+}
+
+interface TranslatableCatalog {
+  paths: Array<{
+    slug: string;
+    title: string;
+    description: string;
+    modules: Array<{ slug: string; title: string; description: string }>;
+  }>;
+}
+
+/**
+ * Applies path/module translations in place and returns the keys that have
+ * no translation (`path:<slug>` / `module:<slug>`) so the build can fail.
+ */
+export function applyCatalogTranslation(
+  catalog: TranslatableCatalog,
+  translation: CatalogTranslation,
+): string[] {
+  const missing: string[] = [];
+  for (const path of catalog.paths) {
+    const pathT = translation.paths[path.slug];
+    if (pathT) {
+      path.title = pathT.title;
+      path.description = pathT.description;
+    } else {
+      missing.push(`path:${path.slug}`);
+    }
+    for (const module of path.modules) {
+      const moduleT = translation.modules[module.slug];
+      if (moduleT) {
+        module.title = moduleT.title;
+        module.description = moduleT.description;
+      } else {
+        missing.push(`module:${module.slug}`);
+      }
+    }
+  }
+  return missing;
 }

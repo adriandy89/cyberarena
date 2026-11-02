@@ -46,7 +46,7 @@
 
 ## Fase G — Orden de contenidos
 
-- [ ] T020 [US4,US8] `order` en paths + build ordena + EN de paths/módulos + tests.
+- [x] T020 [US4,US8] `order` en paths + build ordena + EN de paths/módulos + tests.
 - [ ] T021 [US4] Seed reconecta módulo→path y room→módulo.
 - [ ] T022 [US4] CS101: orden de módulos, fácil→difícil, sin password-attacks.
 - [ ] T023 [US4] JrPT: módulo `passwords`, AD al final, sin mobile.

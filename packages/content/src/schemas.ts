@@ -27,7 +27,11 @@ const questionBase = {
 export const questionSchema = z.discriminatedUnion('kind', [
   z.object({ ...questionBase, kind: z.literal('flag') }),
   z.object({ ...questionBase, kind: z.literal('text') }),
-  z.object({ ...questionBase, kind: z.literal('choice'), options: z.array(choiceOptionSchema).min(2).max(5) }),
+  z.object({
+    ...questionBase,
+    kind: z.literal('choice'),
+    options: z.array(choiceOptionSchema).min(2).max(5),
+  }),
 ]);
 
 export const taskFrontmatterSchema = z.object({
@@ -54,6 +58,8 @@ export const pathJsonSchema = z.object({
   title: z.string().min(3).max(120),
   description: z.string().min(10).max(500),
   level: z.enum(['beginner', 'intermediate', 'advanced']),
+  /** 1-based position in the learning roadmap (unique across paths). */
+  order: z.number().int().positive(),
   modules: z.array(z.object({ slug: slugSchema })).min(1),
 });
 

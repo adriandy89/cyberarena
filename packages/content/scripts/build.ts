@@ -17,7 +17,13 @@ import {
   type PathJson,
 } from '../src/schemas';
 import { validateCatalog, type ValidationIssue } from '../src/validate';
-import { applyRoomTranslation, type RoomTranslation } from '../src/translations';
+import { sortPathsByOrder } from '../src/catalog-order';
+import {
+  applyCatalogTranslation,
+  applyRoomTranslation,
+  type CatalogTranslation,
+  type RoomTranslation,
+} from '../src/translations';
 
 const ROOT = path.resolve(__dirname, '..');
 const CONTENT = path.join(ROOT, 'content');
@@ -75,7 +81,9 @@ async function main(): Promise<void> {
     try {
       const parsed = matter(await readFile(file, 'utf8'));
       const frontmatter = roomFrontmatterSchema.parse(parsed.data);
-      const taskFiles = (await fg('tasks/*.mdx', { cwd: path.dirname(file), absolute: true })).sort();
+      const taskFiles = (
+        await fg('tasks/*.mdx', { cwd: path.dirname(file), absolute: true })
+      ).sort();
       const tasks: CompiledTask[] = [];
       for (const taskFile of taskFiles) {
         try {
@@ -110,8 +118,10 @@ async function main(): Promise<void> {
     }
   }
 
-  // --- assemble catalog (path -> modules -> rooms) ---
-  const compiledPaths: CompiledPath[] = paths.map((p) => ({
+  // --- assemble catalog (path -> modules -> rooms), in roadmap order ---
+  const ordered = sortPathsByOrder(paths);
+  for (const issue of ordered.issues) parseErrors.push({ file: 'paths/*.json', message: issue });
+  const compiledPaths: CompiledPath[] = ordered.paths.map((p) => ({
     slug: p.slug,
     title: p.title,
     description: p.description,
@@ -159,7 +169,10 @@ async function main(): Promise<void> {
   const referencedModules = new Set(compiledPaths.flatMap((p) => p.modules.map((m) => m.slug)));
   for (const slug of modulesBySlug.keys()) {
     if (!referencedModules.has(slug)) {
-      parseErrors.push({ file: `modules/${slug}.json`, message: 'module not referenced by any path' });
+      parseErrors.push({
+        file: `modules/${slug}.json`,
+        message: 'module not referenced by any path',
+      });
     }
   }
   const referencedRooms = new Set(
@@ -197,6 +210,13 @@ async function main(): Promise<void> {
   // --- EN catalog (merge translations) ---
   const enTranslations = await loadTranslations('en');
   const catalogEn = JSON.parse(JSON.stringify(catalog)) as Catalog;
+  // Paths and modules are translated from _catalog.json; a missing entry fails the build.
+  const missingEn = applyCatalogTranslation(catalogEn, await loadCatalogTranslation('en'));
+  if (missingEn.length > 0) {
+    console.error(`content build FAILED: missing EN translation in translations/en/_catalog.json:`);
+    for (const key of missingEn) console.error(`  - ${key}`);
+    process.exit(1);
+  }
   for (const pathData of catalogEn.paths) {
     for (const module of pathData.modules) {
       for (const room of module.rooms) {
@@ -218,16 +238,28 @@ async function main(): Promise<void> {
 
 async function loadTranslations(locale: string): Promise<Record<string, RoomTranslation>> {
   const translations: Record<string, RoomTranslation> = {};
-  const transFiles = await fg(`${locale}/*.json`, { cwd: TRANSLATIONS, absolute: true });
+  // Files starting with '_' are catalog-level (paths/modules), not rooms.
+  const transFiles = await fg(`${locale}/[!_]*.json`, { cwd: TRANSLATIONS, absolute: true });
   for (const file of transFiles) {
     const slug = path.basename(file, '.json');
     try {
       translations[slug] = JSON.parse(await readFile(file, 'utf8')) as RoomTranslation;
     } catch {
-      console.error(`[translations] FAILED: ${file} is invalid JSON`); process.exit(1);
+      console.error(`[translations] FAILED: ${file} is invalid JSON`);
+      process.exit(1);
     }
   }
   return translations;
+}
+
+async function loadCatalogTranslation(locale: string): Promise<CatalogTranslation> {
+  const file = path.join(TRANSLATIONS, locale, '_catalog.json');
+  try {
+    return JSON.parse(await readFile(file, 'utf8')) as CatalogTranslation;
+  } catch {
+    console.error(`[translations] FAILED: ${path.relative(ROOT, file)} is missing or invalid JSON`);
+    process.exit(1);
+  }
 }
 
 main().catch((error) => {

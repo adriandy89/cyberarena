@@ -7,7 +7,10 @@ export interface ValidationIssue {
 }
 
 /** All cross-references and answer coverage rules (pure, unit tested). */
-export function validateCatalog(catalog: Catalog, answers: Record<string, string>): ValidationIssue[] {
+export function validateCatalog(
+  catalog: Catalog,
+  answers: Record<string, string>,
+): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const roomBySlug = new Map<string, CompiledRoom>();
   const questionIds = new Set<string>();
@@ -22,7 +25,10 @@ export function validateCatalog(catalog: Catalog, answers: Record<string, string
       const roomSlugs = new Set<string>();
       for (const room of module.rooms) {
         if (roomSlugs.has(room.slug)) {
-          issues.push({ source: `module:${module.slug}`, message: `duplicate room '${room.slug}'` });
+          issues.push({
+            source: `module:${module.slug}`,
+            message: `duplicate room '${room.slug}'`,
+          });
         }
         roomSlugs.add(room.slug);
         if (roomBySlug.has(room.slug)) {
@@ -72,7 +78,10 @@ export function validateCatalog(catalog: Catalog, answers: Record<string, string
   }
   for (const [questionId] of Object.entries(answers)) {
     if (!questionIds.has(questionId)) {
-      issues.push({ source: 'answers', message: `orphan answer for unknown question '${questionId}'` });
+      issues.push({
+        source: 'answers',
+        message: `orphan answer for unknown question '${questionId}'`,
+      });
     }
   }
   for (const room of roomBySlug.values()) {
