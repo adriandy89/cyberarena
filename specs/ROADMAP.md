@@ -11,14 +11,17 @@
 | F3 | `003-room-player` | ✅ completada (2026-11-01) | UI del room: tasks MDX, preguntas, flags, hints, progreso |
 | F4 | `004-paths-dashboard` | ✅ completada (2026-11-01) | Páginas path/módulo, % progreso, dashboard personal |
 | F5 | `005-gamification` | ✅ completada (2026-11-01) | XP, niveles, streaks, badges, leaderboard, certificados, skill matrix |
-| F6 | `006-hacktivities` | ✅ completada (2026-11-01) | Catálogo público: búsqueda, filtros, orden, tarjetas || F7 | `007-labs` | ✅ completada (2026-11-01) | Plantilla lab + labs reales integrados en rooms + verificación de flags |
+| F6 | `006-hacktivities` | ✅ completada (2026-11-01) | Catálogo público: búsqueda, filtros, orden, tarjetas |
+| F7 | `007-labs` | ✅ completada (2026-11-01) | Plantilla lab + labs reales integrados en rooms + verificación de flags |
 | F8 | `008-deploy-hardening` | ✅ completada (2026-11-01) | Stack prod + proxy Caddy HTTPS + backups + hardening + runbook final |
+| F8b | `009-e2e-ui` | ✅ completada (2026-11-01) | Tests E2E Playwright (auth, room, hacktivities, paths) + workflow CI |
 | F9 | `100-content-cs101` | ✅ completada (2026-11-01) | Path Cyber Security 101 completo (14 módulos) |
-| F10 | `101-content-jrpt` | ✅ completada (2026-11-01) | Path Jr Penetration Tester completo (17 módulos) |
+| F10 | `101-content-jrpt` | ✅ completada (2026-11-01) | Path Jr Penetration Tester completo (10 módulos tras la fase 010) |
 | F11 | `102-content-webapp` | ✅ completada (2026-11-01) | Path Web Application Pentesting |
-| F12 | `103-content-advpt` | ✅ completada (2026-11-01) | Paths Web App Red Teaming + Red Teaming (nivel PT2) |
+| F12 | `103-content-advpt` | ✅ completada (2026-11-01) | Path Advanced Pentesting (red team web/AD/cloud/IA, nivel PT2) — consolidado en un único path |
 | F13 | `104-labs-massive` | ✅ completada (2026-11-02) | Labs masivos: 4 tiers, 25 labs, 9 rooms nuevas, filtro Solo-con-labs en hacktivities |
 | F14 | `105-new-labs` | ✅ completada (2026-11-02) | 18 labs nuevos (T1 web races/API, T2 blue team, T3 especialización) → 51 rooms, 402 answers, 52 EN |
+| F15 | `010-ux-byte-navegacion` | 🚧 en curso | Shell de navegación, mascota Byte, animaciones accesibles, reestructuración del orden de contenidos |
 
 ## Convenciones
 
