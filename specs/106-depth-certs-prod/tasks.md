@@ -25,7 +25,7 @@
 - [x] Fix comentario stale compose prod
 - [x] Puertos 80/443 libres; proxy up; prod up --build (fase 012 T009)
 - [x] Seed one-off; smoke tests (TLS, health, admin login, catálogo 59, PDF, hacktivities) (fase 012 T009)
-- [ ] backup-db.sh + restore a BD scratch
+- [x] backup-db.sh + restore a BD scratch (fase 012 T011)
 - [ ] Registro aquí + runbook ajustado si diverge + commit
 
 ## T4: Limpieza final

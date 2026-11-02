@@ -20,7 +20,7 @@
 
 - [x] T009 Despliegue completo (proxy + prod + lab-runner), seed doble, smoke y E2E sobre HTTPS.
 - [x] T010 Labs en prod: UI, flag, reaper, API parada, adopción, smoke de los 39 labs.
-- [ ] T011 Backup + restore en BD scratch.
+- [x] T011 Backup + restore en BD scratch.
 
 ## Fase C — Cierre
 
