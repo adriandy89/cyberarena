@@ -1,4 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { ByteScene } from '../../../components/byte/byte-scene';
+import { ArrowRight, BookOpen, Clock, Layers } from '../../../components/icon';
+import { LevelBadge } from '../../../components/level-badge';
 import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
 import { Link } from '../../../i18n/navigation';
 
@@ -14,27 +17,24 @@ interface CatalogPathSummary {
   slug: string;
   title: string;
   description: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
+  level: string;
   moduleCount: number;
   roomCount: number;
   estimatedMinutes: number;
   rooms: CatalogRoomLink[];
 }
 
-const LEVEL_CLASSES: Record<CatalogPathSummary['level'], string> = {
-  beginner: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  intermediate: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  advanced: 'bg-red-500/15 text-red-400 border-red-500/30',
-};
+const PREVIEW_ROOMS = 4;
 
 // Catalog is served by the API; this page renders per request (cheap, and the
 // catalog changes only on seed). API_URL is server-side only (ADR-008).
 export const dynamic = 'force-dynamic';
 
-async function loadPaths(): Promise<CatalogPathSummary[]> {
+async function loadPaths(locale: string): Promise<CatalogPathSummary[]> {
   const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
+  const localeParam = locale === 'en' ? '?locale=en' : '';
   try {
-    const response = await fetch(`${apiUrl}/api/catalog`, {
+    const response = await fetch(`${apiUrl}/api/catalog${localeParam}`, {
       cache: 'no-store',
       headers: { Accept: 'application/json' },
     });
@@ -50,61 +50,84 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const t = await getTranslations('PathsPage');
   const nav = await getTranslations('Nav');
-  const paths = await loadPaths();
+  const paths = await loadPaths(locale);
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col px-6 py-10">
       <Breadcrumbs items={[{ label: nav('paths') }]} className="mb-4" />
-      <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-      <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+          <p className="mt-1 max-w-xl text-sm text-slate-500">{t('subtitle')}</p>
+        </div>
+        {paths.length > 0 ? (
+          <ByteScene mood="point" size="sm" message={t('byteHint')} className="sm:max-w-sm" />
+        ) : null}
+      </div>
 
       {paths.length === 0 ? (
-        <p className="mt-10 rounded-xl border border-slate-800 bg-slate-900/50 p-6 text-sm text-slate-400">
-          {t('empty')}
-        </p>
+        <ByteScene mood="sleep" message={t('empty')} className="mt-10" />
       ) : (
-        <ul className="mt-8 space-y-4">
-          {paths.map((path) => (
-            <li key={path.slug}>
-              <Link
-                href={`/paths/${path.slug}`}
-                className="card-hover animate-fade-in block rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-slate-600"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg font-semibold">{path.title}</h2>
-                  <span
-                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${LEVEL_CLASSES[path.level] ?? LEVEL_CLASSES.beginner}`}
-                  >
-                    {t(`levels.${path.level}`)}
+        <ol className="mt-8 space-y-4">
+          {paths.map((path, index) => {
+            const extra = path.rooms.length - PREVIEW_ROOMS;
+            return (
+              <li key={path.slug} className="reveal">
+                <Link
+                  href={`/paths/${path.slug}`}
+                  className="card-hover group relative flex gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-emerald-500/40"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-950 font-mono text-sm font-bold text-emerald-400">
+                    {index + 1}
                   </span>
-                </div>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{path.description}</p>
-                <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                  <span>
-                    {t('modules', { count: path.moduleCount })} ·{' '}
-                    {t('rooms', { count: path.roomCount })}
-                  </span>
-                  <span>
-                    ≈ {Math.round(path.estimatedMinutes / 60)}h · {t('type.walkthrough')}+
-                  </span>
-                </p>
-                <ul className="mt-4 space-y-2">
-                  {path.rooms.map((room) => (
-                    <li
-                      key={room.slug}
-                      className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-sm"
-                    >
-                      <span className="font-medium text-slate-200">{room.title}</span>
-                      <span className="text-xs uppercase tracking-wide text-slate-500">
-                        {room.difficulty} · {room.estimatedMinutes}′
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-lg font-semibold">{path.title}</h2>
+                      <LevelBadge level={path.level} />
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                      {path.description}
+                    </p>
+                    <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Layers size={13} aria-hidden="true" />
+                        {t('modules', { count: path.moduleCount })}
                       </span>
-                    </li>
-                  ))}
-                </ul>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                      <span className="inline-flex items-center gap-1.5">
+                        <BookOpen size={13} aria-hidden="true" />
+                        {t('rooms', { count: path.roomCount })}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock size={13} aria-hidden="true" />
+                        {t('hours', { hours: Math.max(1, Math.round(path.estimatedMinutes / 60)) })}
+                      </span>
+                    </p>
+                    <ul className="mt-4 flex flex-wrap gap-2" aria-label={t('preview')}>
+                      {path.rooms.slice(0, PREVIEW_ROOMS).map((room) => (
+                        <li
+                          key={room.slug}
+                          className="max-w-full truncate rounded-full border border-slate-800 bg-slate-950/60 px-3 py-1 text-xs text-slate-300"
+                        >
+                          {room.title}
+                        </li>
+                      ))}
+                      {extra > 0 ? (
+                        <li className="rounded-full px-2 py-1 text-xs text-slate-500">
+                          {t('moreRooms', { count: extra })}
+                        </li>
+                      ) : null}
+                    </ul>
+                  </div>
+                  <ArrowRight
+                    size={18}
+                    aria-hidden="true"
+                    className="mt-2 hidden shrink-0 text-slate-600 transition-all group-hover:translate-x-1 group-hover:text-emerald-400 sm:block"
+                  />
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
       )}
     </div>
   );

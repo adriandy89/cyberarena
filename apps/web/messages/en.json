@@ -123,15 +123,15 @@
     "empty": "No paths published yet. Run the content seed (see docs/runbook.md).",
     "modules": "{count, plural, one {# module} other {# modules}}",
     "rooms": "{count, plural, one {# room} other {# rooms}}",
-    "type": {
-      "walkthrough": "Walkthroughs"
-    },
     "levels": {
       "beginner": "Beginner",
       "intermediate": "Intermediate",
       "advanced": "Advanced"
     },
-    "comingSoon": "Room player arrives in the next phase"
+    "byteHint": "Starting from scratch? Go in order: each path prepares you for the next one.",
+    "hours": "≈ {hours} h",
+    "preview": "Some rooms in this path",
+    "moreRooms": "+{count} more"
   },
   "RoomPage": {
     "estimated": "est. {minutes} min",
@@ -163,7 +163,15 @@
   "PathProgress": {
     "overallProgress": "Path progress",
     "guestTeaser": "Sign in to save your progress and earn XP.",
-    "guestCta": "Sign in"
+    "guestCta": "Sign in",
+    "modulesIndex": "Modules",
+    "moduleLabel": "Module {index}",
+    "continue": "Continue where you left off",
+    "start": "Start the path",
+    "upNext": "Up next",
+    "firstRoom": "Open the first room",
+    "completedByte": "Path complete! You cleared every room. Your certificate is waiting.",
+    "certificate": "View certificate"
   },
   "Gamification": {
     "streakCard": "Daily streak",

@@ -123,15 +123,15 @@
     "empty": "El catálogo aún no tiene rutas publicadas. Ejecuta el seed del contenido (ver docs/runbook.md).",
     "modules": "{count, plural, one {# módulo} other {# módulos}}",
     "rooms": "{count, plural, one {# room} other {# rooms}}",
-    "type": {
-      "walkthrough": "Walkthroughs"
-    },
     "levels": {
       "beginner": "Iniciación",
       "intermediate": "Intermedio",
       "advanced": "Avanzado"
     },
-    "comingSoon": "Player de rooms disponible en la próxima fase"
+    "byteHint": "Si empiezas desde cero, ve en orden: cada ruta prepara la siguiente.",
+    "hours": "≈ {hours} h",
+    "preview": "Algunos rooms de la ruta",
+    "moreRooms": "+{count} más"
   },
   "RoomPage": {
     "estimated": "{minutes} min estimados",
@@ -163,7 +163,15 @@
   "PathProgress": {
     "overallProgress": "Progreso de la ruta",
     "guestTeaser": "Inicia sesión para guardar tu progreso y ganar XP.",
-    "guestCta": "Entrar"
+    "guestCta": "Entrar",
+    "modulesIndex": "Módulos",
+    "moduleLabel": "Módulo {index}",
+    "continue": "Continuar donde lo dejaste",
+    "start": "Empezar la ruta",
+    "upNext": "Siguiente",
+    "firstRoom": "Ver el primer room",
+    "completedByte": "¡Ruta completada! Has superado todos los rooms. Tu certificado te espera.",
+    "certificate": "Ver certificado"
   },
   "Gamification": {
     "streakCard": "Racha diaria",
