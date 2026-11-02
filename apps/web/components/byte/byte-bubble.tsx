@@ -58,7 +58,11 @@ export function ByteBubble({
     >
       <span
         aria-hidden="true"
-        className={cn('absolute h-3 w-3 rotate-45 bg-slate-900', TONE_CLASSES[tone], TAIL_CLASSES[tail])}
+        className={cn(
+          'absolute h-3 w-3 rotate-45 bg-slate-900',
+          TONE_CLASSES[tone],
+          TAIL_CLASSES[tail],
+        )}
       />
       <span aria-hidden={textHidden || undefined}>
         {typing ? <TypedText key={text} text={text} srCopy={!textHidden} /> : text}
@@ -92,7 +96,9 @@ function TypedText({ text, srCopy }: { text: string; srCopy: boolean }) {
       {srCopy ? <span className="sr-only">{text}</span> : null}
       <span aria-hidden="true">
         {text.slice(0, count)}
-        {count < text.length ? <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-emerald-400/70 align-middle" /> : null}
+        {count < text.length ? (
+          <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-emerald-400/70 align-middle" />
+        ) : null}
       </span>
     </>
   );

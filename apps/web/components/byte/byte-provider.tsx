@@ -133,7 +133,9 @@ export function ByteProvider({ children }: { children: ReactNode }) {
   const pick = useCallback(
     (key: string): string => {
       const raw: unknown = t.has(key) ? t.raw(key) : null;
-      const list = Array.isArray(raw) ? raw.filter((item): item is string => typeof item === 'string') : [];
+      const list = Array.isArray(raw)
+        ? raw.filter((item): item is string => typeof item === 'string')
+        : [];
       if (list.length === 0) return '';
       const last = lastPickRef.current.get(key);
       let index = Math.floor(Math.random() * list.length);

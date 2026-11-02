@@ -4,12 +4,6 @@
     "description": "Plataforma personal de aprendizaje de ciberseguridad estilo TryHackMe: rutas de novato a experto, rooms con flags, labs Docker y gamificación."
   },
   "HomePage": {
-    "nav": {
-      "paths": "Rutas",
-      "leaderboard": "Clasificación",
-      "status": "Estado del sistema",
-      "hacktivities": "Hacktivities"
-    },
     "hero": {
       "badge": "Novato → Experto",
       "title": "Tu arena personal de ciberseguridad",
@@ -58,8 +52,7 @@
       "beginner": "Iniciación",
       "intermediate": "Intermedio",
       "advanced": "Avanzado"
-    },
-    "footer": "CyberArena — proyecto personal. Contenido original con fines educativos."
+    }
   },
   "StatusPage": {
     "title": "Estado del sistema",
@@ -425,5 +418,22 @@
         "Puedes descargar tu certificado en PDF o imprimirlo."
       ]
     }
+  },
+  "Nav": {
+    "main": "Navegación principal",
+    "footer": "Enlaces del sitio",
+    "skip": "Saltar al contenido",
+    "menu": "Menú",
+    "menuOpen": "Abrir menú",
+    "menuClose": "Cerrar menú",
+    "language": "Idioma",
+    "home": "Inicio",
+    "paths": "Rutas",
+    "hacktivities": "Hacktivities",
+    "leaderboard": "Clasificación",
+    "dashboard": "Mi panel",
+    "status": "Estado del sistema",
+    "footerNote": "CyberArena — proyecto personal. Contenido original con fines educativos.",
+    "disclaimer": "Practica solo en entornos locales controlados y con autorización."
   }
 }

@@ -5,7 +5,7 @@ export default async function NotFoundPage() {
   const t = await getTranslations('NotFoundPage');
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
       <p className="text-6xl font-bold text-emerald-400">404</p>
       <h1 className="text-2xl font-semibold">{t('title')}</h1>
       <p className="max-w-md text-sm text-slate-400">{t('description')}</p>

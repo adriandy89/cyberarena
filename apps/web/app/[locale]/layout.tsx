@@ -6,6 +6,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { ByteCompanion } from '../../components/byte/byte-companion';
 import { ByteProvider } from '../../components/byte/byte-provider';
+import { SiteFooter } from '../../components/shell/site-footer';
+import { SiteHeader } from '../../components/shell/site-header';
 import { routing } from '../../i18n/routing';
 import '../globals.css';
 
@@ -38,13 +40,29 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale);
+  const t = await getTranslations('Nav');
 
   return (
     <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
+      <body className="flex min-h-dvh flex-col bg-slate-950 font-sans text-slate-100 antialiased">
         <NextIntlClientProvider>
           <ByteProvider>
-            {children}
+            <a
+              href="#main"
+              className="sr-only z-50 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+            >
+              {t('skip')}
+            </a>
+            {/* ambient glow behind every page */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-144 bg-[radial-gradient(ellipse_at_top,rgb(16_185_129/0.10),transparent_65%)]"
+            />
+            <SiteHeader />
+            <main id="main" tabIndex={-1} className="flex-1 outline-none">
+              {children}
+            </main>
+            <SiteFooter />
             <ByteCompanion />
           </ByteProvider>
         </NextIntlClientProvider>

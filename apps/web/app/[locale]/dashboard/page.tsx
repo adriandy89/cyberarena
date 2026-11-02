@@ -132,11 +132,11 @@ export default function DashboardPage() {
   }
 
   if (isPending || !session) {
-    return <div className="flex min-h-screen items-center justify-center text-slate-500">…</div>;
+    return <div className="flex min-h-[50vh] items-center justify-center text-slate-500">…</div>;
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-10">
+    <div className="mx-auto flex max-w-3xl flex-col px-6 py-10">
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
 
       <section className="animate-fade-in mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">

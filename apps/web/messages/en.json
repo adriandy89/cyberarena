@@ -4,12 +4,6 @@
     "description": "Personal TryHackMe-style cybersecurity learning platform: novice-to-expert paths, flag rooms, isolated Docker labs and a gamified progress system."
   },
   "HomePage": {
-    "nav": {
-      "paths": "Paths",
-      "leaderboard": "Leaderboard",
-      "status": "System status",
-      "hacktivities": "Hacktivities"
-    },
     "hero": {
       "badge": "Novice → Expert",
       "title": "Your personal cybersecurity arena",
@@ -58,8 +52,7 @@
       "beginner": "Beginner",
       "intermediate": "Intermediate",
       "advanced": "Advanced"
-    },
-    "footer": "CyberArena — personal project. Original content for educational purposes."
+    }
   },
   "StatusPage": {
     "title": "System status",
@@ -425,5 +418,22 @@
         "You can download your certificate as PDF or print it."
       ]
     }
+  },
+  "Nav": {
+    "main": "Main navigation",
+    "footer": "Site links",
+    "skip": "Skip to content",
+    "menu": "Menu",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "language": "Language",
+    "home": "Home",
+    "paths": "Paths",
+    "hacktivities": "Hacktivities",
+    "leaderboard": "Leaderboard",
+    "dashboard": "My dashboard",
+    "status": "System status",
+    "footerNote": "CyberArena — personal project. Original content for educational purposes.",
+    "disclaimer": "Only practice in controlled local environments and with authorization."
   }
 }

@@ -97,7 +97,10 @@ export function Byte({ mood = 'idle', size = 'md', direction = 'right', classNam
 
         {/* body */}
         <rect className={styles.shell} x="36" y="80" width="48" height="36" rx="14" />
-        <path className={styles.shadeSoft} d="M36 102 H84 A14 14 0 0 1 70 116 H50 A14 14 0 0 1 36 102 Z" />
+        <path
+          className={styles.shadeSoft}
+          d="M36 102 H84 A14 14 0 0 1 70 116 H50 A14 14 0 0 1 36 102 Z"
+        />
         <circle className={styles.visor} cx="60" cy="96" r="7.5" />
         <circle className={styles.core} filter={glow} cx="60" cy="96" r="4" />
 
@@ -110,8 +113,18 @@ export function Byte({ mood = 'idle', size = 'md', direction = 'right', classNam
           <rect className={styles.shade} x="14" y="41" width="10" height="20" rx="4.5" />
           <rect className={styles.shade} x="96" y="41" width="10" height="20" rx="4.5" />
           <rect className={styles.shell} x="20" y="22" width="80" height="56" rx="24" />
-          <path className={styles.shadeSoft} d="M20 54 H100 A24 24 0 0 1 76 78 H44 A24 24 0 0 1 20 54 Z" />
-          <ellipse className={styles.highlight} cx="38" cy="30" rx="9" ry="3.5" transform="rotate(-18 38 30)" />
+          <path
+            className={styles.shadeSoft}
+            d="M20 54 H100 A24 24 0 0 1 76 78 H44 A24 24 0 0 1 20 54 Z"
+          />
+          <ellipse
+            className={styles.highlight}
+            cx="38"
+            cy="30"
+            rx="9"
+            ry="3.5"
+            transform="rotate(-18 38 30)"
+          />
 
           <rect className={styles.visor} x="28" y="31" width="64" height="38" rx="16" />
           <path className={styles.reflection} d="M36 36 q8 -3 18 -2" />
@@ -148,7 +161,10 @@ export function Byte({ mood = 'idle', size = 'md', direction = 'right', classNam
 
             <path className={`${styles.stroke} ${styles.mouthSmile}`} d="M54 60 Q60 65 66 60" />
             <path className={styles.mouthOpen} d="M52 58.5 Q60 69 68 58.5 Z" />
-            <path className={`${styles.stroke} ${styles.mouthFrown}`} d="M54 63.5 Q60 58.5 66 63.5" />
+            <path
+              className={`${styles.stroke} ${styles.mouthFrown}`}
+              d="M54 63.5 Q60 58.5 66 63.5"
+            />
             <circle className={`${styles.stroke} ${styles.mouthO}`} cx="60" cy="61.5" r="2.6" />
             <path className={`${styles.stroke} ${styles.mouthFlat}`} d="M55.5 61.5 h9" />
             <path
@@ -177,9 +193,15 @@ export function Byte({ mood = 'idle', size = 'md', direction = 'right', classNam
           ?
         </text>
         <g className={styles.zzz}>
-          <text x="88" y="24">z</text>
-          <text x="96" y="16">z</text>
-          <text x="104" y="8">Z</text>
+          <text x="88" y="24">
+            z
+          </text>
+          <text x="96" y="16">
+            z
+          </text>
+          <text x="104" y="8">
+            Z
+          </text>
         </g>
         <g className={styles.bulb} filter={glow}>
           <circle cx="100" cy="16" r="7" />

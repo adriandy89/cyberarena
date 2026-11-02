@@ -48,7 +48,10 @@ export function ByteScene({
         tail={column ? 'bottom' : 'left'}
         typing={typing}
         live={live}
-        className={cn(column ? 'order-first max-w-sm' : 'mt-3 max-w-md flex-1', column && 'text-left')}
+        className={cn(
+          column ? 'order-first max-w-sm' : 'mt-3 max-w-md flex-1',
+          column && 'text-left',
+        )}
       >
         {children}
       </ByteBubble>

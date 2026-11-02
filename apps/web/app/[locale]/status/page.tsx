@@ -50,7 +50,7 @@ export default function StatusPage() {
   const reachable = health !== null && error === null;
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-8">
+    <div className="mx-auto flex max-w-2xl flex-col px-6 py-8">
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
       <p className="mt-1 text-sm text-slate-500">
         {t('api')} <code className="rounded bg-slate-900 px-1.5 py-0.5">/api/health</code>

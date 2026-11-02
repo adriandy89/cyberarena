@@ -1,6 +1,4 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { LanguageSwitcher } from '../../components/language-switcher';
-import { UserMenu } from '../../components/user-menu';
 import { Link } from '../../i18n/navigation';
 
 interface PathCard {
@@ -23,42 +21,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const paths = t.raw('paths') as PathCard[];
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-8">
-      <header className="flex items-center justify-between">
-        <span className="text-lg font-bold tracking-tight">
-          Cyber<span className="text-emerald-400">Arena</span>
-        </span>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/hacktivities"
-            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
-          >
-            {t('nav.hacktivities')}
-          </Link>
-          <Link
-            href="/paths"
-            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
-          >
-            {t('nav.paths')}
-          </Link>
-          <Link
-            href="/leaderboard"
-            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
-          >
-            {t('nav.leaderboard')}
-          </Link>
-          <Link
-            href="/status"
-            className="hidden text-sm text-slate-400 transition-colors hover:text-slate-200 sm:block"
-          >
-            {t('nav.status')}
-          </Link>
-          <UserMenu />
-          <LanguageSwitcher />
-        </div>
-      </header>
-
-      <main className="flex flex-1 flex-col justify-center py-16">
+    <div className="mx-auto flex max-w-5xl flex-col px-6">
+      <div className="flex flex-1 flex-col justify-center py-16">
         <section className="max-w-2xl">
           <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-400">
             {t('hero.badge')}
@@ -111,11 +75,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             ))}
           </ol>
         </section>
-      </main>
-
-      <footer className="border-t border-slate-900 pt-6 text-xs text-slate-600">
-        {t('footer')}
-      </footer>
+      </div>
     </div>
   );
 }

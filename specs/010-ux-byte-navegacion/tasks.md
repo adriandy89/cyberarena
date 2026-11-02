@@ -22,7 +22,7 @@
 
 ## Fase D — Navegación
 
-- [ ] T008 [US1] Shell común: site-header (activo, pendiente), mobile-nav, site-footer,
+- [x] T008 [US1] Shell común: site-header (activo, pendiente), mobile-nav, site-footer,
       skip-link, Byte en layout; home sin cabecera inline.
 - [ ] T009 [US1,US2] Breadcrumbs + `template.tsx` (entrada de página).
 - [ ] T010 [US5] loading/error/not-found con Byte + esqueletos en páginas cliente.

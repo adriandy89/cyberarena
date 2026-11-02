@@ -24,6 +24,7 @@ export {
   FlaskConical,
   Flame,
   House,
+  LayoutDashboard,
   Layers,
   Lightbulb,
   Lock,

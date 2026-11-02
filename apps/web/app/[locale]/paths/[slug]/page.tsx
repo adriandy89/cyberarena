@@ -31,7 +31,7 @@ export default async function PathDetailPage({
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-10">
+    <div className="mx-auto flex max-w-3xl flex-col px-6 py-10">
       <Link
         href="/paths"
         className="self-start text-sm text-slate-400 transition-colors hover:text-slate-200"

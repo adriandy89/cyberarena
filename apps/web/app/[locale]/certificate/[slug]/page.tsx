@@ -40,12 +40,12 @@ export default function CertificatePage() {
   }, [slug]);
 
   if (certificate === undefined || name === null) {
-    return <div className="flex min-h-screen items-center justify-center text-slate-500">…</div>;
+    return <div className="flex min-h-[50vh] items-center justify-center text-slate-500">…</div>;
   }
 
   if (certificate === null) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-6 text-center">
         <p className="text-xl font-semibold">{t('notFound')}</p>
         <p className="max-w-md text-sm text-slate-400">{t('notFoundHint')}</p>
       </div>
@@ -78,7 +78,7 @@ export default function CertificatePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center px-6 py-10">
+    <div className="flex flex-col items-center px-6 py-10">
       <div className="mb-8 flex w-full max-w-2xl justify-end gap-3">
         <button
           type="button"

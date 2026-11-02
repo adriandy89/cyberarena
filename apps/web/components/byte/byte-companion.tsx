@@ -107,7 +107,12 @@ export function ByteCompanion() {
             tail="right"
             typing
             textHidden
-            className={cn('pointer-events-auto mb-6 pr-8', full ? 'max-w-[min(20rem,calc(100vw-8rem))]' : 'max-w-[min(16rem,calc(100vw-6rem))] text-xs')}
+            className={cn(
+              'pointer-events-auto mb-6 pr-8',
+              full
+                ? 'max-w-[min(20rem,calc(100vw-8rem))]'
+                : 'max-w-[min(16rem,calc(100vw-6rem))] text-xs',
+            )}
           >
             {reaction.action ? (
               <Link
@@ -139,7 +144,11 @@ export function ByteCompanion() {
               title={full ? t('minimize') : t('expand')}
               className="rounded-full border border-slate-700 bg-slate-900/90 p-1 text-slate-400 transition-colors hover:text-slate-100"
             >
-              {full ? <Minimize2 size={12} aria-hidden="true" /> : <Maximize2 size={12} aria-hidden="true" />}
+              {full ? (
+                <Minimize2 size={12} aria-hidden="true" />
+              ) : (
+                <Maximize2 size={12} aria-hidden="true" />
+              )}
             </button>
             <button
               type="button"
@@ -161,7 +170,11 @@ export function ByteCompanion() {
               !full && 'border border-slate-700 bg-slate-900/90 p-1.5 shadow-lg shadow-black/40',
             )}
           >
-            <Byte mood={mood} size={full ? 'md' : 'xs'} direction={mood === 'point' ? 'left' : 'right'} />
+            <Byte
+              mood={mood}
+              size={full ? 'md' : 'xs'}
+              direction={mood === 'point' ? 'left' : 'right'}
+            />
           </button>
         </div>
       </div>
