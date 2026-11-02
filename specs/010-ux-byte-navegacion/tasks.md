@@ -56,7 +56,7 @@
 ## Fase H — Cierre
 
 - [x] T026 E2E `navigation.spec.ts` + `byte.spec.ts`.
-- [ ] T027 Verificación completa + capturas + changelog + ROADMAP + content-guide.
+- [x] T027 Verificación completa + capturas + changelog + ROADMAP + content-guide.
 
 ## Bugs/Deuda
 

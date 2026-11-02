@@ -21,7 +21,7 @@
 | F12 | `103-content-advpt` | ✅ completada (2026-11-01) | Path Advanced Pentesting (red team web/AD/cloud/IA, nivel PT2) — consolidado en un único path |
 | F13 | `104-labs-massive` | ✅ completada (2026-11-02) | Labs masivos: 4 tiers, 25 labs, 9 rooms nuevas, filtro Solo-con-labs en hacktivities |
 | F14 | `105-new-labs` | ✅ completada (2026-11-02) | 18 labs nuevos (T1 web races/API, T2 blue team, T3 especialización) → 51 rooms, 402 answers, 52 EN |
-| F15 | `010-ux-byte-navegacion` | 🚧 en curso | Shell de navegación, mascota Byte, animaciones accesibles, reestructuración del orden de contenidos |
+| F15 | `010-ux-byte-navegacion` | ✅ completada (2026-11-02) | Shell de navegación, mascota Byte, animaciones accesibles, reestructuración del orden de contenidos |
 
 ## Convenciones
 

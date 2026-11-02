@@ -13,7 +13,10 @@ packages/content/
 │   └── rooms/<room-slug>/
 │       ├── index.mdx                        # frontmatter del room + intro
 │       └── tasks/<NN>-<slug>.mdx            # una task: guía + preguntas
-└── private/answers/<room-slug>.yaml         # respuestas (server-side only)
+├── private/answers/<room-slug>.yaml         # respuestas (server-side only)
+└── translations/en/
+    ├── _catalog.json                        # EN de títulos/descripciones de paths y módulos
+    └── <room-slug>.json                     # EN del room (título, descripción, tareas, preguntas)
 ```
 
 ## Ejemplo mínimo
@@ -25,9 +28,14 @@ packages/content/
   "title": "Cyber Security 101",
   "description": "...(≥10 chars)...",
   "level": "beginner",
+  "order": 1,
   "modules": [{ "slug": "start-your-cyber-journey" }]
 }
 ```
+
+`order` (entero ≥1, único) es la posición de la ruta en el roadmap: la web, el dashboard,
+los certificados y hacktivities («Recomendado») siguen ese orden. Dentro de cada ruta, el
+orden de módulos y de rooms es el de los arrays de su JSON.
 
 `content/rooms/<slug>/index.mdx` (frontmatter):
 ```yaml
@@ -86,6 +94,14 @@ mi-room-t01-q02: a                       # el id de la opción correcta
    Los capstones (type: capstone) van sin guía, solo contexto.
 7. Flags con `FLAG{snake_case}`; las de labs se inyectan por env del compose del lab
    (fase 007) y se siembran igual por el pipeline.
+8. **Orden de rutas** (fase 010): cada path declara `order` único; dos rutas con el mismo
+   `order` rompen el build.
+9. **Bilingüe**: todo path y módulo necesita su entrada en `translations/en/_catalog.json`;
+   si falta, el build falla. Al crear un módulo nuevo, añade su traducción en el mismo cambio.
+10. **Avisos de orden** (no bloquean, pero revísalos): el build avisa si un room es más fácil
+    que el anterior de su módulo (los `info` no cuentan) o si una tarea enlaza
+    `/rooms/<slug>` a un room que llega más tarde. Evita frases como «el siguiente módulo»
+    cuando el contenido está en otra ruta: nombra la ruta o el módulo.
 
 ## Labs (fase 007)
 
