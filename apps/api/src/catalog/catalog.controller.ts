@@ -1,6 +1,7 @@
 import { Controller, Get, Header, Param, Query } from '@nestjs/common';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { localizePathDetail, localizeSummaries, type EnCatalog } from './catalog-i18n';
 import { CatalogService } from './catalog.service';
 import { computeRoomContext } from './room-context';
 
@@ -24,22 +25,17 @@ export class CatalogController {
   @Get()
   @Header('Cache-Control', 'public, max-age=60')
   async list(@Query('locale') locale?: string) {
-    if (locale === 'en') {
-      const en = this.readEnCatalog();
-      if (en) return en.paths;
-    }
-    return this.catalog.listPaths();
+    const summaries = await this.catalog.listPaths();
+    const en = locale === 'en' ? this.readEnCatalog() : null;
+    return en ? localizeSummaries(summaries, en) : summaries;
   }
 
   @Get('paths/:slug')
   @Header('Cache-Control', 'public, max-age=60')
   async getPath(@Param('slug') slug: string, @Query('locale') locale?: string) {
-    if (locale === 'en') {
-      const en = this.readEnCatalog();
-      const path = en?.paths.find((p) => p.slug === slug);
-      if (path) return path;
-    }
-    return this.catalog.getPath(slug);
+    const detail = await this.catalog.getPath(slug);
+    const en = locale === 'en' ? this.readEnCatalog() : null;
+    return en ? localizePathDetail(detail, en) : detail;
   }
 
   @Get('rooms/:slug/context')
@@ -70,8 +66,7 @@ export class CatalogController {
     return this.catalog.getRoom(slug);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readEnCatalog(): { paths: any[] } | null {
+  private readEnCatalog(): EnCatalog | null {
     if (!CONTENT_DIST) return null;
     try {
       const filePath = join(CONTENT_DIST, 'catalog-en.json');

@@ -60,4 +60,6 @@
 
 ## Bugs/Deuda
 
-- (vacío)
+- [x] T901 BUG: `/api/catalog?locale=en` (y `paths/:slug?locale=en`) devolvía el catálogo compilado en
+      crudo (otra forma, con todos los cuerpos de tareas) → NaN en contadores EN. Ahora forma y orden
+      salen de la BD y solo se superponen los textos EN (`catalog-i18n.ts` + tests).
