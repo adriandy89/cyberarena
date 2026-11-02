@@ -10,7 +10,7 @@
 
 - [x] T002 [US7] `globals.css`: `@theme` (tokens, easings, `--animate-*`), política
       reduced-motion global, limpieza de clases muertas, foco visible; fuentes Geist.
-- [ ] T003 lucide-react + `components/icon.tsx`; emoji de UI → iconos.
+- [x] T003 lucide-react + `components/icon.tsx`; emoji de UI → iconos.
 
 ## Fase C — Byte
 
