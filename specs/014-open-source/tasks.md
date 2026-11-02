@@ -12,7 +12,7 @@
   - el stack de dev compila dependencias, migra y hace el seed al arrancar;
   - verificado en un clon nuevo.
 - [x] T004 README en inglés (open source) con captura, `LICENSE` (MIT), `CONTRIBUTING.md`, `SECURITY.md` y la descripción del proyecto.
-- [ ] T005 Cierre: gate, registro, 012 T901 (primer run de GitHub Actions) y ROADMAP.
+- [x] T005 Cierre: gate, registro, 012 T901 (primer run de GitHub Actions) y ROADMAP.
 
 ## Registro
 

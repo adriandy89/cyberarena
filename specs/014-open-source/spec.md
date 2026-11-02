@@ -1,6 +1,6 @@
 # Spec 014 — Publicación open source
 
-- **Estado:** en curso
+- **Estado:** completada (2026-11-02)
 - **Creada:** 2026-11-02
 - **Changelog:**
   - 2026-11-02 primera versión. Petición del usuario:
@@ -8,6 +8,7 @@
     - dejar las plantillas de entorno completas y al día;
     - escribir un README profesional **en inglés**, por secciones y con la captura de `docs/assets`, que explique el despliegue local paso a paso;
     - avisar cuando todo esté listo. El cambio de visibilidad del repositorio lo hace el usuario.
+  - 2026-11-02 cerrada: listo para publicar (registro en `tasks.md`). Quedan para el usuario las decisiones del §4.
 
 ## 1. Propósito
 
@@ -37,11 +38,11 @@ que cualquiera pueda clonarlo, arrancarlo siguiendo el README y saber cómo cont
 
 ## 3. Criterios de éxito
 
-- [ ] Ningún secreto real en el árbol ni en el historial (registro de la auditoría en `tasks.md`).
-- [ ] Cada variable que leen el código y los compose aparece en su plantilla, como valor o como comentario.
-- [ ] Desde un clon limpio, siguiendo el README, la plataforma arranca, se puede iniciar sesión como admin y el catálogo (59 rooms) carga.
-- [ ] README en inglés con la captura, licencia, guía de contribución y política de seguridad.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
+- [x] Ningún secreto real en el árbol ni en el historial (registro de la auditoría en `tasks.md`).
+- [x] Cada variable que leen el código y los compose aparece en su plantilla, como valor o como comentario.
+- [x] Desde un clon limpio, siguiendo el README, la plataforma arranca, se puede iniciar sesión como admin y el catálogo (59 rooms) carga.
+- [x] README en inglés con la captura, licencia, guía de contribución y política de seguridad.
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
 
 ## 4. Decisiones y riesgos (para el usuario, antes de publicar)
 

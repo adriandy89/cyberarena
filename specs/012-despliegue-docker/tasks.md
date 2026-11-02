@@ -30,8 +30,10 @@
 
 ## Bugs/Deuda
 
-- [ ] T901 Confirmar el primer run de `e2e.yml` y `docker.yml` en GitHub Actions (verificados solo con una
+- [x] T901 Confirmar el primer run de `e2e.yml` y `docker.yml` en GitHub Actions (verificados solo con una
       réplica local del job; desde la sesión no se puede lanzar Actions ni hacer push sin permiso).
+      — 2026-11-02 (014 T005): en verde en GitHub sobre `4ccffe9`: CI, E2E (Playwright) y Docker images
+      (runs 41518373940, 41518373947 y 41518374132).
 
 ## Registro
 
