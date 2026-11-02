@@ -1,0 +1,5 @@
+# Respuestas nuevas de recon-activo-escaneo (task 4, wireado en 105).
+# IMPORTANTE: flags de labs/dns-enumerate/flags.env
+recon-activo-escaneo-t04-q01: 10.10.10.30
+recon-activo-escaneo-t04-q02: FLAG{axfr_zone_transfer_dump}
+recon-activo-escaneo-t04-q03: FLAG{internal_dns_hidden}

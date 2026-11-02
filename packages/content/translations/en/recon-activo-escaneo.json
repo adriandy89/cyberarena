@@ -43,6 +43,20 @@
           "prompt": "You see Apache 2.4.49. What is your NEXT action?"
         }
       }
+    },
+    "4": {
+      "title": "Lab: DNS enumeration and zone transfer",
+      "questions": {
+        "recon-activo-escaneo-t04-q01": {
+          "prompt": "Query /dig for vpn.victima.com. What IP does it answer? (x.x.x.x format)"
+        },
+        "recon-activo-escaneo-t04-q02": {
+          "prompt": "The nameservers allow AXFR to anyone. Dump the zone and submit the flag annotated on the staging record."
+        },
+        "recon-activo-escaneo-t04-q03": {
+          "prompt": "The dump lists hosts you did not know about (including a secret admin panel). Query the internal environment record (internal.victima.com) and submit its flag."
+        }
+      }
     }
   }
 }

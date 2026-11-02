@@ -5,23 +5,46 @@
     "1": {
       "title": "Reflected XSS: your code in the response",
       "questions": {
-        "xss-reflejado-t01-q01": { "prompt": "What HTML tag executes JavaScript in the browser?" },
-        "xss-reflejado-t01-q02": { "prompt": "What Python function sanitizes HTML (that this lab deliberately does NOT use)?" }
+        "xss-reflejado-t01-q01": {
+          "prompt": "What HTML tag executes JavaScript in the browser?"
+        },
+        "xss-reflejado-t01-q02": {
+          "prompt": "What Python function sanitizes HTML (that this lab deliberately does NOT use)?"
+        }
       }
     },
     "2": {
       "title": "Stored XSS: the poison that persists",
       "questions": {
-        "xss-reflejado-t02-q01": { "prompt": "Which type of XSS is MORE dangerous: reflected or stored?" },
-        "xss-reflejado-t02-q02": { "prompt": "What document property is the classic target of an XSS payload?" }
+        "xss-reflejado-t02-q01": {
+          "prompt": "Which type of XSS is MORE dangerous: reflected or stored?"
+        },
+        "xss-reflejado-t02-q02": {
+          "prompt": "What document property is the classic target of an XSS payload?"
+        }
       }
     },
     "3": {
       "title": "Advanced XSS: DOM, filter bypass and CSP",
       "questions": {
-        "xss-reflejado-t03-q01": { "prompt": "What type of XSS occurs when the payload is processed in the BROWSER via JavaScript (not the server)?" },
-        "xss-reflejado-t03-q02": { "prompt": "What HTML tag executes JavaScript without using <script> and bypasses script-only filters?" },
-        "xss-reflejado-t03-q03": { "prompt": "Which CSP directive WEAKENS protection by allowing inline scripts?" }
+        "xss-reflejado-t03-q01": {
+          "prompt": "What type of XSS occurs when the payload is processed in the BROWSER via JavaScript (not the server)?"
+        },
+        "xss-reflejado-t03-q02": {
+          "prompt": "What HTML tag executes JavaScript without using <script> and bypasses script-only filters?"
+        },
+        "xss-reflejado-t03-q03": {
+          "prompt": "Which CSP directive WEAKENS protection by allowing inline scripts?"
+        },
+        "xss-reflejado-t03-q04": {
+          "prompt": "Open /dom with a payload in the hash (<img src=x onerror=...>) — the flag reveals when innerHTML executes. Submit it."
+        },
+        "xss-reflejado-t03-q05": {
+          "prompt": "Bypass the /filtered filter with a tag other than <script> and submit the flag it displays."
+        },
+        "xss-reflejado-t03-q06": {
+          "prompt": "The /csp page serves its flag despite the CSP. Why? Look at it (curl -s http://127.0.0.1:18093/csp) and submit the flag."
+        }
       }
     }
   }

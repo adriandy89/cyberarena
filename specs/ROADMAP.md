@@ -1,7 +1,7 @@
 # ROADMAP de fases (SDD)
 
 > Cada fase = una carpeta `specs/<NNN-slug>/` con spec/plan/tasks. Se ejecutan en orden.
-> Marca aquí el estado al cerrar cada fase. Última actualización: 2026-11-01.
+> Marca aquí el estado al cerrar cada fase. Última actualización: 2026-11-02.
 
 | Fase | Carpeta | Estado | Entregable |
 |---|---|---|---|
@@ -17,6 +17,8 @@
 | F10 | `101-content-jrpt` | ✅ completada (2026-11-01) | Path Jr Penetration Tester completo (17 módulos) |
 | F11 | `102-content-webapp` | ✅ completada (2026-11-01) | Path Web Application Pentesting |
 | F12 | `103-content-advpt` | ✅ completada (2026-11-01) | Paths Web App Red Teaming + Red Teaming (nivel PT2) |
+| F13 | `104-labs-massive` | ✅ completada (2026-11-02) | Labs masivos: 4 tiers, 25 labs, 9 rooms nuevas, filtro Solo-con-labs en hacktivities |
+| F14 | `105-new-labs` | ✅ completada (2026-11-02) | 18 labs nuevos (T1 web races/API, T2 blue team, T3 especialización) → 51 rooms, 402 answers, 52 EN |
 
 ## Convenciones
 

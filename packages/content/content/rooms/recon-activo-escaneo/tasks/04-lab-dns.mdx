@@ -1,0 +1,68 @@
+---
+index: 4
+title: "Lab: enumeración DNS y zone transfer"
+questions:
+  - id: recon-activo-escaneo-t04-q01
+    prompt: "Consulta /dig para vpn.victima.com. ¿A qué IP responde? (formato x.x.x.x)"
+    hint: "curl 'http://127.0.0.1:18098/dig?name=vpn.victima.com' — el equivalente real: dig vpn.victima.com"
+    kind: text
+  - id: recon-activo-escaneo-t04-q02
+    prompt: "Los nameservers permiten AXFR a cualquiera. Vuelca la zona y envía la flag que anota el registro de staging."
+    hint: "curl 'http://127.0.0.1:18098/axfr?server=ns1.victima.com' — en la vida real: dig @ns1.victima.com victima.com AXFR"
+    kind: flag
+  - id: recon-activo-escaneo-t04-q03
+    prompt: "El volcado lista hosts que no conocías de antes (incluido un panel admin secreto). Consulta el registro del entorno interno (internal.victima.com) y envía su flag."
+    hint: "curl 'http://127.0.0.1:18098/dig?name=internal.victima.com' — el nombre se descubre EN el listado del AXFR"
+    kind: flag
+---
+
+## El DNS como mapa (que a veces te entregan entero)
+
+El DNS de un objetivo enumera su infraestructura: subdominios, mailservers,
+nameservers, y a veces — internal hosts que nadie pensaba publicar. El
+lab simula un `dig` y un AXFR:
+
+```bash
+cd labs/dns-enumerate && cp flags.env.example flags.env
+docker compose --env-file flags.env up -d
+
+# Queries normales (lo que ve cualquiera):
+curl -s "http://127.0.0.1:18098/dig?name=victima.com" | jq .
+curl -s "http://127.0.0.1:18098/dig?name=www.victima.com" | jq .
+curl -s "http://127.0.0.1:18098/dig?name=vpn.victima.com" | jq .   # ¿NXDOMAIN?
+
+# El equivalente dig real:
+# dig victima.com ANY && dig vpn.victima.com
+```
+
+## Zone transfer (AXFR): el volcado completo
+
+AXFR es el mecanismo de REPLICACIÓN entre nameservers: transfiere la
+zona ENTERA (todos los registros). Un NS mal configurado lo permite a
+cualquier cliente:
+
+```bash
+curl -s "http://127.0.0.1:18098/axfr?server=ns1.victima.com" | jq .
+
+# En la vida real:
+# dig @ns1.victima.com victima.com AXFR
+```
+
+Fíjate en lo que el volcado revela que las queries normales NO: hosts
+internos (vpn, staging, intranet), direcciones IP de segmentos privados
+y registros "olvidados". Es el clásico hallazgo de OSINT/activo: cero
+explotación, máximo mapa.
+
+## Caza de subdominios (más allá del lab)
+
+| Técnica | Herramienta |
+|---|---|
+| AXFR abierto | `dig @ns AXFR` (cada vez más raro, aún pasa) |
+| Bruteforce de subdominios | `gobuster dns -d dominio -w wordlist.txt` |
+| Certificate Transparency | crt.sh — los certificados revelan hosts |
+| Passive DNS | SecurityTrails, VirusTotal |
+
+**Defensa**: restringir AXFR a las IPs de los NS esclavos
+(`allow-transfer { slaves; };` en BIND), y separar el DNS interno del
+externo (split-horizon): los hosts de .int no deben vivir en la zona
+pública NI en el mismo servidor que la sirve.

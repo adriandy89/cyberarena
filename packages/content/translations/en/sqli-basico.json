@@ -5,30 +5,54 @@
     "1": {
       "title": "Detecting the injection",
       "questions": {
-        "sqli-basico-t01-q01": { "prompt": "Which character inserted into a search field suggests SQLi by causing a syntax error?" },
-        "sqli-basico-t01-q02": { "prompt": "What boolean payload returns ALL products (always true)?" }
+        "sqli-basico-t01-q01": {
+          "prompt": "Which character inserted into a search field suggests SQLi by causing a syntax error?"
+        },
+        "sqli-basico-t01-q02": {
+          "prompt": "What boolean payload returns ALL products (always true)?"
+        }
       }
     },
     "2": {
       "title": "Login bypass and UNION SELECT",
       "questions": {
-        "sqli-basico-t02-q01": { "prompt": "What payload in username and password bypasses the login without valid credentials?" },
-        "sqli-basico-t02-q02": { "prompt": "Submit the flag hidden in the 'secret' column of the users table (UNION SELECT)." }
+        "sqli-basico-t02-q01": {
+          "prompt": "What payload in username and password bypasses the login without valid credentials?"
+        },
+        "sqli-basico-t02-q02": {
+          "prompt": "Submit the flag hidden in the 'secret' column of the users table (UNION SELECT)."
+        }
       }
     },
     "3": {
       "title": "Advanced extraction",
       "questions": {
-        "sqli-basico-t03-q01": { "prompt": "Which SQL clause limits how many rows a query returns?" },
-        "sqli-basico-t03-q02": { "prompt": "Search the product descriptions for the hidden flag (hint: search for 'hidden')." },
-        "sqli-basico-t03-q03": { "prompt": "Which SQLite function lists all tables in the database?" }
+        "sqli-basico-t03-q01": {
+          "prompt": "Which SQL clause limits how many rows a query returns?"
+        },
+        "sqli-basico-t03-q02": {
+          "prompt": "Search the product descriptions for the hidden flag (hint: search for 'hidden')."
+        },
+        "sqli-basico-t03-q03": {
+          "prompt": "Which SQLite function lists all tables in the database?"
+        }
       }
     },
     "4": {
       "title": "Lab: Blind SQL Injection",
       "questions": {
-        "sqli-basico-t04-q01": { "prompt": "What visible difference exists between TRUE and FALSE in boolean-based blind SQLi?" },
-        "sqli-basico-t04-q02": { "prompt": "In blind SQLi, how do you extract data character by character?" }
+        "sqli-basico-t04-q01": {
+          "prompt": "What visible difference exists between TRUE and FALSE in boolean-based blind SQLi?"
+        },
+        "sqli-basico-t04-q02": {
+          "prompt": "In blind SQLi, how do you extract data character by character?"
+        },
+        "sqli-basico-t04-q03": {
+          "prompt": "Extract admin (id=1) password with the boolean oracle — character by character or with sqlmap. Submit it."
+        },
+        "sqli-basico-t04-q04": {
+          "prompt": "The /status endpoint is also an oracle (active/not found) over the config table. Extract the api_key value char by char and submit the flag."
+        }
       }
     }
   }

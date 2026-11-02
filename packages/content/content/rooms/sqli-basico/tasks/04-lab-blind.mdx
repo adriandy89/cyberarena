@@ -10,6 +10,14 @@ questions:
     prompt: "En blind SQLi, ¿cómo extraes datos carácter a carácter sin verlos directamente?"
     hint: "Usando SUBSTR + CASE WHEN: cada carácter se deduce por la respuesta TRUE/FALSE."
     kind: text
+  - id: sqli-basico-t04-q03
+    prompt: "Extrae con el oráculo booleano el password del usuario id=1 (es una flag completa, carácter a carácter o con sqlmap). Envíala."
+    hint: "SUBSTR(password,N,1)='x' por posición — el password ES la flag. sqlmap -u 'http://127.0.0.1:18092/check?id=1' --technique=B --dump acelera"
+    kind: flag
+  - id: sqli-basico-t04-q04
+    prompt: "El endpoint /status también es un oráculo (active/not found) sobre la tabla config. Extrae el valor de api_key carácter a carácter y envía la flag."
+    hint: "service=api_key' AND (CASE WHEN SUBSTR(value,1,1)='F' THEN 1 ELSE 0 END)=1 -- → 'active' si aciertas. (El sleep de 3s con 'sleep' en el nombre es la demo de time-based)"
+    kind: flag
 ---
 
 ## Blind SQLi: cuando no hay errores ni datos

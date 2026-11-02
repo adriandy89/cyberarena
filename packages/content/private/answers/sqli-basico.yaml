@@ -8,3 +8,6 @@ sqli-basico-t02-q02: FLAG{union_select_dumps_everything}
 sqli-basico-t03-q01: LIMIT
 sqli-basico-t03-q02: FLAG{hidden_in_plain_description}
 sqli-basico-t03-q03: sqlite_master
+# task 04 (lab sqli-blind, wireado en spec 105):
+sqli-basico-t04-q03: FLAG{blind_boolean_oracle}
+sqli-basico-t04-q04: FLAG{time_based_extraction}

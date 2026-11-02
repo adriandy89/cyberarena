@@ -14,6 +14,18 @@ questions:
     prompt: "¿Qué directiva CSP DEBILITA la protección al permitir scripts inline?"
     hint: "'unsafe-inline'"
     kind: text
+  - id: xss-reflejado-t03-q04
+    prompt: "Abre /dom del lab con un payload en el hash (<img src=x onerror=...>) — la flag se revela al ejecutarse el innerHTML. Envíala."
+    hint: "En el navegador: http://127.0.0.1:18093/dom#<img src=x onerror=alert(1)> — o inspecciona el HTML que el script va a escribir"
+    kind: flag
+  - id: xss-reflejado-t03-q05
+    prompt: "Bypassea el filtro de /filtered con un tag que no sea <script> y envía la flag que despliega."
+    hint: "curl --globoff 'http://127.0.0.1:18093/filtered?input=<img src=x onerror=alert(1)>'"
+    kind: flag
+  - id: xss-reflejado-t03-q06
+    prompt: "La página /csp sirve su flag pese a la CSP. ¿Por qué? Mírala (curl -s http://127.0.0.1:18093/csp) y envía la flag."
+    hint: "script-src 'self' 'unsafe-inline' — el unsafe-inline deja pasar exactamente esto"
+    kind: flag
 ---
 
 ## Los 3 vectores avanzados del lab

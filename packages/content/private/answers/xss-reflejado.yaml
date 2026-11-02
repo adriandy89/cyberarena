@@ -7,3 +7,7 @@ xss-reflejado-t02-q01: b
 xss-reflejado-t02-q02: document.cookie
 xss-reflejado-t01-q03: FLAG{alert_executed_in_browser}
 xss-reflejado-t02-q03: FLAG{stored_xss_steals_session}
+# task 03 advanced (lab xss-advanced, flags añadidas en spec 105):
+xss-reflejado-t03-q04: FLAG{dom_xss_innerhtml}
+xss-reflejado-t03-q05: FLAG{filter_bypass_img_onerror}
+xss-reflejado-t03-q06: FLAG{csp_unsafe_inline}
