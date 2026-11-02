@@ -1,7 +1,7 @@
 # Arquitectura — CyberArena
 
 > Visión global. Detalle por fase en `specs/`. Decisiones justificadas en `docs/adr/`.
-> Actualizada el 2026-11-02 (fases 010, 011 y 012).
+> Actualizada el 2026-11-02 (fases 010 a 013).
 
 ## Diagrama general (producción)
 
@@ -93,3 +93,5 @@ repite tras cada rebuild). El build exige cobertura EN completa (fase 107).
   lab-runner) con imágenes multi-stage (`turbo prune --docker`).
 - Operación: `prod-preflight.sh`, `seed-prod.sh`, `smoke-prod.mjs`, `labs-smoke.mjs`, backups con
   rotación y restore a BD scratch. Verificado de punta a punta el 2026-11-02 (fase 012).
+- Variante LAN sin proxy (fase 013): `infra/stacks/lan/` (overlay del compose de prod). La web va en
+  `WEB_PORT` por HTTP, los labs en la IP de la LAN, y la configuración vive fuera del clon (`cyberarena.sh`).

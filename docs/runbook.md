@@ -106,6 +106,11 @@ Ambos se ejecutan con `--project-directory` EN SU PROPIA CARPETA (montan archivo
 Caddyfile, secretos y flags de labs). Despliegue verificado de punta a punta el 2026-11-02 (registro en
 `specs/012-despliegue-docker/tasks.md`).
 
+**Servidor de la LAN sin proxy (fase 013):** `infra/stacks/lan/` reutiliza este compose de prod con un
+overlay. La web se publica en `WEB_PORT` (3080) por HTTP, los labs en la IP de la LAN y la configuración
+vive fuera del clon (`~/cyberarena/stack`, `./cyberarena.sh init|up|update|backup|labs`). Pasos en
+`infra/stacks/lan/README.md`. Desplegado en `http://192.168.1.20:3080` el 2026-11-02.
+
 ### Despliegue desde cero
 
 ```bash
@@ -220,6 +225,7 @@ Cron diario (Linux): `0 4 * * * cd /ruta/repo && bash infra/scripts/backup-db.sh
 | Inglés vacío o en español tras un rebuild | El seed no se repitió | `bash infra/scripts/seed-prod.sh` |
 | Build: `cannot be accessed by the system` en `node_modules` | Enlaces de Linux escritos por contenedores de dev en el host | `rm -rf <paquete>/node_modules && pnpm install` (el compose de dev ya aísla todos) |
 | Labs que se apagan solos a los 5 min | Hay dos lab-runners en el mismo host | Deja solo uno (para el de dev) |
+| Linux: la api no arranca (`EACCES` en `/run/secrets/…`) o los labs quedan `unavailable` | Compose monta los secretos con los permisos del host; la api corre como uid 10001 | Secretos 644 dentro de una carpeta 700; `lab-flags/` 755 y sus `*.env` 644 (`cyberarena.sh init` y `lab-flags.sh` ya lo aplican) |
 | `mount src not a directory` (Caddyfile) | compose corrido con project-directory incorrecto | Usar `--project-directory infra/stacks/proxy` |
 | Migraciones no aplican | `MIGRATE_ON_BOOT` distinto de true | `docker compose logs api` para ver `[entrypoint]` |
 

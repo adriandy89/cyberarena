@@ -1,6 +1,6 @@
 # Spec 013 — Despliegue en la LAN (mini PC)
 
-- **Estado:** en curso
+- **Estado:** completada (2026-11-02)
 - **Creada:** 2026-11-02
 - **Changelog:**
   - 2026-11-02 primera versión. Petición del usuario: desplegar en su mini PC (`192.168.1.20`, Debian 13,
@@ -12,6 +12,8 @@
     directamente en un puerto propio (`WEB_PORT`, 3080) por HTTP y reenvía `/api` a la api por la red del
     proyecto; nada en 80/443, sin conflictos con los demás proyectos del mini PC. Las cabeceras de
     seguridad pasan a la propia web (Next) para no perderlas sin proxy.
+  - 2026-11-02 cerrada: desplegada y verificada desde el PC del usuario (registro en `tasks.md`). Postgres
+    no publica ningún puerto (el mapeo a `127.0.0.1:5433` no funcionaba con una red interna y se eliminó).
 
 ## 1. Propósito
 
@@ -39,10 +41,10 @@ LAN hace falta:
 
 ## 3. Criterios de éxito
 
-- [ ] Desde el PC del usuario, `http://192.168.1.20:3080` sirve la plataforma (smoke en verde).
-- [ ] Un lab arrancado desde la web es accesible en `http://192.168.1.20:<puerto del lab>` y su flag se acepta.
-- [ ] `git -C ~/cyberarena/repo status` limpio tras desplegar; `./cyberarena.sh update` hace `pull` + rebuild.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
+- [x] Desde el PC del usuario, `http://192.168.1.20:3080` sirve la plataforma (smoke en verde).
+- [x] Un lab arrancado desde la web es accesible en `http://192.168.1.20:<puerto del lab>` y su flag se acepta.
+- [x] `git -C ~/cyberarena/repo status` limpio tras desplegar; `./cyberarena.sh update` hace `pull` + rebuild.
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde.
 
 ## 4. Seguridad
 
