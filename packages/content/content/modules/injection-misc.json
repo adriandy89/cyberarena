@@ -1,9 +1,16 @@
 {
   "slug": "injection-misc",
-  "title": "Command Injection y File Upload",
-  "description": "OS command execution vía ping utility y file upload bypass: RCE práctico con labs reales.",
+  "title": "Command Injection, File Upload y Log Injection",
+  "description": "OS command execution, file upload bypass y log injection (CRLF/XSS en logs): RCE y forja con labs reales.",
   "rooms": [
-    { "slug": "command-injection" },
-    { "slug": "file-upload" }
+    {
+      "slug": "command-injection"
+    },
+    {
+      "slug": "file-upload"
+    },
+    {
+      "slug": "log-forging"
+    }
   ]
 }

@@ -1,0 +1,75 @@
+---
+index: 2
+title: "Bypass de límites y balance negativo"
+questions:
+  - id: race-condition-t02-q01
+    prompt: "¿Qué primitiva de Python usa /buy-safe para hacer el check y el act atómicos?"
+    hint: "with ____: — la misma que usa /redeem-safe"
+    kind: text
+  - id: race-condition-t02-q02
+    prompt: "Rompe el límite diario de compras (max 3) hasta purchases > 13. Envía la flag del logro LIMIT_BYPASS."
+    hint: "30+ requests paralelos a /buy. Secuencial te frenan en 13; solo los threads en vuelo dentro de la ventana pasan de ahí"
+    kind: flag
+  - id: race-condition-t02-q03
+    prompt: "Deja el balance en negativo explotando /checkout. Envía la flag del logro NEGATIVE_BALANCE."
+    hint: "for i in $(seq 1 30); do curl 'http://127.0.0.1:18099/checkout' & done; wait — el check de balance sufre TOCTOU"
+    kind: flag
+---
+
+## El límite diario que no aguanta 30 requests
+
+`/buy` comprueba el límite de 3 compras diarias antes de cobrar. El servidor
+tiene una barrera dura: rechaza con 429 cualquier request que vea
+`purchases >= 13`. Pídele 20 compras **secuenciales** y te frenarán ahí,
+sin flag.
+
+Pero durante la ventana de carrera, decenas de threads ya pasaron el check
+con `purchases = 3` y están "en vuelo". Cuando aterrizan, el contador
+salta **más allá de la barrera** — un valor que ningún request secuencial
+podría alcanzar:
+
+```bash
+curl -s http://127.0.0.1:18099/reset > /dev/null
+for i in $(seq 1 30); do curl -s "http://127.0.0.1:18099/buy" & done; wait
+curl -s http://127.0.0.1:18099/status   # purchases: 20 (la barrera era 13)
+```
+
+En un e-commerce real este bug regala productos: el límite de "1 por
+cliente" de una promo Black Friday se evapora con un script.
+
+## El check de balance también miente
+
+`/checkout` paga con una comprobación aparentemente razonable:
+
+```python
+if state['balance'] < price:      # CHECK: ¿puede pagar?
+    return error('insufficient balance')
+time.sleep(0.2)                   # "pasarela de pago" — ventana de carrera
+state['balance'] -= price         # ACT: cobra
+```
+
+Secuencialmente es imposible pasarlo: el balance baja de 5 en 5 hasta 0 y
+el siguiente request ve `balance = 0 < 5` y recibe 402. Pero lanza 30
+requests paralelos y **todos** hacen el check con el mismo balance viejo
+(100), todos pasan, y todos cobran:
+
+```bash
+curl -s http://127.0.0.1:18099/reset > /dev/null
+for i in $(seq 1 30); do curl -s "http://127.0.0.1:18099/checkout" & done; wait
+curl -s http://127.0.0.1:18099/status   # balance: -50
+```
+
+Balance negativo: la tienda te pagó a ti. Este patrón exacto
+(doble cobro en pasarelas de pago) es el caso de estudio clásico de race
+conditions con impacto financiero directo.
+
+## Cómo se arregla de verdad
+
+1. **Atomicidad**: check y act dentro de la misma transacción
+   (`SELECT ... FOR UPDATE` en SQL, `with lock:` en Python,
+   `sync.Mutex` en Go).
+2. **Operaciones idempotentes**: que reintentar un pago no cobre dos veces
+   (idempotency keys de Stripe).
+3. **Restricciones en la base de datos**: `CHECK (balance >= 0)` y
+   `UNIQUE(coupon_code)` — el último muro, válido incluso si el código
+   de la app se equivoca.

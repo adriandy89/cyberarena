@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { authClient } from '../lib/auth-client';
 import { Link, useRouter } from '../i18n/navigation';
@@ -9,7 +9,6 @@ export function UserMenu() {
   const t = useTranslations('UserMenu');
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-  const locale = useLocale();
   const [isPendingAction, startTransition] = useTransition();
 
   if (isPending) {
@@ -44,7 +43,8 @@ export function UserMenu() {
         onClick={() =>
           startTransition(async () => {
             await authClient.signOut();
-            router.replace(`/${locale}`);
+            // useRouter from i18n/navigation already prefixes the locale.
+            router.replace('/');
             router.refresh();
           })
         }

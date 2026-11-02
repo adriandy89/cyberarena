@@ -1,0 +1,22 @@
+{
+  "title": "API Security: BOLA, BFLA and mass assignment",
+  "description": "API-exclusive attacks per OWASP: reading other users' objects, running admin functions and promoting yourself with one extra JSON field.",
+  "tasks": {
+    "1": {
+      "title": "BOLA: other users' objects",
+      "questions": {
+        "api-security-t01-q01": { "prompt": "Which number of the OWASP API Top 10 does BOLA (Broken Object Level Authorization) hold?" },
+        "api-security-t01-q02": { "prompt": "You are alice (id=2). Retrieve order 1002, which belongs to another user. Submit the flag." },
+        "api-security-t01-q03": { "prompt": "What field should the server compare in /api/orders/{id} to close the hole?" }
+      }
+    },
+    "2": {
+      "title": "BFLA, mass assignment and unlimited consumption",
+      "questions": {
+        "api-security-t02-q01": { "prompt": "Delete bob's account (id=3) while being alice. Submit the BFLA achievement flag." },
+        "api-security-t02-q02": { "prompt": "Create an account with role admin by abusing the API copying any JSON field. Submit the flag." },
+        "api-security-t02-q03": { "prompt": "The /api/export endpoint dumps the whole database with no rate limit or pagination. Submit the flag it gives away." }
+      }
+    }
+  }
+}

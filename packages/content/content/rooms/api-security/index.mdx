@@ -1,0 +1,25 @@
+---
+slug: api-security
+title: "API Security: BOLA, BFLA y mass assignment"
+description: "Los ataques exclusivos de APIs según OWASP: acceder a objetos ajenos, ejecutar funciones de admin y autoascenderte con un campo extra en el JSON."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 45
+tags:
+  - web
+  - api
+  - bola
+  - owasp
+  - rest
+lab: api-bola-bfla
+labUrl: http://127.0.0.1:18101
+---
+
+Las APIs tienen su propio top 10 de OWASP, y los dos primeros puestos no
+son inyecciones ni overflow: son **fallos de autorización**. BOLA (acceder
+a objetos de otros) y BFLA (ejecutar funciones de otros) dominan los
+incidentes reales de APIs porque las apps autentican correctamente...
+y luego olvidan autorizar cada recurso.
+
+Este room ataca CorpAPI, la API de una tienda donde eres `alice` (usuario
+normal, id=2). Cuatro vulnerabilidades esperan.

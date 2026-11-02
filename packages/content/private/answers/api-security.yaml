@@ -1,0 +1,9 @@
+# Respuestas del room api-security.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/api-bola-bfla/flags.env
+api-security-t01-q01: "1"
+api-security-t01-q02: FLAG{bola_order_accessed}
+api-security-t01-q03: user_id
+api-security-t02-q01: FLAG{bfla_user_deleted}
+api-security-t02-q02: FLAG{mass_assignment_admin}
+api-security-t02-q03: FLAG{unlimited_export_dump}

@@ -1,0 +1,22 @@
+{
+  "title": "Log Injection: forging the logs",
+  "description": "CRLF to inject fake lines, XSS that detonates in the admin's log viewer and poisoning that contaminates forensic analysis.",
+  "tasks": {
+    "1": {
+      "title": "CRLF: injecting fake lines",
+      "questions": {
+        "log-forging-t01-q01": { "prompt": "Which two characters (URL-encoded as %0d%0a) mark the end of one log line and the start of another under your control?" },
+        "log-forging-t01-q02": { "prompt": "Inject a line that looks like a successful admin login ([SUCCESS] Admin logged in). Submit the LOG_FORGED achievement flag." },
+        "log-forging-t01-q03": { "prompt": "Inspect /logs with curl. Who appears as the author of ALL feedback lines (the default name the app writes)?" }
+      }
+    },
+    "2": {
+      "title": "XSS in the log viewer and poisoning",
+      "questions": {
+        "log-forging-t02-q01": { "prompt": "Inject a <script> via feedback and open the /logs viewer in your browser. Submit the XSS_IN_LOG achievement flag." },
+        "log-forging-t02-q02": { "prompt": "Inject a ../ path pointing at /etc/ to simulate parser poisoning. Submit the LOG_POISONING achievement flag." },
+        "log-forging-t02-q03": { "prompt": "Which header's restrictive policy would stop the injected script from executing in the viewer? (the policy that blocks inline scripts)" }
+      }
+    }
+  }
+}

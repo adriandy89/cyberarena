@@ -1,0 +1,9 @@
+# Respuestas del room detection-evasion.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/c2-simulation/flags.env
+detection-evasion-t01-q01: FIXED_INTERVAL_BEACON
+detection-evasion-t01-q02: FLAG{beacon_detected_no_jitter}
+detection-evasion-t01-q03: a
+detection-evasion-t02-q01: internet
+detection-evasion-t02-q02: FLAG{dns_exfil_success}
+detection-evasion-t02-q03: FLAG{defender_correlated_attack}

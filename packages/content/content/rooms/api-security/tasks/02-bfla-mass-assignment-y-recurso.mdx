@@ -1,0 +1,81 @@
+---
+index: 2
+title: "BFLA, mass assignment y consumo sin límite"
+questions:
+  - id: api-security-t02-q01
+    prompt: "Borra la cuenta del usuario bob (id=3) siendo alice. Envía la flag del logro BFLA."
+    hint: "curl -X DELETE http://127.0.0.1:18101/api/users/3 — borrar usuarios es función de admin, pero la API no comprueba el rol"
+    kind: flag
+  - id: api-security-t02-q02
+    prompt: "Créate una cuenta con role admin aprovechando que la API copia cualquier campo del JSON. Envía la flag."
+    hint: "curl -X POST -H 'Content-Type: application/json' -d '{\"name\":\"mallory\",\"role\":\"admin\"}' http://127.0.0.1:18101/api/orders/create"
+    kind: flag
+  - id: api-security-t02-q03
+    prompt: "El endpoint /api/export vuela toda la base sin rate limit ni paginación. Envía la flag que te regala."
+    hint: "curl http://127.0.0.1:18101/api/export | jq .flag"
+    kind: flag
+---
+
+## BFLA: funciones de admin al alcance de un DELETE
+
+BOLA era "ver lo que no debes". **BFLA** (Broken Function Level
+Authorization) es "hacer lo que no debes": la API expone funciones
+administrativas y solo comprueba que estés logueado, no tu rol.
+
+```bash
+# Alice (role: user) borra a bob:
+curl -s -X DELETE http://127.0.0.1:18101/api/users/3
+# {"status": "deleted", "user": "bob", "note": "BFLA: you should not be able to do this!"}
+```
+
+Los síntomas clásicos en APIs reales: endpoints admin montados en el
+mismo host que los de usuario (`/api/admin/users` olvida el middleware de
+rol), HTTP method collisions (el DELETE llega a la misma ruta que el GET
+público) y "ocultamiento" del botón en el frontend sin validación en el
+backend.
+
+## Mass assignment: el campo que regalaste
+
+Cuando el backend hace `role = body.get('role', 'user')` — o peor, pasa
+el JSON entero al constructor del modelo — cualquier campo que mandes se
+convirte en tuyo:
+
+```bash
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"name": "mallory", "role": "admin"}' \
+  http://127.0.0.1:18101/api/orders/create
+# "MASS ASSIGNMENT: you set role=admin!"
+```
+
+El exploit más famoso de la historia fue exactamente esto: en 2012, un
+investigador añadió `"admin": true` al JSON de su perfil de GitHub...
+y se convirtió en admin de la plataforma.
+
+**Fix**: lista blanca explícita de campos aceptables (`name`, `email`)
+y nunca mapear el body directo al modelo (en Django: `ModelForm` con
+campos declarados, no `**request.POST`).
+
+## Consumo ilimitado de recursos
+
+`/api/export` no tiene rate limit, ni paginación, ni autenticación
+especial: un único GET descarga TODOS los usuarios y TODOS los pedidos.
+Un atacante puede tirarte la base (y la factura de ancho de banda) con
+un `while true`.
+
+```bash
+curl -s http://127.0.0.1:18101/api/export | jq '.flag'
+```
+
+Las mitigaciones estándar: rate limiting por IP y por token (429),
+paginación obligatoria (`?page=1&limit=50`), límites de tamaño de
+respuesta y "presupuestos" de cómputo por usuario. En APIs de pago,
+además: cuotas por API key.
+
+## Cómo se audita una API de verdad
+
+1. Enumera endpoints con la spec (Swagger/OpenAPI) o con Burp.
+2. Para CADA endpoint pregúntate: ¿objeto ajeno? (BOLA) ¿función de
+   otro rol? (BFLA) ¿campo extra en el body? (mass assignment)
+   ¿límite de uso? (recurso).
+3. Prueba siempre como usuario de rol BAJO: el admin lo ve todo y
+   enmascara los bugs.

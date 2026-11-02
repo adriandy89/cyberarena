@@ -1,0 +1,78 @@
+---
+index: 1
+title: "Beaconing: el metrónomo que te delata"
+questions:
+  - id: detection-evasion-t01-q01
+    prompt: "Envía 3+ beacons SIN jitter (interval=5) y ejecuta /detect. ¿Qué TIPO de alerta dispara el motor?"
+    hint: "FIXED_INTERVAL_BEACON — el intervalo exactamente igual en todas es la firma"
+    kind: text
+  - id: detection-evasion-t01-q02
+    prompt: "Envía la flag que te da el detector al pillar tus 3 beacons metronómicos."
+    hint: "curl 'http://127.0.0.1:18103/beacon?id=i1&interval=5' tres veces, luego curl http://127.0.0.1:18103/detect"
+    kind: flag
+  - id: detection-evasion-t01-q03
+    prompt: "Ahora manda 3+ beacons CON jitter=40 y vuelve a mirar /detect. ¿Qué SEVERITY tiene la entrada que generan (LOW/HIGH/CRITICAL)?"
+    hint: "Con jitter los delays varían: la alerta baja a informativa porque no hay firma fija"
+    kind: choice
+    options:
+      - id: a
+        label: "LOW"
+      - id: b
+        label: "HIGH"
+      - id: c
+        label: "CRITICAL"
+---
+
+## El beacon: latido del implant
+
+Un implant no puede "llamar a casa" y quedarse escuchando (daría un
+socket permanentemente sospechoso). En su lugar hace **beaconing**:
+polling periódico — "¿tienes órdenes para mí?" cada N segundos.
+
+```bash
+# Atacante descuidado: intervalo fijo de 5s (un metrónomo)
+curl -s "http://127.0.0.1:18103/beacon?id=implant1&interval=5"
+curl -s "http://127.0.0.1:18103/beacon?id=implant1&interval=5"
+curl -s "http://127.0.0.1:18103/beacon?id=implant1&interval=5"
+
+# Vista del defensor:
+curl -s http://127.0.0.1:18103/logs | jq '.beacons[].actual_delay'
+# 5.0, 5.0, 5.0  ← tres paquetes EXACTAMENTE cada 5 segundos
+```
+
+El tráfico humano es caótico: emails que llegan en ráfagas, navegación
+en ráfagas, silencios. **Nada humano es periódico con precisión de
+reloj.** Esa periodicidad perfecta es la firma más clásica de C2 que
+existe — Splunk la busca con queries de desviación estándar sobre
+deltas de tiempo por IP de destino.
+
+```bash
+curl -s http://127.0.0.1:18103/detect | jq '.alerts[0]'
+```
+
+## Jitter: humanizar el metrónomo
+
+Cobalt Strike, Sliver y todo C2 moderno aceptan `jitter`: porcentaje
+de variación aleatoria sobre el intervalo base. `5s + jitter 40%` →
+cada beacon cae entre 3 y 7 segundos:
+
+```bash
+curl -s "http://127.0.0.1:18103/beacon-jitter?id=implant2&interval=5&jitter=40" 
+curl -s "http://127.0.0.1:18103/beacon-jitter?id=implant2&interval=5&jitter=40"
+curl -s "http://127.0.0.1:18103/beacon-jitter?id=implant2&interval=5&jitter=40"
+
+curl -s http://127.0.0.1:18103/logs | jq '[.beacons[] | select(.jitter>0) | .actual_delay]'
+# [6.13, 3.87, 5.42]  ← sin patrón
+```
+
+Vuelve a correr `/detect`: el motor no puede firmar lo que no se repite.
+La variación aleatoria destruye el estadístico (la desviación estándar
+deja de ser ~0) y el beacon se funde con el tráfico normal. Por eso los
+detectores modernos no buscan periodicidad exacta sino **regularidad
+estadística** (coeficiente de variación bajo en ventanas largas), y por
+eso un buen defensor también mira dominios nuevos, JA3 fingerprints de
+TLS raros y volumetría — no solo timings.
+
+**La lección dual**: como red team, tu beacon sin jitter te delata en
+horas; como blue team, si tu detección solo firma intervalos exactos,
+el adversario te evita añadiendo un `%` de ruido.

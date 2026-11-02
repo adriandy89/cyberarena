@@ -1,0 +1,22 @@
+{
+  "title": "C2 Detection and Evasion",
+  "description": "Beacons with and without jitter, DNS exfiltration and alert correlation: play attacker and defender against the same traffic.",
+  "tasks": {
+    "1": {
+      "title": "Beaconing: the metronome that betrays you",
+      "questions": {
+        "detection-evasion-t01-q01": { "prompt": "Send 3+ beacons WITHOUT jitter (interval=5) and run /detect. What alert TYPE does the engine fire?" },
+        "detection-evasion-t01-q02": { "prompt": "Submit the flag the detector gives you for catching your 3 metronomic beacons." },
+        "detection-evasion-t01-q03": { "prompt": "Now send 3+ beacons WITH jitter=40 and check /detect again. What SEVERITY does the entry they generate have (LOW/HIGH/CRITICAL)?" }
+      }
+    },
+    "2": {
+      "title": "DNS exfiltration and alert correlation",
+      "questions": {
+        "detection-evasion-t02-q01": { "prompt": "Why is DNS such a popular exfiltration channel? Because firewalls almost always allow outbound DNS towards ___ (what?)" },
+        "detection-evasion-t02-q02": { "prompt": "Exfiltrate data encoded in a long subdomain (over 30 characters) via /dns. Submit the flag." },
+        "detection-evasion-t02-q03": { "prompt": "As the defender, generate enough suspicious traffic for /detect to cross 2+ alerts and flag correlated_attack. Submit the final flag." }
+      }
+    }
+  }
+}

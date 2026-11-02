@@ -1,0 +1,58 @@
+---
+index: 1
+title: "Predicción de session IDs"
+questions:
+  - id: session-security-t01-q01
+    prompt: "Haz login normal (/login) dos veces seguidas con curl -c y compara los session IDs. ¿De cuánto en cuánto se incrementan?"
+    hint: "Son secuenciales: 100, 101, 102... El admin está justo en el número redondo anterior"
+    kind: text
+  - id: session-security-t01-q02
+    prompt: "¿Qué session ID pertenece a la cuenta admin?"
+    hint: "Los usuarios normales son 100-109. ¿Qué ID consecutivo quedaría fuera y 'antes' de ellos?"
+    kind: text
+  - id: session-security-t01-q03
+    prompt: "Fija tu cookie al session ID del admin (/login?sid=X) y visita /whoami. Envía la flag."
+    hint: "curl -c ck.txt 'http://127.0.0.1:18100/login?sid=99' && curl -b ck.txt http://127.0.0.1:18100/whoami"
+    kind: flag
+---
+
+## Session IDs secuenciales = sesión de regalo
+
+Un session ID debe ser **impredecible** (128 bits de aleatoriedad criptográfica,
+tipo `Sec-Fetch` o `3f8a9c2e...`). El lab genera IDs secuenciales:
+user100, user101, user102...
+
+```bash
+# Login dos veces y observa la cookie que te asignan:
+curl -sv http://127.0.0.1:18100/login 2>&1 | grep Set-Cookie
+# Set-Cookie: session=100; Path=/
+# Set-Cookie: session=101; Path=/   ← ¡incremental!
+```
+
+Si tú eres el 101, el siguiente usuario que haga login será el 102, y el
+anterior era el 100. Un atacante puede **recorrer el espacio de sesiones
+activas** probando 100, 101, 102... hasta dar con una sesión de alguien más.
+
+## Suplantar al admin
+
+Los usuarios normales ocupan los IDs 100-109. ¿Y el admin? Se registró
+"antes" que ellos:
+
+```bash
+# El endpoint /login acepta un sid arbitrario y te lo planta como cookie:
+curl -s -c /tmp/ck.txt "http://127.0.0.1:18100/login?sid=99"
+curl -s -b /tmp/ck.txt "http://127.0.0.1:18100/whoami"
+# You are admin (admin). Flag: FLAG{...}
+```
+
+Esto es **session hijacking por predicción**: ni un solo exploit de
+memoria, ni inyección — solo números que cuentan hacia atrás.
+
+## Cómo se evita
+
+- Generar IDs con `secrets.token_urlsafe(32)` (o el generador del
+  framework: nunca `uuid.uuid4()` con versión 1, que filtra la MAC).
+- Validar en cada request que la sesión pertenece **al usuario
+  autenticado**, no solo que existe.
+- Rotar el ID en el login (evita session fixation: el atacante planta un
+  ID conocido y la víctima "lo hereda" al autenticarse).

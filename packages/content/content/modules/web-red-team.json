@@ -1,8 +1,13 @@
 {
   "slug": "web-red-team",
   "title": "Web Red Teaming",
-  "description": "Bypass de WAF, payloads polimórficos, encoding en capas y C2 camuflado: el arte de no ser detectado.",
+  "description": "Bypass de WAF, payloads polimórficos, encoding en capas, C2 beaconing con jitter y evasión de detección.",
   "rooms": [
-    { "slug": "web-red-team" }
+    {
+      "slug": "web-red-team"
+    },
+    {
+      "slug": "detection-evasion"
+    }
   ]
 }

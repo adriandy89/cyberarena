@@ -1,0 +1,23 @@
+{
+  "title": "Session Security: prediction, flags and replay",
+  "description": "Predictable session IDs, cookies without HttpOnly/Secure/SameSite and JWTs the server never validates: four attacks against the session.",
+  "tasks": {
+    "1": {
+      "title": "Session ID prediction",
+      "questions": {
+        "session-security-t01-q01": { "prompt": "Log in normally (/login) twice in a row with curl -c and compare the session IDs. By how much do they increment?" },
+        "session-security-t01-q02": { "prompt": "Which session ID belongs to the admin account?" },
+        "session-security-t01-q03": { "prompt": "Set your cookie to the admin's session ID (/login?sid=X) and visit /whoami. Submit the flag." }
+      }
+    },
+    "2": {
+      "title": "Cookie flags and expired JWT replay",
+      "questions": {
+        "session-security-t02-q01": { "prompt": "Which cookie flag would stop JavaScript from reading document.cookie (blocking XSS theft)?" },
+        "session-security-t02-q02": { "prompt": "Simulate the theft: send a valid session id to the attacker's collector /steal?c=X. Submit the flag." },
+        "session-security-t02-q03": { "prompt": "Visit /api-jwt without a token, decode the payload of the JWT it hands you (base64). What year does it expire (exp field)?" },
+        "session-security-t02-q04": { "prompt": "Replay that same expired JWT to /api-jwt?token=X. Submit the replay flag." }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+---
+slug: race-condition
+title: "Race Conditions: TOCTOU y double-spend"
+description: "Explota check-then-act sin lock: canjea un cupón 9 veces, rompe límites diarios y deja el balance en negativo con requests paralelos reales."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 45
+tags:
+  - web
+  - race-condition
+  - concurrency
+  - owasp
+  - logic
+lab: race-condition
+labUrl: http://127.0.0.1:18099
+---
+
+Una condición de carrera ocurre cuando el resultado de una operación depende
+del **orden de llegada** de eventos que no controlas. En la web, el patrón
+clásico es **TOCTOU** (*Time-Of-Check to Time-Of-Use*): el servidor comprueba
+una regla, pasa el tiempo, y luego actúa — sin garantía de que nada haya
+cambiado en ese intervalo.
+
+Este room lo practicas contra RaceLab, un sistema de cupones y compras con
+tres vulnerabilidades TOCTOU reales. Ninguna se puede explotar con requests
+secuenciales: necesitarás **paralelismo de verdad**, igual que un atacante
+real con Turbo Intruder o un simple `for ... & done` en bash.

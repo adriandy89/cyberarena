@@ -1,0 +1,10 @@
+# Respuestas del room session-security.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/cookie-session-lab/flags.env
+session-security-t01-q01: "1"
+session-security-t01-q02: "99"
+session-security-t01-q03: FLAG{session_prediction_101}
+session-security-t02-q01: HttpOnly
+session-security-t02-q02: FLAG{cookie_stolen_no_httponly}
+session-security-t02-q03: "2001"
+session-security-t02-q04: FLAG{jwt_expired_replayed}

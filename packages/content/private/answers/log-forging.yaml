@@ -1,0 +1,9 @@
+# Respuestas del room log-forging.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/log-injection/flags.env
+log-forging-t01-q01: CRLF
+log-forging-t01-q02: FLAG{crlf_log_forged}
+log-forging-t01-q03: alice
+log-forging-t02-q01: FLAG{xss_injected_in_logs}
+log-forging-t02-q02: FLAG{log_poisoning_rce}
+log-forging-t02-q03: CSP

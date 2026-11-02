@@ -1,0 +1,26 @@
+---
+slug: log-forging
+title: "Log Injection: forja en los logs"
+description: "CRLF para inyectar líneas falsas, XSS que detona en el navegador del admin que revisa logs y poisoning que contamina el análisis forense."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 35
+tags:
+  - web
+  - log-injection
+  - crlf
+  - xss
+  - blue-team
+lab: log-injection
+labUrl: http://127.0.0.1:18102
+---
+
+Los logs son la memoria de una aplicación — y también su punto ciego.
+Todo lo que el usuario escribe y el sistema registra "tal cual" se
+convierte en un lienzo para el atacante: líneas falsas que culpan a
+inocentes en un forense, scripts que detona el analista al abrir el
+visor, y rutas envenenadas que rompen los parsers.
+
+Este room ensucia los logs de una app de feedback con tres técnicas
+progresivas. Después de esto no volverás a confiar en un log que no
+sanea su entrada.

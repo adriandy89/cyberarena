@@ -28,8 +28,8 @@ test.describe('room player (linux-fundamentos-1)', () => {
     // Correct feedback appears with the solved mark
     await expect(firstQuestion.getByText('✓ Correcta')).toBeVisible({ timeout: 10_000 });
 
-    // Progress header advances (1/10 for this room)
-    await expect(page.getByText(/1\/10 preguntas/)).toBeVisible();
+    // Progress header advances (linux-fundamentos-1: 12 questions total)
+    await expect(page.getByText(/1\/12 preguntas/)).toBeVisible();
 
     // Wrong answer on the next question shows the error message
     const secondQuestion = page.locator('li', { hasText: 'directorio de trabajo actual' }).first();
@@ -49,9 +49,9 @@ test.describe('room player (linux-fundamentos-1)', () => {
     const page = await context.newPage();
     await page.goto('/es/rooms/linux-fundamentos-1');
 
-    await expect(page.getByText('Tarea 1 de 3')).toBeVisible();
+    await expect(page.getByText('Tarea 1 de 4')).toBeVisible();
     await page.getByRole('button', { name: /Siguiente/ }).click();
-    await expect(page.getByText('Tarea 2 de 3')).toBeVisible();
+    await expect(page.getByText('Tarea 2 de 4')).toBeVisible();
     await context.close();
   });
 });

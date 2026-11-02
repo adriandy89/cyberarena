@@ -1,0 +1,22 @@
+---
+slug: session-security
+title: "Session Security: predicción, flags y replay"
+description: "Session IDs predecibles, cookies sin HttpOnly/Secure/SameSite y JWTs expirados que el servidor nunca valida: cuatro ataques a la sesión."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 40
+tags:
+  - web
+  - sessions
+  - cookies
+  - jwt
+  - auth
+lab: cookie-session-lab
+labUrl: http://127.0.0.1:18100
+---
+
+La sesión es el estado más valioso de una app web: quien roba tu cookie de
+sesión **es** tú, sin necesidad de tu contraseña. Este room ataca los tres
+pecados capitales de la gestión de sesiones contra un lab real:
+identificadores predecibles, cookies sin banderas de seguridad y tokens
+JWT cuya expiración nadie comprueba.

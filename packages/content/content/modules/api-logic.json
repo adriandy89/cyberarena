@@ -1,0 +1,9 @@
+{
+  "slug": "api-logic",
+  "title": "API y Logic Flaws",
+  "description": "Race conditions TOCTOU con double-spend real y los ataques exclusivos de APIs (BOLA, BFLA, mass assignment) contra labs dedicados.",
+  "rooms": [
+    { "slug": "race-condition" },
+    { "slug": "api-security" }
+  ]
+}

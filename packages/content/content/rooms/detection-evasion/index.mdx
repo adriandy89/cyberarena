@@ -1,0 +1,26 @@
+---
+slug: detection-evasion
+title: "Detección y evasión de C2"
+description: "Beacons con y sin jitter, exfiltración por DNS y correlación de alertas: juega a atacante y defensor contra el mismo tráfico."
+difficulty: hard
+type: walkthrough
+estimatedMinutes: 50
+tags:
+  - blue-team
+  - command-and-control
+  - detection
+  - evasion
+  - dns
+lab: c2-simulation
+labUrl: http://127.0.0.1:18103
+---
+
+Un C2 (Command & Control) es el canal por el que un implant comprometido
+recibe órdenes del atacante. Toda la partida ofensiva/defensiva gira
+en torno a una pregunta: **¿el tráfico del beacon se distingue del
+ruido normal?**
+
+Este room te pone en los dos lados de la misma consola. Como atacante,
+generarás beaconing metronómico, beaconing con jitter y exfiltración por
+DNS. Como defensor, tu motor de correlación intentará detectar cada uno
+— y descubrirás por qué el jitter es el enemigo silencioso del SOC.

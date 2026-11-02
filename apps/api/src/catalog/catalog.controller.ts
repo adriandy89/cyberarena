@@ -3,8 +3,16 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { CatalogService } from './catalog.service';
 
-// Resolve content/dist relative to the monorepo root (works in dev and container)
-const CONTENT_DIST = resolve(process.cwd(), '../../content/dist');
+// Resolve the content package dist across layouts (dev monorepo, prod image):
+// - dev (cwd apps/api): ../../packages/content/dist
+// - prod image (cwd /app, pruned monorepo): packages/content/dist
+// - legacy root layout: ../../content/dist
+const CONTENT_DIST_CANDIDATES = [
+  resolve(process.cwd(), '../../packages/content/dist'),
+  resolve(process.cwd(), 'packages/content/dist'),
+  resolve(process.cwd(), '../../content/dist'),
+];
+const CONTENT_DIST = CONTENT_DIST_CANDIDATES.find((dir) => existsSync(join(dir, 'catalog-en.json'))) ?? null;
 
 /** Public read-only catalog (answers are never exposed — ADR-010). */
 @Controller('catalog')
@@ -51,6 +59,7 @@ export class CatalogController {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readEnCatalog(): { paths: any[] } | null {
+    if (!CONTENT_DIST) return null;
     try {
       const filePath = join(CONTENT_DIST, 'catalog-en.json');
       if (!existsSync(filePath)) return null;

