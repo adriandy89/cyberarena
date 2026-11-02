@@ -3,6 +3,22 @@ import { request, expect, type APIRequestContext, type BrowserContextOptions } f
 const API_URL = process.env.E2E_API_URL ?? 'http://localhost:3001';
 // Same default as playwright.config.ts; the session cookie must match its host.
 const BASE_URL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000';
+// Against the production stack (https://localhost): Caddy's internal CA and the
+// __Secure- session cookie (phase 012).
+const HTTPS = BASE_URL.startsWith('https:');
+
+/** Options for contexts created by hand (browser.newContext ignores `use`). */
+export const TLS_OPTIONS = { ignoreHTTPSErrors: HTTPS };
+
+/** POST that waits out better-auth's rate limit (prod: 3 sign-ins / 10 s / IP). */
+async function postWithRetry(ctx: APIRequestContext, url: string, data: unknown) {
+  for (let attempt = 0; ; attempt++) {
+    const response = await ctx.post(url, { data });
+    if (response.status() !== 429 || attempt >= 5) return response;
+    const wait = Number(response.headers()['x-retry-after'] ?? 10);
+    await new Promise((resolve) => setTimeout(resolve, (Number.isFinite(wait) ? wait : 10) * 1000 + 500));
+  }
+}
 
 export interface TestUser {
   email: string;
@@ -22,20 +38,23 @@ export function makeTestUser(): TestUser {
 
 /** Registers + signs in via API and returns the session cookie header. */
 export async function apiLogin(user: TestUser): Promise<string> {
-  const ctx = await request.newContext({ baseURL: API_URL });
+  const ctx = await request.newContext({ baseURL: API_URL, ignoreHTTPSErrors: HTTPS });
   try {
-    const signup = await ctx.post('/api/auth/sign-up/email', {
-      data: { name: user.name, email: user.email, password: user.password },
+    const signup = await postWithRetry(ctx, '/api/auth/sign-up/email', {
+      name: user.name,
+      email: user.email,
+      password: user.password,
     });
     expect(signup.ok(), `sign-up failed: ${await signup.text()}`).toBeTruthy();
   } finally {
     await ctx.dispose();
   }
 
-  const ctx2 = await request.newContext({ baseURL: API_URL });
+  const ctx2 = await request.newContext({ baseURL: API_URL, ignoreHTTPSErrors: HTTPS });
   try {
-    const signin = await ctx2.post('/api/auth/sign-in/email', {
-      data: { email: user.email, password: user.password },
+    const signin = await postWithRetry(ctx2, '/api/auth/sign-in/email', {
+      email: user.email,
+      password: user.password,
     });
     expect(signin.ok(), 'sign-in failed').toBeTruthy();
     const setCookie = signin.headers()['set-cookie'];
@@ -55,6 +74,7 @@ export async function apiLogin(user: TestUser): Promise<string> {
 export function sessionCookieOptions(cookieHeader: string): BrowserContextOptions {
   const [name, value] = cookieHeader.split('=');
   return {
+    ...TLS_OPTIONS,
     extraHTTPHeaders: { Cookie: cookieHeader },
     storageState: {
       cookies: [
@@ -65,7 +85,7 @@ export function sessionCookieOptions(cookieHeader: string): BrowserContextOption
           path: '/',
           expires: -1,
           httpOnly: true,
-          secure: false,
+          secure: HTTPS,
           sameSite: 'Lax' as const,
         },
       ],

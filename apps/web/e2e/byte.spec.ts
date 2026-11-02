@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { apiLogin, makeTestUser, sessionCookieOptions } from './utils';
+import { apiLogin, makeTestUser, sessionCookieOptions, TLS_OPTIONS } from './utils';
 
 // Spec 010: Byte reacts to answers, respects reduced motion and can be hidden.
 test.describe('Byte companion', () => {
@@ -18,7 +18,7 @@ test.describe('Byte companion', () => {
   test('animations are disabled under prefers-reduced-motion', async ({ browser }) => {
     // The shadow ellipse floats with Byte by default: a good probe for both cases.
     const animationOf = async (reducedMotion: 'reduce' | 'no-preference') => {
-      const context = await browser.newContext({ reducedMotion });
+      const context = await browser.newContext({ ...TLS_OPTIONS, reducedMotion });
       const page = await context.newPage();
       await page.goto('/es');
       const name = await page

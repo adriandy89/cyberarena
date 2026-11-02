@@ -10,6 +10,8 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL,
+    // Production stack over https://localhost uses Caddy's internal CA (phase 012).
+    ignoreHTTPSErrors: baseURL.startsWith('https:'),
     trace: 'on-first-retry',
     locale: 'es-ES',
   },

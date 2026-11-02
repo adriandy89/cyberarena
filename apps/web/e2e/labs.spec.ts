@@ -1,12 +1,12 @@
 import { expect, request, test, type APIRequestContext } from '@playwright/test';
-import { apiLogin, makeTestUser, sessionCookieOptions } from './utils';
+import { apiLogin, makeTestUser, sessionCookieOptions, TLS_OPTIONS } from './utils';
 
 // Spec 011: labs on demand. Needs an API with LABS_ENABLED=true and a lab-runner
 // (real, or LAB_RUNNER_DRY_RUN=1 in CI); skipped when labs are disabled.
 const API_URL = process.env.E2E_API_URL ?? 'http://localhost:3001';
 
 async function labsInfo(): Promise<{ enabled: boolean; idleTimeoutMinutes: number }> {
-  const ctx = await request.newContext({ baseURL: API_URL });
+  const ctx = await request.newContext({ ...TLS_OPTIONS, baseURL: API_URL });
   try {
     const response = await ctx.get('/api/labs');
     return response.ok() ? await response.json() : { enabled: false, idleTimeoutMinutes: 0 };
@@ -18,7 +18,7 @@ async function labsInfo(): Promise<{ enabled: boolean; idleTimeoutMinutes: numbe
 }
 
 async function apiAs(cookie: string): Promise<APIRequestContext> {
-  return request.newContext({ baseURL: API_URL, extraHTTPHeaders: { Cookie: cookie } });
+  return request.newContext({ ...TLS_OPTIONS, baseURL: API_URL, extraHTTPHeaders: { Cookie: cookie } });
 }
 
 test.describe('labs on demand', () => {
