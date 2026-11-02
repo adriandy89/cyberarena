@@ -129,11 +129,9 @@
       "intermediate": "Intermedio",
       "advanced": "Avanzado"
     },
-    "comingSoon": "Player de rooms disponible en la próxima fase",
-    "back": "Volver al inicio"
+    "comingSoon": "Player de rooms disponible en la próxima fase"
   },
   "RoomPage": {
-    "backToPaths": "Volver a las rutas",
     "estimated": "{minutes} min estimados"
   },
   "RoomPlayer": {
@@ -148,9 +146,6 @@
     "roomCompleted": "¡Room completado! Bonus de XP añadido.",
     "previous": "Anterior",
     "next": "Siguiente"
-  },
-  "PathPage": {
-    "back": "Volver a las rutas"
   },
   "PathProgress": {
     "overallProgress": "Progreso de la ruta",
@@ -241,7 +236,7 @@
     "downLabel": "Destruir (siempre al terminar)",
     "copy": "Copiar",
     "copied": "¡Copiado!",
-    "warning": "Entorno educativo local aislado. Never expongas los labs a redes públicas."
+    "warning": "Entorno educativo local aislado. Nunca expongas los labs a redes públicas."
   },
   "SecurityPanel": {
     "title": "Seguridad",
@@ -434,6 +429,7 @@
     "dashboard": "Mi panel",
     "status": "Estado del sistema",
     "footerNote": "CyberArena — proyecto personal. Contenido original con fines educativos.",
-    "disclaimer": "Practica solo en entornos locales controlados y con autorización."
+    "disclaimer": "Practica solo en entornos locales controlados y con autorización.",
+    "breadcrumbs": "Ruta de navegación"
   }
 }

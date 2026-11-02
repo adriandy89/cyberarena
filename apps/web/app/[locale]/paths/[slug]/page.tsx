@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { PathProgress, type PathTree } from '../../../../components/path-progress';
-import { Link } from '../../../../i18n/navigation';
+import { Breadcrumbs } from '../../../../components/shell/breadcrumbs';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +24,7 @@ export default async function PathDetailPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const t = await getTranslations('PathPage');
+  const nav = await getTranslations('Nav');
   const path = await loadPath(slug);
   if (!path) {
     notFound();
@@ -32,12 +32,7 @@ export default async function PathDetailPage({
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col px-6 py-10">
-      <Link
-        href="/paths"
-        className="self-start text-sm text-slate-400 transition-colors hover:text-slate-200"
-      >
-        ← {t('back')}
-      </Link>
+      <Breadcrumbs items={[{ label: nav('paths'), href: '/paths' }, { label: path.title }]} />
       <header className="mt-4">
         <h1 className="text-2xl font-bold tracking-tight">{path.title}</h1>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">{path.description}</p>

@@ -30,7 +30,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <h1 className="mt-5 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
             {t('hero.title')}
           </h1>
-          <p className="mt-4 animate-fade-in-delayed text-lg leading-relaxed text-slate-400">{t('hero.subtitle')}</p>
+          <p className="mt-4 animate-fade-in-delayed text-lg leading-relaxed text-slate-400">
+            {t('hero.subtitle')}
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/paths"

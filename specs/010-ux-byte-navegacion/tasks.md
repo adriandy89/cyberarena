@@ -24,7 +24,7 @@
 
 - [x] T008 [US1] Shell común: site-header (activo, pendiente), mobile-nav, site-footer,
       skip-link, Byte en layout; home sin cabecera inline.
-- [ ] T009 [US1,US2] Breadcrumbs + `template.tsx` (entrada de página).
+- [x] T009 [US1,US2] Breadcrumbs + `template.tsx` (entrada de página).
 - [ ] T010 [US5] loading/error/not-found con Byte + esqueletos en páginas cliente.
 - [ ] T011 [US2] API `GET /catalog/rooms/:slug/context` + `computeRoomContext` + tests.
 - [ ] T012 [US2] Página de room: migas, contexto, anterior/siguiente, "Continúa con…".

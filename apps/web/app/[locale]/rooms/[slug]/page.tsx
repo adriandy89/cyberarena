@@ -4,8 +4,12 @@ import { isDifficulty, type Difficulty } from '@repo/shared';
 import { DifficultyBadge } from '@repo/ui';
 import { LabPanel } from '../../../../components/lab-panel';
 import { Markdown } from '../../../../components/markdown';
-import { RoomPlayer, type PlayerQuestion, type PlayerTask } from '../../../../components/room-player';
-import { Link } from '../../../../i18n/navigation';
+import {
+  RoomPlayer,
+  type PlayerQuestion,
+  type PlayerTask,
+} from '../../../../components/room-player';
+import { Breadcrumbs } from '../../../../components/shell/breadcrumbs';
 
 interface ApiRoom {
   slug: string;
@@ -39,9 +43,12 @@ async function loadRoom(slug: string, locale: string): Promise<ApiRoom | null> {
   const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
   const localeParam = locale === 'en' ? '?locale=en' : '';
   try {
-    const response = await fetch(`${apiUrl}/api/catalog/rooms/${encodeURIComponent(slug)}${localeParam}`, {
-      cache: 'no-store',
-    });
+    const response = await fetch(
+      `${apiUrl}/api/catalog/rooms/${encodeURIComponent(slug)}${localeParam}`,
+      {
+        cache: 'no-store',
+      },
+    );
     if (!response.ok) return null;
     return (await response.json()) as ApiRoom;
   } catch {
@@ -49,9 +56,14 @@ async function loadRoom(slug: string, locale: string): Promise<ApiRoom | null> {
   }
 }
 
-export default async function RoomPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+export default async function RoomPage({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
   const { locale, slug } = await params;
   const t = await getTranslations('RoomPage');
+  const nav = await getTranslations('Nav');
   const room = await loadRoom(slug, locale);
   if (!room) {
     notFound();
@@ -73,12 +85,7 @@ export default async function RoomPage({ params }: { params: Promise<{ locale: s
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col px-6 py-10">
-      <Link
-        href="/paths"
-        className="self-start text-sm text-slate-400 transition-colors hover:text-slate-200"
-      >
-        ← {t('backToPaths')}
-      </Link>
+      <Breadcrumbs items={[{ label: nav('paths'), href: '/paths' }, { label: room.title }]} />
 
       <header className="mt-4">
         <div className="flex flex-wrap items-center gap-3">

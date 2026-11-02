@@ -70,7 +70,11 @@ export default function HacktivitiesPage() {
       const id = ++requestId.current;
       setLoading(true);
       try {
-        const params = new URLSearchParams({ sort, take: String(PAGE_SIZE), skip: String(currentSkip) });
+        const params = new URLSearchParams({
+          sort,
+          take: String(PAGE_SIZE),
+          skip: String(currentSkip),
+        });
         if (query) params.set('q', query);
         if (difficulty) params.set('difficulty', difficulty);
         if (type) params.set('type', type);
@@ -87,7 +91,15 @@ export default function HacktivitiesPage() {
           );
         }
       } catch {
-        if (id === requestId.current) setData((previous) => previous ?? { total: 0, rooms: [], facets: { tags: [], difficulties: [], types: [] } });
+        if (id === requestId.current)
+          setData(
+            (previous) =>
+              previous ?? {
+                total: 0,
+                rooms: [],
+                facets: { tags: [], difficulties: [], types: [] },
+              },
+          );
       } finally {
         if (id === requestId.current) setLoading(false);
       }
@@ -209,11 +221,7 @@ export default function HacktivitiesPage() {
       </div>
 
       {/* results */}
-      {data && (
-        <p className="mt-6 text-xs text-slate-500">
-          {t('results', { count: data.total })}
-        </p>
-      )}
+      {data && <p className="mt-6 text-xs text-slate-500">{t('results', { count: data.total })}</p>}
       <ul className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {(data?.rooms ?? []).map((room) => (
           <li key={room.slug}>

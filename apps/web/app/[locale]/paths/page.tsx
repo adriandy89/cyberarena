@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
 import { Link } from '../../../i18n/navigation';
 
 interface CatalogRoomLink {
@@ -48,10 +49,12 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('PathsPage');
+  const nav = await getTranslations('Nav');
   const paths = await loadPaths();
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col px-6 py-10">
+      <Breadcrumbs items={[{ label: nav('paths') }]} className="mb-4" />
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
       <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
 
@@ -78,7 +81,8 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
                 <p className="mt-2 text-sm leading-relaxed text-slate-400">{path.description}</p>
                 <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                   <span>
-                    {t('modules', { count: path.moduleCount })} · {t('rooms', { count: path.roomCount })}
+                    {t('modules', { count: path.moduleCount })} ·{' '}
+                    {t('rooms', { count: path.roomCount })}
                   </span>
                   <span>
                     ≈ {Math.round(path.estimatedMinutes / 60)}h · {t('type.walkthrough')}+
@@ -102,13 +106,6 @@ export default async function PathsPage({ params }: { params: Promise<{ locale: 
           ))}
         </ul>
       )}
-
-      <Link
-        href="/"
-        className="mt-10 self-start text-sm text-slate-400 transition-colors hover:text-slate-200"
-      >
-        ← {t('back')}
-      </Link>
     </div>
   );
 }

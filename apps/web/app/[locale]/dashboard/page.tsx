@@ -6,6 +6,7 @@ import { authClient } from '../../../lib/auth-client';
 import { useRouter } from '../../../i18n/navigation';
 import { GamificationPanels } from '../../../components/gamification-panels';
 import { SecurityPanel } from '../../../components/security-panel';
+import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
 
 type Role = 'STUDENT' | 'ADMIN';
 
@@ -29,7 +30,13 @@ interface UserListItem {
 interface XpSummary {
   totalXp: number;
   solvedCount: number;
-  level: { index: number; name: string; threshold: number; progressRatio: number; xpToNextLevel: number };
+  level: {
+    index: number;
+    name: string;
+    threshold: number;
+    progressRatio: number;
+    xpToNextLevel: number;
+  };
 }
 
 interface ProgressOverview {
@@ -41,11 +48,17 @@ interface ProgressOverview {
     roomsTotal: number;
     percent: number;
   }>;
-  totals: { roomsCompleted: number; roomsTotal: number; solvedQuestions: number; totalQuestions: number };
+  totals: {
+    roomsCompleted: number;
+    roomsTotal: number;
+    solvedQuestions: number;
+    totalQuestions: number;
+  };
 }
 
 export default function DashboardPage() {
   const t = useTranslations('DashboardPage');
+  const nav = useTranslations('Nav');
   const router = useRouter();
   const locale = useLocale();
   const { data: session, isPending } = authClient.useSession();
@@ -137,6 +150,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col px-6 py-10">
+      <Breadcrumbs items={[{ label: nav('dashboard') }]} className="mb-4" />
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
 
       <section className="animate-fade-in mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
@@ -162,9 +176,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <dt className="text-slate-500">{t('emailVerified')}</dt>
-            <dd className="font-medium">
-              {me ? (me.emailVerified ? t('yes') : t('no')) : '—'}
-            </dd>
+            <dd className="font-medium">{me ? (me.emailVerified ? t('yes') : t('no')) : '—'}</dd>
           </div>
         </dl>
       </section>

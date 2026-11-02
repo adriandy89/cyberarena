@@ -98,13 +98,13 @@ export default function CertificatePage() {
       </div>
 
       <article className="w-full max-w-2xl rounded-2xl border-4 border-double border-emerald-500/60 bg-white p-10 text-center text-slate-900 shadow-2xl">
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-700">
-          CyberArena
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-700">CyberArena</p>
         <h1 className="mt-6 text-3xl font-black tracking-tight">{t('title')}</h1>
         <p className="mt-8 text-sm uppercase tracking-widest text-slate-500">{t('awardedTo')}</p>
         <p className="mt-2 text-2xl font-bold">{name}</p>
-        <p className="mt-8 text-sm uppercase tracking-widest text-slate-500">{t('forCompleting')}</p>
+        <p className="mt-8 text-sm uppercase tracking-widest text-slate-500">
+          {t('forCompleting')}
+        </p>
         <p className="mt-2 text-xl font-semibold text-emerald-800">{certificate.pathTitle}</p>
         <div className="mt-10 flex items-center justify-center gap-10 text-sm text-slate-600">
           <span>

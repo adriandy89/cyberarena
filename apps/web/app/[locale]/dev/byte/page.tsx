@@ -51,7 +51,12 @@ export default function ByteGalleryPage() {
         <ByteScene mood="wave" message="Row layout with a typed message for sections." typing />
         <ByteScene mood="sad" tone="danger" message="Danger tone, used for wrong answers." />
         <ByteScene mood="hint" tone="warn" message="Warn tone, used for hints." layout="column" />
-        <ByteScene mood="celebrate" tone="success" message="Success tone with actions." layout="column">
+        <ByteScene
+          mood="celebrate"
+          tone="success"
+          message="Success tone with actions."
+          layout="column"
+        >
           <span className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-slate-950">
             Action
           </span>

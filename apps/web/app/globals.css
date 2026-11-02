@@ -29,7 +29,7 @@
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
   --animate-bounce-xp: bounce-xp 0.5s var(--ease-spring);
   --animate-progress: progress-fill 0.8s var(--ease-out-expo);
-  --animate-page-in: page-in 0.35s var(--ease-out-expo) both;
+  --animate-page-in: page-in 0.35s var(--ease-out-expo) backwards;
   --animate-float: float 6s ease-in-out infinite;
   --animate-drift: drift 18s ease-in-out infinite alternate;
 

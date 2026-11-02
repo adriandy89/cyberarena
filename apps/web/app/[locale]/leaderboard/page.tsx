@@ -51,7 +51,9 @@ export default function LeaderboardPage() {
             onClick={() => setPeriod(option)}
             aria-pressed={period === option}
             className={`rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors ${
-              period === option ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+              period === option
+                ? 'bg-emerald-500/20 text-emerald-400'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             {t(`period.${option}`)}
@@ -68,10 +70,7 @@ export default function LeaderboardPage() {
       ) : (
         <ol className="mt-6 divide-y divide-slate-800 overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50">
           {entries.map((entry) => (
-            <li
-              key={entry.rank}
-              className="flex items-center justify-between gap-4 px-4 py-3.5"
-            >
+            <li key={entry.rank} className="flex items-center justify-between gap-4 px-4 py-3.5">
               <span className="flex min-w-0 items-center gap-3">
                 <span
                   className={`w-8 shrink-0 text-center text-sm font-bold ${

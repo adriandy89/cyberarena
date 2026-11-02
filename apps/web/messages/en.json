@@ -129,11 +129,9 @@
       "intermediate": "Intermediate",
       "advanced": "Advanced"
     },
-    "comingSoon": "Room player arrives in the next phase",
-    "back": "Back to home"
+    "comingSoon": "Room player arrives in the next phase"
   },
   "RoomPage": {
-    "backToPaths": "Back to paths",
     "estimated": "est. {minutes} min"
   },
   "RoomPlayer": {
@@ -148,9 +146,6 @@
     "roomCompleted": "Room completed! XP bonus added.",
     "previous": "Previous",
     "next": "Next"
-  },
-  "PathPage": {
-    "back": "Back to paths"
   },
   "PathProgress": {
     "overallProgress": "Path progress",
@@ -434,6 +429,7 @@
     "dashboard": "My dashboard",
     "status": "System status",
     "footerNote": "CyberArena — personal project. Original content for educational purposes.",
-    "disclaimer": "Only practice in controlled local environments and with authorization."
+    "disclaimer": "Only practice in controlled local environments and with authorization.",
+    "breadcrumbs": "Breadcrumb"
   }
 }
