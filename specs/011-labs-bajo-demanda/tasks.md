@@ -24,7 +24,7 @@
 
 - [x] T008 Prisma `LabLease`, `LabEvent`, `Room.extraLabs` + migración; `extraLabs` en el esquema de
       contenido, el seed y los 5 rooms.
-- [ ] T009 Módulo `labs` (config, cliente del runner, política, servicio, controlador) + tests.
+- [x] T009 Módulo `labs` (config, cliente del runner, política, servicio, controlador) + tests.
 - [ ] T010 Reaper, endpoints de admin, salud de labs y actividad al responder + tests.
 
 ## Fase D — Web
