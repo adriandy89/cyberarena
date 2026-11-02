@@ -1,7 +1,10 @@
 # Respuestas del room ssrf-basico.
 # PRIVADO: el seed lo hashea a la tabla Answer.
 # IMPORTANTE: FLAG_1/FLAG_2 deben coincidir con labs/ssrf-basico/flags.env
-ssrf-basico-t01-q01: SSRF
+ssrf-basico-t01-q01:
+  - SSRF
+  - Server-Side Request Forgery
+  - Server Side Request Forgery
 ssrf-basico-t01-q02: FLAG{internal_config_exposed}
 ssrf-basico-t02-q01: 169.254.169.254
 ssrf-basico-t02-q02: FLAG{cloud_metadata_goldmine}

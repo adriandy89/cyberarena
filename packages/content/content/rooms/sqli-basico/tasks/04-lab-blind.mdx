@@ -3,13 +3,31 @@ index: 4
 title: "Lab: Blind SQL Injection"
 questions:
   - id: sqli-basico-t04-q01
-    prompt: "¿Qué diferencia visible hay entre TRUE y FALSE en un blind SQLi boolean-based?"
-    hint: "La página muestra 'User exists' vs 'User not found'."
-    kind: text
+    prompt: "En un blind SQLi boolean-based como el del lab, ¿qué diferencia visible hay entre una condición TRUE y una FALSE?"
+    hint: "Compara lo que devuelve /check para un id que existe con lo que devuelve para uno que no existe."
+    kind: choice
+    options:
+      - id: a
+        label: "La app devuelve un mensaje de error SQL distinto en cada caso"
+      - id: b
+        label: "Los datos de la tabla users aparecen directamente en la respuesta"
+      - id: c
+        label: "La página muestra 'User exists' (TRUE) o 'User not found' (FALSE)"
+      - id: d
+        label: "Ninguna: la respuesta es idéntica y solo se nota en los logs del servidor"
   - id: sqli-basico-t04-q02
     prompt: "En blind SQLi, ¿cómo extraes datos carácter a carácter sin verlos directamente?"
-    hint: "Usando SUBSTR + CASE WHEN: cada carácter se deduce por la respuesta TRUE/FALSE."
-    kind: text
+    hint: "Piensa en una función que recorta un único carácter de una cadena y en una condición que hace que la respuesta sea TRUE o FALSE."
+    kind: choice
+    options:
+      - id: a
+        label: "Con UNION SELECT, que pinta los datos directamente en la página"
+      - id: b
+        label: "Con SUBSTR + CASE WHEN: preguntas si cada carácter es X y lo deduces por la respuesta TRUE/FALSE"
+      - id: c
+        label: "Provocando errores SQL que muestran el valor en el mensaje de error"
+      - id: d
+        label: "Con ORDER BY, que ordena las filas según la columna secreta"
   - id: sqli-basico-t04-q03
     prompt: "Extrae con el oráculo booleano el password del usuario id=1 (es una flag completa, carácter a carácter o con sqlmap). Envíala."
     hint: "SUBSTR(password,N,1)='x' por posición — el password ES la flag. sqlmap -u 'http://127.0.0.1:18092/check?id=1' --technique=B --dump acelera"

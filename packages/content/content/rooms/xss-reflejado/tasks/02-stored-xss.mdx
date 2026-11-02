@@ -16,11 +16,11 @@ questions:
       - id: d
         label: "Ninguno es peligroso con HTTPS"
   - id: xss-reflejado-t02-q02
-    prompt: "¿Qué cookie del documento es el objetivo clásico de un payload XSS?"
+    prompt: "¿Qué propiedad de JavaScript (la que da acceso a las cookies de la página) es el objetivo clásico de un payload XSS?"
     hint: "document.cookie — roba la sesión."
     kind: text
   - id: xss-reflejado-t02-q03
-    prompt: "View the admin entry in the guestbook. Submit the hidden flag."
+    prompt: "Mira la entrada del admin en el guestbook. Envía la flag escondida."
     hint: "curl http://127.0.0.1:18082/guestbook"
     kind: flag
 ---
@@ -73,10 +73,10 @@ usuario normal podría ver todo el contenido.
 <body onload=alert('XSS')>
 ```
 
-## Flag from the guestbook
+## Recupera la flag del guestbook
 
-The admin entry in the guestbook contains a flag. View all entries:
+La entrada del admin en el guestbook contiene una flag. Mira todas las entradas:
 ```bash
 curl "http://127.0.0.1:18082/guestbook"
 ```
-Look for the admin's message which contains a flag.
+Busca el mensaje del admin, que contiene una flag.

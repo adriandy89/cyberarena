@@ -7,11 +7,11 @@ questions:
     hint: "LIMIT"
     kind: text
   - id: sqli-basico-t03-q02
-    prompt: "Busca en la descripción de productos la flag escondida (pista: búsca 'hidden')."
+    prompt: "Busca en la descripción de productos la flag escondida (pista: busca 'hidden')."
     hint: "curl 'http://127.0.0.1:18081/search?q=hidden'"
     kind: flag
   - id: sqli-basico-t03-q03
-    prompt: "¿Qué función de SQLite lista todas las tablas de la base de datos?"
+    prompt: "¿Qué tabla interna de SQLite lista todas las tablas de la base de datos?"
     hint: "sqlite_master (es el equivalente de information_schema)."
     kind: text
 ---
@@ -29,7 +29,7 @@ Esto te muestra las CREATE TABLE de cada tabla — sabes las columnas sin adivin
 
 ## Extracción fila a fila (LIMIT)
 
-Cuando UNION devuelve demasiadas filas, límita:
+Cuando UNION devuelve demasiadas filas, limita:
 
 ```bash
 # Primera fila de users

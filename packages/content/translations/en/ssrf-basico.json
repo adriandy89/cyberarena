@@ -4,24 +4,54 @@
   "tasks": {
     "1": {
       "title": "SSRF to internal services",
+      "body": "## The vulnerable fetcher\n\nThe lab has a \"URL Fetcher\" — a service that makes HTTP requests for you (like a\nlink preview). The problem: it accepts ANY URL, including internal ones.\n\n```bash\n# Normal use (an external website)\ncurl \"http://127.0.0.1:18083/fetch?url=https://httpbin.org/get\"\n\n# SSRF: point it at the SAME server (loopback)\n# Remember to URL-encode the url parameter!\ncurl \"http://127.0.0.1:18083/fetch?url=http%3A%2F%2Flocalhost%3A8080%2Finternal%3Fpath%3D%2Fhealth\"\n```\n\n## What's inside\n\nThe server has an \"internal API\" at `/internal` with several paths:\n\n- `/health` — service status\n- `/users` — list of users\n- `/config` — configuration with **secrets** (including a flag!)\n- `/metadata` — cloud metadata (next task)\n\n## Extract the flag from the config\n\nUse SSRF to reach `/config` and look for the `flag` field:\n\n```bash\ncurl \"http://127.0.0.1:18083/fetch?url=http%3A%2F%2Flocalhost%3A8080%2Finternal%3Fpath%3D%2Fconfig\"\n```\n\nThe JSON response contains the flag in the `flag` field.\n\n## Why it works\n\nThe server CAN reach `localhost:8080` (it is itself). The attacker CANNOT —\nbut they can make the server do it FOR them. It's like asking someone with access\nto the bank to read you the balance of someone else's account.",
       "questions": {
-        "ssrf-basico-t01-q01": { "prompt": "What acronym describes the attack where the server makes requests to internal URLs controlled by the attacker?" },
-        "ssrf-basico-t01-q02": { "prompt": "Submit the flag hidden in the internal configuration (/config)." }
+        "ssrf-basico-t01-q01": {
+          "prompt": "What acronym describes the attack where the server makes requests to internal URLs controlled by the attacker?",
+          "hint": "Server-Side Request Forgery."
+        },
+        "ssrf-basico-t01-q02": {
+          "prompt": "Submit the flag hidden in the internal configuration (/config).",
+          "hint": "curl the /fetch endpoint with url=http://localhost:8080/internal?path=/config (URL-encoded!)"
+        }
       }
     },
     "2": {
       "title": "Cloud metadata: the SSRF that steals the cloud",
+      "body": "## 169.254.169.254: the most dangerous IP in the cloud\n\nEvery EC2 instance can query its metadata at `http://169.254.169.254/latest/meta-data/`.\nThis IP is reachable ONLY from inside the instance — but with SSRF, the attacker\nuses the server as a proxy.\n\n```bash\ncurl \"http://127.0.0.1:18083/fetch?url=http%3A%2F%2F169.254.169.254%2Flatest%2Fmeta-data%2F\"\n```\n\nIn real AWS, the metadata endpoint reveals:\n- **IAM role credentials**: access key + secret + session token → access to S3, DynamoDB,\n  everything the instance is allowed to do\n- **User data**: boot scripts that sometimes contain passwords\n- **Security groups**, network configuration\n\n## The real attack (Capital One 2019)\n\nAn attacker used SSRF against the metadata endpoint of an EC2 instance → obtained\nIAM credentials → accessed S3 → stole data on 100M+ customers. It all started with\nONE SSRF request.\n\n## Mitigation\n\n- **Block** access to 169.254.169.254 from the code (domain allowlist)\n- **IMDSv2** on AWS: the metadata service requires a token (a plain GET is no longer enough)\n- Never accept user-supplied URLs without allowlist validation\n\nIn the lab, extract the flag from the metadata endpoint and you will have simulated the first step of the\nCapital One attack.",
       "questions": {
-        "ssrf-basico-t02-q01": { "prompt": "What special IP is the metadata endpoint in AWS?" },
-        "ssrf-basico-t02-q02": { "prompt": "Submit the flag hidden in the cloud metadata." },
-        "ssrf-basico-t02-q03": { "prompt": "What credentials can the AWS metadata endpoint reveal?" }
+        "ssrf-basico-t02-q01": {
+          "prompt": "What special IP is the metadata endpoint in AWS?",
+          "hint": "169.254.169.254 — link-local address."
+        },
+        "ssrf-basico-t02-q02": {
+          "prompt": "Submit the flag hidden in the cloud metadata.",
+          "hint": "curl the /fetch endpoint with url=http://169.254.169.254/latest/meta-data/"
+        },
+        "ssrf-basico-t02-q03": {
+          "prompt": "What credentials can the AWS metadata endpoint reveal?",
+          "hint": "IAM role credentials: temporary access keys.",
+          "options": {
+            "a": "Only the hostname",
+            "b": "IAM role credentials (access key, secret key, session token) = access to the AWS account",
+            "c": "User passwords",
+            "d": "Nothing: it is informational only"
+          }
+        }
       }
     },
     "3": {
       "title": "Advanced SSRF: filter bypass",
+      "body": "## Bypassing the SSRF filter\n\nThis challenge uses a second lab, `ssrf-deep` (port 18095). Start it like the main one:\n`docker compose -f labs/ssrf-deep/compose.yaml --env-file labs/ssrf-deep/flags.env up -d`\n(and bring it down with `down -v` when you finish).\n\nThe lab blocks: `localhost`, `127.0.0.1`, `0.0.0.0`, `[::1]`, `169.254`.\n\nBut the filter only checks the HOSTNAME of the URL. And Docker creates internal DNS\naliases that resolve to the same container:\n\n```bash\n# Direct (blocked):\ncurl \"http://127.0.0.1:18095/fetch?url=http://localhost:8080/internal/vault\"\n# → 🚫 Blocked\n\n# With the alias (works):\ncurl \"http://127.0.0.1:18095/fetch?url=http://ssrf-alias:8080/internal/vault\"\n# → ✅ Flag!\n```\n\nIn real production, the most common bypasses are:\n- **DNS rebinding**: a domain that first resolves to a public IP, then to an internal one\n- **Redirects**: an external server that answers with a 302 to localhost\n- **IP encoding**: hexadecimal (0x7f000001), octal (0177.0.0.1), decimal (2130706433)\n- **IPv6**: [::ffff:127.0.0.1] is not always on the blocklists",
       "questions": {
-        "ssrf-basico-t03-q01": { "prompt": "The lab blocks localhost and 127.0.0.1. What hostname is NOT blocked but resolves to the same server?" },
-        "ssrf-basico-t03-q02": { "prompt": "Submit the flag obtained by bypassing the filter with the alias." }
+        "ssrf-basico-t03-q01": {
+          "prompt": "The lab blocks localhost and 127.0.0.1. What hostname is NOT blocked but resolves to the same server?",
+          "hint": "The clue is in the error message: there is a DNS alias."
+        },
+        "ssrf-basico-t03-q02": {
+          "prompt": "Submit the flag you get by bypassing the filter with the alias.",
+          "hint": "curl /fetch with url=http://ssrf-alias:8080/internal/vault"
+        }
       }
     }
   }

@@ -22,7 +22,7 @@
       recon-activo-escaneo, nmap-pro, burp-suite-pro.
 - [x] T008 [US1,US2] Lote JrPT-B: scripting-pentest, privesc-linux, privesc-windows, password-attacks,
       pivoting-y-tunneling, active-directory-ataque.
-- [ ] T009 [US1,US2] Lote WebApp-A: sqli-basico, xss-reflejado, ssrf-basico, command-injection, file-upload,
+- [x] T009 [US1,US2] Lote WebApp-A: sqli-basico, xss-reflejado, ssrf-basico, command-injection, file-upload,
       log-forging.
 - [ ] T010 [US1,US2] Lote WebApp-B: auth-bypass, jwt-security, session-security, race-condition, api-security,
       graphql-security, websocket-security, mobile-security.

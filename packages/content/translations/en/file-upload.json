@@ -4,18 +4,44 @@
   "tasks": {
     "1": {
       "title": "Exploring the file system",
+      "body": "## Directory listing: free information\n\nThe lab has a **FileShare** with directory listing enabled:\n\n```bash\ncurl http://127.0.0.1:18087/files\n```\n\nYou will see public files AND files that shouldn't be there:\n- `flag_level1.txt` — directly accessible\n- `.env` — configuration file with credentials\n\n## The .env: the most common leak of all\n\nThe pattern is identical in real apps: the `.env` with API keys, database\npasswords and secrets gets uploaded to the server and stays accessible because nobody\nblocked access to hidden files.\n\n```bash\ncurl http://127.0.0.1:18087/files/.env\n# DB_PASSWORD=FLAG{dotenv_credentials_leak}\n```\n\nIn real production, that file would hold AWS credentials, Slack tokens,\ndatabase keys... everything the app needs to run.\n\n## Directory listing is information too\n\n`/files` without authentication is already a finding for the report: \"information exposed\nthrough directory listing\". But the interesting part comes in the next task: uploading\nfiles that should NOT be uploadable.",
       "questions": {
-        "file-upload-t01-q01": { "prompt": "What hidden file (starting with a dot) contains credentials in most web apps?" },
-        "file-upload-t01-q02": { "prompt": "Submit the flag from flag_level1.txt (visible at /files)." },
-        "file-upload-t01-q03": { "prompt": "Submit the flag from the hidden .env file." }
+        "file-upload-t01-q01": {
+          "prompt": "What hidden file (starting with a dot) contains credentials in most web apps?",
+          "hint": ".env — environment variables with secrets."
+        },
+        "file-upload-t01-q02": {
+          "prompt": "Submit the flag from flag_level1.txt (visible at /files).",
+          "hint": "curl http://127.0.0.1:18087/files/flag_level1.txt"
+        },
+        "file-upload-t01-q03": {
+          "prompt": "Submit the flag from the .env file (hidden but accessible).",
+          "hint": "curl http://127.0.0.1:18087/files/.env"
+        }
       }
     },
     "2": {
       "title": "Bypassing upload validation",
+      "body": "## The blacklist that breaks\n\nThe lab blocks: `.php`, `.exe`, `.sh`, `.bat`, `.cmd`, `.ps1`.\n\nTry these bypass techniques:\n\n```bash\n# 1. Double extension (the server stores .php.txt):\n# Change shell.php → shell.php.txt\n# The filter sees .txt (allowed), but if the server executes .php.txt...\n\n# 2. Case change:\n# shell.php → shell.PHP or shell.Php (some filters are case-sensitive)\n\n# 3. Null byte (in languages that process it):\n# shell.php%00.txt (the %00 cuts off the extension in some parsers)\n\n# 4. No well-known extension:\n# shell.php5, shell.phtml, shell.php7 (alternative PHP extensions)\n```\n\n## Upload a real file\n\nUse curl to upload:\n\n```bash\n# Upload a normal text file (accepted):\ncurl -F \"file=@test.txt\" http://127.0.0.1:18087/upload\n\n# Try to upload shell.php (blocked):\ncurl -F \"file=@shell.php\" http://127.0.0.1:18087/upload\n# → Error: extension .php is not allowed\n\n# Bypass with a double extension:\ncp shell.php shell.php.txt\ncurl -F \"file=@shell.php.txt\" http://127.0.0.1:18087/upload\n# → Uploaded! (the validation only looks at the last extension)\n```\n\n## What the report should say\n\n1. **Directory listing enabled**: any user can see every file\n2. **Insufficient blacklist**: bypassed with a double extension\n3. **No content-type validation**: the file is stored without checking what it is\n4. **No size limit**: potential DoS\n\n**Remediation**: an extension allowlist, rename files on the server,\nstore them outside the webroot, serve them with the correct Content-Type.",
       "questions": {
-        "file-upload-t02-q01": { "prompt": "What technique appends a 'safe' extension to bypass a blacklist?" },
-        "file-upload-t02-q02": { "prompt": "What does the lab validate: the file extension or the content-type?" },
-        "file-upload-t02-q03": { "prompt": "Which file in the lab has the level 2 flag?" }
+        "file-upload-t02-q01": {
+          "prompt": "What technique appends a 'safe' extension at the end to get past a blacklist? (e.g. shell.php.txt)",
+          "hint": "Double extension."
+        },
+        "file-upload-t02-q02": {
+          "prompt": "What does the lab's app validate: the file extension or the content-type?",
+          "hint": "Review the lab's conceptual code: it only looks at the extension.",
+          "options": {
+            "a": "The Content-Type HTTP header",
+            "b": "Only the extension in the file name (which is why it can be bypassed)",
+            "c": "The file's binary content",
+            "d": "Nothing: it accepts everything"
+          }
+        },
+        "file-upload-t02-q03": {
+          "prompt": "There is a file in /files with the level 2 flag. Find it and submit the flag it contains.",
+          "hint": "It's in /files — look at the listing again."
+        }
       }
     }
   }

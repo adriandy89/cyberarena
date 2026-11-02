@@ -14,6 +14,10 @@ questions:
 
 ## Bypass del filtro de SSRF
 
+Este reto usa un segundo lab, `ssrf-deep` (puerto 18095). Levántalo igual que el
+principal: `docker compose -f labs/ssrf-deep/compose.yaml --env-file labs/ssrf-deep/flags.env up -d`
+(y bájalo con `down -v` al terminar).
+
 El lab bloquea: `localhost`, `127.0.0.1`, `0.0.0.0`, `[::1]`, `169.254`.
 
 Pero el filtro solo comprueba el HOSTNAME de la URL. Y Docker crea aliases DNS

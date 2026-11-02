@@ -11,7 +11,7 @@ questions:
     hint: "html.escape() del módulo html."
     kind: text
   - id: xss-reflejado-t01-q03
-    prompt: "Search for 'XSS' in the lab's /search endpoint. Submit the flag."
+    prompt: "Busca 'XSS' en el endpoint /search del lab. Envía la flag."
     hint: "curl http://127.0.0.1:18082/search?q=XSS"
     kind: flag
 ---
@@ -55,11 +55,11 @@ Reflected XSS requiere que la VÍCTIMA haga clic en tu enlace malicioso. El ataq
 
 La mitigación: `html.escape()` en Python, `textContent` en JavaScript, CSP headers.
 
-## Flag from the lab
+## Recupera la flag del lab
 
-The lab has a hidden flag in the /search endpoint. When you search for the
-word "XSS", the response contains the flag:
+El lab tiene una flag escondida en el endpoint /search. Cuando buscas la
+palabra "XSS", la respuesta contiene la flag:
 ```bash
 curl "http://127.0.0.1:18082/search?q=XSS"
 ```
-Look for the flag in the response body.
+Busca la flag en el cuerpo de la respuesta.

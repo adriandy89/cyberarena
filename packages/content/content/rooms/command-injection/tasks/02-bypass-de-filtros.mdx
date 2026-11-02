@@ -3,7 +3,7 @@ index: 2
 title: "Bypass de filtros: evadir la lista negra"
 questions:
   - id: command-injection-t02-q01
-    prompt: "¿Qué URL-encoded newline (%0a) permite inyectar en un endpoint que bloquea ; y &&?"
+    prompt: "¿Qué secuencia URL-encoded, que representa un salto de línea, permite inyectar en un endpoint que bloquea ; y &&?"
     hint: "%0a es el carácter de nueva línea en URL encoding."
     kind: text
   - id: command-injection-t02-q02
@@ -48,7 +48,7 @@ Filtro: bloquea ";"         → Bypass: %0a (newline), | (pipe), & (single)
 Filtro: bloquea "cat"       → Bypass: c'a't, c"a"t, /bin/cat, head, more
 Filtro: bloquea espacios    → Bypass: $IFS, ${IFS}, < (redirect), %09 (tab)
 Filtro: bloquea "/"         → Bypass: ${PATH:0:1}, ..\/..\/ (path traversal)
-Filtro: case-sensitive      → Bypass: CAT, Cat, cAt (la shell no distingue)
+Filtro: palabra exacta      → Bypass: /bin/c?t, /???/c?t (comodines; CAT o Cat NO sirven: Linux distingue mayúsculas)
 ```
 
 ## La lección definitiva

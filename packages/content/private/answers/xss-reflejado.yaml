@@ -1,8 +1,14 @@
 # Respuestas del room xss-reflejado.
 # PRIVADO: el seed lo hashea a la tabla Answer.
 # IMPORTANTE: FLAG_1/FLAG_2 deben coincidir con labs/xss-reflejado/flags.env
-xss-reflejado-t01-q01: "<script>alert(1)</script>"
-xss-reflejado-t01-q02: html.escape()
+xss-reflejado-t01-q01:
+  - "<script>alert(1)</script>"
+  - "<script>"
+  - script
+  - "<script></script>"
+xss-reflejado-t01-q02:
+  - "html.escape()"
+  - "html.escape"
 xss-reflejado-t02-q01: b
 xss-reflejado-t02-q02: document.cookie
 xss-reflejado-t01-q03: FLAG{alert_executed_in_browser}
