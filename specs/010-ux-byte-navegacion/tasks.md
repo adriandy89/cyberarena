@@ -63,7 +63,7 @@
 - [x] T901 BUG: `/api/catalog?locale=en` (y `paths/:slug?locale=en`) devolvía el catálogo compilado en
       crudo (otra forma, con todos los cuerpos de tareas) → NaN en contadores EN. Ahora forma y orden
       salen de la BD y solo se superponen los textos EN (`catalog-i18n.ts` + tests).
-- [ ] T902 DEUDA (contenido, fuera de 010): ningún room tiene traducido al inglés el **cuerpo** de sus
+- [x] T902 DEUDA (contenido, fuera de 010; **resuelta en la fase 107**, 2026-11-02): ningún room tiene traducido al inglés el **cuerpo** de sus
       tareas (`translations/en/*.json` solo trae título, descripción y preguntas), así que `/en` muestra la
       teoría en español en los 59 rooms. Requiere una fase de contenido propia.
 - [x] T903 DEUDA (contenido): exfiltración DNS explicada en `detection-evasion` y en `data-exfiltration`

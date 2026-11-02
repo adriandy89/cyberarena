@@ -37,4 +37,4 @@
 
 ## Bugs/Deuda (añadir aquí lo descubierto)
 
-- [ ] T901 Estabilizar y documentar variantes de arranque dev (full-docker vs mixed) tras validar en Docker Desktop. — cubierto por T016/runbook; revalidar en F1.
+- [x] T901 Estabilizar y documentar variantes de arranque dev (full-docker vs mixed) tras validar en Docker Desktop. — cubierto por T016/runbook; revalidado 2026-11-02 en Docker Desktop: variante A (api+web en contenedores) y variante B (`pnpm dev` en host) con `/es` y `/en` 200 y `/api/health` `db: up`.

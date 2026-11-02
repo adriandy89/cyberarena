@@ -11,7 +11,7 @@ la plataforma de teórica a **entrenamiento práctico real** estilo TryHackMe.
 
 ## 2. Los 18 labs (4 tiers)
 
-### TIER 1 (5 labs + 3 rooms nuevas) 🚧 esta iteración
+### TIER 1 (5 labs + 3 rooms nuevas) ✅
 1. privesc-linux-1 (SUID, sudo, cron — Pattern C)
 2. cmd-injection (ping utility → RCE — Pattern A)
 3. file-upload (bypass validación — Pattern A)

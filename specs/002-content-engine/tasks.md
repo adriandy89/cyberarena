@@ -27,7 +27,9 @@
 
 - [x] T008 [US4] Página `/[locale]/paths` desde la API + link en landing + mensajes.
 - [x] T009 [P] `docs/content-guide.md` final (formato, reglas, ejemplo) + runbook seed.
-- [ ] T010 [US1..US5] Verificación completa (criterios de éxito), changelog, ROADMAP.
+- [x] T010 [US1..US5] Verificación completa (criterios de éxito), changelog, ROADMAP. — cierre documental
+      2026-11-02: los criterios del spec ya estaban marcados con evidencia y el engine se ha verificado de forma
+      continua en las fases 003–107 (build estricto, seed doble estable).
 
 ## Bugs/Deuda
 

@@ -2,7 +2,7 @@
 
 - **Estado:** COMPLETADA (2026-11-01) — 7/8 módulos (web-owasp cubierto por CS101 owasp + burp; labs dedicados en iteración 102)
 - **Creada:** 2026-11-01
-- **Changelog:** 2026-11-01 primera versión.
+- **Changelog:** 2026-11-01 primera versión. 2026-11-02 cierre documental: tabla y criterios al estado final.
 
 ## 1. Propósito
 
@@ -13,7 +13,7 @@ práctico. Metodología, herramientas a fondo y laboratorios.
 
 | # | Módulo | Rooms previstos | Estado |
 |---|---|---|---|
-| 1 | pentest-foundations | 1 (metodología, kill chain, reporte) | 🚧 esta sesión |
+| 1 | pentest-foundations | 1 (metodología, kill chain, reporte) | ✅ |
 | 2 | recon-pasivo | 1 (crt.sh, dorks, metadata) | ✅ |
 | 3 | recon-activo | 1 (host/port/version discovery) | ✅ |
 | 4 | nmap | 1 (scan types, evasión, NSE, output) | ✅ |
@@ -33,5 +33,6 @@ crean bajo `labs/<slug>/` siguiendo ADR-006/007.
 
 ## 4. Criterios de éxito
 
-- [ ] Cada módulo entregado sigue el ciclo verificado de la spec 100.
-- [ ] Al cerrar: path completo navegable con progreso y XP coherentes.
+- [x] Cada módulo entregado sigue el ciclo verificado de la spec 100.
+- [x] Al cerrar: path completo navegable con progreso y XP coherentes. *(cierre documental 2026-11-02: E2E
+  de paths y room en verde en las fases 010 y 107; la estructura final del path es la de la fase 010)*
