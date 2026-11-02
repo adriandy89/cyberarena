@@ -12,7 +12,10 @@ export function safeNextPath(raw: string | null | undefined): string | null {
   const value = raw.trim();
   // Must be a single-slash absolute path: no scheme, no protocol-relative, no backslash tricks.
   if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return null;
-  if (/[\u0000-\u001f\u007f]/.test(value)) return null;
+  // No control characters (CR/LF/NUL…): checked by code point, not a control-char regex.
+  if ([...value].some((char) => char.charCodeAt(0) < 0x20 || char.charCodeAt(0) === 0x7f)) {
+    return null;
+  }
   if (value.length > 512) return null;
 
   // Parse against a dummy origin: anything resolving elsewhere is rejected.
