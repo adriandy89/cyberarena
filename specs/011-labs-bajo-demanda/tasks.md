@@ -15,7 +15,7 @@
 - [x] T004 `apps/lab-runner`: esqueleto, `lint.ts` + `build-manifest.ts` + tests con fixtures.
 - [x] T005 Endurecer los 39 composes y `_template` (`x-cyberarena`, límites, `restart: "no"`,
       `cap_drop`); test que pasa el lint por todos; `validate.ts` comprueba que `lab:` existe.
-- [ ] T006 Núcleo del runner (estado, plazos, mutex, args de compose, override, assets) con `execFile`
+- [x] T006 Núcleo del runner (estado, plazos, mutex, args de compose, override, assets) con `execFile`
       simulado; modo `LAB_RUNNER_DRY_RUN`.
 - [ ] T007 Servidor HTTP, auth, watchdog, CLI, Dockerfile; servicio en los compose de dev y prod;
       Postgres de prod en `127.0.0.1`; `infra/scripts/lab-flags.sh`.
