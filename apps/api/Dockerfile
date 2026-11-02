@@ -1,7 +1,7 @@
+# syntax=docker/dockerfile:1
 # Multi-stage production image for the API.
 # Built from the monorepo root:  docker build -f apps/api/Dockerfile .
 
-# syntax=docker/dockerfile:1
 FROM node:22-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm" PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -26,6 +26,9 @@ ENV NODE_ENV=production PNPM_HOME="/pnpm" PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && groupadd -g 10001 app && useradd -u 10001 -g app -s /bin/sh -m app
 WORKDIR /app
 COPY --from=builder --chown=10001:10001 /app /app
+# The seed reads packages/content/dist; the answer sources are not needed at
+# runtime and should not sit in clear text in the image.
+RUN rm -rf /app/packages/content/private
 COPY --chown=10001:10001 apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 USER 10001

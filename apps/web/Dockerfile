@@ -1,7 +1,7 @@
+# syntax=docker/dockerfile:1
 # Multi-stage production image for the web app.
 # Built from the monorepo root:  docker build -f apps/web/Dockerfile .
 
-# syntax=docker/dockerfile:1
 FROM node:22-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm" PATH="$PNPM_HOME:$PATH"
 RUN corepack enable

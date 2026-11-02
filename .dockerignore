@@ -9,6 +9,13 @@
 !**/.env.example
 **/*.log
 **/generated
+# Never send these to the build context (phase 012): huge, or secret.
+.pnpm-store
+backups
+infra/stacks/*/secrets
+**/*.tsbuildinfo
+**/test-results
+**/playwright-report
 # Lab flags never enter an image (the runner reads them from a mount).
 labs/**/*.env
 infra/stacks/*/lab-flags
