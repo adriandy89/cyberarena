@@ -23,10 +23,15 @@
 | F14 | `105-new-labs` | ✅ completada (2026-11-02) | 18 labs nuevos (T1 web races/API, T2 blue team, T3 especialización) → 51 rooms, 402 answers, 52 EN |
 | F15 | `010-ux-byte-navegacion` | ✅ completada (2026-11-02) | Shell de navegación, mascota Byte, animaciones accesibles, reestructuración del orden de contenidos |
 | F16 | `107-en-completo-respuestas` | ✅ completada (2026-11-02) | Teoría, pistas y opciones en inglés; respuestas con alternativas; fin de las respuestas-frase |
+| F17 | `106-depth-certs-prod` | 🔄 en curso (T1–T2 ✅; T3–T4 en la 012) | 8 rooms teóricas, certificados PDF, stack prod verificado |
+| F18 | `011-labs-bajo-demanda` | ⬜ pendiente | Labs que se arrancan y apagan desde la web: lab-runner, reservas con latido, reaper, seguridad |
+| F19 | `012-despliegue-docker` | ⬜ pendiente | Despliegue Docker completo (proxy + prod + lab-runner) probado de punta a punta; limpieza |
 
 ## Convenciones
 
 - Una fase abre su carpeta con `spec.md` antes de escribir código de esa fase.
 - Las fases de contenido (100+) pueden intercalarse tras F7 (el engine de rooms debe existir).
 - Cualquier mejora transversal descubierta en una fase se registra como tarea `T9xx` en la fase activa.
-- Fuera de alcance v1 (explícito): AttackBox en navegador (Kasm), VPN tipo THM, multi-instancia.
+- Fuera de alcance v1 (explícito): AttackBox en navegador (Kasm), VPN tipo THM, multi-instancia por usuario
+  (una instancia por lab y usuario). El ciclo de vida de los labs desde la web (una instancia compartida por
+  lab) entra en la fase 011.

@@ -66,7 +66,11 @@ pnpm db:migrate && pnpm db:seed               # migraciones y seed
 
 `000-foundation` → `001-auth-users` → `002-content-engine` → `003-room-player` →
 `004-paths-dashboard` → `005-gamification` → `006-hacktivities` → `007-labs` →
-`008-deploy-hardening` → `100+` content packs (CS101, JrPT, WebApp, AdvPT).
+`008-deploy-hardening` → `009-e2e-ui` → `100–103` content packs (CS101, JrPT, WebApp, AdvPT) →
+`104/105` labs masivos y nuevos → `010-ux-byte-navegacion` → `107-en-completo-respuestas` →
+`106-depth-certs-prod` → `011-labs-bajo-demanda` → `012-despliegue-docker`.
+
+La numeración no es el orden: el ROADMAP lista las fases en el orden en que se ejecutaron.
 
 ## Al terminar tu sesión
 

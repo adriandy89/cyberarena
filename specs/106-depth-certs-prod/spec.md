@@ -1,5 +1,15 @@
 # Spec 106 — Profundidad de contenido, certificados PDF y prod verificado
 
+- **Estado:** en curso — T1 y T2 completadas (2026-11-02); T3 y T4 se ejecutan dentro de la fase 012.
+- **Creada:** 2026-11-02
+- **Changelog:**
+  - 2026-11-02 primera versión.
+  - 2026-11-02 T1 y T2 verificadas (ver «Registro» en `tasks.md`). T3 (stack prod verificado) y T4
+    (limpieza) pasan a la fase `012-despliegue-docker`, que despliega también el lab-runner de la 011; sus
+    casillas se marcan aquí con referencia al registro de la 012.
+  - 2026-11-02 alcance de la limpieza acotado por decisión del usuario: solo recursos de este proyecto e
+    imágenes huérfanas; nada de prunes globales que afecten a otros proyectos.
+
 ## Contexto
 
 El catálogo tiene 51 rooms con fuerte sesgo práctico (35 con lab), pero la

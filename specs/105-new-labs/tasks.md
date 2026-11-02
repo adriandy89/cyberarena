@@ -1,6 +1,6 @@
 # Spec 105 — Nuevos labs: registro de ejecución
 
-Fuente: `proposal.md` (18 labs en 3 tiers). Estado por iteración.
+Fuente: `spec.md` (antes `proposal.md`; 18 labs en 3 tiers). Estado por iteración.
 
 ## ✅ TIER 1 — completo (2026-11-02)
 

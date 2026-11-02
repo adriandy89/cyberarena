@@ -1,4 +1,12 @@
-# Propuesta de NUEVOS LABS — priorizados por impacto de aprendizaje
+# Spec 105 — Nuevos labs priorizados por impacto de aprendizaje
+
+- **Estado:** completada (2026-11-02)
+- **Creada:** 2026-11-02 (como `proposal.md`)
+- **Changelog:**
+  - 2026-11-02 primera versión (propuesta de 18 labs en 3 tiers).
+  - 2026-11-02 completada; el registro de ejecución está en `tasks.md`.
+  - 2026-11-02 renombrada `proposal.md` → `spec.md` (constitución §3.1). El texto de abajo es la propuesta
+    original: la cabecera «Estado actual» describe el punto de partida, no el resultado.
 
 > Estado actual: 21 labs / 17 rooms con lab / 325 preguntas
 > Patrón: Python stdlib (A: web app, B: multi-puerto, C: Linux exec, D: OSINT estático, E: challenge)
