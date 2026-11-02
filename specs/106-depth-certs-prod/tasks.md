@@ -29,9 +29,10 @@
 - [x] Registro aquí + runbook ajustado si diverge + commit (fase 012 T012)
 
 ## T4: Limpieza final
-- [ ] down -v proxy+prod; borrar :local images; docker builder/image prune
-- [ ] pnpm store prune; borrar .turbo y apps/web/.next
-- [ ] docker df antes/después reportado
+- [x] down -v proxy+prod; borrar :local images; docker builder/image prune (fase 012 T014; prune
+      acotado al proyecto y a huérfanas, más la limpieza de emergencia de disco aprobada por el usuario)
+- [x] pnpm store prune; borrar .turbo y apps/web/.next
+- [x] docker df antes/después reportado (registro de la 012)
 
 ## Registro
 

@@ -1,11 +1,16 @@
 # Spec 012 — Despliegue Docker completo y verificado
 
-- **Estado:** en curso
+- **Estado:** completada (2026-11-02)
 - **Creada:** 2026-11-02
 - **Changelog:**
   - 2026-11-02 primera versión. Absorbe la T3 (stack prod verificado) y la T4 (limpieza) de la spec 106 y
     añade el lab-runner de la fase 011. Petición del usuario: «hacer lo que falta para terminar el
     proyecto y probar un despliegue en Docker completo».
+  - 2026-11-02 completada. Registro con todas las evidencias en `tasks.md`. Hallazgos fuera del plan:
+    secretos con CRLF por el `openssl` de Git Bash, un solo lab-runner por host Docker, `node_modules` del
+    runner escrito por los contenedores de dev (011 T909) y el disco C: lleno durante el build (cachés de
+    Docker limpiadas y `docker_data.vhdx` compactado, con el visto bueno del usuario). Queda T901: ver el
+    primer run real de los workflows en GitHub Actions.
 
 ## 1. Propósito
 
@@ -46,12 +51,13 @@ auditoría previa encontró problemas que lo impedirían o lo dejarían frágil:
 
 ## 4. Criterios de éxito
 
-- [ ] `proxy up` + `prod up --build` con todos los servicios healthy.
-- [ ] Seed doble estable; smoke en verde; E2E completo sobre HTTPS en verde.
-- [ ] Labs en prod: arranque desde la UI, flag resuelta, reaper, plazo del runner con la API parada,
+- [x] `proxy up` + `prod up --build` con todos los servicios healthy.
+- [x] Seed doble estable; smoke en verde; E2E completo sobre HTTPS en verde (27 OK + 1 que requiere
+      inactividad corta, verificado aparte en T010).
+- [x] Labs en prod: arranque desde la UI, flag resuelta, reaper, plazo del runner con la API parada,
       adopción; smoke de los 39 labs.
-- [ ] Backup + restore en BD scratch con conteos iguales.
-- [ ] Limpieza hecha con `docker system df` antes/después en el registro.
+- [x] Backup + restore en BD scratch con conteos iguales.
+- [x] Limpieza hecha con `docker system df` antes/después en el registro.
 
 ## 5. Fuera de alcance
 

@@ -1,6 +1,6 @@
 # Spec 106 — Profundidad de contenido, certificados PDF y prod verificado
 
-- **Estado:** en curso — T1 y T2 completadas (2026-11-02); T3 y T4 se ejecutan dentro de la fase 012.
+- **Estado:** completada (2026-11-02) — T3 y T4 se ejecutaron dentro de la fase 012.
 - **Creada:** 2026-11-02
 - **Changelog:**
   - 2026-11-02 primera versión.

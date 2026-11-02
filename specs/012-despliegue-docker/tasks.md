@@ -26,7 +26,7 @@
 
 - [x] T012 Runbook y arquitectura al día con lo verificado.
 - [x] T013 CI: E2E también en PR y con sesión; build de la imagen del lab-runner.
-- [ ] T014 Limpieza acotada (106 T4) con `docker system df` antes/después; cierre de 106 y 012.
+- [x] T014 Limpieza acotada (106 T4) con `docker system df` antes/después; cierre de 106 y 012.
 
 ## Bugs/Deuda
 
@@ -78,3 +78,11 @@
   timeout 60 s en CI). `docker.yml` construye también la imagen del runner (que pasa el lint de labs).
   Réplica local del job (API compilada + `next start` + runner simulado, `CI=true`): **27 OK, 1 omitido**.
   Falta ver el primer run real en GitHub Actions: T901.
+- 2026-11-02 · **Limpieza final (T014, 106 T4).** Antes: imágenes 6,58 GB, caché de build 11,94 GB,
+  `docker_data.vhdx` 72,6 GB, C: 55 GB libres. `down -v` de prod y proxy (volúmenes `pgdata`, `caddy_*` y
+  `cyberarena-lab-assets`; ningún contenedor `lab-*` vivo), imágenes `cyberarena-*` (4), caché de build
+  (11,9 GB), imágenes huérfanas, `.turbo`, `.next` y store de pnpm. Después: imágenes 4,97 GB (las de
+  otros contenedores en uso), caché 0 B; `fstrim` + segunda compactación (72,6 → 60,7 GB). **C: 67 GB
+  libres.** Los volúmenes de otros proyectos no se tocaron. Se conservan los secretos, `lab-flags` y el
+  backup de la prueba (`backups/cyberarena-20261102-193800.sql.gz`, 210 KB) para el próximo despliegue.
+  El dev stack queda como al principio (api, postgres y mailpit en marcha; web parada; sin runner).
