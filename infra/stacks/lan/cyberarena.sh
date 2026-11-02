@@ -58,7 +58,7 @@ cmd_init() {
   mkdir -p "$STACK_DIR/secrets" "$STACK_DIR/lab-flags" "$STACK_DIR/backups"
   if [ ! -f "$STACK_DIR/.env" ]; then
     sed -e "s#__REPO_DIR__#$REPO_DIR#g" -e "s#__LAN_IP__#$ip#g" "$REPO_DIR/infra/stacks/lan/env.example" > "$STACK_DIR/.env"
-    echo "created .env for https://$ip"
+    echo "created .env for http://$ip"
   else
     echo ".env exists: kept"
   fi
@@ -100,7 +100,7 @@ cmd_preflight() {
   [ "$flags" -ge "$labs" ] && ok "$flags lab flag files" || bad "$flags/$labs lab flag files (./cyberarena.sh init)"
   local web_port
   web_port=$(env_value WEB_PORT)
-  for port in "${web_port:-3080}" "$(env_value POSTGRES_PORT)"; do
+  for port in "${web_port:-3080}"; do
     if ss -ltnH "( sport = :$port )" | grep -q .; then
       if docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.Ports}}' | grep -q ":$port->"; then
         ok "port $port (this stack)"
@@ -139,7 +139,7 @@ cmd_update() {
 }
 
 cmd_destroy() {
-  echo "This removes the containers AND the data (database, certificates) of $PROJECT."
+  echo "This removes the containers AND the data (database, lab assets) of $PROJECT."
   read -r -p "Type 'destroy' to confirm: " answer
   [ "$answer" = destroy ] || { echo "aborted"; exit 1; }
   dc down -v

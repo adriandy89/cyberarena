@@ -14,10 +14,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-cyberarena}
     secrets:
       - postgres_password
-    ports:
-      # Ops access only (backups/psql), loopback only: never public, and labs
-      # cannot reach it through their bridge gateway (constitution §1.4).
-      - '127.0.0.1:${POSTGRES_PORT:-5433}:5432'
+    # No published port: postgres sits only on the internal backend network,
+    # where Docker cannot publish ports anyway. Ops (backups, psql) go through
+    # `docker exec`; no lab can reach it (constitution §1.4).
     volumes:
       - pgdata:/var/lib/postgresql
     healthcheck:

@@ -59,6 +59,6 @@ Los labs de terminal (`docker exec …`) se usan desde una sesión SSH en el ser
 
 - Sin HTTPS: pensado para tu LAN. Las contraseñas viajan en claro por la red local.
 - Un solo lab-runner por host Docker (si tienes otro CyberArena en la misma máquina, páralo).
-- Puertos que usa: `WEB_PORT` (3080), `127.0.0.1:5433` (Postgres, solo operación) y los de los labs
-  (18080–18116, 18153/udp, 18180/18443/18844, 28021–28901) mientras estén encendidos.
+- Puertos que usa: `WEB_PORT` (3080) y, solo mientras estén encendidos, los de los labs (18080–18116,
+  18153/udp, 18180/18443/18844, 28021–28901). Postgres no publica ninguno: se opera con `docker exec`.
 - Más detalle: `docs/runbook.md` (producción y labs bajo demanda).

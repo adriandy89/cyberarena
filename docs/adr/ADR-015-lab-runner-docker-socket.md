@@ -35,8 +35,10 @@
      propios del runner que solo la API renueva (si la API o la BD caen, los labs mueren igualmente) y
      `restart: "no"` en los labs con barrido al arrancar el runner. Un watchdog reinicia el runner si
      su bucle se bloquea.
-  7. Postgres de producción se publica solo en `127.0.0.1` para que ningún lab lo alcance por la
-     gateway de su red (constitución §1.4).
+  7. Postgres de producción no publica ningún puerto (vive solo en la red interna `backend`) para que
+     ningún lab lo alcance por la gateway de su red (constitución §1.4). *(2026-11-02: el mapeo a
+     `127.0.0.1:5433` que se puso al principio nunca llegó a funcionar —Docker no publica puertos de
+     contenedores que solo están en redes internas— y se eliminó.)*
 - **Consecuencias:**
   - Un compromiso del runner equivale a root en el host: riesgo residual aceptado, acotado por la red
     interna, el token y la superficie mínima. T901 (rootless) lo reduce.

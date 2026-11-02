@@ -38,7 +38,7 @@ flags=$(find "$PROD/lab-flags" -name '*.env' 2>/dev/null | wc -l | tr -d ' ')
   || bad "$flags flag files for $labs labs (run: bash infra/scripts/lab-flags.sh $PROD/lab-flags)"
 
 echo "host ports (free unless our stacks already use them)"
-for port in 80 443 5433; do
+for port in 80 443; do
   owner=$(docker ps --format '{{.Names}} {{.Ports}}' | grep -E "(0\.0\.0\.0|127\.0\.0\.1|\[::\]):$port->" | awk '{print $1}' | head -1)
   if [ -z "$owner" ]; then
     if node -e "const s=require('net').createServer();s.once('error',()=>process.exit(1));s.listen($port,'0.0.0.0',()=>s.close(()=>process.exit(0)))"; then

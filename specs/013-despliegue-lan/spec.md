@@ -48,5 +48,5 @@ LAN hace falta:
 
 Con `LAB_BIND_ADDRESS` en la IP de la LAN, cualquier equipo de la red alcanza los labs (apps vulnerables a
 propósito) mientras están encendidos. Por eso es opcional, por defecto desactivado, y los labs siguen
-apagándose solos (fase 011). La API, Postgres (`127.0.0.1:5433`) y el runner siguen sin exponerse; solo
+apagándose solos (fase 011). La API, Postgres y el runner siguen sin exponerse; solo
 la web publica su puerto. Sin TLS: el tráfico (también contraseñas) va en claro dentro de la LAN.

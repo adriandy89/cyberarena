@@ -200,7 +200,8 @@ Cron diario (Linux): `0 4 * * * cd /ruta/repo && bash infra/scripts/backup-db.sh
 - [x] Secretos por compose secrets (postgres/auth/bootstrap/lab-runner) — no en yaml ni env; sin `\r`
 - [x] Redes: `backend` interna (postgres sin egress), `labs-control` interna (solo api ↔ runner),
       frontend, proxy pública
-- [x] Solo Caddy publica puertos (80/443); Postgres únicamente en `127.0.0.1:5433` (operación)
+- [x] Solo Caddy publica puertos (80/443); Postgres no publica ninguno (red interna; operación con
+      `docker exec`)
 - [x] lab-runner: único con `docker.sock`, sin puertos, token, manifiesto de labs inmutable, lint
       de composes, `read_only`; corre como root (excepción documentada en ADR-015)
 - [x] Labs: `127.0.0.1`, `cap_drop: ALL`, `no-new-privileges` (salvo excepción documentada),

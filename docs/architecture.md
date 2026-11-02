@@ -80,7 +80,8 @@ repite tras cada rebuild). El build exige cobertura EN completa (fase 107).
 
 - Contenedores no-root (salvo el lab-runner, excepción documentada), `cap_drop: ALL`, `no-new-privileges`,
   healthchecks, redes segmentadas (`backend` y `labs-control` internas).
-- Solo Caddy publica puertos; Postgres de prod en `127.0.0.1` para operación; labs en `127.0.0.1`.
+- Solo Caddy publica puertos (o la web en `WEB_PORT` en el despliegue LAN); Postgres no publica ninguno
+  (red interna, operación con `docker exec`); labs en `127.0.0.1` (o en la IP de la LAN, fase 013).
 - Secretos por `secrets:` de compose (sin `\r`, comprobado por `prod-preflight.sh`).
 - API: validación Zod, rate limit por IP real (`trust proxy`) con límites por ruta, limitador propio de
   better-auth, CORS explícito.
