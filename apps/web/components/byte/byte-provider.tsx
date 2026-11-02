@@ -31,7 +31,11 @@ export type ByteEvent =
 interface EventSpec {
   mood: ByteMood;
   tone: BubbleTone;
-  /** Higher interrupts lower; important ones (>= 3) resume after an interruption. */
+  /**
+   * Higher (or equal) interrupts the current reaction. Important ones (>= 3)
+   * wait in the queue or resume after an interruption; lower ones that cannot
+   * be shown right away are dropped, since they would be stale later.
+   */
   priority: number;
   /** null = stays until dismissed. */
   sticky?: boolean;
@@ -41,10 +45,10 @@ interface EventSpec {
 const EVENT_SPECS: Record<ByteEvent, EventSpec> = {
   pageTip: { mood: 'hint', tone: 'default', priority: 0 },
   greeting: { mood: 'wave', tone: 'default', priority: 0 },
-  hintOpened: { mood: 'think', tone: 'warn', priority: 1 },
+  hintOpened: { mood: 'think', tone: 'warn', priority: 2 },
   answerCorrect: { mood: 'happy', tone: 'success', priority: 2 },
   answerWrong: { mood: 'sad', tone: 'danger', priority: 2 },
-  answerWrongRepeated: { mood: 'hint', tone: 'warn', priority: 3 },
+  answerWrongRepeated: { mood: 'hint', tone: 'warn', priority: 2 },
   networkError: { mood: 'error', tone: 'danger', priority: 3 },
   roomCompleted: { mood: 'celebrate', tone: 'success', priority: 4, confetti: true },
   authRequired: { mood: 'point', tone: 'info', priority: 4, sticky: true },
@@ -185,6 +189,7 @@ export function ByteProvider({ children }: { children: ReactNode }) {
         commit(next);
         return;
       }
+      if (next.priority < 3) return;
       queueRef.current = [...queueRef.current, next]
         .sort((a, b) => b.priority - a.priority)
         .slice(0, MAX_QUEUE);

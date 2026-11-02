@@ -168,7 +168,10 @@
     "continueWithRoom": "¿Seguimos? Este es el siguiente room de la ruta:",
     "continueWithPath": "¡Has terminado la ruta! Tu siguiente reto:",
     "guestBanner": "Estás explorando como invitado: puedes leerlo todo, pero para enviar respuestas y ganar XP necesitas una cuenta.",
-    "authRequired": "Necesitas iniciar sesión para enviar respuestas."
+    "authRequired": "Necesitas iniciar sesión para enviar respuestas.",
+    "tasksLabel": "Tareas del room",
+    "networkError": "No se pudo enviar la respuesta. Comprueba tu conexión y vuelve a intentarlo.",
+    "keysHint": "Usa ← → para cambiar de tarea"
   },
   "PathProgress": {
     "overallProgress": "Progreso de la ruta",

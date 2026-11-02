@@ -168,7 +168,10 @@
     "continueWithRoom": "Shall we keep going? This is the next room in the path:",
     "continueWithPath": "You finished the path! Your next challenge:",
     "guestBanner": "You are browsing as a guest: you can read everything, but you need an account to submit answers and earn XP.",
-    "authRequired": "You need to sign in to submit answers."
+    "authRequired": "You need to sign in to submit answers.",
+    "tasksLabel": "Room tasks",
+    "networkError": "The answer could not be sent. Check your connection and try again.",
+    "keysHint": "Use ← → to switch tasks"
   },
   "PathProgress": {
     "overallProgress": "Path progress",
