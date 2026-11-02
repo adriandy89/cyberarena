@@ -1,0 +1,71 @@
+---
+index: 3
+title: "Lab: caza de credenciales en capturas"
+questions:
+  - id: redes-wireshark-t03-q01
+    prompt: "Descarga capture-http.pcap del lab y encuentra las credenciales del header Authorization: Basic. ¿Cuál es la contraseña que viaja en base64?"
+    hint: "curl -O http://127.0.0.1:18104/capture-http.pcap — busca 'Basic' y decodifica: echo <b64> | base64 -d"
+    kind: flag
+  - id: redes-wireshark-t03-q02
+    prompt: "En capture-ftp.pcap, ¿qué contraseña envía el usuario backup_svc en claro?"
+    hint: "FTP no cifra NADA: filtra ftp.pass en Wireshark o busca 'PASS' con strings/grep"
+    kind: flag
+  - id: redes-wireshark-t03-q03
+    prompt: "En capture-dns.pcap hay un túnel DNS hacia tunnel.evil-c2.example. Concatena los subdominios largos (quitando session-start./data) y decodifica el base32. Envía la flag."
+    hint: "echo <subdominio-concatenado> | base32 -d — las partes están divididas entre la query session-start.* y la query *.data.*"
+    kind: flag
+---
+
+## Tres capturas, tres pecados
+
+El lab sirve capturas `.pcap` reales (generadas paquete a paquete). Bájalas y
+ábrelas en Wireshark — o analízalas con `strings`/`grep` si no tienes GUI:
+
+```bash
+curl -O http://127.0.0.1:18104/capture-http.pcap
+curl -O http://127.0.0.1:18104/capture-ftp.pcap
+curl -O http://127.0.0.1:18104/capture-dns.pcap
+```
+
+## Pecado 1: HTTP plano con Basic Auth
+
+Basic Auth manda `base64(usuario:contraseña)` — y base64 **no es cifrado**,
+es encoding. Con HTTP (sin TLS) las credenciales van en claro en cada
+petición:
+
+```bash
+# En Wireshark: filtro  http.authorization
+# Sin Wireshark:
+grep -a "Basic" capture-http.pcap | grep -o "Basic [A-Za-z0-9+/=]*"
+echo "YWRtaW46..." | base64 -d      # → admin:FLAG{...}
+```
+
+**Lección**: sin HTTPS, Basic Auth es enviar la contraseña a gritos.
+
+## Pecado 2: FTP
+
+FTP autentica en claro por diseño (1990): los comandos `USER` y `PASS`
+viajan legibles. Filtra `ftp.pass` en Wireshark y verás la contraseña
+directamente en el panel de disección.
+
+```bash
+grep -ao "PASS [A-Za-z0-9{}_.-]*" capture-ftp.pcap
+```
+
+**Lección**: FTP sigue vivo en redes internas; SFTP/FTPS existen por algo.
+
+## Pecado 3: túnel DNS
+
+El tráfico HTTP a IPs raras se bloquea... pero DNS siempre pasa. En la
+captura, varias queries hacia `tunnel.evil-c2.example` llevan **subdominios
+en base32** con datos exfiltrados:
+
+```bash
+# En Wireshark: filtro  dns && dns.qry.name contains "tunnel"
+# Los subdominios largos, concatenados (sin session-start./data/.chunk2), son base32:
+echo "<subdominio-completo>" | base32 -d
+```
+
+El base32 (A-Z, 2-7) se eligió aquí precisamente porque son caracteres
+válidos en labels DNS. **Lección**: monitoriza queries DNS con labels
+anormalmente largos y de alta entropía.

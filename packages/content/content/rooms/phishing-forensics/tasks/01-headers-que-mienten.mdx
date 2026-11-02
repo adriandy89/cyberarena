@@ -1,0 +1,58 @@
+---
+index: 1
+title: "Headers: quién envía de verdad"
+questions:
+  - id: phishing-forensics-t01-q01
+    prompt: "Del email 02-urgente.eml: el HELO dice mail.banco-seguro.com pero miente. ¿Cuál es el dominio REAL de origen (mira Return-Path y Message-ID)? Envíalo a /verify?origin= para la flag."
+    hint: "curl -s http://127.0.0.1:18106/emails/02-urgente.eml — Return-Path: bounce@??? y Message-ID: <abc123@??>"
+    kind: flag
+  - id: phishing-forensics-t01-q02
+    prompt: "Del mismo email: Authentication-Results muestra tres checks fallidos. Escribe los tres en orden alfabético separados por comas (spf,dkim,dmarc) con su valor: formato 'spf=X,dkim=Y,dmarc=Z'."
+    hint: "spf=none, dkim=none, dmarc=fail — cópialos exactos del header"
+    kind: text
+  - id: phishing-forensics-t01-q03
+    prompt: "El registro SPF del dominio atacante (check-spf) contiene una política que lo vuelve inútil. ¿Qué mecánica es? Consulta /check-spf?domain=<dominio-atacante> para la flag."
+    hint: "v=spf1 +all autoriza a CUALQUIER servidor del mundo a enviar como ese dominio"
+    kind: flag
+---
+
+## Leer un email de arriba a abajo
+
+Baja el correo sospechoso en crudo:
+
+```bash
+curl -s http://127.0.0.1:18106/emails/02-urgente.eml
+```
+
+Los headers se leen de ABAJO hacia ARRIBA (cada salto añade uno arriba).
+Los que delatan al remitente real:
+
+| Header | Qué cuenta | En el phishing |
+|---|---|---|
+| `Return-Path` | Dónde rebota el correo (el que envía de verdad) | `corp-supplies.cn`, no un banco |
+| `Received` | El HELO que saludó + IP real | Dice `banco-seguro` pero la IP es otra |
+| `Message-ID` | Lo genera el servidor emisor | Dominio del atacante |
+| `Authentication-Results` | SPF/DKIM/DMARC según el receptor | none/none/fail |
+| `Reply-To` | A dónde va TU respuesta | Una cuenta de `mail.ru` |
+
+El `From:` es lo único que el usuario ve — y es lo ÚNICO que el atacante
+controla al 100%. Eso es el **spoofing**: la dirección visible miente;
+Return-Path, Received y Message-ID los emite la infraestructura del
+atacante y no puede retocar tan fácil.
+
+## SPF/DKIM/DMARC en 30 segundos
+
+- **SPF** (DNS TXT): "¿la IP que envía está autorizada por el dominio del
+  From?" — `+all` autoriza a todos (inútil), `-all` prohíbe al resto.
+- **DKIM**: firma criptográfica del mensaje, valida integridad + dominio.
+- **DMARC**: la política de qué hacer si SPF/DKIM fallan (`p=none` es
+  "no hagas nada" — común y lamentable).
+
+```bash
+curl -s "http://127.0.0.1:18106/check-spf?domain=banco-seguro.com"   # sano
+curl -s "http://127.0.0.1:18106/check-spf?domain=corp-supplies.cn"   # +all
+```
+
+El atacante elige dominios con SPF inútil precisamente para que sus
+mensajes pasen filtros. Por eso un `spf=none` + `dmarc=fail` en los
+Authentication-Results es señal de alarma, no de error benigno.

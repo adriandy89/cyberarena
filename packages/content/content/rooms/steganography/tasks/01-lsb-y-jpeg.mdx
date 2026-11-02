@@ -1,0 +1,62 @@
+---
+index: 1
+title: "LSB en BMP y el COM de JPEG"
+questions:
+  - id: steganography-t01-q01
+    prompt: "Descarga bmp-lago.bmp del lab. Los primeros 32 LSB de los píxeles guardan la longitud (little-endian) y después el mensaje. Envía la flag."
+    hint: "python: leer bytes desde offset 54, tomar bit menos significativo de cada byte, agrupar de 8 en 8 (MSB primero)"
+    kind: flag
+  - id: steganography-t01-q02
+    prompt: "Descarga vacaciones.jpg. La flag vive en un segmento COM (comentario) del JPEG. Envíala."
+    hint: "strings vacaciones.jpg | grep FLAG — o exiftool vacaciones.jpg"
+    kind: flag
+---
+
+## LSB: el clásico de píxeles
+
+Una imagen BMP de 24 bits guarda 3 bytes por píxel (RGB). Cambiar el bit
+menos significativo (LSB) de un canal altera el color en 1/256 — invisible
+al ojo. Con un pixelarte de 64×64 caben 4096 bits: sobra para un mensaje.
+
+El esquema del lab: primero 32 bits = longitud del mensaje (LE), luego el
+mensaje, 1 bit por byte del archivo de píxeles:
+
+```bash
+curl -O http://127.0.0.1:18105/bmp-lago.bmp
+```
+
+```python
+# extract_lsb.py — el extractor de siempre
+import struct
+data = open('bmp-lago.bmp','rb').read()
+px = data[54:]                       # cabeceras BMP = 14 + 40 bytes
+def bits(n):  return [px[i] & 1 for i in range(n)]
+def tobytes(bs):
+    out = bytearray()
+    for i in range(0, len(bs), 8):
+        b = 0
+        for bit in bs[i:i+8]: b = (b << 1) | bit
+        out.append(b)
+    return bytes(out)
+length = struct.unpack('<I', tobytes(bits(32)))[0]
+msg = tobytes(bits(32 + length*8)[32:])
+print(msg.decode())
+```
+
+En CTFs reales `zsteg` (PNG/BMP) y `stegsolve` hacen esto y mucho más,
+pero saber escribir el extractor te enseña qué buscan.
+
+## JPEG COM: metadatos con cuerpo
+
+JPEG es un formato por segmentos: `FF E0` APP0, `FF DB` DQT... y `FF FE`
+**COM**, un comentario libre que cualquier editor puede escribir. Nadie
+lo muestra al abrir la imagen, pero está ahí:
+
+```bash
+curl -O http://127.0.0.1:18105/vacaciones.jpg
+strings vacaciones.jpg | grep -i flag
+exiftool vacaciones.jpg       # la alternativa pro: Comment: secret: FLAG{...}
+```
+
+**Lección defensiva**: los DLP que solo miran extensiones se pierden
+metadatos; los atacantes exfiltran en campos EXIF/COM que nadie audita.

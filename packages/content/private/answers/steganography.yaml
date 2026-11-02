@@ -1,0 +1,7 @@
+# Respuestas del room steganography.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/steganography-lab/flags.env
+steganography-t01-q01: FLAG{lsb_pixels_dont_lie}
+steganography-t01-q02: FLAG{jpeg_comment_segment}
+steganography-t02-q01: FLAG{data_after_iend}
+steganography-t02-q02: IEND

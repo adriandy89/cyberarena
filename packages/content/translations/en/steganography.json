@@ -1,0 +1,20 @@
+{
+  "title": "Steganography: hidden data in images",
+  "description": "LSB in pixels, JPEG COM segments, data past a PNG's IEND: three ways to hide and three to find.",
+  "tasks": {
+    "1": {
+      "title": "LSB in BMP and JPEG COM",
+      "questions": {
+        "steganography-t01-q01": { "prompt": "Download bmp-lago.bmp from the lab. The first 32 pixel LSBs hold the length (little-endian) then the message. Submit the flag." },
+        "steganography-t01-q02": { "prompt": "Download vacaciones.jpg. The flag lives in a JPEG COM (comment) segment. Submit it." }
+      }
+    },
+    "2": {
+      "title": "Data past IEND and double files",
+      "questions": {
+        "steganography-t02-q01": { "prompt": "logo-corp.png is a valid PNG BUT weighs more than it should: a ZIP is glued after IEND. Extract its contents and submit the flag." },
+        "steganography-t02-q02": { "prompt": "What hexadecimal signature marks the end of a PNG (the chunk after which the file should end)? Write the 4 ASCII characters." }
+      }
+    }
+  }
+}

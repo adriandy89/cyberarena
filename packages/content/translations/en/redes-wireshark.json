@@ -29,6 +29,20 @@
           "prompt": "Why cannot HTTPS content be seen without the server key?"
         }
       }
+    },
+    "3": {
+      "title": "Lab: credential hunting in captures",
+      "questions": {
+        "redes-wireshark-t03-q01": {
+          "prompt": "Download capture-http.pcap from the lab and find the Authorization: Basic credentials. What password travels in base64?"
+        },
+        "redes-wireshark-t03-q02": {
+          "prompt": "In capture-ftp.pcap, what password does user backup_svc send in cleartext?"
+        },
+        "redes-wireshark-t03-q03": {
+          "prompt": "capture-dns.pcap contains a DNS tunnel to tunnel.evil-c2.example. Concatenate the long subdomains (strip session-start./data) and decode the base32. Submit the flag."
+        }
+      }
     }
   }
 }

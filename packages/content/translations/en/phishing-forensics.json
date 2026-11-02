@@ -1,0 +1,22 @@
+{
+  "title": "Phishing Forensics: dissect the email",
+  "description": "Lying headers, spoofed HELO, SPF +all and malware attachments: dissect phishing emails like a SOC analyst.",
+  "tasks": {
+    "1": {
+      "title": "Headers: who really sends",
+      "questions": {
+        "phishing-forensics-t01-q01": { "prompt": "From 02-urgente.eml: the HELO claims mail.banco-seguro.com but lies. What is the REAL origin domain (check Return-Path and Message-ID)? Submit it to /verify?origin= for the flag." },
+        "phishing-forensics-t01-q02": { "prompt": "Same email: Authentication-Results shows three failed checks. Write all three in alphabetical order (spf,dkim,dmarc) with their value, format 'spf=X,dkim=Y,dmarc=Z'." },
+        "phishing-forensics-t01-q03": { "prompt": "The attacker domain's SPF record (check-spf) contains a policy that makes it useless. Query /check-spf?domain=<attacker-domain> for the flag." }
+      }
+    },
+    "2": {
+      "title": "The disguised URL and the attachment",
+      "questions": {
+        "phishing-forensics-t02-q01": { "prompt": "The email 02 link says 'banco-seguro.com' but points elsewhere. What is the real domain (with port)? Submit it to /verify?url= for the flag." },
+        "phishing-forensics-t02-q02": { "prompt": "What is the attachment's exact filename (Content-Disposition)? Submit it to /verify?attachment= for the flag." },
+        "phishing-forensics-t02-q03": { "prompt": "Besides URL and attachment, the email uses 3 social-pressure techniques. Which one imposes a deadline to act?" }
+      }
+    }
+  }
+}

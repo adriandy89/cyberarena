@@ -40,6 +40,23 @@
           "prompt": "What phase closes the cycle after eradication?"
         }
       }
+    },
+    "4": {
+      "title": "Lab: investigate the compromised host",
+      "questions": {
+        "defensa-introduccion-t04-q01": {
+          "prompt": "A suspicious cron job runs /tmp/.systemd-resolved as root every minute. Submit the flag hidden in the crontab comment."
+        },
+        "defensa-introduccion-t04-q02": {
+          "prompt": "An attacker-created user has UID 0 (a second root account). What is its name?"
+        },
+        "defensa-introduccion-t04-q03": {
+          "prompt": "A process disguises its binary as a kernel worker and lives in /tmp. Its config holds a flag: find it."
+        },
+        "defensa-introduccion-t04-q04": {
+          "prompt": "There is a live ESTABLISHED C2 connection. Connect to the same server from your host and submit the token it gives you."
+        }
+      }
     }
   }
 }

@@ -1,0 +1,5 @@
+# Respuestas nuevas del room seguridad-soluciones (task 3 añadida en Tier 2).
+# IMPORTANTE: flags deben coincidir con labs/siem-correlation/flags.env
+seguridad-soluciones-t03-q01: FLAG{attacker_ip_correlated}
+seguridad-soluciones-t03-q02: "23:14:07"
+seguridad-soluciones-t03-q03: FLAG{persistence_cron_root}

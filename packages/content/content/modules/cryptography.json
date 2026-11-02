@@ -3,7 +3,14 @@
   "title": "Cryptography",
   "description": "Cifrado, hashing, cracking, PKI y certificados digitales con práctica.",
   "rooms": [
-    { "slug": "criptografia-basica" },
-    { "slug": "criptografia-pki" }
+    {
+      "slug": "criptografia-basica"
+    },
+    {
+      "slug": "criptografia-pki"
+    },
+    {
+      "slug": "steganography"
+    }
   ]
 }

@@ -1,0 +1,64 @@
+---
+index: 2
+title: "La URL disfrazada y el attachment"
+questions:
+  - id: phishing-forensics-t02-q01
+    prompt: "El enlace del email 02 dice 'banco-seguro.com' pero apunta a otro dominio. ¿Cuál es el dominio real (con puerto)? Envíalo a /verify?url= para la flag."
+    hint: "El href es http://banco-seguro.com.<DOMINIO-REAL>:8080/... — el banco es un SUBDOMINIO del atacante"
+    kind: flag
+  - id: phishing-forensics-t02-q02
+    prompt: "¿Cómo se llama el attachment (filename exacto del Content-Disposition)? Envíalo a /verify?attachment= para la flag."
+    hint: "MIME multipart: la segunda parte declara application/zip con filename=..."
+    kind: flag
+  - id: phishing-forensics-t02-q03
+    prompt: "Además de la URL y el attachment, el email usa 3 técnicas de presión social. ¿Cuál es la que impone un plazo para actuar?"
+    hint: "«Tu cuenta queda suspendida 24h salvo verificación inmediata» — urgency/scarcity"
+    kind: text
+---
+
+## El dominio que se disfraza de subdominio
+
+El truco más rentable del phishing: poner el dominio legítimo DENTRO del
+tuyo como subdominio:
+
+```
+http://banco-seguro.com.verify-login.cn:8080/session?...
+      └────── te hacen mirar aquí ──┘└── dominio real ──┘
+```
+
+El ojo lee "banco-seguro.com" y aprueba; el resolver pregunta por
+`verify-login.cn`. Variantes del mismo vicio: `verify-banco.com`,
+`banco-seguro-cuenta.com`, homoglifos (`bancо` con о cirílica), y URLs
+con `@` (todo lo anterior a la @ es usuario: `http://banco.com@evil.cn/`).
+
+```bash
+curl -s http://127.0.0.1:18106/emails/02-urgente.eml | grep -A1 "clic"
+# registra dominio + puerto y valídalos:
+curl -s "http://127.0.0.1:18106/verify?url=banco-seguro.com.verify-login.cn:8080"
+```
+
+**Lección para el defensor**: extrae el eTLD+1 (site de la registraría)
+con psl-libraries antes de comparar strings; para el usuario: enseñar a
+leer de derecha a izquierda hasta la primera barra.
+
+## El attachment: el que hace el daño
+
+La URL roba credenciales; el attachment (.zip aquí, macros .doc en la
+vida real) entrega el malware. En el MIME va en la segunda parte:
+
+```
+Content-Type: application/zip; name="Detalles_de_la_incidencia.zip"
+Content-Disposition: attachment; filename="Detalles_de_la_incidencia.zip"
+```
+
+Los indicadores de compromiso (IOCs) que un analista registra de este
+correo: dominio de Return-Path, IP de Received, dominio de la URL,
+puerto, filename del attachment y su hash SHA256. Con esos datos el SOC
+bloquea en el gateway de correo y caza otros destinatarios.
+
+## La tríada de la presión
+
+Urgencia (24h), autoridad (tu banco), miedo (cuenta eliminada). Si un
+correo te apura, esa ES la señal: ninguna entidad legítima te pone
+reloj. Reportar ese patrón — no solo este correo — es lo que escala un
+incidente aislado a una campaña detectada.

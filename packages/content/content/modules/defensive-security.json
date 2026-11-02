@@ -1,8 +1,13 @@
 {
   "slug": "defensive-security",
   "title": "Defensive Security",
-  "description": "El otro lado: SOC, análisis de logs y el ciclo de vida de los incidentes.",
+  "description": "El otro lado: SOC, phishing forensics, análisis de logs y el ciclo de vida de los incidentes.",
   "rooms": [
-    { "slug": "defensa-introduccion" }
+    {
+      "slug": "defensa-introduccion"
+    },
+    {
+      "slug": "phishing-forensics"
+    }
   ]
 }

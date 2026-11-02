@@ -26,6 +26,20 @@
           "prompt": "What firewall type inspects the application layer?"
         }
       }
+    },
+    "3": {
+      "title": "Lab: correlate the chained attack",
+      "questions": {
+        "seguridad-soluciones-t03-q01": {
+          "prompt": "Pull /logs/firewall, /logs/auth and /logs/web from the lab. Which external IP appears in recon, brute force, the exploit AND the callbacks? Submit it as the flag."
+        },
+        "seguridad-soluciones-t03-q02": {
+          "prompt": "The exploit is a command injection in /api/v1/ping (host=127.0.0.1;id). At what time (HH:MM:SS UTC) does the ;id query land?"
+        },
+        "seguridad-soluciones-t03-q03": {
+          "prompt": "What persistence mechanism runs /tmp/.x as root every minute? Submit the /correlate flag with persistence=<mechanism>."
+        }
+      }
     }
   }
 }

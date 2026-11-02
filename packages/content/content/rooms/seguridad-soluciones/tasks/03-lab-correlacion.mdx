@@ -1,0 +1,57 @@
+---
+index: 3
+title: "Lab: correlaciona el ataque en cadena"
+questions:
+  - id: seguridad-soluciones-t03-q01
+    prompt: "Tira de /logs/firewall, /logs/auth y /logs/web del lab. ¿Qué IP externa aparece en el recon, el brute force, el exploit Y los callbacks? Envíala como flag."
+    hint: "grep 203.0.113. en las tres fuentes: la misma IP hace de scan, fuerza bruta y explotación"
+    kind: flag
+  - id: seguridad-soluciones-t03-q02
+    prompt: "El exploit es un command injection en /api/v1/ping (host=127.0.0.1;id). ¿A qué hora (HH:MM:SS UTC) llega la query con ;id?"
+    hint: "En /logs/web, la línea con ping?host=127.0.0.1;id — crúzala con la conexión ACCEPT del firewall al mismo segundo"
+    kind: text
+  - id: seguridad-soluciones-t03-q03
+    prompt: "¿Qué mecanismo de persistencia ejecuta /tmp/.x como root cada minuto? Envía la flag de /correlate con persistence=<mecanismo>."
+    hint: "cron[2901]: (root) CMD (/bin/sh /tmp/.x ...) — hay además un usuario UID 0 de regalo"
+    kind: flag
+---
+
+## De eventos a incidente
+
+Un SIEM vale por su **correlación**: cada fuente sola cuenta una historia
+aburrida; cruzadas delatan la campaña. El lab expone tres fuentes de la
+noche del 31-Oct con un ataque completo:
+
+```bash
+curl -s http://127.0.0.1:18107/logs/firewall
+curl -s http://127.0.0.1:18107/logs/auth
+curl -s http://127.0.0.1:18107/logs/web
+```
+
+## El método (pivoting)
+
+1. **Encuentra el común**: ¿qué IP aparece en las tres fuentes?
+   ```bash
+   # extrae IPs y cruza:
+   curl -s http://127.0.0.1:18107/logs/firewall | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | sort -u
+   ```
+2. **Ordena por tiempo**: recon (scan de /robots, /.env...) → brute force
+   SSH → exploit → persistencia → callbacks salientes a `185.221.9.7`.
+3. **Valida**: envía tu reconstrucción al motor:
+   ```bash
+   curl -s "http://127.0.0.1:18107/correlate?ip=<IP>&time=<HH:MM:SS>&persistence=<mecanismo>"
+   ```
+
+## Qué cuenta cada fuente
+
+| Fuente | Aporta |
+|---|---|
+| Firewall | Qué conexiones pasaron (y el scan que rebotó) |
+| Auth | Brute force, sesión aceptada, sudo, cron, useradd |
+| Web | El path exacto del exploit (command injection) |
+
+Fíjate en el detalle fino: la sesión SSH `Accepted password for deploy`
+coincide **al segundo** con la conexión ACCEPT del firewall y con la query
+inyectada del access log. Ese anclaje temporal en tres fuentes es la
+definición operativa de correlación — y lo que un analista tier-2 hace
+todo el día en Splunk/Elastic con reglas mucho más cómodas que grep.

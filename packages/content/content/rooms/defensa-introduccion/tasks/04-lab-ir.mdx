@@ -1,0 +1,71 @@
+---
+index: 4
+title: "Lab: investiga el host comprometido"
+questions:
+  - id: defensa-introduccion-t04-q01
+    prompt: "Un cron job sospechoso ejecuta /tmp/.systemd-resolved como root cada minuto. Envía la flag escondida en el comentario del crontab."
+    hint: "docker exec -it lab-incident-response-victim-1 sh → cat /etc/crontabs/root (en alpine el crontab de root vive ahí)"
+    kind: flag
+  - id: defensa-introduccion-t04-q02
+    prompt: "Hay un usuario creado por el atacante con UID 0 (segunda cuenta root). ¿Cómo se llama?"
+    hint: "awk -F: '$3 == 0 {print $1}' /etc/passwd — la flag está en su campo GECOS"
+    kind: text
+  - id: defensa-introduccion-t04-q03
+    prompt: "Un proceso disfraza su binario de kernel worker y vive en /tmp. Su configuración guarda una flag: encuéntrala."
+    hint: "ps aux | grep -v grep | grep kworker → binario /tmp/.kworker; su config está en /var/tmp/.sys/conf"
+    kind: flag
+  - id: defensa-introduccion-t04-q04
+    prompt: "Hay una conexión C2 ESTABLISHED. Conéctate tú al mismo servidor desde tu host y envía el token que te da."
+    hint: "netstat -tn dentro del contenedor muestra c2-server:4444; desde tu host: el C2 está publicado en 127.0.0.1:18108 (telnet/nc)"
+    kind: flag
+---
+
+## Primeros 15 minutos de respuesta
+
+Levanta el host comprometido y entra como el responder:
+
+```bash
+cd labs/incident-response && cp flags.env.example flags.env
+docker compose --env-file flags.env up -d
+docker exec -it lab-incident-response-victim-1 sh
+```
+
+Dentro, el playbook Triage clásico (PID: Priorizar, Identificar, Decidir):
+
+```bash
+ps aux                              # procesos: ¿alguno vive en /tmp? ¿nombre kernel falso?
+netstat -tn                         # conexiones: ¿ESTABLISHED hacia dónde?
+cat /etc/crontabs/root              # persistencia programada
+awk -F: '$3 == 0 {print $1}' /etc/passwd   # solo root debe tener UID 0
+ls -la /tmp /var/tmp                # aquí vive casi todo lo malo
+```
+
+## Los 4 artefactos clásicos
+
+1. **Cron backdoor**: los atacantes adoran cron — corre como root, cada
+   minuto, y nadie mira /etc/crontabs. Un script llamado
+   `.systemd-resolved` en /tmp pretendiendo ser un servicio del sistema.
+2. **Usuario UID 0**: una segunda cuenta con UID 0 es root con otro
+   nombre. Se crea con un solo `echo >> /etc/passwd` y sobrevive a
+   reinicios y cambios de contraseña de root.
+3. **Proceso disfrazado**: los kernel workers reales (`[kworker/...]`)
+   viven entre corchetes en `ps` y NO tienen binario en disco. Uno con
+   path en /tmp es falso por definición.
+4. **Canal C2 activo**: `netstat -tn` revela la sesión ESTABLISHED hacia
+   el servidor del atacante. Conectarte tú mismo al C2 (desde fuera) te
+   da su banner — lo que vería el implant.
+
+## Contención (el "D" de PID)
+
+```sh
+# dentro del contenedor:
+sed -i '/systemd-resolved/d' /etc/crontabs/root   # 1. matar el cron
+userdel svc-helper                                 # 2. quitar el root falso
+kill %1 2>/dev/null; rm -f /tmp/.kworker /var/tmp/.sys/conf  # 3. proceso
+# 4. aislar: docker compose stop (en la vida real: quarantine de red + rotation
+#    de TODAS las credenciales que tocó la sesión root)
+```
+
+**Regla de oro**: en un host comprometido con root, no limpies —
+**re-implanta**. Nunca sabes qué más dejó. Aquí jugamos a encontrar; allí
+se reconstruye desde imagen dorada.

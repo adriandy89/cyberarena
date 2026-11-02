@@ -1,0 +1,20 @@
+name: lab-steganography
+services:
+  web:
+    image: python:3.12-alpine
+    volumes:
+      - ./site:/site:ro
+      - assets:/assets
+    command: >
+      sh -c "cp /site/generate_assets.py /gen.py &&
+             python /gen.py &&
+             cd /assets && python -m http.server 8080 --bind 0.0.0.0"
+    environment: {FLAG_1: "${FLAG_1:?}", FLAG_2: "${FLAG_2:?}", FLAG_3: "${FLAG_3:?}"}
+    ports: ['127.0.0.1:18105:8080']
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks: [lab]
+networks: {lab: {name: lab-steganography}}
+volumes: {assets: {}}

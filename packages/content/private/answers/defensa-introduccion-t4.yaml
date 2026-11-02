@@ -1,0 +1,6 @@
+# Respuestas nuevas del room defensa-introduccion (task 4 añadida en Tier 2).
+# IMPORTANTE: flags deben coincidir con labs/incident-response/flags.env
+defensa-introduccion-t04-q01: FLAG{cron_backdoor_root}
+defensa-introduccion-t04-q02: svc-helper
+defensa-introduccion-t04-q03: FLAG{fake_kworker_process}
+defensa-introduccion-t04-q04: FLAG{c2_connection_active}

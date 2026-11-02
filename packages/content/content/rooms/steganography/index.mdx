@@ -1,0 +1,23 @@
+---
+slug: steganography
+title: "Esteganografía: datos ocultos en imágenes"
+description: "LSB en píxeles, segmentos COM de JPEG, datos tras el IEND de un PNG: tres formas de esconder y tres de encontrar."
+difficulty: easy
+type: walkthrough
+estimatedMinutes: 30
+tags:
+  - stego
+  - forense
+  - archivos
+lab: steganography-lab
+labUrl: http://127.0.0.1:18105
+---
+
+La criptografía esconde el *contenido*; la esteganografía esconde la
+*existencia* del mensaje. Un archivo cifrado grita "aquí hay algo
+secreto"; una foto de vacaciones con datos en sus píxeles susurra nada.
+
+Este room practica las tres técnicas de ocultación que más aparecen en
+CTFs y en casos reales de exfiltración, contra archivos generados por el
+lab. La herramienta estrella es la curiosidad: `strings`, `xxd`,
+`binwalk` y un script de 10 líneas bastan para todo.

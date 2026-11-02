@@ -1,0 +1,5 @@
+# Respuestas nuevas del room redes-wireshark (task 3 añadida en Tier 2).
+# IMPORTANTE: flags deben coincidir con labs/pcap-analysis/flags.env
+redes-wireshark-t03-q01: FLAG{http_basic_auth_sniffed}
+redes-wireshark-t03-q02: FLAG{ftp_cleartext_creds}
+redes-wireshark-t03-q03: FLAG{dns_tunnel_exfil}

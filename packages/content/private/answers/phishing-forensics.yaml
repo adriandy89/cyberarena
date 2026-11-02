@@ -1,0 +1,9 @@
+# Respuestas del room phishing-forensics.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/phishing-analysis/flags.env
+phishing-forensics-t01-q01: FLAG{origin_header_betrayed}
+phishing-forensics-t01-q02: "spf=none, dkim=none, dmarc=fail"
+phishing-forensics-t01-q03: FLAG{spf_plusall_bypass}
+phishing-forensics-t02-q01: FLAG{phishing_url_dissected}
+phishing-forensics-t02-q02: FLAG{malicious_attachment_named}
+phishing-forensics-t02-q03: urgencia

@@ -1,0 +1,24 @@
+---
+slug: phishing-forensics
+title: "Phishing Forensics: analiza el correo"
+description: "Headers que mienten, HELO spoofeado, SPF +all y attachments con malware: disecciona correos de phishing como un analista SOC."
+difficulty: easy
+type: walkthrough
+estimatedMinutes: 35
+tags:
+  - phishing
+  - email
+  - blue-team
+  - forense
+lab: phishing-analysis
+labUrl: http://127.0.0.1:18106
+---
+
+El phishing sigue siendo la vía de entrada #1 de los ataques reales. Y su
+análisis es una de las tareas más frecuentes de un SOC tier-1: ¿este
+correo que me reenvió un usuario es phishing o es la nómina de verdad?
+
+Este room analiza tres correos crudos (formato .eml) contra un lab que
+simula el buzón y el DNS. Dos son phishing con técnicas distintas; uno es
+legítimo. La regla de oro: **el cuerpo miente, los headers no** (bueno,
+mienten menos).

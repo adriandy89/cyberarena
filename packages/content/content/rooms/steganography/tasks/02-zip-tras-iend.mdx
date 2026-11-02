@@ -1,0 +1,62 @@
+---
+index: 2
+title: "Datos tras el IEND y archivos dobles"
+questions:
+  - id: steganography-t02-q01
+    prompt: "logo-corp.png es un PNG válido PERO pesa más de lo que debería: hay un ZIP pegado después del IEND. Extrae su contenido y envía la flag."
+    hint: "binwalk logo-corp.png → zip en offset N; o python: encontrar IEND y abrir el resto con zipfile"
+    kind: flag
+  - id: steganography-t02-q02
+    prompt: "¿Qué firma hexadecimal marca el final de un PNG (el chunk tras el cual el archivo debería terminar)?"
+    hint: "IEND — escribe los 4 caracteres ASCII"
+    kind: text
+---
+
+## El truco del archivo concatenado
+
+Un PNG bien formado termina con el chunk `IEND` (CRC incluido). Los
+decodificadores paran ahí e **ignoran todo lo que venga después**. Eso
+convierte a cualquier PNG en un sobre: pega un ZIP al final y la imagen
+se ve idéntica.
+
+```bash
+curl -O http://127.0.0.1:18105/logo-corp.png
+
+# Opción 1: binwalk detecta firmas embebidas
+binwalk logo-corp.png
+# Decimal    Hex        Description
+# 0          0x0        PNG image
+# N          0xN        Zip archive data
+
+# Opción 2: a mano con python
+python3 -c "
+import zipfile
+# zipfile lee el End of Central Directory desde el FINAL del archivo,
+# así que abre el PNG 'con zip pegado' sin recortar nada:
+z = zipfile.ZipFile('logo-corp.png')
+print(z.namelist())
+print(z.read('notas-secretas.txt').decode())
+"
+```
+
+`unzip` también lo traga: `unzip logo-corp.png` (se queja del "extra
+data at beginning" pero extrae igual).
+
+## El truco inverso: polyglots
+
+La misma idea al revés genera **archivos poliglota** (válido como dos
+formatos a la vez): GIFAR (GIF+JAR), PDF+DOC... Los scanners de
+antivirus y los validadores de upload que solo leen la cabecera se los
+comen. Por eso los uploads serios validan con el contenido completo, no
+con la extensión ni con el primer magic.
+
+## Kit de stego del analista
+
+| Herramienta | Para qué |
+|---|---|
+| `strings` / `grep` | Lo primero, siempre: texto en binarios |
+| `binwalk` | Firmas embebidas (zip, ELF, PNG anidados) |
+| `exiftool` | Metadatos EXIF/COM de imágenes |
+| `zsteg` / `stegsolve` | LSB y planos de bits (PNG/BMP) |
+| `steghide` | LSB con passphrase (JPEG/BMP/WAV) |
+| `xxd` | Cuando nada funciona: mirar los bytes |
