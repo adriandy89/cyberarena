@@ -25,6 +25,7 @@ function baseMocks() {
     },
     xpEvent: {
       create: vi.fn().mockResolvedValue({}),
+      aggregate: vi.fn().mockResolvedValue({ _sum: { amount: 30 } }),
     },
     room: {
       findUnique: vi.fn().mockResolvedValue({
@@ -47,6 +48,25 @@ describe('RoomsService.submitAnswer', () => {
   let ctx: ReturnType<typeof makeService>;
   beforeEach(() => {
     ctx = makeService();
+  });
+
+  it('reports a level-up when the awarded XP crosses a threshold', async () => {
+    // 30 XP awarded (10 + 20 bonus) taking the total from 190 to 220: NEOPHYTE -> APPRENTICE
+    ctx.mocks.xpEvent.aggregate.mockResolvedValue({ _sum: { amount: 220 } });
+    const result = await ctx.service.submitAnswer('u1', ROOM, `${ROOM}-t01-q01`, 'FLAG{ok}');
+    expect(result.level).toEqual({ before: 0, after: 1, name: 'APPRENTICE' });
+  });
+
+  it('reports the same level when no threshold is crossed', async () => {
+    const result = await ctx.service.submitAnswer('u1', ROOM, `${ROOM}-t01-q01`, 'FLAG{ok}');
+    expect(result.level).toEqual({ before: 0, after: 0, name: 'NEOPHYTE' });
+  });
+
+  it('omits the level when the XP total cannot be read', async () => {
+    ctx.mocks.xpEvent.aggregate.mockRejectedValue(new Error('db down'));
+    const result = await ctx.service.submitAnswer('u1', ROOM, `${ROOM}-t01-q01`, 'FLAG{ok}');
+    expect(result.correct).toBe(true);
+    expect(result).not.toHaveProperty('level');
   });
 
   it('rejects a wrong answer without recording anything', async () => {
@@ -97,9 +117,7 @@ describe('RoomsService.submitAnswer', () => {
   });
 
   it('ignores duplicate XP events (P2002 on XpEvent unique reason)', async () => {
-    ctx.mocks.xpEvent.create.mockRejectedValue(
-      Object.assign(new Error('dup'), { code: 'P2002' }),
-    );
+    ctx.mocks.xpEvent.create.mockRejectedValue(Object.assign(new Error('dup'), { code: 'P2002' }));
     const result = await ctx.service.submitAnswer('u1', ROOM, `${ROOM}-t01-q01`, 'FLAG{ok}');
     expect(result.correct).toBe(true);
     expect(result.xpAwarded).toBe(0); // both question and bonus collapsed
@@ -117,9 +135,9 @@ describe('RoomsService.submitAnswer', () => {
       task: { room: { slug: ROOM, type: ROOM_TYPE } },
       answers: [],
     });
-    await expect(
-      ctx.service.submitAnswer('u1', ROOM, 'q', 'x'),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    await expect(ctx.service.submitAnswer('u1', ROOM, 'q', 'x')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 });
 
@@ -134,9 +152,7 @@ describe('RoomsService.getProgress', () => {
   it('reports incomplete rooms', async () => {
     const mocks = baseMocks();
     mocks.room.findUnique.mockResolvedValue({
-      tasks: [
-        { questions: [{ id: 'a' }, { id: 'b' }] },
-      ],
+      tasks: [{ questions: [{ id: 'a' }, { id: 'b' }] }],
     });
     mocks.questionSolved.findMany.mockResolvedValue([{ questionId: 'a' }]);
     const { service } = makeService(mocks);

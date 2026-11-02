@@ -34,7 +34,7 @@
 
 ## Fase E — Respuestas con Byte
 
-- [ ] T016 [US3] API: `level { before, after }` en la respuesta de answers + tests.
+- [x] T016 [US3] API: `level { before, after }` en la respuesta de answers + tests.
 - [ ] T017 [US3,US7] Room player: reacciones de Byte, XP animada, `?task=N`, flechas,
       aria-live, errores de red visibles.
 

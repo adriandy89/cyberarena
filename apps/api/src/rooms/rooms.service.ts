@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { hashAnswer } from '@repo/database';
-import { xpForQuestion, xpForRoomCompletion, type RoomType } from '@repo/shared';
+import { getLevelForXp, xpForQuestion, xpForRoomCompletion, type RoomType } from '@repo/shared';
 import { BadgesService } from '../gamification/badges.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -9,6 +9,15 @@ export interface SubmitAnswerResult {
   alreadySolved: boolean;
   xpAwarded: number;
   roomCompleted: boolean;
+  /** Level index before/after this answer; present only when XP was awarded (spec 010). */
+  level?: LevelChange;
+}
+
+export interface LevelChange {
+  before: number;
+  after: number;
+  /** Name of the level reached (stable identifier, e.g. APPRENTICE). */
+  name: string;
 }
 
 export interface RoomProgress {
@@ -18,7 +27,9 @@ export interface RoomProgress {
 
 function isUniqueViolation(error: unknown): boolean {
   return (
-    typeof error === 'object' && error !== null && 'code' in error &&
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
     (error as { code?: unknown }).code === 'P2002'
   );
 }
@@ -123,7 +134,29 @@ export class RoomsService {
     // Badge evaluation is best-effort and never blocks the answer flow (ADR-013).
     void this.badges.evaluate(userId).catch(() => undefined);
 
-    return { correct: true, alreadySolved: false, xpAwarded, roomCompleted };
+    const level = xpAwarded > 0 ? await this.levelChange(userId, xpAwarded) : null;
+    return {
+      correct: true,
+      alreadySolved: false,
+      xpAwarded,
+      roomCompleted,
+      ...(level ? { level } : {}),
+    };
+  }
+
+  /** Best-effort: a failed XP total must never break the answer flow. */
+  private async levelChange(userId: string, gained: number): Promise<LevelChange | null> {
+    try {
+      const total = await this.prisma.xpEvent.aggregate({
+        where: { userId },
+        _sum: { amount: true },
+      });
+      const after = getLevelForXp(total._sum.amount ?? 0).level;
+      const before = getLevelForXp((total._sum.amount ?? 0) - gained).level;
+      return { before: before.index, after: after.index, name: after.name };
+    } catch {
+      return null;
+    }
   }
 
   async getProgress(userId: string, roomSlug: string): Promise<RoomProgress> {
