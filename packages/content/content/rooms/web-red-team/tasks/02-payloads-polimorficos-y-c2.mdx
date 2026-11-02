@@ -3,9 +3,18 @@ index: 2
 title: "Payloads polimórficos y C2 web"
 questions:
   - id: web-red-team-t02-q01
-    prompt: "¿Qué es un payload polimórfico?"
+    prompt: "¿Qué describe mejor un payload polimórfico?"
     hint: "Cambia su forma en cada ejecución manteniendo la funcionalidad."
-    kind: text
+    kind: choice
+    options:
+      - id: a
+        label: "Un payload cifrado una sola vez que nunca vuelve a cambiar"
+      - id: b
+        label: "Un payload que solo se ejecuta si detecta que no hay WAF"
+      - id: c
+        label: "Un payload que cambia su forma en cada ejecución sin cambiar su funcionalidad"
+      - id: d
+        label: "Un payload firmado digitalmente para evitar que lo modifiquen"
   - id: web-red-team-t02-q02
     prompt: "¿Qué protocolo de C2 se camufla dentro de tráfico HTTP legítimo?"
     hint: "Cobalt Strike / Metasploit usan HTTP/S como transporte."

