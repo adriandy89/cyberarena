@@ -1,9 +1,10 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { authClient } from '../../../lib/auth-client';
-import { useRouter } from '../../../i18n/navigation';
+import { Link, useRouter } from '../../../i18n/navigation';
+import { DashboardHero } from '../../../components/dashboard-hero';
 import { GamificationPanels } from '../../../components/gamification-panels';
 import { SecurityPanel } from '../../../components/security-panel';
 import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
@@ -61,7 +62,6 @@ export default function DashboardPage() {
   const t = useTranslations('DashboardPage');
   const nav = useTranslations('Nav');
   const router = useRouter();
-  const locale = useLocale();
   const { data: session, isPending } = authClient.useSession();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [users, setUsers] = useState<UserListItem[] | null>(null);
@@ -71,9 +71,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isPending && !session) {
-      router.replace(`/${locale}/login`);
+      // The i18n router adds the locale prefix itself.
+      router.replace('/login?next=/dashboard');
     }
-  }, [isPending, session, router, locale]);
+  }, [isPending, session, router]);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -154,33 +155,13 @@ export default function DashboardPage() {
       <Breadcrumbs items={[{ label: nav('dashboard') }]} className="mb-4" />
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
 
-      <section className="animate-fade-in mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          {t('profile')}
-        </h2>
-        <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-slate-500">{t('name')}</dt>
-            <dd className="font-medium">{me?.name ?? session.user.name}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">{t('email')}</dt>
-            <dd className="font-medium">{me?.email ?? session.user.email}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">{t('role')}</dt>
-            <dd>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-emerald-400">
-                {me?.role ?? 'STUDENT'}
-              </span>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">{t('emailVerified')}</dt>
-            <dd className="font-medium">{me ? (me.emailVerified ? t('yes') : t('no')) : '—'}</dd>
-          </div>
-        </dl>
-      </section>
+      <div className="animate-fade-in mt-6">
+        <DashboardHero
+          name={me?.name ?? session.user.name}
+          paths={overview?.paths ?? null}
+          solvedCount={overview?.totals.solvedQuestions ?? 0}
+        />
+      </div>
 
       {xp && (
         <section className="animate-fade-in mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
@@ -215,26 +196,62 @@ export default function DashboardPage() {
           <ul className="mt-4 space-y-4">
             {overview.paths.map((path) => (
               <li key={path.slug}>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-slate-200">{path.title}</span>
-                  <span className="text-xs text-slate-400">
-                    {path.roomsCompleted}/{path.roomsTotal} {t('roomsDone')} · {path.percent}%
-                  </span>
-                </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                  <div
-                    className={`h-full rounded-full ${path.percent === 100 ? 'bg-emerald-400' : 'bg-emerald-500/70'}`}
-                    style={{ width: `${path.percent}%` }}
-                  />
-                </div>
+                <Link
+                  href={`/paths/${path.slug}`}
+                  className="group -mx-2 block rounded-lg px-2 py-1.5 transition-colors hover:bg-slate-800/40"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-slate-200 group-hover:text-emerald-300">
+                      {path.title}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      {path.roomsCompleted}/{path.roomsTotal} {t('roomsDone')} · {path.percent}%
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className={`progress-smooth h-full rounded-full ${path.percent === 100 ? 'bg-emerald-400' : 'bg-emerald-500/70'}`}
+                      style={{ width: `${path.percent}%` }}
+                    />
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      <SecurityPanel />
       <GamificationPanels />
+
+      <section className="animate-fade-in mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          {t('profile')}
+        </h2>
+        <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+          <div>
+            <dt className="text-slate-500">{t('name')}</dt>
+            <dd className="font-medium">{me?.name ?? session.user.name}</dd>
+          </div>
+          <div>
+            <dt className="text-slate-500">{t('email')}</dt>
+            <dd className="font-medium">{me?.email ?? session.user.email}</dd>
+          </div>
+          <div>
+            <dt className="text-slate-500">{t('role')}</dt>
+            <dd>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-emerald-400">
+                {me?.role ?? 'STUDENT'}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-slate-500">{t('emailVerified')}</dt>
+            <dd className="font-medium">{me ? (me.emailVerified ? t('yes') : t('no')) : '—'}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <SecurityPanel />
 
       {me?.role === 'ADMIN' && (
         <section className="animate-fade-in mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">

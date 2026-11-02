@@ -30,7 +30,7 @@
 - [x] T012 [US2] Página de room: migas, contexto, anterior/siguiente, "Continúa con…".
 - [x] T013 [US2,US3] Login `?next=` seguro + 401 en room-player → Byte `point` + login.
 - [x] T014 [US6,US8] Paths: `?locale=en`, "Continuar", índice de módulos, celebración 100 %.
-- [ ] T015 [US6] Dashboard: tarjeta "Continuar" + saludo de Byte con racha.
+- [x] T015 [US6] Dashboard: tarjeta "Continuar" + saludo de Byte con racha.
 
 ## Fase E — Respuestas con Byte
 

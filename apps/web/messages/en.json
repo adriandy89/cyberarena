@@ -115,7 +115,17 @@
     "xpToNext": "{xp} XP to the next level",
     "solvedCount": "{count, plural, one {# question solved} other {# questions solved}}",
     "pathsProgress": "Progress by path",
-    "roomsDone": "rooms"
+    "roomsDone": "rooms",
+    "hello": "Hi, {name}",
+    "byteNoProgress": "You haven't started any path yet: I recommend beginning with the first one.",
+    "byteStreak": "{count, plural, one {You are on a # day streak.} other {You are on a # day streak. Don't break it!}}",
+    "byteStreakZero": "Get {required} answers right today to light up your streak.",
+    "streakShort": "Streak: {count} · best: {best}",
+    "continueTitle": "Continue where you left off",
+    "startTitle": "Your first step",
+    "continueCta": "Continue",
+    "startCta": "Start",
+    "allDone": "You completed every path! Revisit your favorite rooms or try the hacktivities."
   },
   "PathsPage": {
     "title": "Learning paths",

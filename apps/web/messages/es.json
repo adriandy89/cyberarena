@@ -115,7 +115,17 @@
     "xpToNext": "{xp} XP para el siguiente nivel",
     "solvedCount": "{count, plural, one {# pregunta resuelta} other {# preguntas resueltas}}",
     "pathsProgress": "Progreso por ruta",
-    "roomsDone": "rooms"
+    "roomsDone": "rooms",
+    "hello": "Hola, {name}",
+    "byteNoProgress": "Todavía no has empezado ninguna ruta: te recomiendo comenzar por la primera.",
+    "byteStreak": "{count, plural, one {Llevas # día de racha.} other {Llevas # días de racha. ¡No la rompas!}}",
+    "byteStreakZero": "Acierta {required} preguntas hoy para encender tu racha.",
+    "streakShort": "Racha: {count} · mejor: {best}",
+    "continueTitle": "Continuar donde lo dejaste",
+    "startTitle": "Tu primer paso",
+    "continueCta": "Continuar",
+    "startCta": "Empezar",
+    "allDone": "¡Has completado todas las rutas! Repasa tus rooms favoritos o prueba los hacktivities."
   },
   "PathsPage": {
     "title": "Rutas de aprendizaje",
