@@ -29,6 +29,8 @@ export interface ByteBubbleProps {
   typing?: boolean;
   /** Announce the text politely to assistive tech. */
   live?: boolean;
+  /** Hide the text from assistive tech (when an outer live region already announces it). */
+  textHidden?: boolean;
   className?: string;
   children?: React.ReactNode;
 }
@@ -40,6 +42,7 @@ export function ByteBubble({
   tail = 'left',
   typing = false,
   live = false,
+  textHidden = false,
   className,
   children,
 }: ByteBubbleProps) {
@@ -57,14 +60,16 @@ export function ByteBubble({
         aria-hidden="true"
         className={cn('absolute h-3 w-3 rotate-45 bg-slate-900', TONE_CLASSES[tone], TAIL_CLASSES[tail])}
       />
-      {typing ? <TypedText key={text} text={text} /> : <span>{text}</span>}
+      <span aria-hidden={textHidden || undefined}>
+        {typing ? <TypedText key={text} text={text} srCopy={!textHidden} /> : text}
+      </span>
       {children ? <div className="mt-3 flex flex-wrap gap-2">{children}</div> : null}
     </div>
   );
 }
 
 /** Reveals text progressively in ~1s; screen readers get the full text at once. */
-function TypedText({ text }: { text: string }) {
+function TypedText({ text, srCopy }: { text: string; srCopy: boolean }) {
   const reduced = usePrefersReducedMotion();
   const [count, setCount] = useState(0);
 
@@ -84,7 +89,7 @@ function TypedText({ text }: { text: string }) {
   if (reduced) return <span>{text}</span>;
   return (
     <>
-      <span className="sr-only">{text}</span>
+      {srCopy ? <span className="sr-only">{text}</span> : null}
       <span aria-hidden="true">
         {text.slice(0, count)}
         {count < text.length ? <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-emerald-400/70 align-middle" /> : null}

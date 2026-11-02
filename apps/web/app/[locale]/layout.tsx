@@ -4,6 +4,8 @@ import { GeistSans } from 'geist/font/sans';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { ByteCompanion } from '../../components/byte/byte-companion';
+import { ByteProvider } from '../../components/byte/byte-provider';
 import { routing } from '../../i18n/routing';
 import '../globals.css';
 
@@ -40,7 +42,12 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <ByteProvider>
+            {children}
+            <ByteCompanion />
+          </ByteProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
