@@ -1,7 +1,9 @@
 # Secrets de producción (compose secrets)
 
-Crea estos archivos (NO se commitean — .gitignore cubre la carpeta; en Linux `chmod 600`,
-en Windows NTFS los permisos POSIX no aplican — protégelo con ACLs del directorio):
+Crea estos archivos (NO se commitean — .gitignore cubre la carpeta). En Linux: **carpeta 700 y
+ficheros 644** — compose monta cada secreto con sus permisos del host y la api corre como uid 10001,
+así que un fichero 600 de tu usuario sería ilegible para ella; la carpeta 700 impide que otros usuarios
+del host lleguen a ellos. En Windows NTFS los permisos POSIX no aplican — protégela con ACLs:
 
 ```bash
 cd infra/stacks/prod/secrets
@@ -15,7 +17,8 @@ openssl rand -base64 32 | tr -d '\r\n=+/' > better_auth_secret
 printf 'TuPasswordInicial-12345' > bootstrap_admin_password
 # Token compartido api <-> lab-runner (fase 011, ADR-015).
 openssl rand -hex 32 | tr -d '\r\n' > lab_runner_token
-chmod 600 postgres_password better_auth_secret bootstrap_admin_password lab_runner_token
+chmod 644 postgres_password better_auth_secret bootstrap_admin_password lab_runner_token
+chmod 700 .   # la carpeta: solo tu usuario
 ```
 
 Comprueba todo antes de desplegar: `bash infra/scripts/prod-preflight.sh`.

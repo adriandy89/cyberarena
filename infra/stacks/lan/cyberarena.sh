@@ -36,7 +36,15 @@ new_secret() {
   local file="$STACK_DIR/secrets/$1" value="$2"
   [ -s "$file" ] && return 1
   printf '%s' "$value" > "$file"
-  chmod 600 "$file"
+}
+
+# Compose secrets are bind-mounted with their host permissions: the api runs as
+# uid 10001 and must read them, so files are 644 and the folder 700 (no other
+# host user can reach them).
+fix_permissions() {
+  chmod 700 "$STACK_DIR/secrets" "$STACK_DIR/backups"
+  chmod 644 "$STACK_DIR"/secrets/* 2>/dev/null || true
+  chmod 600 "$STACK_DIR/.env"
 }
 
 cmd_init() {
@@ -64,6 +72,7 @@ cmd_init() {
     echo
   fi
   bash "$REPO_DIR/infra/scripts/lab-flags.sh" "$STACK_DIR/lab-flags"
+  fix_permissions
 }
 
 cmd_preflight() {
@@ -75,6 +84,7 @@ cmd_preflight() {
     local f="$STACK_DIR/secrets/$name"
     if [ ! -s "$f" ]; then bad "secrets/$name missing (./cyberarena.sh init)"; continue; fi
     if [ "$(tr -cd '\r' < "$f" | wc -c)" != 0 ]; then bad "secrets/$name contains a carriage return"; continue; fi
+    if [ "$(stat -c %a "$f")" != 644 ]; then bad "secrets/$name must be 644 (./cyberarena.sh init fixes it)"; continue; fi
     ok "secrets/$name"
   done
   if tr -d '\n' < "$STACK_DIR/secrets/postgres_password" 2>/dev/null | grep -q '[^A-Za-z0-9]'; then
@@ -120,6 +130,7 @@ cmd_up() {
 cmd_update() {
   git -C "$REPO_DIR" pull --ff-only
   bash "$REPO_DIR/infra/scripts/lab-flags.sh" "$STACK_DIR/lab-flags"
+  fix_permissions
   cmd_up
 }
 

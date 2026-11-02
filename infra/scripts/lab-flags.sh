@@ -25,7 +25,11 @@ for dir in "$root"/labs/*/; do
     continue
   fi
   cp "$src" "$out/$slug.env"
-  chmod 600 "$out/$slug.env" 2>/dev/null || true
   count=$((count + 1))
 done
+# Readable by the lab-runner, which runs as root WITHOUT capabilities (no
+# DAC_OVERRIDE): 600 files or a 700 folder of another user stay unreadable on
+# Linux. The flags are in git anyway (flags.env.example).
+chmod 755 "$out" 2>/dev/null || true
+chmod 644 "$out"/*.env 2>/dev/null || true
 echo "lab flags: $count file(s) in $out"
