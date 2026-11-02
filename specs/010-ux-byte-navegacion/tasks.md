@@ -66,7 +66,7 @@
 - [ ] T902 DEUDA (contenido, fuera de 010): ningún room tiene traducido al inglés el **cuerpo** de sus
       tareas (`translations/en/*.json` solo trae título, descripción y preguntas), así que `/en` muestra la
       teoría en español en los 59 rooms. Requiere una fase de contenido propia.
-- [ ] T903 DEUDA (contenido): exfiltración DNS explicada en `detection-evasion` y en `data-exfiltration`
+- [x] T903 DEUDA (contenido): exfiltración DNS explicada en `detection-evasion` y en `data-exfiltration`
       (ahora en el mismo módulo `red-team-ops`): recortar el solapamiento.
-- [ ] T904 DEUDA (contenido): Burp Suite se introduce en `web-hacking-basico`, `herramientas-ofensivas`
+- [x] T904 DEUDA (contenido): Burp Suite se introduce en `web-hacking-basico`, `herramientas-ofensivas`
       (texto) y `burp-suite-pro`: dejar el primero como introducción y enlazar en vez de repetir.

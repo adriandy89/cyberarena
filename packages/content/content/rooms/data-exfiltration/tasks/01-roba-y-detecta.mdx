@@ -27,9 +27,10 @@ c1-knauyrktfvdfsmrxfveu.exfil.example    ← chunk 1
 c2-4vcfkjhectbnj5heywi.exfil.example     ← chunk 2
 ```
 
-El servidor autoritativo de `exfil.example` (el atacante) recibe la
-"consulta", decodifica el label y reensambla. Herramientas reales:
-`dnscat2`, `iodine`, o scripts propios como el que vas a escribir.
+En el room anterior viste la idea con una sola consulta; aquí la haces
+completa: el servidor autoritativo de `exfil.example` (el atacante) recibe
+cada "consulta", decodifica su label y **reensambla** el secreto en orden.
+`dnscat2` o `iodine` lo automatizan; tú vas a escribir tu propio script.
 
 ## El ataque, paso a paso
 

