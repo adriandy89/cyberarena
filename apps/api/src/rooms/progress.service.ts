@@ -112,7 +112,9 @@ export class ProgressService {
   private allQuestionIds(paths: Array<{ modules: Array<{ rooms: RoomShape[] }> }>): string[] {
     return paths.flatMap((path) =>
       path.modules.flatMap((module) =>
-        module.rooms.flatMap((room) => room.tasks.flatMap((task) => task.questions.map((q) => q.id))),
+        module.rooms.flatMap((room) =>
+          room.tasks.flatMap((task) => task.questions.map((q) => q.id)),
+        ),
       ),
     );
   }
@@ -138,11 +140,19 @@ export class ProgressService {
         }
       }
     }
-    return [solvedQuestions, totalQuestions, roomsCompleted, path.modules.reduce((sum, m) => sum + m.rooms.length, 0)];
+    return [
+      solvedQuestions,
+      totalQuestions,
+      roomsCompleted,
+      path.modules.reduce((sum, m) => sum + m.rooms.length, 0),
+    ];
   }
 
   private summarizePath(path: PathShape, solved: Set<string>) {
-    const [solvedQuestions, totalQuestions, roomsCompleted, roomsTotal] = this.pathCounts(path, solved);
+    const [solvedQuestions, totalQuestions, roomsCompleted, roomsTotal] = this.pathCounts(
+      path,
+      solved,
+    );
     return {
       slug: path.slug,
       title: path.title,

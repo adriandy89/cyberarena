@@ -14,7 +14,7 @@ function baseMocks() {
       findUnique: vi.fn().mockResolvedValue({
         id: `${ROOM}-t01-q01`,
         task: { room: { slug: ROOM, type: ROOM_TYPE } },
-        answers: [{ answerHash: hashAnswer('FLAG{ok}') }],
+        answers: [{ answerHash: hashAnswer('FLAG{ok}'), altHashes: [hashAnswer('FLAG{alt}')] }],
       }),
     },
     questionSolved: {
@@ -67,6 +67,11 @@ describe('RoomsService.submitAnswer', () => {
     const result = await ctx.service.submitAnswer('u1', ROOM, `${ROOM}-t01-q01`, 'FLAG{ok}');
     expect(result.correct).toBe(true);
     expect(result).not.toHaveProperty('level');
+  });
+
+  it('accepts any stored alternative answer (spec 107)', async () => {
+    const result = await ctx.service.submitAnswer('u1', ROOM, `${ROOM}-t01-q01`, ' flag{ALT} ');
+    expect(result.correct).toBe(true);
   });
 
   it('rejects a wrong answer without recording anything', async () => {

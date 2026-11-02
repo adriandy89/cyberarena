@@ -69,9 +69,10 @@ async function main(): Promise<void> {
   const catalog = JSON.parse(
     await readFile(path.join(CONTENT_DIST, 'catalog.json'), 'utf8'),
   ) as CatalogFile;
+  // Accepted answers per question; the first one is canonical (spec 107).
   const answers = JSON.parse(
     await readFile(path.join(CONTENT_DIST, 'answers.json'), 'utf8'),
-  ) as Record<string, string>;
+  ) as Record<string, string[]>;
 
   const prisma = createPrismaClient();
   const stats = { paths: 0, modules: 0, rooms: 0, tasks: 0, questions: 0, deleted: 0 };
@@ -186,14 +187,16 @@ async function main(): Promise<void> {
                   index: questionIndex,
                 },
               });
+              const [canonical = '', ...alternatives] = answers[question.id] ?? [];
+              const answerData = {
+                answerHash: hashAnswer(canonical),
+                altHashes: alternatives.map(hashAnswer),
+                kind: question.kind,
+              };
               await prisma.answer.upsert({
                 where: { questionId: question.id },
-                create: {
-                  questionId: question.id,
-                  answerHash: hashAnswer(answers[question.id] ?? ''),
-                  kind: question.kind,
-                },
-                update: { answerHash: hashAnswer(answers[question.id] ?? ''), kind: question.kind },
+                create: { questionId: question.id, ...answerData },
+                update: answerData,
               });
               stats.questions++;
             }

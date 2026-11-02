@@ -175,6 +175,8 @@ model Answer {
   questionId String   @id
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   answerHash String
+  /// Hashes of the other accepted answers (ES/EN variants, synonyms); spec 107.
+  altHashes  String[] @default([])
   kind       String
 
   @@map("Answer")

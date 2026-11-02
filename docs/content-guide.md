@@ -77,7 +77,16 @@ Guía MDX de la tarea...
 ```yaml
 mi-room-t01-q01: respuesta exacta        # se compara normalizada, case-insensitive
 mi-room-t01-q02: a                       # el id de la opción correcta
+mi-room-t01-q03:                         # varias aceptadas (fase 107): la primera es la canónica
+  - regla de compromiso
+  - reglas de compromiso
+  - rules of engagement                  # el equivalente inglés para quien estudia en /en
 ```
+
+**Preguntas justas** (fase 107): si la respuesta es un concepto que se explica con una frase,
+pregúntalo como `choice`; una pregunta `text` debe pedir un término corto, un comando o un valor,
+con sus variantes razonables (ES/EN, plural, sin tildes) como lista. El build avisa de las
+respuestas de texto de 4+ palabras en lenguaje natural.
 
 ## Reglas (validadas en build — `pnpm --filter @repo/content build`)
 

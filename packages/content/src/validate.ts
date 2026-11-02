@@ -9,7 +9,7 @@ export interface ValidationIssue {
 /** All cross-references and answer coverage rules (pure, unit tested). */
 export function validateCatalog(
   catalog: Catalog,
-  answers: Record<string, string>,
+  answers: Record<string, string[]>,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const roomBySlug = new Map<string, CompiledRoom>();
@@ -87,17 +87,60 @@ export function validateCatalog(
   for (const room of roomBySlug.values()) {
     for (const task of room.tasks) {
       for (const question of task.questions) {
-        if (question.kind === 'flag' && !isFlag(answers[question.id] ?? '')) {
-          issues.push({
-            source: `answers:${question.id}`,
-            message: `flag answer must match FLAG{...}, got '${answers[question.id]}'`,
-          });
+        const accepted = answers[question.id] ?? [];
+        if (question.kind === 'flag') {
+          for (const value of accepted.filter((candidate) => !isFlag(candidate))) {
+            issues.push({
+              source: `answers:${question.id}`,
+              message: `flag answer must match FLAG{...}, got '${value}'`,
+            });
+          }
+        }
+        if (question.kind === 'choice') {
+          const optionIds = new Set(question.options.map((option) => option.id));
+          for (const value of accepted.filter((candidate) => !optionIds.has(candidate))) {
+            issues.push({
+              source: `answers:${question.id}`,
+              message: `choice answer '${value}' is not one of its options (${[...optionIds].join(', ')})`,
+            });
+          }
         }
       }
     }
   }
 
   return issues;
+}
+
+/** Commands and technical literals: these legitimately run to several words. */
+const LITERAL_HINT = /[-/|.=$:'"<>{}[\]()_*\\]|\d/;
+
+/**
+ * Non-blocking answer checks (spec 107): a text answer that is a natural-
+ * language phrase of 4+ words is nearly impossible to type exactly; ask it as
+ * a choice question or accept a short term with alternatives instead.
+ */
+export function answerWarnings(catalog: Catalog, answers: Record<string, string[]>): string[] {
+  const warnings: string[] = [];
+  for (const path of catalog.paths) {
+    for (const module of path.modules) {
+      for (const room of module.rooms) {
+        for (const task of room.tasks) {
+          for (const question of task.questions) {
+            if (question.kind !== 'text') continue;
+            const canonical = answers[question.id]?.[0] ?? '';
+            const words = canonical.trim().split(/\s+/).length;
+            if (words >= 4 && !LITERAL_HINT.test(canonical)) {
+              warnings.push(
+                `answers:${question.id}: phrase answer (${words} words) '${canonical}'`,
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+  return warnings;
 }
 
 /**

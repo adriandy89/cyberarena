@@ -60,18 +60,21 @@ export class RoomsService {
           select: { room: { select: { slug: true, type: true } } },
         },
         // one Answer row per question (questionId is its PK)
-        answers: { select: { answerHash: true } },
+        answers: { select: { answerHash: true, altHashes: true } },
       },
     });
     if (!question || question.task.room.slug !== roomSlug) {
       throw new NotFoundException('question not found in this room');
     }
-    const answerHash = question.answers[0]?.answerHash;
-    if (!answerHash) {
+    const stored = question.answers[0];
+    if (!stored?.answerHash) {
       throw new NotFoundException('answer missing for question (re-run pnpm db:seed)');
     }
 
-    const correct = hashAnswer(submittedAnswer) === answerHash;
+    // Any accepted alternative counts (ES/EN variants; spec 107).
+    const submittedHash = hashAnswer(submittedAnswer);
+    const correct =
+      submittedHash === stored.answerHash || (stored.altHashes ?? []).includes(submittedHash);
     if (!correct) {
       return { correct: false, alreadySolved: false, xpAwarded: 0, roomCompleted: false };
     }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Catalog, CompiledRoom } from './schemas';
-import { orderWarnings, validateCatalog } from './validate';
+import { answerWarnings, orderWarnings, validateCatalog } from './validate';
 
 function room(
   slug: string,
@@ -53,12 +53,12 @@ function catalogWith(rooms: CompiledRoom[]): Catalog {
   };
 }
 
-function answersFor(rooms: CompiledRoom[]): Record<string, string> {
-  const answers: Record<string, string> = {};
+function answersFor(rooms: CompiledRoom[]): Record<string, string[]> {
+  const answers: Record<string, string[]> = {};
   for (const r of rooms) {
     for (const task of r.tasks) {
       for (const question of task.questions) {
-        answers[question.id] = 'FLAG{ok}';
+        answers[question.id] = ['FLAG{ok}'];
       }
     }
   }
@@ -82,13 +82,13 @@ describe('validateCatalog', () => {
 
   it('detects orphan answers', () => {
     const rooms = [room('linux-1')];
-    const issues = validateCatalog(catalogWith(rooms), { 'ghost-t01-q01': 'FLAG{x}' });
+    const issues = validateCatalog(catalogWith(rooms), { 'ghost-t01-q01': ['FLAG{x}'] });
     expect(issues.some((i) => i.message.includes('orphan answer'))).toBe(true);
   });
 
   it('detects malformed flag answers', () => {
     const rooms = [room('linux-1')];
-    const issues = validateCatalog(catalogWith(rooms), { 'linux-1-t01-q0q': 'no-braces' });
+    const issues = validateCatalog(catalogWith(rooms), { 'linux-1-t01-q0q': ['no-braces'] });
     expect(issues.some((i) => i.message.includes('must match FLAG{...}'))).toBe(true);
   });
 
@@ -120,8 +120,68 @@ describe('validateCatalog', () => {
         ],
       },
     ];
-    const issues = validateCatalog(catalogWith(rooms), { 'other-room-t01-q01': 'FLAG{x}' });
+    const issues = validateCatalog(catalogWith(rooms), { 'other-room-t01-q01': ['FLAG{x}'] });
     expect(issues.some((i) => i.message.includes("id must start with 'linux-1-t'"))).toBe(true);
+  });
+});
+
+describe('answer alternatives', () => {
+  const choiceRoom = (): CompiledRoom => ({
+    ...room('crypto-1'),
+    tasks: [
+      {
+        index: 1,
+        title: 'Task 1',
+        body: 'guide body',
+        questions: [
+          {
+            id: 'crypto-1-t01-q01',
+            prompt: 'Pick one',
+            hint: null,
+            kind: 'choice' as const,
+            options: [
+              { id: 'a', label: 'One' },
+              { id: 'b', label: 'Two' },
+            ],
+          },
+          { id: 'crypto-1-t01-q02', prompt: 'Name it', hint: null, kind: 'text' as const },
+        ],
+      },
+    ],
+  });
+
+  it('accepts lists of alternatives and choice answers that are option ids', () => {
+    const issues = validateCatalog(catalogWith([choiceRoom()]), {
+      'crypto-1-t01-q01': ['b'],
+      'crypto-1-t01-q02': ['efecto avalancha', 'avalanche effect'],
+    });
+    expect(issues).toEqual([]);
+  });
+
+  it('rejects a choice answer that is not one of the options', () => {
+    const issues = validateCatalog(catalogWith([choiceRoom()]), {
+      'crypto-1-t01-q01': ['z'],
+      'crypto-1-t01-q02': ['x'],
+    });
+    expect(issues.some((i) => i.message.includes("choice answer 'z'"))).toBe(true);
+  });
+
+  it('checks every alternative of a flag question', () => {
+    const issues = validateCatalog(catalogWith([room('linux-1')]), {
+      'linux-1-t01-q0q': ['FLAG{ok}', 'not-a-flag'],
+    });
+    expect(issues.some((i) => i.message.includes("got 'not-a-flag'"))).toBe(true);
+  });
+
+  it('warns about phrase answers but not about commands', () => {
+    const catalog = catalogWith([choiceRoom()]);
+    expect(
+      answerWarnings(catalog, { 'crypto-1-t01-q02': ['un valor aleatorio antes del retorno'] }),
+    ).toHaveLength(1);
+    expect(answerWarnings(catalog, { 'crypto-1-t01-q02': ['nmap -sV -p 80 10.0.0.1'] })).toEqual(
+      [],
+    );
+    expect(answerWarnings(catalog, { 'crypto-1-t01-q02': ['efecto avalancha'] })).toEqual([]);
   });
 });
 

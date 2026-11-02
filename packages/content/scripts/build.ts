@@ -16,7 +16,12 @@ import {
   type ModuleJson,
   type PathJson,
 } from '../src/schemas';
-import { orderWarnings, validateCatalog, type ValidationIssue } from '../src/validate';
+import {
+  answerWarnings,
+  orderWarnings,
+  validateCatalog,
+  type ValidationIssue,
+} from '../src/validate';
 import { sortPathsByOrder } from '../src/catalog-order';
 import {
   applyCatalogTranslation,
@@ -116,18 +121,24 @@ async function main(): Promise<void> {
 
   // --- private answers (yaml) ---
   const answerFiles = await fg('answers/*.yaml', { cwd: PRIVATE, absolute: true });
-  const answers: Record<string, string> = {};
+  // A value is one accepted answer or a list of them (spec 107); the first is canonical.
+  const answers: Record<string, string[]> = {};
   for (const file of answerFiles) {
     const parsed = parseYaml(await readFile(file, 'utf8')) as Record<string, unknown>;
     for (const [questionId, answer] of Object.entries(parsed)) {
-      if (typeof answer !== 'string') {
+      const accepted = typeof answer === 'string' ? [answer] : answer;
+      if (
+        !Array.isArray(accepted) ||
+        accepted.length === 0 ||
+        !accepted.every((value) => typeof value === 'string' && value.trim() !== '')
+      ) {
         parseErrors.push({
           file: path.relative(ROOT, file),
-          message: `answer for '${questionId}' must be a string`,
+          message: `answer for '${questionId}' must be a string or a non-empty list of strings`,
         });
         continue;
       }
-      answers[questionId] = answer;
+      answers[questionId] = accepted as string[];
     }
   }
 
@@ -215,10 +226,10 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // Ordering problems are warnings: they never block a build, but stay visible.
-  const warnings = orderWarnings(catalog);
+  // Ordering/answer problems are warnings: they never block a build, but stay visible.
+  const warnings = [...orderWarnings(catalog), ...answerWarnings(catalog, answers)];
   if (warnings.length > 0) {
-    console.warn(`content build: ${warnings.length} ordering warning(s):`);
+    console.warn(`content build: ${warnings.length} warning(s):`);
     for (const warning of warnings) console.warn(`  ! ${warning}`);
   }
 
