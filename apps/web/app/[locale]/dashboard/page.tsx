@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { authClient } from '../../../lib/auth-client';
 import { Link, useRouter } from '../../../i18n/navigation';
+import { AdminLabsPanel } from '../../../components/admin-labs-panel';
 import { DashboardHero } from '../../../components/dashboard-hero';
 import { useLevelName } from '../../../components/level-name';
 import { GamificationPanels } from '../../../components/gamification-panels';
@@ -297,6 +298,8 @@ export default function DashboardPage() {
           )}
         </section>
       )}
+
+      {me?.role === 'ADMIN' && <AdminLabsPanel />}
     </div>
   );
 }

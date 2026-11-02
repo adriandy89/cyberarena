@@ -10,6 +10,15 @@ interface HealthResponse {
   db: 'up' | 'down';
   latencyMs: number;
   timestamp: string;
+  /** Labs on demand (phase 011). */
+  labs?: {
+    enabled: boolean;
+    runner: 'up' | 'down' | 'disabled';
+    running: number | null;
+    lastSweepAt: string | null;
+    sweepOk: boolean | null;
+    stale: boolean;
+  };
 }
 
 // Same-origin relative path: Next's /api rewrite proxies to the API (ADR-008).
@@ -88,6 +97,26 @@ export default function StatusPage() {
             {health ? (health.db === 'up' ? t('dbUp') : t('dbDown')) : '—'}
           </span>
         </div>
+
+        {health?.labs?.enabled ? (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
+            <span className="flex items-center gap-2 font-medium">
+              <StatusDot up={health.labs.runner === 'up' && !health.labs.stale && health.labs.sweepOk !== false} />{' '}
+              {t('labsLabel')}
+            </span>
+            <span
+              className={`text-right text-sm ${
+                health.labs.runner === 'up' && !health.labs.stale ? 'text-emerald-400' : 'text-red-400'
+              }`}
+            >
+              {health.labs.runner === 'down'
+                ? t('labsDown')
+                : health.labs.stale || health.labs.sweepOk === false
+                  ? t('labsStale')
+                  : t('labsUp', { count: health.labs.running ?? 0 })}
+            </span>
+          </div>
+        ) : null}
 
         <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/50 p-4 text-sm text-slate-400">
           <span>{t('latency')}</span>

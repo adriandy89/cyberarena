@@ -53,7 +53,11 @@
     "loading": "Consultando…",
     "byteChecking": "Escaneando los servicios…",
     "byteHealthy": "Todo en verde: API y base de datos responden.",
-    "byteDown": "Algo no responde. Revisa los contenedores y el runbook."
+    "byteDown": "Algo no responde. Revisa los contenedores y el runbook.",
+    "labsLabel": "Laboratorios",
+    "labsUp": "{count, plural, =0 {Operativos} one {Operativos · # en marcha} other {Operativos · # en marcha}}",
+    "labsDown": "Servicio de labs caído",
+    "labsStale": "Revisión periódica detenida"
   },
   "NotFoundPage": {
     "title": "Página no encontrada",
@@ -544,5 +548,35 @@
     "ASCENDED": "Ascendido",
     "MYTHIC": "Mítico",
     "GRANDMASTER": "Gran maestro"
+  },
+  "AdminLabs": {
+    "title": "Laboratorios (admin)",
+    "refresh": "Actualizar",
+    "loadFailed": "No se pudo cargar el estado de los labs.",
+    "enabled": "Bajo demanda",
+    "yes": "Activados",
+    "no": "Desactivados",
+    "runner": "Runner",
+    "runnerState": {
+      "up": "Responde",
+      "down": "Caído",
+      "disabled": "Desactivado"
+    },
+    "running": "En marcha",
+    "lastSweep": "Último barrido",
+    "stale": "detenido",
+    "sweepSummary": "Último barrido: {expired} reserva(s) caducada(s); apagados: {stopped}; reservados sin correr: {notRunning}.",
+    "inUse": "En uso",
+    "none": "Ningún laboratorio en marcha.",
+    "stop": "Detener",
+    "seen": "último latido {time}",
+    "until": "hasta {time}",
+    "noLease": "Sin reservas: el runner lo apagará al vencer su plazo.",
+    "stopAll": "Detener todos",
+    "confirmAll": "¿Seguro? Se cortan todas las sesiones de laboratorio.",
+    "confirm": "Sí, detener todo",
+    "cancel": "Cancelar",
+    "events": "Últimos eventos",
+    "noEvents": "Sin eventos todavía."
   }
 }

@@ -53,7 +53,11 @@
     "loading": "Checking…",
     "byteChecking": "Scanning services…",
     "byteHealthy": "All green: the API and the database are responding.",
-    "byteDown": "Something is not responding. Check the containers and the runbook."
+    "byteDown": "Something is not responding. Check the containers and the runbook.",
+    "labsLabel": "Labs",
+    "labsUp": "{count, plural, =0 {Operational} one {Operational · # running} other {Operational · # running}}",
+    "labsDown": "Lab service down",
+    "labsStale": "Periodic review stalled"
   },
   "NotFoundPage": {
     "title": "Page not found",
@@ -544,5 +548,35 @@
     "ASCENDED": "Ascended",
     "MYTHIC": "Mythic",
     "GRANDMASTER": "Grandmaster"
+  },
+  "AdminLabs": {
+    "title": "Labs (admin)",
+    "refresh": "Refresh",
+    "loadFailed": "Could not load the labs status.",
+    "enabled": "On demand",
+    "yes": "Enabled",
+    "no": "Disabled",
+    "runner": "Runner",
+    "runnerState": {
+      "up": "Responding",
+      "down": "Down",
+      "disabled": "Disabled"
+    },
+    "running": "Running",
+    "lastSweep": "Last sweep",
+    "stale": "stalled",
+    "sweepSummary": "Last sweep: {expired} lease(s) expired; stopped: {stopped}; leased but not running: {notRunning}.",
+    "inUse": "In use",
+    "none": "No lab is running.",
+    "stop": "Stop",
+    "seen": "last heartbeat {time}",
+    "until": "until {time}",
+    "noLease": "No leases: the runner will stop it when its deadline passes.",
+    "stopAll": "Stop all",
+    "confirmAll": "Sure? Every lab session will end.",
+    "confirm": "Yes, stop everything",
+    "cancel": "Cancel",
+    "events": "Latest events",
+    "noEvents": "No events yet."
   }
 }
