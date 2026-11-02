@@ -10,19 +10,29 @@
 - [x] T003 [US2] Respuestas con alternativas: YAML lista → `answers.json` string[], migración
       `Answer.altHashes`, seed, API acepta cualquiera, validador de `choice` + tests.
 
-## Fase B — Contenido (por lotes de rooms, sin solaparse)
+## Fase B — Contenido (8 lotes de rooms sin solaparse; cada lote: teoría/pistas/opciones EN + respuestas justas)
 
-- [ ] T004 [US1,US2] Lote 1 (CS101 I): teoría/pistas/opciones EN + respuestas justas.
-- [ ] T005 [US1,US2] Lote 2 (CS101 II).
-- [ ] T006 [US1,US2] Lote 3 (CS101 III).
-- [ ] T007 [US1,US2] Lote 4 (JrPT).
-- [ ] T008 [US1,US2] Lote 5 (WebApp).
-- [ ] T009 [US1,US2] Lote 6 (Advanced + rooms restantes).
+- [ ] T004 [US1,US2] Lote CS101-I: intro-ciberseguridad-ofensiva, recon-web-basico, linux-fundamentos-1/2/3,
+      redes-fundamentos, seguridad-wireless, redes-wireshark, windows-fundamentos-1.
+- [ ] T005 [US1,US2] Lote CS101-II: active-directory-basico, linea-de-comandos-windows, criptografia-basica,
+      steganography, criptografia-pki, web-hacking-basico, owasp-top-10, explotacion-basica, reverse-engineering.
+- [ ] T006 [US1,US2] Lote CS101-III: herramientas-ofensivas, defensa-introduccion, phishing-forensics,
+      threat-modeling, seguridad-soluciones, herramientas-defensivas, malware-analysis, ciberseguridad-como-carrera.
+- [ ] T007 [US1,US2] Lote JrPT-A: pentest-foundations, recon-pasivo-osint, social-engineering,
+      recon-activo-escaneo, nmap-pro, burp-suite-pro.
+- [ ] T008 [US1,US2] Lote JrPT-B: scripting-pentest, privesc-linux, privesc-windows, password-attacks,
+      pivoting-y-tunneling, active-directory-ataque.
+- [ ] T009 [US1,US2] Lote WebApp-A: sqli-basico, xss-reflejado, ssrf-basico, command-injection, file-upload,
+      log-forging.
+- [ ] T010 [US1,US2] Lote WebApp-B: auth-bypass, jwt-security, session-security, race-condition, api-security,
+      graphql-security, websocket-security, mobile-security.
+- [ ] T011 [US1,US2] Lote Advanced: web-red-team, ad-avanzado, detection-evasion, data-exfiltration,
+      containers-y-cloud, ai-llm-exploitation, binary-exploitation.
 
 ## Fase C — Cierre
 
-- [ ] T010 [US3] Cobertura EN obligatoria en el build; E2E `/en` (teoría en inglés y respuesta
-      alternativa aceptada); verificación completa; changelog; ROADMAP.
+- [ ] T012 [US3] Cobertura EN obligatoria en el build (`--strict-en` por defecto); E2E `/en` (teoría en
+      inglés y respuesta alternativa aceptada); verificación completa; changelog; ROADMAP.
 
 ## Bugs/Deuda
 
