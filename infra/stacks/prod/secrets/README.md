@@ -27,3 +27,10 @@ chmod 600 postgres_password better_auth_secret bootstrap_admin_password lab_runn
 
 Los secretos de compose se montan como archivos en el contenedor: no aparecen en
 `docker inspect` del servicio ni en el yaml.
+
+**Sin `` (fase 012).** Créalos desde Git Bash con los comandos de arriba, no con el Bloc de notas
+ni con `echo` de PowerShell: la imagen de Postgres lee `postgres_password` quitando el salto final
+pero NO un ``, así que guardaría una contraseña distinta de la que usa la API. El entrypoint de la
+API tolera `
+`, Postgres no. `bash infra/scripts/prod-preflight.sh` lo comprueba (sin mostrar
+los valores) y `tr -d '' < f > f.tmp && mv f.tmp f` lo corrige.
