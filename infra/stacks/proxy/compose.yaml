@@ -1,5 +1,6 @@
 # CyberArena — reverse proxy stack (bring up BEFORE the prod stack).
-#   docker compose --project-directory . -f infra/stacks/proxy/compose.yaml --env-file infra/stacks/proxy/.env up -d
+# From the repository root (paths below resolve from infra/stacks/proxy):
+#   docker compose --project-directory infra/stacks/proxy -f infra/stacks/proxy/compose.yaml --env-file infra/stacks/proxy/.env up -d
 name: cyberarena-proxy
 
 services:
@@ -19,6 +20,13 @@ services:
     cap_drop: [ALL]
     cap_add: [NET_BIND_SERVICE, CHOWN, SETUID, SETGID, DAC_OVERRIDE]
     security_opt: [no-new-privileges:true]
+    # Caddy's admin API answers on loopback inside the container.
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1:2019/config/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
     networks: [proxy]
 
