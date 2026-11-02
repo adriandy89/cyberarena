@@ -93,8 +93,46 @@ describe('CatalogService', () => {
     });
 
     it('throws NotFound for unknown rooms', async () => {
-      service = new CatalogService(mockPrisma({ room: { findUnique: vi.fn().mockResolvedValue(null) } }));
+      service = new CatalogService(
+        mockPrisma({ room: { findUnique: vi.fn().mockResolvedValue(null) } }),
+      );
       await expect(service.getRoom('nope')).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('getRoomContext', () => {
+    const tree = [
+      {
+        slug: 'cs101',
+        title: 'CS101',
+        level: 'beginner',
+        modules: [
+          {
+            slug: 'm1',
+            title: 'M1',
+            rooms: [
+              { slug: 'room-1', title: 'R1', difficulty: 'info' },
+              { slug: 'room-2', title: 'R2', difficulty: 'easy' },
+            ],
+          },
+        ],
+      },
+    ];
+
+    it('reads the ordered tree and resolves prev/next', async () => {
+      const findMany = vi.fn().mockResolvedValue(tree);
+      service = new CatalogService(mockPrisma({ catalogPath: { findMany } }));
+      const context = await service.getRoomContext('room-2');
+      expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ orderBy: { order: 'asc' } }));
+      expect(context.prev?.slug).toBe('room-1');
+      expect(context.position).toEqual({ index: 2, total: 2 });
+    });
+
+    it('throws NotFound for rooms outside every path', async () => {
+      service = new CatalogService(
+        mockPrisma({ catalogPath: { findMany: vi.fn().mockResolvedValue(tree) } }),
+      );
+      await expect(service.getRoomContext('nope')).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

@@ -26,7 +26,7 @@
       skip-link, Byte en layout; home sin cabecera inline.
 - [x] T009 [US1,US2] Breadcrumbs + `template.tsx` (entrada de página).
 - [x] T010 [US5] loading/error/not-found con Byte + esqueletos en páginas cliente.
-- [ ] T011 [US2] API `GET /catalog/rooms/:slug/context` + `computeRoomContext` + tests.
+- [x] T011 [US2] API `GET /catalog/rooms/:slug/context` + `computeRoomContext` + tests.
 - [ ] T012 [US2] Página de room: migas, contexto, anterior/siguiente, "Continúa con…".
 - [ ] T013 [US2,US3] Login `?next=` seguro + 401 en room-player → Byte `point` + login.
 - [ ] T014 [US6,US8] Paths: `?locale=en`, "Continuar", índice de módulos, celebración 100 %.

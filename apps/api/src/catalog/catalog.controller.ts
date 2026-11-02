@@ -2,6 +2,7 @@ import { Controller, Get, Header, Param, Query } from '@nestjs/common';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { CatalogService } from './catalog.service';
+import { computeRoomContext } from './room-context';
 
 // Resolve the content package dist across layouts (dev monorepo, prod image):
 // - dev (cwd apps/api): ../../packages/content/dist
@@ -12,7 +13,8 @@ const CONTENT_DIST_CANDIDATES = [
   resolve(process.cwd(), 'packages/content/dist'),
   resolve(process.cwd(), '../../content/dist'),
 ];
-const CONTENT_DIST = CONTENT_DIST_CANDIDATES.find((dir) => existsSync(join(dir, 'catalog-en.json'))) ?? null;
+const CONTENT_DIST =
+  CONTENT_DIST_CANDIDATES.find((dir) => existsSync(join(dir, 'catalog-en.json'))) ?? null;
 
 /** Public read-only catalog (answers are never exposed — ADR-010). */
 @Controller('catalog')
@@ -34,10 +36,21 @@ export class CatalogController {
   async getPath(@Param('slug') slug: string, @Query('locale') locale?: string) {
     if (locale === 'en') {
       const en = this.readEnCatalog();
-      const path = en?.paths.find(p => p.slug === slug);
+      const path = en?.paths.find((p) => p.slug === slug);
       if (path) return path;
     }
     return this.catalog.getPath(slug);
+  }
+
+  @Get('rooms/:slug/context')
+  @Header('Cache-Control', 'public, max-age=60')
+  async getRoomContext(@Param('slug') slug: string, @Query('locale') locale?: string) {
+    if (locale === 'en') {
+      const en = this.readEnCatalog();
+      const context = en ? computeRoomContext(en.paths, slug) : null;
+      if (context) return context;
+    }
+    return this.catalog.getRoomContext(slug);
   }
 
   @Get('rooms/:slug')

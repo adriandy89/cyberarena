@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { computeRoomContext, type RoomContext } from './room-context';
 
 export interface CatalogRoomLink {
   slug: string;
@@ -155,6 +156,34 @@ export class CatalogService {
     };
   }
 
+  /** Room position inside its path, with previous/next links (spec 010). */
+  async getRoomContext(slug: string): Promise<RoomContext> {
+    const paths = await this.prisma.catalogPath.findMany({
+      orderBy: { order: 'asc' },
+      select: {
+        slug: true,
+        title: true,
+        level: true,
+        modules: {
+          orderBy: { order: 'asc' },
+          select: {
+            slug: true,
+            title: true,
+            rooms: {
+              orderBy: { order: 'asc' },
+              select: { slug: true, title: true, difficulty: true },
+            },
+          },
+        },
+      },
+    });
+    const context = computeRoomContext(paths, slug);
+    if (!context) {
+      throw new NotFoundException('room not found');
+    }
+    return context;
+  }
+
   async getRoom(slug: string): Promise<CatalogRoomDetail> {
     const room = await this.prisma.room.findUnique({
       where: { slug },
@@ -164,7 +193,14 @@ export class CatalogService {
           include: {
             questions: {
               orderBy: { index: 'asc' },
-              select: { id: true, prompt: true, hint: true, kind: true, options: true, index: true },
+              select: {
+                id: true,
+                prompt: true,
+                hint: true,
+                kind: true,
+                options: true,
+                index: true,
+              },
             },
           },
         },
