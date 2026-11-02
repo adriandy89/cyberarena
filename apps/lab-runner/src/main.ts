@@ -22,7 +22,11 @@ async function main(): Promise<void> {
   const manifest = JSON.parse(readFileSync(config.manifestPath, 'utf8')) as LabManifest;
   const exec = config.dryRun ? dryRunExec(manifest) : dockerExec;
 
-  const versions: Record<string, string> = { mode: config.dryRun ? 'dry-run' : config.assetsMode };
+  const versions: Record<string, string> = {
+    mode: config.dryRun ? 'dry-run' : config.assetsMode,
+    bind: config.labBindAddress,
+    publicHost: config.labPublicHost,
+  };
   if (!config.dryRun) {
     versions.engine = (await exec(['version', '--format', '{{.Server.Version}}'], 15_000)).stdout.trim();
     versions.compose = (await exec(['compose', 'version', '--short'], 15_000)).stdout.trim();
@@ -48,6 +52,7 @@ async function main(): Promise<void> {
     runner,
     token: config.token,
     log,
+    publicHost: config.labPublicHost,
     health: () => ({
       ...versions,
       labs: manifest.labs.length,

@@ -46,3 +46,8 @@
   - Cambiar un lab exige reconstruir la imagen del runner (aceptable: los labs cambian con el código).
   - Requiere Docker Engine ≥ 26 y Compose ≥ 2.24.4 (`volume.subpath`, `!override`); el runner lo
     comprueba en `/healthz`.
+  - **Enmienda 2026-11-02 (fase 013, despliegue en la LAN):** `LAB_BIND_ADDRESS` permite al runner
+    publicar los puertos de los labs en la IP de la LAN (en el override que ya genera; los composes y su
+    lint siguen exigiendo `127.0.0.1`) y `LAB_PUBLIC_HOST` es el host que ven los estudiantes. Con ello,
+    cualquier equipo de la red alcanza los labs —apps vulnerables a propósito— mientras están
+    encendidos: es opcional, desactivado por defecto, y el apagado automático sigue igual.

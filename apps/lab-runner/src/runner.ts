@@ -49,6 +49,7 @@ export type RunnerSettings = Pick<
   | 'assetsMode'
   | 'assetsVolume'
   | 'assetsMount'
+  | 'labBindAddress'
   | 'maxRunning'
   | 'maxConcurrentOps'
   | 'unleasedGraceSeconds'
@@ -218,16 +219,18 @@ export class LabRunner {
     const { slug } = entry;
     if (this.status.get(slug)?.state !== 'starting') return; // stopped while queued
     try {
+      const volumeMode = this.settings.assetsMode === 'volume';
+      if (volumeMode) await syncAssets(this.settings.labsDir, this.settings.assetsMount, slug);
       let override: string | null = null;
-      if (this.settings.assetsMode === 'volume') {
-        await syncAssets(this.settings.labsDir, this.settings.assetsMount, slug);
-        const text = renderOverride(entry, this.settings.assetsVolume);
-        if (text) {
-          const dir = join(tmpdir(), 'cyberarena-lab-runner');
-          await mkdir(dir, { recursive: true });
-          override = join(dir, `${slug}.override.yaml`);
-          await writeFile(override, text);
-        }
+      const text = renderOverride(entry, {
+        assetsVolume: volumeMode ? this.settings.assetsVolume : null,
+        bindAddress: this.settings.labBindAddress,
+      });
+      if (text) {
+        const dir = join(tmpdir(), 'cyberarena-lab-runner');
+        await mkdir(dir, { recursive: true });
+        override = join(dir, `${slug}.override.yaml`);
+        await writeFile(override, text);
       }
       const files = { compose: join(this.settings.labsDir, slug, 'compose.yaml'), override, envFile: this.envFile(slug) };
       const waitSeconds = Math.max(30, this.settings.opTimeoutSeconds - 30);

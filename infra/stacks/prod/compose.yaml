@@ -65,6 +65,8 @@ services:
       # Policy (defaults = the agreed one); shorten only to test the reaper.
       LAB_IDLE_TIMEOUT_MIN: ${LAB_IDLE_TIMEOUT_MIN:-10}
       LAB_SWEEP_SECONDS: ${LAB_SWEEP_SECONDS:-60}
+      # LAN deployment (phase 013): rewrites lab addresses in content for students.
+      LAB_PUBLIC_HOST: ${LAB_PUBLIC_HOST:-}
     secrets:
       - postgres_password
       - better_auth_secret
@@ -103,6 +105,9 @@ services:
       LAB_ASSETS_VOLUME: cyberarena-lab-assets
       LAB_ASSETS_MOUNT: /assets
       LAB_MAX_RUNNING: ${LAB_MAX_RUNNING:-3}
+      # Where lab ports are published (labs say 127.0.0.1; a LAN deploy sets its IP).
+      LAB_BIND_ADDRESS: ${LAB_BIND_ADDRESS:-127.0.0.1}
+      LAB_PUBLIC_HOST: ${LAB_PUBLIC_HOST:-}
     secrets:
       - lab_runner_token
     volumes:

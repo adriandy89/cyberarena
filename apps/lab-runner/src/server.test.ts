@@ -42,6 +42,7 @@ beforeEach(async () => {
       assetsMode: 'bind',
       assetsVolume: 'v',
       assetsMount: join(root, 'assets'),
+      labBindAddress: '127.0.0.1',
       maxRunning: 1,
       maxConcurrentOps: 2,
       unleasedGraceSeconds: 300,
@@ -118,5 +119,39 @@ describe('meetsMinimum', () => {
     expect(meetsMinimum('2.24.3', '2.24.4')).toBe(false);
     expect(meetsMinimum('5.6.1', '2.24.4')).toBe(true);
     expect(meetsMinimum('garbage', '2.24.4')).toBe(false);
+  });
+});
+
+describe('lab URLs for a LAN deployment (phase 013)', () => {
+  it('rewrite the manifest host (always 127.0.0.1) to the public host', async () => {
+    const lanServer = createRunnerServer({
+      runner: new LabRunner(
+        MANIFEST,
+        {
+          labsDir: '/labs',
+          flagsDir: '/flags',
+          assetsMode: 'bind',
+          assetsVolume: 'v',
+          assetsMount: '/assets',
+          labBindAddress: '192.168.1.20',
+          maxRunning: 1,
+          maxConcurrentOps: 1,
+          unleasedGraceSeconds: 300,
+          opTimeoutSeconds: 60,
+        },
+        dryRunExec(MANIFEST, 1),
+      ),
+      token: TOKEN,
+      health: () => ({}),
+      log: () => undefined,
+      publicHost: '192.168.1.20',
+    });
+    lanServer.listen(0, '127.0.0.1');
+    await once(lanServer, 'listening');
+    const port = (lanServer.address() as AddressInfo).port;
+    const response = await fetch(`http://127.0.0.1:${port}/labs`, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    const { labs } = (await response.json()) as { labs: Array<{ url: string | null }> };
+    expect(labs[0]?.url).toBe('http://192.168.1.20:18081');
+    lanServer.close();
   });
 });

@@ -16,6 +16,13 @@ export interface RunnerConfig {
   /** Where the runner itself sees the assets volume. */
   assetsMount: string;
   manifestPath: string;
+  /**
+   * Host address lab ports are published on. Lab composes always say
+   * 127.0.0.1; a LAN deployment sets its LAN IP here (phase 013).
+   */
+  labBindAddress: string;
+  /** Host students use to reach the labs (shown in lab URLs). */
+  labPublicHost: string;
   maxRunning: number;
   maxConcurrentOps: number;
   /** Deadline given to a lab nobody has renewed yet (adopted or just started). */
@@ -40,6 +47,22 @@ function readToken(): string {
   return token;
 }
 
+const IPV4 = /^(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)$/;
+const HOSTNAME = /^[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$/;
+
+/** LAB_BIND_ADDRESS / LAB_PUBLIC_HOST, validated (they end up in compose files and URLs). */
+export function labNetwork(env: NodeJS.ProcessEnv = process.env): {
+  labBindAddress: string;
+  labPublicHost: string;
+} {
+  const labBindAddress = env.LAB_BIND_ADDRESS?.trim() || '127.0.0.1';
+  if (!IPV4.test(labBindAddress)) throw new Error('LAB_BIND_ADDRESS must be an IPv4 address');
+  const fallback = labBindAddress === '0.0.0.0' ? '127.0.0.1' : labBindAddress;
+  const labPublicHost = env.LAB_PUBLIC_HOST?.trim() || fallback;
+  if (!HOSTNAME.test(labPublicHost)) throw new Error('LAB_PUBLIC_HOST must be a host name or IP');
+  return { labBindAddress, labPublicHost };
+}
+
 export function loadConfig(): RunnerConfig {
   const assetsMode = process.env.LAB_ASSETS === 'bind' ? 'bind' : 'volume';
   return {
@@ -52,6 +75,7 @@ export function loadConfig(): RunnerConfig {
     assetsVolume: process.env.LAB_ASSETS_VOLUME ?? 'cyberarena-lab-assets',
     assetsMount: process.env.LAB_ASSETS_MOUNT ?? '/assets',
     manifestPath: process.env.LAB_MANIFEST ?? join(__dirname, 'manifest.json'),
+    ...labNetwork(),
     maxRunning: positiveInt('LAB_MAX_RUNNING', 3),
     maxConcurrentOps: positiveInt('LAB_MAX_OPS', 2),
     unleasedGraceSeconds: positiveInt('LAB_UNLEASED_GRACE_SECONDS', 300),

@@ -26,9 +26,10 @@ describe('renderOverride', () => {
           ],
         },
       },
-      'cyberarena-lab-assets',
+      { assetsVolume: 'cyberarena-lab-assets', bindAddress: '127.0.0.1' },
     );
     expect(text).toContain('volumes: !override');
+    expect(text).not.toContain('ports:');
     // The `!override` tag is compose syntax; strip it to inspect the structure.
     expect(parse(text!.replace(' !override', ''))).toEqual({
       services: {
@@ -49,7 +50,30 @@ describe('renderOverride', () => {
     });
   });
 
-  it('is not needed when no service has binds', () => {
-    expect(renderOverride({ ...base, volumes: { web: [] } }, 'assets')).toBeNull();
+  it('is not needed without binds or a LAN bind address', () => {
+    expect(renderOverride({ ...base, volumes: { web: [] } }, { assetsVolume: 'assets', bindAddress: '127.0.0.1' })).toBeNull();
+    // Bind mode (runner on the host) keeps the binds as they are.
+    const withBind = { ...base, volumes: { web: [{ type: 'bind' as const, source: 'site', target: '/site', readOnly: true }] } };
+    expect(renderOverride(withBind, { assetsVolume: null, bindAddress: '127.0.0.1' })).toBeNull();
+  });
+
+  it('re-publishes the ports on the LAN address (phase 013)', () => {
+    const lab = {
+      ...base,
+      services: ['web', 'dns'],
+      volumes: { web: [], dns: [] },
+      ports: [
+        { service: 'web', host: 18112, container: 8080, protocol: 'tcp' as const },
+        { service: 'dns', host: 18153, container: 53, protocol: 'udp' as const },
+      ],
+    };
+    const text = renderOverride(lab, { assetsVolume: null, bindAddress: '192.168.1.20' });
+    expect(text).toContain('ports: !override');
+    expect(parse(text!.replaceAll(' !override', ''))).toEqual({
+      services: {
+        web: { ports: ['192.168.1.20:18112:8080/tcp'] },
+        dns: { ports: ['192.168.1.20:18153:53/udp'] },
+      },
+    });
   });
 });

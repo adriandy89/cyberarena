@@ -11,6 +11,8 @@ export interface LabsConfig {
   sweepMs: number;
   /** Deadline the reaper gives the runner on each sweep. */
   renewTtlSeconds: number;
+  /** Host students use for the labs when not 127.0.0.1 (LAN deployment, phase 013). */
+  publicHost: string | null;
 }
 
 export const LABS_CONFIG = Symbol('LABS_CONFIG');
@@ -30,6 +32,12 @@ const envSchema = z.object({
   LAB_MAX_RUNNING: z.coerce.number().int().min(1).max(50).default(3),
   LAB_SWEEP_SECONDS: z.coerce.number().int().min(5).max(600).default(60),
   LAB_RENEW_TTL_SECONDS: z.coerce.number().int().min(30).max(900).default(180),
+  // Same rule as the lab-runner: it ends up in URLs shown to students.
+  LAB_PUBLIC_HOST: z
+    .string()
+    .trim()
+    .regex(/^(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?)?$/)
+    .default(''),
 });
 
 export function loadLabsConfig(env: NodeJS.ProcessEnv = process.env): LabsConfig {
@@ -59,5 +67,6 @@ export function loadLabsConfig(env: NodeJS.ProcessEnv = process.env): LabsConfig
     },
     sweepMs: parsed.LAB_SWEEP_SECONDS * 1000,
     renewTtlSeconds: parsed.LAB_RENEW_TTL_SECONDS,
+    publicHost: parsed.LAB_PUBLIC_HOST && parsed.LAB_PUBLIC_HOST !== '127.0.0.1' ? parsed.LAB_PUBLIC_HOST : null,
   };
 }

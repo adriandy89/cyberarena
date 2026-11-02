@@ -199,7 +199,7 @@ describe('LabsService.start', () => {
     expect(prisma.leases.get('ana')).toMatchObject({ labSlug: 'sqli-basico', maxUntil: new Date(now.getTime() + 120 * MIN) });
     expect(prisma.events.map((event) => event.type)).toEqual(['START']);
     expect(runner.calls).toEqual(['up sqli-basico', 'renew sqli-basico 180']);
-    expect(view).toMatchObject({ state: 'starting', users: 1, url: 'http://127.0.0.1:18081', otherLab: null });
+    expect(view).toMatchObject({ state: 'starting', users: 1, url: 'http://127.0.0.1:18081', otherLab: null, host: '127.0.0.1' });
     expect(view.mine).toMatchObject({ canExtend: false, idleDeadline: new Date(now.getTime() + 10 * MIN).toISOString() });
   });
 
@@ -346,6 +346,13 @@ describe('loadLabsConfig', () => {
       extendWindowMs: 30 * MIN,
       maxRunning: 3,
     });
+  });
+
+  it('exposes the LAN host for the labs only when it is not loopback (phase 013)', () => {
+    expect(loadLabsConfig({}).publicHost).toBeNull();
+    expect(loadLabsConfig({ LAB_PUBLIC_HOST: '127.0.0.1' }).publicHost).toBeNull();
+    expect(loadLabsConfig({ LAB_PUBLIC_HOST: '192.168.1.20' }).publicHost).toBe('192.168.1.20');
+    expect(() => loadLabsConfig({ LAB_PUBLIC_HOST: 'evil.com/x' })).toThrow();
   });
 
   it('refuses to enable labs without a strong token or with an inverted cap', () => {

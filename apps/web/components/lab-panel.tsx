@@ -126,7 +126,7 @@ function Endpoints({ view }: { view: LabSessionView }) {
         <p className="text-xs text-slate-400">
           {t('ports')}:{' '}
           <span className="font-mono text-slate-300">
-            {view.ports.map((port) => `127.0.0.1:${port.host}${port.protocol === 'udp' ? '/udp' : ''}`).join(' · ')}
+            {view.ports.map((port) => `${view.host}:${port.host}${port.protocol === 'udp' ? '/udp' : ''}`).join(' · ')}
           </span>
         </p>
       ) : null}

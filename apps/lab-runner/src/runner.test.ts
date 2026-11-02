@@ -87,6 +87,7 @@ beforeEach(async () => {
     assetsMode: 'volume',
     assetsVolume: 'test-assets',
     assetsMount: join(root, 'assets'),
+    labBindAddress: '127.0.0.1',
     maxRunning: 3,
     maxConcurrentOps: 2,
     unleasedGraceSeconds: 300,

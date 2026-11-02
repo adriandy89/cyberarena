@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { isDifficulty, type Difficulty } from '@repo/shared';
+import { isDifficulty, withLabHost, type Difficulty, type LabsInfo } from '@repo/shared';
 import { DifficultyBadge } from '@repo/ui';
 import { Clock, Tag } from '../../../../components/icon';
 import { LabPanel } from '../../../../components/lab-panel';
@@ -53,25 +53,31 @@ export default async function RoomPage({
   const nav = await getTranslations('Nav');
   const encoded = encodeURIComponent(slug);
   // The context (path, module, prev/next) is optional: the room still renders without it.
-  const [room, context] = await Promise.all([
+  const [room, context, labs] = await Promise.all([
     fetchApiJson<ApiRoom>(`/api/catalog/rooms/${encoded}`, locale),
     fetchApiJson<RoomContext>(`/api/catalog/rooms/${encoded}/context`, locale),
+    fetchApiJson<LabsInfo>('/api/labs'),
   ]);
   if (!room) {
     notFound();
   }
 
   const difficulty: Difficulty = isDifficulty(room.difficulty) ? room.difficulty : 'info';
+  // LAN deployment (phase 013): lab commands point at the server, not 127.0.0.1.
+  const labHost = labs?.publicHost ?? null;
+  const lan = (text: string) => withLabHost(text, labHost);
   const tasks: PlayerTask[] = room.tasks.map((task) => ({
     index: task.index,
     title: task.title,
-    body: <Markdown>{task.body}</Markdown>,
+    body: <Markdown>{lan(task.body)}</Markdown>,
     questions: task.questions.map<PlayerQuestion>((question) => ({
       id: question.id,
-      prompt: question.prompt,
-      hint: question.hint,
+      prompt: lan(question.prompt),
+      hint: question.hint === null ? null : lan(question.hint),
       kind: question.kind === 'flag' || question.kind === 'choice' ? question.kind : 'text',
-      options: Array.isArray(question.options) ? question.options : null,
+      options: Array.isArray(question.options)
+        ? question.options.map((option) => ({ ...option, label: lan(option.label) }))
+        : null,
     })),
   }));
 

@@ -65,6 +65,7 @@ export class LabsService {
       enabled: this.config.enabled,
       maxRunning: this.config.policy.maxRunning,
       idleTimeoutMinutes: Math.round(this.config.policy.idleTimeoutMs / 60_000),
+      publicHost: this.config.publicHost,
     };
   }
 
@@ -96,6 +97,7 @@ export class LabsService {
           ? `docker exec -it ${runnerLab.project}-${runnerLab.execService}-1 sh`
           : null,
       ports: (runnerLab?.ports ?? []).map(({ host, protocol }) => ({ host, protocol })),
+      host: this.config.publicHost ?? '127.0.0.1',
       users: leases.filter((lease) => lease.labSlug === slug).length,
       mine: myLease,
       otherLab,

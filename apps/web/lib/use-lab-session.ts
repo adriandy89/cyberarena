@@ -57,10 +57,10 @@ export function useLabSession(slug: string): LabSession {
     void fetch('/api/labs', { credentials: 'include' })
       .then((response) => (response.ok ? (response.json() as Promise<LabsInfo>) : null))
       .then((data) => {
-        if (!cancelled) setInfo(data ?? { enabled: false, maxRunning: 0, idleTimeoutMinutes: 0 });
+        if (!cancelled) setInfo(data ?? { enabled: false, maxRunning: 0, idleTimeoutMinutes: 0, publicHost: null });
       })
       .catch(() => {
-        if (!cancelled) setInfo({ enabled: false, maxRunning: 0, idleTimeoutMinutes: 0 });
+        if (!cancelled) setInfo({ enabled: false, maxRunning: 0, idleTimeoutMinutes: 0, publicHost: null });
       });
     return () => {
       cancelled = true;

@@ -20,6 +20,8 @@ export interface ServerDeps {
   /** Extra data for /healthz (versions, loop age...). */
   health: () => Promise<Record<string, unknown>> | Record<string, unknown>;
   log: (event: string, data?: Record<string, unknown>) => void;
+  /** Host students use for the labs (lab URLs are rewritten to it). */
+  publicHost?: string;
 }
 
 /** What the API needs about a lab: its status plus how to reach it. */
@@ -52,13 +54,15 @@ async function readJson(req: IncomingMessage): Promise<unknown> {
   return text ? JSON.parse(text) : {};
 }
 
-export function view(runner: LabRunner, slug: string): LabView {
+export function view(runner: LabRunner, slug: string, publicHost = '127.0.0.1'): LabView {
   const entry = runner.manifestEntries().find((candidate) => candidate.slug === slug)!;
-  const { access, url, ports, execService, project } = entry;
+  const { access, ports, execService, project } = entry;
+  // Manifest URLs say 127.0.0.1 (the lint enforces it); show the public host.
+  const url = entry.url ? entry.url.replace('//127.0.0.1:', `//${publicHost}:`) : null;
   return { ...runner.get(slug), access, url, ports, execService, project };
 }
 
-export function createRunnerServer({ runner, token, health, log }: ServerDeps): Server {
+export function createRunnerServer({ runner, token, health, log, publicHost = '127.0.0.1' }: ServerDeps): Server {
   return createServer((req, res) => {
     void (async () => {
       const url = new URL(req.url ?? '/', 'http://runner');
@@ -72,18 +76,18 @@ export function createRunnerServer({ runner, token, health, log }: ServerDeps): 
           return send(res, 200, { ok: true, running: runner.runningCount(), ...(await health()) });
         }
         if (method === 'GET' && url.pathname === '/labs') {
-          return send(res, 200, { labs: runner.manifestEntries().map((entry) => view(runner, entry.slug)) });
+          return send(res, 200, { labs: runner.manifestEntries().map((entry) => view(runner, entry.slug, publicHost)) });
         }
         const lab = /^\/labs\/([^/]+)\/(up|down)$/.exec(url.pathname);
         if (method === 'POST' && lab) {
           const [, slug = '', action] = lab;
           if (action === 'up') {
             runner.up(slug);
-            return send(res, 202, view(runner, slug));
+            return send(res, 202, view(runner, slug, publicHost));
           }
           runner.get(slug); // validates the slug before going async
           void runner.down(slug, 'api');
-          return send(res, 202, view(runner, slug));
+          return send(res, 202, view(runner, slug, publicHost));
         }
         if (method === 'POST' && url.pathname === '/renew') {
           const body = (await readJson(req)) as { slugs?: unknown; ttlSeconds?: unknown };
