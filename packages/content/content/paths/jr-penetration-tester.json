@@ -1,7 +1,7 @@
 {
   "slug": "jr-penetration-tester",
   "title": "Jr Penetration Tester",
-  "description": "De novato a junior: metodología, recon OSINT/activo, Social Engineering, herramientas, privesc, AD, pivoting, passwords y scripting.",
+  "description": "De novato a junior: metodología, reconocimiento pasivo (OSINT e ingeniería social) y activo, Nmap, Burp Suite, scripting, escalada de privilegios, ataques a contraseñas, pivoting y Active Directory.",
   "level": "intermediate",
   "order": 2,
   "modules": [
@@ -21,19 +21,19 @@
       "slug": "burp-suite"
     },
     {
+      "slug": "scripting"
+    },
+    {
       "slug": "privesc"
     },
     {
-      "slug": "active-directory"
-    },
-    {
-      "slug": "scripting"
+      "slug": "passwords"
     },
     {
       "slug": "pivoting"
     },
     {
-      "slug": "mobile"
+      "slug": "active-directory"
     }
   ]
 }

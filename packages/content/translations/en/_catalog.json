@@ -6,11 +6,11 @@
     },
     "jr-penetration-tester": {
       "title": "Jr Penetration Tester",
-      "description": "From beginner to junior: methodology, OSINT and active recon, social engineering, tooling, privilege escalation, AD, pivoting, passwords and scripting."
+      "description": "From beginner to junior: methodology, passive (OSINT and social engineering) and active reconnaissance, Nmap, Burp Suite, scripting, privilege escalation, password attacks, pivoting and Active Directory."
     },
     "webapp-pentesting": {
       "title": "Web Application Pentesting",
-      "description": "Offensive web specialization with real labs: SQLi, XSS, SSRF, command injection, file upload, auth bypass, race conditions and API security."
+      "description": "Offensive web specialization with real labs: SQLi, XSS, SSRF, command injection, file upload, auth bypass, race conditions, API security and mobile apps."
     },
     "advanced-pentesting": {
       "title": "Advanced Pentesting (Red Team / PT2)",
@@ -52,7 +52,7 @@
     },
     "offensive-tooling": {
       "title": "Offensive Security Tooling",
-      "description": "The offensive arsenal: Burp Suite, Nmap, Hydra and password attack theory (wordlists, rules, spraying, NTLM)."
+      "description": "The offensive arsenal in practice: brute force with Hydra, content discovery with Gobuster and automated SQL injection with sqlmap."
     },
     "defensive-security": {
       "title": "Defensive Security",
@@ -157,6 +157,10 @@
     "binary-exploitation": {
       "title": "Binary Exploitation",
       "description": "The full classic stack overflow: the stack, EIP, shellcode and modern mitigations with ROP."
+    },
+    "passwords": {
+      "title": "Password Attacks",
+      "description": "Wordlists and mangling rules, offline cracking versus online attacks, password spraying and NTLM: the foundation of credential theft in Windows and Active Directory."
     }
   }
 }

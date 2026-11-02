@@ -1,13 +1,10 @@
 {
   "slug": "offensive-tooling",
   "title": "Offensive Security Tooling",
-  "description": "El arsenal ofensivo: Burp Suite, Nmap, Hydra y la teoría de password attacks (wordlists, reglas, spraying, NTLM).",
+  "description": "El arsenal ofensivo en la práctica: fuerza bruta con Hydra, descubrimiento de contenido con Gobuster e inyección SQL automatizada con sqlmap.",
   "rooms": [
     {
       "slug": "herramientas-ofensivas"
-    },
-    {
-      "slug": "password-attacks"
     }
   ]
 }
