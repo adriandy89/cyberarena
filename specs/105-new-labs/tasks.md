@@ -45,12 +45,42 @@ Build contenido: 45 rooms / 356 answers / 46 EN. Seed OK. E2E 11/11.
    spec actualizado. E2E debe correr contra `next start` (build), no contra
    el `next dev` del container (locks de .next compartidos por bind mount).
 
-## ⏳ TIER 2 — pendiente
+## ✅ TIER 2 — completo (2026-11-02)
 
-pcap-analysis, steganography-lab, phishing-analysis, siem-correlation,
-incident-response (5 labs, rooms de blue team).
+| # | Lab | Puerto | Room | Flags | Verificación |
+|---|---|---|---|---|---|
+| 6 | `pcap-analysis` | 18104 | redes-wireshark (task 3) | 3 | pcaps hand-crafted; Basic auth decodificado, FTP PASS en claro, base32 DNS decodifica exacto |
+| 7 | `steganography-lab` | 18105 | steganography (NUEVA) | 3 | LSB roundtrip assert en generador; JPEG COM y zip-tras-IEND extraídos |
+| 8 | `phishing-analysis` | 18106 | phishing-forensics (NUEVA) | 4 | /verify valida origen/URL/attachment; SPF +all |
+| 9 | `siem-correlation` | 18107 | seguridad-soluciones (task 3) | 3 | kill chain recon→brute→exploit→cron→C2 en 3 fuentes |
+| 10 | `incident-response` | exec | defensa-introduccion (task 4) | 4 | cron backdoor, UID-0 user, fake kworker, conexión C2 ESTABLISHED + token desde host |
 
-## ⏳ TIER 3 — pendiente
+## ✅ TIER 3 — completo (2026-11-02)
 
-graphql-injection, websocket-lab, reverse-engineering, dns-exfiltration,
-container-escape-lab, firewall-bypass, cloud-iam-sim, ad-forest-lab (8 labs).
+| # | Lab | Puerto | Room | Flags | Verificación |
+|---|---|---|---|---|---|
+| 11 | `graphql-injection` | 18109 | graphql-security (NUEVA) | 3 | introspection→SecretFlag, IDOR user(id:1), filter injection |
+| 12 | `websocket-lab` | 18110 | websocket-security (NUEVA) | 2 | RFC 6455 real (accept válido); sender spoof + /admin dump |
+| 13 | `reverse-engineering` | 18111 | reverse-engineering (NUEVA) | 3 | strings/b64, zlib, XOR 0x5A sobre ELF construido |
+| 14 | `dns-exfiltration` | 18112+18153/udp | data-exfiltration (NUEVA) | 2 | receptor DNS UDP real; reassembly exacto del secret; /detect |
+| 15 | `container-escape-lab` | exec | containers-y-cloud (task 3) | 3 | fake dockerd sobre unix socket: /version, create privileged+bind, start, logs |
+| 16 | `firewall-bypass` | 18180/18443/18844 | web-red-team (task 3) | 2 | túnel por 443; source-port 53 desde dentro (NAT reescribe el origen) |
+| 17 | `cloud-iam-sim` | 18115 | containers-y-cloud (task 4) | 3 | IMDS creds, bucket público (tfstate), IAM wildcard |
+| 18 | `ad-forest-lab` | 18116 | ad-avanzado (task 3) | 4 | kerberoast, LDAP injection, ESC1 cert SAN admin, trust externo |
+
+Catálogo final: **51 rooms, 402 answers, 52 EN translations, 141 tasks**.
+Labs totales en `labs/`: **34** (30 con puerto HTTP/exec + template).
+E2E 11/11 contra `next start`.
+
+### Notas técnicas Tier 2/3
+- Los pcaps se generan paquete a paquete (Ethernet/IPv4/TCP/UDP válidos,
+  checksums IP correctos) — Wireshark los disecta completo.
+- El BMP LSB embebe sobre el layout final (filas bottom-up del formato).
+- El websocket server implementa handshake + frames masked desde cero
+  (stdlib, sin librería websockets).
+- container-escape: el daemon del socket es SIMULADO (fake-dockerd) para
+  practicar curl --unix-socket sin riesgo real al host.
+- firewall-bypass source-port: docker-proxy NAT reescribe el puerto
+  origen desde fuera → la técnica se práctica con docker exec (pivot).
+
+## Estado: 18/18 labs implementados ✅
