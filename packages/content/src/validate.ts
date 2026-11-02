@@ -49,11 +49,20 @@ export function validateCatalog(
             message: 'labUrl is set but lab is null (labUrl requires a lab slug)',
           });
         }
-        if (room.lab && labSlugs && !labSlugs.has(room.lab)) {
-          issues.push({
-            source: `room:${room.slug}`,
-            message: `lab '${room.lab}' does not exist (expected labs/${room.lab}/compose.yaml)`,
-          });
+        for (const lab of [room.lab, ...(room.extraLabs ?? [])]) {
+          if (lab && labSlugs && !labSlugs.has(lab)) {
+            issues.push({
+              source: `room:${room.slug}`,
+              message: `lab '${lab}' does not exist (expected labs/${lab}/compose.yaml)`,
+            });
+          }
+        }
+        const extraLabs = room.extraLabs ?? [];
+        if (extraLabs.length > 0 && !room.lab) {
+          issues.push({ source: `room:${room.slug}`, message: 'extraLabs requires a main lab' });
+        }
+        if (new Set([room.lab, ...extraLabs]).size !== extraLabs.length + 1) {
+          issues.push({ source: `room:${room.slug}`, message: 'extraLabs repeats a lab' });
         }
         room.tasks.forEach((task, taskIndex) => {
           if (task.index !== taskIndex + 1) {

@@ -136,6 +136,8 @@ model Room {
   tags             String[]
   lab              String?
   labUrl           String?
+  // Secondary labs used by some tasks (phase 011), startable from the room too.
+  extraLabs        String[]  @default([])
   order            Int       @default(0)
   createdAt        DateTime  @default(now())
   tasks            Task[]
@@ -215,4 +217,47 @@ model UserBadge {
 
   @@id([userId, badgeId])
   @@map("UserBadge")
+}
+
+// --- Labs on demand (phase 011, ADR-015) -----------------------------------
+
+/// One active lab lease per user (the primary key enforces it). A lab instance
+/// stays up while it has at least one lease; the API reaper deletes leases
+/// without heartbeat or past maxUntil. No FK to User (same as XpEvent): a
+/// deleted user's lease simply expires.
+model LabLease {
+  userId     String   @id
+  labSlug    String
+  startedAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  maxUntil   DateTime
+
+  @@index([labSlug])
+  @@map("LabLease")
+}
+
+enum LabEventType {
+  START
+  STOP
+  SWITCH
+  EXTEND
+  EXPIRE_IDLE
+  EXPIRE_MAX
+  ADMIN_STOP
+  STOP_ALL
+  RUNNER_ERROR
+}
+
+/// Audit trail of lab lifecycle events; the reaper prunes it after 30 days.
+model LabEvent {
+  id      String       @id @default(cuid())
+  at      DateTime     @default(now())
+  labSlug String
+  userId  String?
+  type    LabEventType
+  detail  Json?
+
+  @@index([at])
+  @@index([labSlug, at])
+  @@map("LabEvent")
 }

@@ -51,6 +51,8 @@ export const roomFrontmatterSchema = z.object({
   lab: slugSchema.nullable().default(null),
   // Browser/lab-facing URL of the lab (e.g. http://127.0.0.1:18080).
   labUrl: z.string().url().nullable().default(null),
+  // Secondary labs some tasks use (phase 011): startable from the room as well.
+  extraLabs: z.array(slugSchema).max(4).default([]),
 });
 
 export const pathJsonSchema = z.object({

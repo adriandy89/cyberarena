@@ -66,6 +66,8 @@ export interface CatalogTaskDetail {
 
 export interface CatalogRoomDetail extends CatalogRoomSummary {
   labUrl: string | null;
+  /** Secondary labs some tasks use (phase 011). */
+  extraLabs: string[];
   tasks: CatalogTaskDetail[];
 }
 
@@ -219,6 +221,7 @@ export class CatalogService {
       tags: room.tags,
       lab: room.lab,
       labUrl: room.labUrl,
+      extraLabs: room.extraLabs,
       tasks: room.tasks.map((task) => ({
         id: task.id,
         index: task.index,

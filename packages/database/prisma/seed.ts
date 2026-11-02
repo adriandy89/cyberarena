@@ -41,6 +41,7 @@ interface SeedRoom {
   tags: string[];
   lab: string | null;
   labUrl?: string | null;
+  extraLabs?: string[];
   tasks: SeedTask[];
 }
 
@@ -137,6 +138,7 @@ async function main(): Promise<void> {
             tags: seedRoom.tags,
             lab: seedRoom.lab,
             labUrl: seedRoom.labUrl ?? null,
+            extraLabs: seedRoom.extraLabs ?? [],
             order: roomOrder,
           };
           const existingRoom = await prisma.room.findUnique({ where: { slug: seedRoom.slug } });

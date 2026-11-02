@@ -183,6 +183,7 @@ async function main(): Promise<void> {
               tags: [],
               lab: null,
               labUrl: null,
+              extraLabs: [],
               tasks: [],
             };
           }

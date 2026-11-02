@@ -17,6 +17,7 @@ function room(
     tags: [],
     lab: null,
     labUrl: null,
+    extraLabs: [],
     tasks: taskIndexes.map((index, i) => ({
       index,
       title: `Task ${index}`,
@@ -90,6 +91,18 @@ describe('validateCatalog', () => {
     });
     // Without the list (e.g. unit callers) the check is skipped.
     expect(validateCatalog(catalogWith(rooms), answers)).toEqual([]);
+  });
+
+  it('validates extraLabs: existing, distinct and only next to a main lab', () => {
+    const base = { ...room('linux-1'), lab: 'linux-explore' };
+    const labs = new Set(['linux-explore', 'sqli-blind']);
+    const check = (r: CompiledRoom) => validateCatalog(catalogWith([r]), answersFor([r]), labs).map((i) => i.message);
+    expect(check({ ...base, extraLabs: ['sqli-blind'] })).toEqual([]);
+    expect(check({ ...base, extraLabs: ['ghost-lab'] })).toEqual([
+      "lab 'ghost-lab' does not exist (expected labs/ghost-lab/compose.yaml)",
+    ]);
+    expect(check({ ...base, extraLabs: ['linux-explore'] })).toEqual(['extraLabs repeats a lab']);
+    expect(check({ ...base, lab: null, extraLabs: ['sqli-blind'] })).toEqual(['extraLabs requires a main lab']);
   });
 
   it('detects orphan answers', () => {
