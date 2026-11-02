@@ -7,6 +7,7 @@ import { useRouter } from '../../../i18n/navigation';
 import { GamificationPanels } from '../../../components/gamification-panels';
 import { SecurityPanel } from '../../../components/security-panel';
 import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
+import { PageSkeleton } from '../../../components/skeleton';
 
 type Role = 'STUDENT' | 'ADMIN';
 
@@ -145,7 +146,7 @@ export default function DashboardPage() {
   }
 
   if (isPending || !session) {
-    return <div className="flex min-h-[50vh] items-center justify-center text-slate-500">…</div>;
+    return <PageSkeleton cards={4} />;
   }
 
   return (

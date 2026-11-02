@@ -70,7 +70,9 @@
   "NotFoundPage": {
     "title": "Página no encontrada",
     "description": "El recurso que buscas no existe o ha cambiado de ubicación.",
-    "back": "Volver al inicio"
+    "back": "Volver al inicio",
+    "byte": "Mmm… he escaneado todo y esta página no aparece por ningún lado.",
+    "paths": "Ver las rutas"
   },
   "UserMenu": {
     "signIn": "Entrar",
@@ -431,5 +433,12 @@
     "footerNote": "CyberArena — proyecto personal. Contenido original con fines educativos.",
     "disclaimer": "Practica solo en entornos locales controlados y con autorización.",
     "breadcrumbs": "Ruta de navegación"
+  },
+  "States": {
+    "loading": "Escaneando… digo, cargando.",
+    "errorTitle": "Algo ha fallado",
+    "errorMessage": "Mis circuitos han tropezado con un error inesperado. Puedes reintentarlo o volver al inicio.",
+    "retry": "Reintentar",
+    "home": "Ir al inicio"
   }
 }

@@ -70,7 +70,9 @@
   "NotFoundPage": {
     "title": "Page not found",
     "description": "The resource you are looking for does not exist or has moved.",
-    "back": "Back to home"
+    "back": "Back to home",
+    "byte": "Hmm… I scanned everything and this page is nowhere to be found.",
+    "paths": "Browse paths"
   },
   "UserMenu": {
     "signIn": "Sign in",
@@ -431,5 +433,12 @@
     "footerNote": "CyberArena — personal project. Original content for educational purposes.",
     "disclaimer": "Only practice in controlled local environments and with authorization.",
     "breadcrumbs": "Breadcrumb"
+  },
+  "States": {
+    "loading": "Scanning… I mean, loading.",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "My circuits tripped over an unexpected error. You can retry or go back home.",
+    "retry": "Retry",
+    "home": "Go home"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { Skeleton } from '../../../components/skeleton';
 
 interface LeaderboardEntry {
   rank: number;
@@ -62,7 +63,11 @@ export default function LeaderboardPage() {
       </div>
 
       {entries === null ? (
-        <p className="mt-10 text-sm text-slate-500">…</p>
+        <div className="mt-6 space-y-2">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-12 w-full rounded-lg" />
+          ))}
+        </div>
       ) : entries.length === 0 ? (
         <p className="mt-10 rounded-xl border border-slate-800 bg-slate-900/50 p-6 text-sm text-slate-400">
           {t('empty')}

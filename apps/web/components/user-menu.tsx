@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { authClient } from '../lib/auth-client';
 import { Link, useRouter } from '../i18n/navigation';
+import { Skeleton } from './skeleton';
 
 export function UserMenu() {
   const t = useTranslations('UserMenu');
@@ -12,7 +13,7 @@ export function UserMenu() {
   const [isPendingAction, startTransition] = useTransition();
 
   if (isPending) {
-    return <span className="text-xs text-slate-500">…</span>;
+    return <Skeleton className="h-8 w-20 rounded-lg" />;
   }
 
   if (!session) {

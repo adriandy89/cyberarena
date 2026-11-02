@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Skeleton } from '../../../components/skeleton';
 import { Link } from '../../../i18n/navigation';
 
 interface RoomCard {
@@ -222,6 +223,13 @@ export default function HacktivitiesPage() {
 
       {/* results */}
       {data && <p className="mt-6 text-xs text-slate-500">{t('results', { count: data.total })}</p>}
+      {!data && loading && (
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="h-44 w-full rounded-xl" />
+          ))}
+        </div>
+      )}
       <ul className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {(data?.rooms ?? []).map((room) => (
           <li key={room.slug}>
