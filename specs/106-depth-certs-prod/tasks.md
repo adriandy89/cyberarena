@@ -23,8 +23,8 @@
 
 ## T3: Stack prod verificado
 - [x] Fix comentario stale compose prod
-- [ ] Puertos 80/443 libres; proxy up; prod up --build
-- [ ] Seed one-off; smoke tests (TLS, health, admin login, catálogo 59, PDF, hacktivities)
+- [x] Puertos 80/443 libres; proxy up; prod up --build (fase 012 T009)
+- [x] Seed one-off; smoke tests (TLS, health, admin login, catálogo 59, PDF, hacktivities) (fase 012 T009)
 - [ ] backup-db.sh + restore a BD scratch
 - [ ] Registro aquí + runbook ajustado si diverge + commit
 

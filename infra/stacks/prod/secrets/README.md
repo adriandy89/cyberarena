@@ -5,17 +5,20 @@ en Windows NTFS los permisos POSIX no aplican — protégelo con ACLs del direct
 
 ```bash
 cd infra/stacks/prod/secrets
+# `tr -d '\r\n'`: el openssl de Git Bash (Windows) termina la salida en CRLF.
 # Contraseña de postgres: SOLO alfanumérica (se incrusta en una URL de conexión).
-openssl rand -hex 24 > postgres_password
+openssl rand -hex 24 | tr -d '\r\n' > postgres_password
 # Secret de better-auth (>=32 chars).
-openssl rand -base64 32 | tr -d '\n=+/' > better_auth_secret
+openssl rand -base64 32 | tr -d '\r\n=+/' > better_auth_secret
 # Password del admin inicial (opcional: sin este archivo se genera una aleatoria
 # y se registra UNA vez en el log del arranque — ADR-009).
 printf 'TuPasswordInicial-12345' > bootstrap_admin_password
 # Token compartido api <-> lab-runner (fase 011, ADR-015).
-openssl rand -hex 32 > lab_runner_token
+openssl rand -hex 32 | tr -d '\r\n' > lab_runner_token
 chmod 600 postgres_password better_auth_secret bootstrap_admin_password lab_runner_token
 ```
+
+Comprueba todo antes de desplegar: `bash infra/scripts/prod-preflight.sh`.
 
 - `postgres_password` → POSTGRES_PASSWORD_FILE del contenedor postgres + DATABASE_URL
   de la api (el entrypoint lo lee de /run/secrets).

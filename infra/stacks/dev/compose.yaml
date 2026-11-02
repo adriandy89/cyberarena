@@ -149,7 +149,9 @@ services:
     mem_limit: 256m
     cpus: 0.5
     pids_limit: 128
-    restart: always
+    # Dev: a manual stop sticks (prod uses `always`). Only ONE lab-runner per
+    # Docker host: two runners would adopt and stop each other's labs.
+    restart: unless-stopped
     stop_grace_period: 60s
     networks:
       - labs-control

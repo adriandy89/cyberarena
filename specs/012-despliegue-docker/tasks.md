@@ -18,7 +18,7 @@
 
 ## Fase B — Despliegue y pruebas
 
-- [ ] T009 Despliegue completo (proxy + prod + lab-runner), seed doble, smoke y E2E sobre HTTPS.
+- [x] T009 Despliegue completo (proxy + prod + lab-runner), seed doble, smoke y E2E sobre HTTPS.
 - [ ] T010 Labs en prod: UI, flag, reaper, API parada, adopción, smoke de los 39 labs.
 - [ ] T011 Backup + restore en BD scratch.
 
@@ -30,4 +30,27 @@
 
 ## Registro
 
-_(se rellena durante el despliegue)_
+- 2026-11-02 · **Preflight.** `postgres_password` y `better_auth_secret` tenían `\r` (el `openssl` de Git
+  Bash en Windows escribe CRLF): Postgres habría guardado una contraseña distinta de la de la API. Se
+  normalizaron con `tr -d '\r'` (valores intactos) y el README de secretos ahora genera sin `\r`. Creado
+  `lab_runner_token`; flags de los 39 labs con `lab-flags.sh`. Preflight OK.
+- 2026-11-02 · **Un solo lab-runner por host Docker.** El de dev y el de prod gestionarían los mismos
+  proyectos `lab-*` y cada uno apagaría los labs del otro (no los renueva). Antes de prod se paró el de dev;
+  como `restart: always` lo resucita al reiniciar el daemon, en dev pasa a `unless-stopped`.
+- 2026-11-02 · **Primer `up --build` fallido:** el contexto de build no podía leer
+  `apps/lab-runner/node_modules` (enlaces de Linux escritos por el `pnpm install` de los contenedores de
+  dev). Corregido en 011 T909.
+- 2026-11-02 · **Disco C: lleno (20 MB libres) durante el build.** Se paró el build y, con el visto bueno
+  del usuario: caché de build de Docker (32,5 GB), imágenes sin uso de cualquier proyecto (32,4 GB; los
+  volúmenes con datos no se tocaron), store de pnpm (0,7 GB), `.turbo` (3,7 GB) y `.next` (0,6 GB).
+  `docker_data.vhdx` no es *sparse*: tras `fstrim` en la VM se compactó con diskpart desde un PowerShell
+  elevado (script con Docker y WSL parados): 123,8 → 60,5 GB. C: pasó de 20 MB a 68 GB libres.
+- 2026-11-02 · **Despliegue (T009).** `proxy up` + `prod up -d --build`: postgres, api, web y lab-runner
+  *healthy*. La API aplicó las 11 migraciones con el CLI local (sin descargar pnpm), creó el admin
+  inicial con el secreto y el reaper hizo su primer barrido; el runner arrancó con Engine 29.9.2 /
+  Compose 5.6.1 y 39 labs. `seed-prod.sh` ×2: 4 paths, 37 módulos, 59 rooms, 491 preguntas, 0 filas
+  obsoletas. `smoke-prod.mjs`: TLS verificado contra la CA interna de Caddy, health (db y runner),
+  cabeceras de seguridad, páginas, catálogo 59 rooms ES/EN (EN de verdad en inglés), hacktivities,
+  labs activados, login de admin con cookie `__Secure-`, panel de labs de admin, endpoint de PDF vivo
+  (404 = path no completado) y las 118 páginas de rooms ES+EN: todo OK. Playwright contra
+  `https://localhost`: **27 OK, 1 omitido** (el del reaper exige inactividad de 1 min: se prueba en T010).
