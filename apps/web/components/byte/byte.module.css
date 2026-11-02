@@ -1,0 +1,523 @@
+/*
+ * Byte mascot styles (ADR-014).
+ * Every mood sets a static pose with `transform` and layers motion on top with
+ * `animation`; under prefers-reduced-motion all animations are removed and the
+ * static pose remains. Coordinates below are SVG user units (viewBox 120x140).
+ */
+
+@property --byte-led {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #34d399;
+}
+
+.root {
+  --byte-shell: #e2e8f0;
+  --byte-shade-soft: #cbd5e1;
+  --byte-shade: #94a3b8;
+  --byte-visor: #0b1220;
+  --byte-led: #34d399;
+  --byte-led-soft: #a7f3d0;
+  --byte-amber: #fbbf24;
+  display: inline-block;
+  flex-shrink: 0;
+  overflow: visible;
+  vertical-align: middle;
+}
+
+.root * {
+  transform-box: view-box;
+}
+
+/* ---------- paint ---------- */
+
+.shell { fill: var(--byte-shell); }
+.shadeSoft { fill: var(--byte-shade-soft); }
+.shade { fill: var(--byte-shade); }
+.highlight { fill: #fff; opacity: 0.75; }
+.shadow { fill: #000; opacity: 0.45; }
+
+.visor {
+  fill: var(--byte-visor);
+  stroke: var(--byte-led);
+  stroke-opacity: 0.35;
+  stroke-width: 1.2;
+}
+
+.reflection {
+  fill: none;
+  stroke: #fff;
+  stroke-opacity: 0.12;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.hand {
+  fill: var(--byte-shade-soft);
+  stroke: var(--byte-led);
+  stroke-opacity: 0.6;
+  stroke-width: 1.4;
+}
+
+.core,
+.antennaLed,
+.face,
+.mouthOpen { fill: var(--byte-led); }
+
+.flame { fill: var(--byte-led); opacity: 0.85; }
+.flameCore { fill: var(--byte-led-soft); }
+
+.stroke {
+  fill: none;
+  stroke: var(--byte-led);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cheek { fill: #f472b6; opacity: 0; transition: opacity 0.25s ease; }
+.scanBeam { opacity: 0; }
+.static { opacity: 0; }
+.static rect { fill: var(--byte-led); }
+.thought circle { fill: var(--byte-shade-soft); }
+
+.question {
+  fill: var(--byte-amber);
+  font: 700 22px var(--font-geist-mono, ui-monospace, monospace);
+}
+
+.zzz text {
+  fill: var(--byte-led-soft);
+  font: 700 9px var(--font-geist-mono, ui-monospace, monospace);
+}
+.zzz text:nth-child(2) { font-size: 11px; }
+.zzz text:nth-child(3) { font-size: 13px; }
+
+.bulb circle { fill: var(--byte-amber); }
+.bulb rect { fill: var(--byte-shade); }
+.bulbRays {
+  fill: none;
+  stroke: var(--byte-amber);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.sparkles path { fill: var(--byte-amber); }
+
+/* ---------- part visibility per mood ---------- */
+
+.eyesOpen,
+.mouthSmile { transition: opacity 0.2s ease; }
+
+.eyesHappy,
+.eyesClosed,
+.eyesSad,
+.eyesConfused,
+.eyesX,
+.mouthOpen,
+.mouthFrown,
+.mouthO,
+.mouthFlat,
+.mouthZig,
+.thought,
+.question,
+.zzz,
+.bulb,
+.sparkles {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.root:is(
+    [data-mood='wave'],
+    [data-mood='happy'],
+    [data-mood='celebrate'],
+    [data-mood='sad'],
+    [data-mood='confused'],
+    [data-mood='error'],
+    [data-mood='sleep']
+  )
+  .eyesOpen { opacity: 0; }
+
+.root:is([data-mood='wave'], [data-mood='happy'], [data-mood='celebrate']) .eyesHappy { opacity: 1; }
+.root[data-mood='sleep'] .eyesClosed { opacity: 1; }
+.root[data-mood='sad'] .eyesSad { opacity: 1; }
+.root[data-mood='confused'] .eyesConfused { opacity: 1; }
+.root[data-mood='error'] .eyesX { opacity: 1; }
+
+.root:is(
+    [data-mood='celebrate'],
+    [data-mood='sad'],
+    [data-mood='confused'],
+    [data-mood='error'],
+    [data-mood='think'],
+    [data-mood='scan'],
+    [data-mood='sleep']
+  )
+  .mouthSmile { opacity: 0; }
+
+.root[data-mood='celebrate'] .mouthOpen { opacity: 1; }
+.root[data-mood='sad'] .mouthFrown { opacity: 1; }
+.root[data-mood='confused'] .mouthO { opacity: 1; }
+.root:is([data-mood='think'], [data-mood='scan'], [data-mood='sleep']) .mouthFlat { opacity: 1; }
+.root[data-mood='error'] .mouthZig { opacity: 1; }
+
+.root:is([data-mood='wave'], [data-mood='happy'], [data-mood='celebrate']) .cheek { opacity: 0.55; }
+.root[data-mood='think'] .thought { opacity: 1; }
+.root[data-mood='confused'] .question { opacity: 1; }
+.root[data-mood='sleep'] .zzz { opacity: 1; }
+.root[data-mood='hint'] .bulb { opacity: 1; }
+.root[data-mood='celebrate'] .sparkles { opacity: 1; }
+.root[data-mood='scan'] .scanBeam { opacity: 0.55; }
+.root[data-mood='error'] .static { opacity: 0.5; }
+
+/* ---------- transform origins ---------- */
+
+.bot { transform-origin: 60px 120px; }
+.head { transform-origin: 60px 78px; }
+.antenna { transform-origin: 60px 24px; }
+.armL { transform-origin: 33px 89px; transform: rotate(14deg); }
+.armR { transform-origin: 87px 89px; transform: rotate(-14deg); }
+.eyesOpen { transform-origin: 60px 49.5px; }
+.flame,
+.flameCore { transform-origin: 60px 120px; }
+.shadow { transform-origin: 60px 134px; }
+.bulb { transform-origin: 100px 26px; }
+
+.sparkles path,
+.zzz text,
+.thought circle,
+.question {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* mirror for direction="left" (independent `scale` composes with animations) */
+.root[data-dir='left'] .bot { scale: -1 1; }
+
+/* ---------- idle (default) ---------- */
+
+.bot { animation: float 3.6s ease-in-out infinite; }
+.shadow { animation: shadow 3.6s ease-in-out infinite; }
+.flame { animation: flicker 0.18s ease-in-out infinite alternate; }
+.flameCore { animation: flicker 0.22s ease-in-out infinite alternate-reverse; }
+.antennaLed { animation: ledPulse 2.4s ease-in-out infinite; }
+.core { animation: ledPulse 3s ease-in-out infinite; }
+.eyesOpen { animation: blink 5.2s linear infinite; }
+.pupils { animation: look 9s ease-in-out infinite; }
+.armL { animation: swayL 3.6s ease-in-out infinite; }
+.armR { animation: swayR 3.6s ease-in-out infinite; }
+
+/* ---------- wave ---------- */
+
+.root[data-mood='wave'] .armR {
+  transform: rotate(-150deg);
+  animation: wave 0.9s ease-in-out infinite;
+}
+.root[data-mood='wave'] .head { animation: tilt 1.8s ease-in-out infinite; }
+
+/* ---------- think ---------- */
+
+.root[data-mood='think'] .bot { animation-duration: 5s; }
+.root[data-mood='think'] .shadow { animation-duration: 5s; }
+.root[data-mood='think'] .pupils { transform: translate(3px, -3px); animation: none; }
+.root[data-mood='think'] .head { transform: rotate(-6deg); }
+.root[data-mood='think'] .armR {
+  transform: rotate(-125deg);
+  animation: chinTap 1.6s ease-in-out infinite;
+}
+.root[data-mood='think'] .thought circle { animation: thoughtDot 1.4s ease-in-out infinite; }
+.root[data-mood='think'] .thought circle:nth-child(2) { animation-delay: 0.2s; }
+.root[data-mood='think'] .thought circle:nth-child(3) { animation-delay: 0.4s; }
+
+/* ---------- happy ---------- */
+
+.root[data-mood='happy'] .bot { animation: hop 1.2s ease-in-out infinite; }
+.root[data-mood='happy'] .shadow { animation: shadowHop 1.2s ease-in-out infinite; }
+.root[data-mood='happy'] .armL { transform: rotate(40deg); animation: flapL 1.2s ease-in-out infinite; }
+.root[data-mood='happy'] .armR { transform: rotate(-40deg); animation: flapR 1.2s ease-in-out infinite; }
+
+/* ---------- celebrate ---------- */
+
+.root[data-mood='celebrate'] { animation: rainbow 2.4s linear infinite; }
+.root[data-mood='celebrate'] .bot { animation: jump 0.9s ease-in-out infinite; }
+.root[data-mood='celebrate'] .shadow { animation: shadowJump 0.9s ease-in-out infinite; }
+.root[data-mood='celebrate'] .armL {
+  transform: rotate(130deg);
+  animation: cheerL 0.45s ease-in-out infinite alternate;
+}
+.root[data-mood='celebrate'] .armR {
+  transform: rotate(-130deg);
+  animation: cheerR 0.45s ease-in-out infinite alternate;
+}
+.root[data-mood='celebrate'] .sparkles path { animation: twinkle 1s ease-in-out infinite; }
+.root[data-mood='celebrate'] .sparkles g:nth-child(2) path { animation-delay: 0.25s; }
+.root[data-mood='celebrate'] .sparkles g:nth-child(3) path { animation-delay: 0.5s; }
+.root[data-mood='celebrate'] .sparkles g:nth-child(4) path { animation-delay: 0.75s; }
+
+/* ---------- sad ---------- */
+
+.root[data-mood='sad'] {
+  --byte-led: #67e8f9;
+  --byte-led-soft: #cffafe;
+}
+.root[data-mood='sad'] .bot { animation-duration: 5.5s; }
+.root[data-mood='sad'] .shadow { animation-duration: 5.5s; }
+.root[data-mood='sad'] .head {
+  transform: translateY(2px) rotate(-3deg);
+  animation: sigh 4s ease-in-out infinite;
+}
+.root[data-mood='sad'] .antenna { transform: rotate(28deg); }
+.root[data-mood='sad'] .antennaLed { opacity: 0.6; animation: none; }
+.root[data-mood='sad'] .armL { transform: rotate(4deg); animation: none; }
+.root[data-mood='sad'] .armR { transform: rotate(-4deg); animation: none; }
+
+/* ---------- confused ---------- */
+
+.root[data-mood='confused'] .head {
+  transform: rotate(8deg);
+  animation: tiltConfused 2.2s ease-in-out infinite;
+}
+.root[data-mood='confused'] .question { animation: bob 1.4s ease-in-out infinite; }
+.root[data-mood='confused'] .armR {
+  transform: rotate(-150deg);
+  animation: scratch 0.5s ease-in-out infinite alternate;
+}
+.root[data-mood='confused'] .eyesConfused { animation: glitch 2.5s steps(1) infinite; }
+
+/* ---------- error ---------- */
+
+.root[data-mood='error'] {
+  --byte-led: #f87171;
+  --byte-led-soft: #fecaca;
+}
+.root[data-mood='error'] .bot { animation: jitter 2.4s linear infinite; }
+.root[data-mood='error'] .static rect { animation: staticMove 0.6s steps(3) infinite; }
+.root[data-mood='error'] .antennaLed { animation: ledBlink 0.5s steps(1) infinite; }
+.root[data-mood='error'] .armL { transform: rotate(8deg); animation: none; }
+.root[data-mood='error'] .armR { transform: rotate(-8deg); animation: none; }
+
+/* ---------- sleep ---------- */
+
+.root[data-mood='sleep'] { --byte-led: #10b981; }
+.root[data-mood='sleep'] .bot { animation-duration: 6s; }
+.root[data-mood='sleep'] .shadow { animation-duration: 6s; }
+.root[data-mood='sleep'] .head {
+  transform: translateY(2px) rotate(7deg);
+  animation: breathe 4s ease-in-out infinite;
+}
+.root[data-mood='sleep'] .flame,
+.root[data-mood='sleep'] .flameCore { transform: scaleY(0.35); animation: none; }
+.root[data-mood='sleep'] .antennaLed { opacity: 0.5; animation: none; }
+.root[data-mood='sleep'] .armL { transform: rotate(6deg); animation: none; }
+.root[data-mood='sleep'] .armR { transform: rotate(-6deg); animation: none; }
+.root[data-mood='sleep'] .zzz text { animation: zRise 3s ease-in infinite; }
+.root[data-mood='sleep'] .zzz text:nth-child(2) { animation-delay: 1s; }
+.root[data-mood='sleep'] .zzz text:nth-child(3) { animation-delay: 2s; }
+
+/* ---------- scan ---------- */
+
+.root[data-mood='scan'] .eyesOpen { transform: scaleY(0.35); animation: none; }
+.root[data-mood='scan'] .pupils { animation: scanLook 1.6s ease-in-out infinite alternate; }
+.root[data-mood='scan'] .scanBeam { animation: sweep 1.6s ease-in-out infinite alternate; }
+.root[data-mood='scan'] .antennaLed { animation: ledBlink 0.6s steps(1) infinite; }
+.root[data-mood='scan'] .head { animation: scanHead 1.6s ease-in-out infinite alternate; }
+
+/* ---------- point ---------- */
+
+.root[data-mood='point'] .armR {
+  transform: rotate(-95deg);
+  animation: pointTap 1.2s ease-in-out infinite;
+}
+.root[data-mood='point'] .pupils { transform: translateX(3px); animation: none; }
+.root[data-mood='point'] .head { transform: rotate(4deg); }
+
+/* ---------- hint ---------- */
+
+.root[data-mood='hint'] .armR {
+  transform: rotate(-135deg);
+  animation: raise 1s ease-in-out infinite alternate;
+}
+.root[data-mood='hint'] .pupils { transform: translate(2px, -3px); animation: none; }
+.root[data-mood='hint'] .bulb {
+  animation:
+    bulbPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    bulbGlow 1.6s ease-in-out 0.5s infinite;
+}
+
+/* ---------- reduced motion: static pose per mood ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .root * {
+    animation: none !important;
+  }
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.45; }
+  50% { transform: scaleX(0.8); opacity: 0.3; }
+}
+@keyframes flicker {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(0.72); }
+}
+@keyframes ledPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes ledBlink {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+@keyframes blink {
+  0%, 90%, 96%, 100% { transform: scaleY(1); }
+  93% { transform: scaleY(0.1); }
+}
+@keyframes look {
+  0%, 38%, 88%, 100% { transform: translateX(0); }
+  44%, 58% { transform: translateX(-3px); }
+  64%, 82% { transform: translateX(3px); }
+}
+@keyframes swayL {
+  0%, 100% { transform: rotate(12deg); }
+  50% { transform: rotate(20deg); }
+}
+@keyframes swayR {
+  0%, 100% { transform: rotate(-12deg); }
+  50% { transform: rotate(-20deg); }
+}
+@keyframes wave {
+  0%, 100% { transform: rotate(-150deg); }
+  50% { transform: rotate(-115deg); }
+}
+@keyframes tilt {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes chinTap {
+  0%, 100% { transform: rotate(-125deg); }
+  50% { transform: rotate(-117deg); }
+}
+@keyframes thoughtDot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes hop {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-8px); }
+}
+@keyframes shadowHop {
+  0%, 60%, 100% { transform: scaleX(1); opacity: 0.45; }
+  30% { transform: scaleX(0.75); opacity: 0.25; }
+}
+@keyframes flapL {
+  0%, 60%, 100% { transform: rotate(35deg); }
+  30% { transform: rotate(65deg); }
+}
+@keyframes flapR {
+  0%, 60%, 100% { transform: rotate(-35deg); }
+  30% { transform: rotate(-65deg); }
+}
+@keyframes rainbow {
+  0%, 100% { --byte-led: #34d399; }
+  25% { --byte-led: #22d3ee; }
+  50% { --byte-led: #fbbf24; }
+  75% { --byte-led: #f472b6; }
+}
+@keyframes jump {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  15% { transform: translateY(0) scale(1.06, 0.92); }
+  45% { transform: translateY(-16px) scale(0.96, 1.05); }
+  70% { transform: translateY(0) scale(1.04, 0.96); }
+}
+@keyframes shadowJump {
+  0%, 15%, 70%, 100% { transform: scaleX(1); opacity: 0.45; }
+  45% { transform: scaleX(0.6); opacity: 0.2; }
+}
+@keyframes cheerL {
+  from { transform: rotate(118deg); }
+  to { transform: rotate(148deg); }
+}
+@keyframes cheerR {
+  from { transform: rotate(-118deg); }
+  to { transform: rotate(-148deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(45deg); }
+}
+@keyframes sigh {
+  0%, 100% { transform: translateY(2px) rotate(-3deg); }
+  50% { transform: translateY(3px) rotate(3deg); }
+}
+@keyframes tiltConfused {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(13deg); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-3px) rotate(6deg); }
+}
+@keyframes scratch {
+  from { transform: rotate(-150deg); }
+  to { transform: rotate(-136deg); }
+}
+@keyframes glitch {
+  0%, 90%, 96%, 100% { transform: translateX(0); }
+  92% { transform: translateX(-2px); }
+  94% { transform: translateX(2px); }
+}
+@keyframes jitter {
+  0%, 80%, 94%, 100% { transform: translate(0, 0); }
+  82% { transform: translate(-1.5px, 0.5px); }
+  86% { transform: translate(1.5px, -0.5px); }
+  90% { transform: translate(-1px, 0); }
+}
+@keyframes staticMove {
+  from { transform: translateY(0); }
+  to { transform: translateY(6px); }
+}
+@keyframes breathe {
+  0%, 100% { transform: translateY(2px) rotate(7deg); }
+  50% { transform: translateY(3px) rotate(5deg); }
+}
+@keyframes zRise {
+  0% { opacity: 0; transform: translate(0, 4px) scale(0.6); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(6px, -10px) scale(1.1); }
+}
+@keyframes scanLook {
+  from { transform: translateX(-3px); }
+  to { transform: translateX(3px); }
+}
+@keyframes sweep {
+  from { transform: translateX(0); }
+  to { transform: translateX(56px); }
+}
+@keyframes scanHead {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(3deg); }
+}
+@keyframes pointTap {
+  0%, 100% { transform: rotate(-95deg); }
+  50% { transform: rotate(-88deg); }
+}
+@keyframes raise {
+  from { transform: rotate(-135deg); }
+  to { transform: rotate(-118deg); }
+}
+@keyframes bulbPop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+@keyframes bulbGlow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
