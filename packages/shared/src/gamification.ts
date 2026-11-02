@@ -106,3 +106,11 @@ export const STREAK_MIN_QUESTIONS_PER_DAY = 3;
 export function isStreakDay(correctAnswersToday: number): boolean {
   return correctAnswersToday >= STREAK_MIN_QUESTIONS_PER_DAY;
 }
+
+/** A path-completion certificate (computed on the fly by the API). */
+export interface CertificateItem {
+  pathSlug: string;
+  pathTitle: string;
+  completedAt: string;
+  xpInPath: number;
+}

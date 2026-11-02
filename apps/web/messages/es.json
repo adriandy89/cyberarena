@@ -216,7 +216,8 @@
     "print": "Imprimir / PDF",
     "notFound": "Certificado no disponible",
     "notFoundHint": "Completa todas las preguntas de la ruta para obtenerlo.",
-    "footnote": "Verificable en CyberArena · path {slug}"
+    "footnote": "Verificable en CyberArena · path {slug}",
+    "download": "⬇ Descargar PDF"
   },
   "HacktivitiesPage": {
     "title": "Hacktivities",

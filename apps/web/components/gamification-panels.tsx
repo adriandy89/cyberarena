@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { CertificateItem } from '@repo/shared';
 import { useEffect, useState } from 'react';
 import { Link } from '../i18n/navigation';
 
@@ -22,13 +23,6 @@ interface SkillItem {
   solved: number;
   total: number;
   percent: number;
-}
-
-interface CertificateItem {
-  pathSlug: string;
-  pathTitle: string;
-  completedAt: string;
-  xpInPath: number;
 }
 
 /** Dashboard side panels: streak, badges, skills and certificates. */

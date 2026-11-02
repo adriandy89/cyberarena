@@ -1,27 +1,23 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import type { CertificateItem } from '@repo/shared';
 
 interface MeResponse {
   name: string;
 }
 
-interface CertificateItem {
-  pathSlug: string;
-  pathTitle: string;
-  completedAt: string;
-  xpInPath: number;
-}
-
-/** Printable path certificate: use the browser print dialog to export as PDF. */
+/** Path certificate: download the server-generated PDF or print the card. */
 export default function CertificatePage() {
   const t = useTranslations('CertificatePage');
+  const locale = useLocale();
   const params = useParams<{ locale: string; slug: string }>();
   const slug = params?.slug;
   const [name, setName] = useState<string | null>(null);
   const [certificate, setCertificate] = useState<CertificateItem | null | undefined>(undefined);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -58,15 +54,48 @@ export default function CertificatePage() {
 
   const completedAt = new Date(certificate.completedAt).toLocaleDateString();
 
+  async function downloadPdf() {
+    setDownloading(true);
+    try {
+      const response = await fetch(`/api/me/certificates/${slug}/pdf?locale=${locale}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error(`status ${response.status}`);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `CyberArena-${slug}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      // non-fatal: the print button remains as fallback
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center px-6 py-10">
-      <button
-        type="button"
-        onClick={() => window.print()}
-        className="mb-8 self-end rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:border-emerald-500/50 print:hidden"
-      >
-        🖨 {t('print')}
-      </button>
+      <div className="mb-8 flex w-full max-w-2xl justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => void downloadPdf()}
+          disabled={downloading}
+          className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:opacity-50 print:hidden"
+        >
+          {downloading ? '…' : t('download')}
+        </button>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:border-emerald-500/50 print:hidden"
+        >
+          🖨 {t('print')}
+        </button>
+      </div>
 
       <article className="w-full max-w-2xl rounded-2xl border-4 border-double border-emerald-500/60 bg-white p-10 text-center text-slate-900 shadow-2xl">
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-700">
