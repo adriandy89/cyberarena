@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Catalog, CompiledRoom } from './schemas';
-import { validateCatalog } from './validate';
+import { orderWarnings, validateCatalog } from './validate';
 
 function room(
   slug: string,
@@ -122,5 +122,38 @@ describe('validateCatalog', () => {
     ];
     const issues = validateCatalog(catalogWith(rooms), { 'other-room-t01-q01': 'FLAG{x}' });
     expect(issues.some((i) => i.message.includes("id must start with 'linux-1-t'"))).toBe(true);
+  });
+});
+
+describe('orderWarnings', () => {
+  const withDifficulty = (slug: string, difficulty: string): CompiledRoom => ({
+    ...room(slug),
+    difficulty,
+  });
+
+  it('warns when a room is easier than the previous one in its module', () => {
+    const catalog = catalogWith([
+      withDifficulty('wire-shark', 'medium'),
+      withDifficulty('wire-less', 'easy'),
+    ]);
+    expect(orderWarnings(catalog)).toEqual([
+      "module:module: 'wire-less' (easy) comes after 'wire-shark' (medium)",
+    ]);
+  });
+
+  it('ignores info rooms and increasing difficulty', () => {
+    const catalog = catalogWith([
+      withDifficulty('room-easy', 'easy'),
+      withDifficulty('room-info', 'info'),
+      withDifficulty('room-medium', 'medium'),
+    ]);
+    expect(orderWarnings(catalog)).toEqual([]);
+  });
+
+  it('warns about links to rooms that come later', () => {
+    const first = room('room-one');
+    first.tasks[0]!.body = 'Ver [el siguiente](/rooms/room-two) y [el anterior](/rooms/room-zero)';
+    const catalog = catalogWith([room('room-zero'), first, room('room-two')]);
+    expect(orderWarnings(catalog)).toEqual(["room:room-one: task 1 links forward to 'room-two'"]);
   });
 });

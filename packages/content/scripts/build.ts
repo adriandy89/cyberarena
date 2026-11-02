@@ -16,7 +16,7 @@ import {
   type ModuleJson,
   type PathJson,
 } from '../src/schemas';
-import { validateCatalog, type ValidationIssue } from '../src/validate';
+import { orderWarnings, validateCatalog, type ValidationIssue } from '../src/validate';
 import { sortPathsByOrder } from '../src/catalog-order';
 import {
   applyCatalogTranslation,
@@ -200,6 +200,13 @@ async function main(): Promise<void> {
       console.error(`  - ${error}`);
     }
     process.exit(1);
+  }
+
+  // Ordering problems are warnings: they never block a build, but stay visible.
+  const warnings = orderWarnings(catalog);
+  if (warnings.length > 0) {
+    console.warn(`content build: ${warnings.length} ordering warning(s):`);
+    for (const warning of warnings) console.warn(`  ! ${warning}`);
   }
 
   await mkdir(DIST, { recursive: true });

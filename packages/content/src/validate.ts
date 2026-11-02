@@ -1,4 +1,4 @@
-import { isFlag } from '@repo/shared';
+import { DIFFICULTY_IDS, isFlag, type Difficulty } from '@repo/shared';
 import type { Catalog, CompiledRoom } from './schemas';
 
 export interface ValidationIssue {
@@ -98,4 +98,47 @@ export function validateCatalog(
   }
 
   return issues;
+}
+
+/**
+ * Non-blocking ordering checks (spec 010 T025), printed as build warnings:
+ * - a room easier than the previous one in the same module ("info" theory
+ *   rooms are ignored: they are not a difficulty step);
+ * - a task linking to `/rooms/<slug>` that only comes later in the roadmap.
+ */
+export function orderWarnings(catalog: Catalog): string[] {
+  const warnings: string[] = [];
+  const position = new Map<string, number>();
+  const flat = catalog.paths.flatMap((path) => path.modules.flatMap((module) => module.rooms));
+  flat.forEach((room, index) => position.set(room.slug, index));
+
+  const rank = (difficulty: string) => DIFFICULTY_IDS.indexOf(difficulty as Difficulty);
+  for (const path of catalog.paths) {
+    for (const module of path.modules) {
+      let previous: CompiledRoom | null = null;
+      for (const room of module.rooms) {
+        if (room.difficulty === 'info') continue;
+        if (previous && rank(room.difficulty) < rank(previous.difficulty)) {
+          warnings.push(
+            `module:${module.slug}: '${room.slug}' (${room.difficulty}) comes after '${previous.slug}' (${previous.difficulty})`,
+          );
+        }
+        previous = room;
+      }
+    }
+  }
+
+  for (const room of flat) {
+    const here = position.get(room.slug)!;
+    for (const task of room.tasks) {
+      for (const match of task.body.matchAll(/\/rooms\/([a-z0-9-]+)/g)) {
+        const target = match[1]!;
+        const there = position.get(target);
+        if (there !== undefined && there > here) {
+          warnings.push(`room:${room.slug}: task ${task.index} links forward to '${target}'`);
+        }
+      }
+    }
+  }
+  return warnings;
 }

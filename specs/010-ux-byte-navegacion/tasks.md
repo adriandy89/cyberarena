@@ -51,7 +51,7 @@
 - [x] T022 [US4] CS101: orden de módulos, fácil→difícil, sin password-attacks.
 - [x] T023 [US4] JrPT: módulo `passwords`, AD al final, sin mobile.
 - [x] T024 [US4] WebApp (+mobile) y Advanced (+red-team-ops) + descripciones.
-- [ ] T025 [US4] Referencias adelantadas, traducción huérfana, avisos del validador.
+- [x] T025 [US4] Referencias adelantadas, traducción huérfana, avisos del validador.
 
 ## Fase H — Cierre
 
@@ -63,3 +63,10 @@
 - [x] T901 BUG: `/api/catalog?locale=en` (y `paths/:slug?locale=en`) devolvía el catálogo compilado en
       crudo (otra forma, con todos los cuerpos de tareas) → NaN en contadores EN. Ahora forma y orden
       salen de la BD y solo se superponen los textos EN (`catalog-i18n.ts` + tests).
+- [ ] T902 DEUDA (contenido, fuera de 010): ningún room tiene traducido al inglés el **cuerpo** de sus
+      tareas (`translations/en/*.json` solo trae título, descripción y preguntas), así que `/en` muestra la
+      teoría en español en los 59 rooms. Requiere una fase de contenido propia.
+- [ ] T903 DEUDA (contenido): exfiltración DNS explicada en `detection-evasion` y en `data-exfiltration`
+      (ahora en el mismo módulo `red-team-ops`): recortar el solapamiento.
+- [ ] T904 DEUDA (contenido): Burp Suite se introduce en `web-hacking-basico`, `herramientas-ofensivas`
+      (texto) y `burp-suite-pro`: dejar el primero como introducción y enlazar en vez de repetir.

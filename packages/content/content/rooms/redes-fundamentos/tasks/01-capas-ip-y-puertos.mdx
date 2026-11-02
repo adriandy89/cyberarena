@@ -35,8 +35,8 @@ Acceso        Ethernet/WiFi, MAC       ← el salto físico
 ```
 
 Cada capa envuelve a la anterior (encapsulación): un HTTP va dentro de un TCP, que va
-dentro de un IP, que va dentro de una trama. Cuando capturas tráfico con Wireshark
-(módulo siguiente) literalmente "desvistes" el paquete capa a capa.
+dentro de un IP, que va dentro de una trama. Cuando captures tráfico con Wireshark
+(último room de este módulo) literalmente "desvestirás" el paquete capa a capa.
 
 ## IP: el domicilio
 
@@ -60,5 +60,5 @@ Los <1024 son "bien conocidos" y requieren privilegios para abrirlos.
 - **TCP**: fiable, con conexión (three-way handshake SYN → SYN-ACK → ACK). HTTP, SSH, SMB.
 - **UDP**: sin conexión, "lanza y reza". DNS, streaming, DHCP. ¡Y Kerberos!
 
-Tu escáner de puertos del módulo de Nmap vive exactamente en esta capa: mandar SYNs
-y leer las respuestas es todo un port scan.
+El escaneo de puertos que harás con Nmap (ruta Jr Penetration Tester) vive exactamente
+en esta capa: mandar SYNs y leer las respuestas es todo un port scan.
