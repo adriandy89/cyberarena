@@ -1,0 +1,69 @@
+---
+index: 1
+title: "STRIDE sobre el diagrama de datos"
+questions:
+  - id: threat-modeling-t01-q01
+    prompt: "¿Qué representa un DFD (Data Flow Diagram) y cuáles son sus 4 elementos estándar?"
+    hint: "El mapa del sistema: procesos, almacenes de datos, entidades externas y flujos de datos"
+    kind: text
+  - id: threat-modeling-t01-q02
+    prompt: "Nombra las 6 letras de STRIDE."
+    hint: "Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege"
+    kind: text
+  - id: threat-modeling-t01-q03
+    prompt: "Un atacante modifica un pedido en tránsito entre el navegador y la API. ¿Qué letra de STRIDE es?"
+    hint: "Tampering (manipulación) — si no hay HTTPS/integridad, el flujo de datos es el blanco"
+    kind: choice
+    options:
+      - id: a
+        label: "Tampering"
+      - id: b
+        label: "Spoofing"
+      - id: c
+        label: "Repudiation"
+  - id: threat-modeling-t01-q04
+    prompt: "Los logs que se guardan SIN identificar usuario/IP/hora abren qué categoría STRIDE?"
+    hint: "Repudiation: el atacante puede negar haberlo hecho — sin evidencia vinculante no hay atribución"
+    kind: text
+---
+
+## El método en 4 preguntas
+
+1. **¿Qué estamos construyendo?** → el DFD.
+2. **¿Qué puede salir mal?** → STRIDE sobre cada elemento.
+3. **¿Qué vamos a hacer al respecto?** → mitigar/aceptar/transferir.
+4. **¿Lo hicimos bien?** → validar y repetir en cada iteración.
+
+## El DFD mínimo de una app web
+
+```
+[Usuario] ──HTTPS──▶ (API) ──▶ [Postgres]
+[Admin]  ──HTTPS──▶ (API) ──▶ [S3 bucket]
+                        └────▶ [API de pagos externa]
+```
+
+Cada **elemento** del DFD tiene sus amenazas naturales — ahí entra
+STRIDE como checklist:
+
+| Elemento DFD | Letras STRIDE que le aplican |
+|---|---|
+| Flujo de datos | T (tampering), I (interceptación), D |
+| Proceso (API) | Todo STRIDE |
+| Almacén (BD/S3) | T, I, R (logs de auditoría), D |
+| Entidad externa | S (suplantación) |
+
+## STRIDE traducido a lo que ya atacaste
+
+| Letra | Pregunta | Room donde lo explotaste |
+|---|---|---|
+| **S**poofing | ¿Puedo hacerme pasar por otro? | auth-bypass, session-security |
+| **T**ampering | ¿Puedo modificar datos en tránsito/en reposo? | jwt-security (alg none) |
+| **R**epudiation | ¿Puedo negar mi acción? (sin logs) | log-forging (justo lo contrario) |
+| **I**nformation disclosure | ¿Puedo ver lo que no debo? | BOLA (api-security), sqli |
+| **D**enial of service | ¿Puedo tumbar el servicio? | api-security (consumo sin límite) |
+| **E**levation of privilege | ¿Puedo escalar? | mass-assignment, privesc-linux |
+
+La revelación pedagógica: cada room ofensivo de esta plataforma ES un
+threat model ejecutado. Diseñar con STRIDE es escribir el ataque ANTES
+que el atacante — literalmente el mismo conocimiento, al otro lado de
+la pizarra.

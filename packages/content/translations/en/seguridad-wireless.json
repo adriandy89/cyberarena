@@ -1,0 +1,24 @@
+{
+  "title": "Wireless Security: the air as perimeter",
+  "description": "From WEP to WPA3: the 4-way handshake, classic attacks (deauth, evil twin) and how a WiFi network is properly audited.",
+  "tasks": {
+    "1": {
+      "title": "WEP, WPA2 and the 4-way handshake",
+      "questions": {
+        "seguridad-wireless-t01-q01": { "prompt": "Why does WEP break in minutes (the design weakness)?" },
+        "seguridad-wireless-t01-q02": { "prompt": "Which exchange establishes the session key in WPA2-Personal and is THE capture target in an audit?" },
+        "seguridad-wireless-t01-q03": { "prompt": "In WPA-Personal, which two pieces compose the material hashcat/aircrack need to crack the password offline?" },
+        "seguridad-wireless-t01-q04": { "prompt": "Which WPA3 mechanism killed offline handshake cracking, and what is the weakness that replaces it in weak configs?" }
+      }
+    },
+    "2": {
+      "title": "Deauth and evil twin: attacking trust",
+      "questions": {
+        "seguridad-wireless-t02-q01": { "prompt": "What does a deauthentication attack do and what does it exploit?" },
+        "seguridad-wireless-t02-q02": { "prompt": "What is an evil twin?" },
+        "seguridad-wireless-t02-q03": { "prompt": "Which WPA-Enterprise (802.1X) mechanism could have prevented evil twin credential capture and what does deploying it require?" },
+        "seguridad-wireless-t02-q04": { "prompt": "Why are open networks with captive portals the evil twin's natural habitat?" }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "title": "Social Engineering: hacking the human",
+  "description": "Pretexting, vishing, MFA fatigue and the OSINT feeding it: why the weakest link is still a person.",
+  "tasks": {
+    "1": {
+      "title": "Pretexting, vishing and influence principles",
+      "questions": {
+        "social-engineering-t01-q01": { "prompt": "What is the technique of building a credible identity/fake scenario before the contact?" },
+        "social-engineering-t01-q02": { "prompt": "What is social engineering over the phone called?" },
+        "social-engineering-t01-q03": { "prompt": "Cialdini described 6 persuasion principles. Name the two exploited by 'I'm from the bank, there is ACTIVE fraud on your account right now'." },
+        "social-engineering-t01-q04": { "prompt": "What is tailgating (or piggybacking) in physical security?" }
+      }
+    },
+    "2": {
+      "title": "MFA fatigue, quishing and deepfakes",
+      "questions": {
+        "social-engineering-t02-q01": { "prompt": "What does the MFA fatigue (push bombing) attack consist of?" },
+        "social-engineering-t02-q02": { "prompt": "Which MFA app setting eliminates push bombing by requiring a number shown on screen to be matched?" },
+        "social-engineering-t02-q03": { "prompt": "What is phishing via QR codes called?" },
+        "social-engineering-t02-q04": { "prompt": "What makes voice/video deepfakes especially effective against financial approval processes?" }
+      }
+    }
+  }
+}

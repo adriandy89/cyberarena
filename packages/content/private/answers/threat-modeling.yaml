@@ -1,0 +1,9 @@
+# Respuestas del room threat-modeling (teoría, sin lab).
+# PRIVADO: el seed lo hashea a la tabla Answer.
+threat-modeling-t01-q01: "procesos, almacenes de datos, entidades externas y flujos de datos"
+threat-modeling-t01-q02: "Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege"
+threat-modeling-t01-q03: a
+threat-modeling-t01-q04: repudiation
+threat-modeling-t02-q01: "riesgo = impacto x probabilidad"
+threat-modeling-t02-q02: "mitigar, aceptar, transferir y evitar"
+threat-modeling-t02-q03: "en el diseño (antes de escribir código)"

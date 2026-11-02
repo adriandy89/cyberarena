@@ -1,0 +1,33 @@
+{
+  "title": "Pivoting and Tunneling: move through the internal network",
+  "description": "SSH local/forward/remote port forwarding, SOCKS with proxychains and chisel tunnels: from one shell to the whole internal network.",
+  "tasks": {
+    "1": {
+      "title": "SSH port forwarding: -L, -R and -D",
+      "questions": {
+        "pivoting-y-tunneling-t01-q01": { "prompt": "Which SSH flag creates a LOCAL tunnel: a port on YOUR machine listening and forwarding to a destination only visible from the SSH server?" },
+        "pivoting-y-tunneling-t01-q02": { "prompt": "You have SSH credentials on 10.10.10.5 (DMZ) and from there an internal web service runs on 192.168.1.20:8080 you cannot see from outside. Write the full command to open it on your localhost:8080." },
+        "pivoting-y-tunneling-t01-q03": { "prompt": "Which SSH flag does the INVERSE: exposes a service on YOUR machine to the SSH server's network?" },
+        "pivoting-y-tunneling-t01-q04": { "prompt": "Which SSH flag raises a dynamic SOCKS4/5 proxy (one port routing to ANY destination reachable by the server)?" }
+      }
+    },
+    "2": {
+      "title": "proxychains: any tool through the tunnel",
+      "questions": {
+        "pivoting-y-tunneling-t02-q01": { "prompt": "In which file does proxychains configure its default SOCKS proxy (full Linux path)?" },
+        "pivoting-y-tunneling-t02-q02": { "prompt": "Write the line you would add to the ProxyList to use the SOCKS5 from the previous task's SSH." },
+        "pivoting-y-tunneling-t02-q03": { "prompt": "Why does proxychains NEVER route ICMP (ping), and which nmap option replaces ping for host discovery through the SOCKS?" },
+        "pivoting-y-tunneling-t02-q04": { "prompt": "Which proxychains mode switches to the next proxy in the list when one fails (ideal when chaining several pivots)?" }
+      }
+    },
+    "3": {
+      "title": "No SSH: chisel and socat",
+      "questions": {
+        "pivoting-y-tunneling-t03-q01": { "prompt": "What language is chisel written in (giving it the single multi-platform binary you upload to the pivot)?" },
+        "pivoting-y-tunneling-t03-q02": { "prompt": "Write the chisel CLIENT command on pivot 10.10.10.5 to open a SOCKS5 on your Kali (the pivot connects out to your 443)." },
+        "pivoting-y-tunneling-t03-q03": { "prompt": "With socat: which option on the pivot forwards a local port to another host (a minimal 'port forward' relay)?" },
+        "pivoting-y-tunneling-t03-q04": { "prompt": "What KEY advantage does chisel's reverse mode (--reverse) have in networks with strict egress firewalls?" }
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+---
+index: 1
+title: "Wordlists y reglas de mangling"
+questions:
+  - id: password-attacks-t01-q01
+    prompt: "¿Cómo se llama LA wordlist de 14 millones de contraseñas filtradas que viene por defecto en Kali (/usr/share/wordlists/rockyou.txt)?"
+    hint: "rockyou.txt (del breach de RockYou 2009) — viene gzipeada: gunzip una vez"
+    kind: text
+  - id: password-attacks-t01-q02
+    prompt: "¿Qué herramienta genera wordlists personalizadas a partir del perfil de la víctima (nombre, empresa, fecha de nacimiento, deportes) con un perfil mentira?"
+    hint: "CUPP — responde sus preguntas interactivas y crea la lista a medida"
+    kind: text
+  - id: password-attacks-t01-q03
+    prompt: "En hashcat, ¿qué son las REGLAS (rules) aplicadas a una wordlist?"
+    hint: "Transformaciones por línea: capitalizar, añadir año, leetspeak, duplicar — best64.rule es la colección estándar"
+    kind: text
+  - id: password-attacks-t01-q04
+    prompt: "Escribe el comando hashcat para romper un hash NTLM (/tmp/hash.txt) con rockyou + la regla best64 usando la GPU."
+    hint: "hashcat -m 1000 /tmp/hash.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule"
+    kind: text
+---
+
+## La materia prima: wordlists
+
+| Wordlist | Para qué |
+|---|---|
+| `rockyou.txt` (14M) | El punto de partida universal |
+| `SecLists` (GitHub) | Metacolección: por servicio, por idioma, patrones |
+| `honeypot` / leaks recientes | Lo que de verdad usan los atacantes hoy |
+| Generadas (CUPP, mentha) | Dirigidas a UNA víctima con perfil conocido |
+
+```bash
+# Kali trae rockyou gzipeada:
+sudo gunzip -d /usr/share/wordlists/rockyou.txt.gz
+
+# CUPP: contraseña de 'Alice Smith, de contabilidad, fans de Barça, nacida 1990'
+cupp -i
+# → asmith1990, Barca1990!, Contabilidad2026...
+```
+
+La lección operativa: una wordlist dirigida de 500 palabras contra un
+usuario concreto suele ganar a rockyou de 14 millones. El contexto
+(linkedin, redes sociales) multiplica la eficacia por encima del volumen.
+
+## Reglas: 14 millones se vuelven miles de millones
+
+Una regla transforma cada palabra de la lista: `Marcos` → `Marcos2026`,
+`M4rc0s!`, `marcosmarcos`... Las colecciones estándar (`best64.rule`,
+`dive.rule`) condensan lo que la gente realmente hace con sus
+contraseñas:
+
+```bash
+# NTLM con reglas — el comando que verás en todo engagement de AD:
+hashcat -m 1000 hashes.txt rockyou.txt -r rules/best64.rule
+
+# ¿Cuántas candidatas genera? (modo estimación):
+hashcat -m 1000 hashes.txt rockyou.txt -r rules/best64.rule --stdout | wc -l
+```
+
+El orden importa: primero la wordlist buena, luego las reglas buenas.
+Una lista filtrada del sector + best64 supera a cualquier brute force
+puro (que a 8 caracteres con símbolos ya se va a siglos).
+
+## El mapa de -m de hashcat
+
+| -m | Hash | Dónde aparece |
+|---|---|---|
+| 0 | MD5 | Apps viejas, foros |
+| 1000 | NTLM | Windows/AD (la estrella) |
+| 1800 | sha512crypt | /etc/shadow Linux |
+| 3200 | bcrypt | Apps modernas |
+| 13100 | Kerberoast TGS | Tickets de servicio de AD |
+
+`hashcat --example-hashes` lista los 300+. Identificar el formato
+ANTES de romper es media tarea (¿empieza por `$2y$`? bcrypt. `$krb5tgs`?
+kerberoast).

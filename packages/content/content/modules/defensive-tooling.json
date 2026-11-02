@@ -1,8 +1,13 @@
 {
   "slug": "defensive-tooling",
   "title": "Defensive Security Tooling",
-  "description": "CyberChef, REMnux/FlareVM y cómo se monta un laboratorio de análisis seguro.",
+  "description": "Las herramientas del defensor: SIEM y EDR en la práctica, REMnux/FLARE y el método de análisis de malware.",
   "rooms": [
-    { "slug": "herramientas-defensivas" }
+    {
+      "slug": "herramientas-defensivas"
+    },
+    {
+      "slug": "malware-analysis"
+    }
   ]
 }

@@ -1,0 +1,23 @@
+{
+  "title": "Threat Modeling: the design under attack",
+  "description": "STRIDE, data flow diagrams and risk prioritization: finding the flaws on the whiteboard, when fixing them still costs zero.",
+  "tasks": {
+    "1": {
+      "title": "STRIDE over the data flow diagram",
+      "questions": {
+        "threat-modeling-t01-q01": { "prompt": "What does a DFD represent and what are its 4 standard elements?" },
+        "threat-modeling-t01-q02": { "prompt": "Name the 6 letters of STRIDE." },
+        "threat-modeling-t01-q03": { "prompt": "An attacker modifies an order in transit between browser and API. Which STRIDE letter is it?" },
+        "threat-modeling-t01-q04": { "prompt": "Logs stored WITHOUT user/IP/time open which STRIDE category?" }
+      }
+    },
+    "2": {
+      "title": "Prioritize risks and embed it in the SDLC",
+      "questions": {
+        "threat-modeling-t02-q01": { "prompt": "What is risk in its classic formulation (the multiplication used by DREAD and most models)?" },
+        "threat-modeling-t02-q02": { "prompt": "What are the 4 possible responses to an identified risk (the classic management quadrant)?" },
+        "threat-modeling-t02-q03": { "prompt": "In which SDLC phase is threat modeling cheapest and most effective?" }
+      }
+    }
+  }
+}

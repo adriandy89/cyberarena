@@ -1,0 +1,70 @@
+---
+index: 2
+title: "Priorizar riesgos y meterlo en el SDLC"
+questions:
+  - id: threat-modeling-t02-q01
+    prompt: "¿Qué es el riesgo en su formulación clásica (la multiplicación que usan DREAD y casi todos los modelos)?"
+    hint: "Riesgo = Impacto × Probabilidad — DREAD lo desglosa: Damage, Reproducibility, Exploitability, Affected users, Discoverability"
+    kind: text
+  - id: threat-modeling-t02-q02
+    prompt: "¿Cuáles son las 4 respuestas posibles ante un riesgo identificado (el cuadrante clásico de gestión)?"
+    hint: "Mitigar, Aceptar, Transferir, Evitar — el mismo marco que en riesgo empresarial"
+    kind: text
+  - id: threat-modeling-t02-q03
+    prompt: "¿En qué fase del SDLC el threat modeling es más barato y más efectivo?"
+    hint: "Diseño (antes del código): arreglar en diseño = horas; en producción = incidentes + parches + reputación"
+    kind: text
+---
+
+## De la lista de amenazas a la lista de tareas
+
+Un threat meeting produce 30 amenazas; el mes tiene 40 horas. Se
+prioriza. **DREAD** puntúa cada amenaza 1-10 en cinco ejes (Damage,
+Reproducibility, Exploitability, Affected users, Discoverability) y el
+promedio ordena la lista. Hoy muchos equipos usan directamente
+Impacto × Probabilidad o el mapeo a CVSS.
+
+Con la lista ordenada, cada amenaza recibe una de CUATRO decisiones:
+
+| Decisión | Cuándo | Ejemplo |
+|---|---|---|
+| **Mitigar** | Coste del control < riesgo | HTTPS en todo (T/I) |
+| **Aceptar** | Riesgo bajo o coste desproporcionado | Rating público sin login |
+| **Transferir** | Otro lo cubre mejor | WAF/CDN anti-DDoS al proveedor |
+| **Evitar** | La función no compensa el riesgo | Desactivar upload de ficheros |
+
+Lo importante: la decisión queda ESCRITA con su justificación y dueño.
+"Ya lo miraremos" no es una categoría.
+
+## Threat modeling en el ciclo real
+
+No es una ceremonia única: vive con el producto.
+
+```
+diseño nuevo  ──▶  threat modeling session (1-2h, equipo + seguridad)
+                        │
+                        ▼
+              amenazas → issues del backlog (con prioridad)
+                        │
+        ┌───────────────┴───────────────┐
+        ▼                               ▼
+  sprint: controles              revisión: ¿nuevas features
+  (tests que lo demuestran)       = nuevas amenazas? repetir
+```
+
+Señales de que lo estás haciendo bien: los hallazgos de pentest
+**dejan de sorprender** (ya estaban en el modelo), los requisitos de
+seguridad llegan al backlog como user stories normales, y el DFD del
+repo está tan al día como el README.
+
+## Otros frameworks (por si los encuentras)
+
+- **PASTA** (7 pasos, orientado a riesgo de negocio — más pesado).
+- **LINDDUN** (privacidad, el STRIDE de los datos personales).
+- **Attack trees** (del lado ofensivo: descomponer un objetivo en
+  caminos de ataque — encaja perfecto con el mindset de los rooms
+  ofensivos).
+
+El framework importa menos que el hábito: mirar el sistema como el
+atacante, en cada iteración, con registro escrito de qué se decidió.
+Todo lo demás es elegir el checklist.

@@ -1,0 +1,85 @@
+---
+index: 2
+title: "Análisis dinámico: Frida y TLS pinning"
+questions:
+  - id: mobile-security-t02-q01
+    prompt: "¿Qué es Frida en una frase?"
+    hint: "Un framework que inyecta JavaScript en procesos (nativos o Java) para hookear funciones en caliente"
+    kind: text
+  - id: mobile-security-t02-q02
+    prompt: "¿Qué es el TLS certificate pinning y por qué rompe Burp/ZAP de primeras?"
+    hint: "La app lleva embebida la huella del certificado legítimo del servidor y rechaza el CA proxy de Burp"
+    kind: text
+  - id: mobile-security-t02-q03
+    prompt: "¿Cómo se llama el script universal de Frida que bypassea el pinning en cientos de apps Android sin escribir código?"
+    hint: "Frida code-share: 'Android SSL Pinning Bypass' (httptoolkit / frida-multiple-unpinning)"
+    kind: text
+  - id: mobile-security-t02-q04
+    prompt: "¿Qué fichero de configuración de red Android puede autorizar CAs de usuario (y así dejarte interceptar con Burp sin bypass), siendo también un hallazgo si está mal puesto?"
+    hint: "networkSecurityConfig (trust-anchors): si incluye certs de usuario, Burp funciona directo — hallazgo típico"
+    kind: text
+---
+
+## Ver la app correr
+
+El laboratorio móvil típico: emulador o dispositivo rooteado + proxy
+(Burp/ZAP) + Frida server corriendo en el Android:
+
+```bash
+# En el dispositivo (root/emulator):
+adb push frida-server /data/local/tmp/ && adb shell "/data/local/tmp/frida-server &"
+
+# Desde tu máquina:
+frida-ps -U                      # lista procesos del dispositivo
+objection -g com.target.app explore
+# objection: consola lista con bypass de pinning, dump de clases, etc.
+```
+
+## El muro: TLS pinning
+
+Configuras Burp como proxy del sistema, abres la app... y muere con
+error de red. La app **pinnea** el certificado del servidor real y
+rechaza tu CA. El bypass estándar:
+
+```bash
+# Opción 1 — objection (Frida debajo):
+objection -g com.target.app explore
+android sslpinning disable
+
+# Opción 2 — script universal de Frida:
+frida -U -f com.target.app -l frida-multiple-unpinning.js --no-pause
+```
+
+Tras el bypass, la app habla con Burp y aparece el mapa real de la API:
+endpoints, tokens, parámetros. Ahí empieza el testing de la lógica
+(BOLA en APIs móviles, tokens mal validados, secrets en respuestas).
+
+## Lo que se hookea con Frida (más allá del pinning)
+
+```javascript
+// Ejemplo: ver cada petición HTTP de la app:
+Java.perform(() => {
+  const URL = Java.use('java.net.URL');
+  URL.$init.overload('java.lang.String').implementation = function (u) {
+    console.log('[URL]', u);
+    return this.$init(u);
+  };
+});
+```
+
+Cripto en claro, almacenamiento local, root detection (que también se
+byhpasea igual), deep links... Frida es la navaja: si la app lo hace en
+runtime, tú lo puedes ver y tocar.
+
+## Checklist dinámico móvil
+
+| Prueba | Herramienta |
+|---|---|
+| Tráfico HTTPS | Burp/ZAP + pinning bypass |
+| Almacenamiento local | `adb shell run-as com.target.app ls` (debuggable) / root fs |
+| Logs sensibles | `adb logcat | grep -i token` |
+| Deep links | `adb shell am start -a android.intent.action.VIEW -d "app://x"` |
+| Resiliencia (root/emulator) | Frida hooks sobre las checks |
+
+Con estático + dinámico tienes el ciclo completo de un pentest móvil —
+y el mismo método baja a iOS con masonry distinta (objection sirve igual).

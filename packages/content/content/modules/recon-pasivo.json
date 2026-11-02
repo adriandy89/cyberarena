@@ -1,8 +1,13 @@
 {
   "slug": "recon-pasivo",
   "title": "Reconocimiento Pasivo",
-  "description": "OSINT sin tocar el objetivo: Certificate Transparency, Google dorks, metadata y la frontera con el escaneo activo.",
+  "description": "OSINT profundo y Social Engineering: la información pública que alimenta el ataque al factor humano.",
   "rooms": [
-    { "slug": "recon-pasivo-osint" }
+    {
+      "slug": "recon-pasivo-osint"
+    },
+    {
+      "slug": "social-engineering"
+    }
   ]
 }

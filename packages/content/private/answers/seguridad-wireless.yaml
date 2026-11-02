@@ -1,0 +1,10 @@
+# Respuestas del room seguridad-wireless (teoría, sin lab).
+# PRIVADO: el seed lo hashea a la tabla Answer.
+seguridad-wireless-t01-q01: "RC4 con IVs de 24 bits: se repiten y filtran la clave con pocos paquetes"
+seguridad-wireless-t01-q02: "el 4-way handshake"
+seguridad-wireless-t01-q03: "el SSID y la contraseña"
+seguridad-wireless-t01-q04: "SAE (Simultaneous Authentication of Equals); la degradación downgrade/Dragonblood"
+seguridad-wireless-t02-q01: "frames de desconexión falsificados que fuerzan reconexiones (y handshakes frescos)"
+seguridad-wireless-t02-q02: "un AP falso con el mismo ESSID que el legítimo"
+seguridad-wireless-t02-q03: "validar el certificado del servidor (802.1X/EAP-TLS): exige PKI propia"
+seguridad-wireless-t02-q04: "el usuario está entrenado a aceptar portales y certificados raros"

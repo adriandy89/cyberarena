@@ -1,0 +1,70 @@
+---
+index: 1
+title: "Pretexting, vishing y los principios de influencia"
+questions:
+  - id: social-engineering-t01-q01
+    prompt: "¿Cómo se llama la técnica de construir una identidad/falsa escenario creíble (ser 'el técnico de soporte de la operadora') antes del contacto?"
+    hint: "Pretexting — el guion y el personaje que legitiman la petición"
+    kind: text
+  - id: social-engineering-t01-q02
+    prompt: "¿Cómo se llama el social engineering por teléfono?"
+    hint: "Vishing (voice phishing) — el smishing es por SMS"
+    kind: text
+  - id: social-engineering-t01-q03
+    prompt: "Cialdini describió 6 principios de persuasión. Nombra los dos que explota un 'soy del banco, hay un fraude ACTIVO en tu cuenta ahora mismo'."
+    hint: "Urgencia/escasez (acto ya) + autoridad (soy tu banco) — también reciprocidad, compromiso, simpatía y prueba social"
+    kind: text
+  - id: social-engineering-t01-q04
+    prompt: "¿Qué es el tailgating (o piggybacking) en seguridad física?"
+    hint: "Entrar a una zona controlada siguiendo a alguien con badge legítimo — aprovecha la cortesía de sujetar la puerta"
+    kind: text
+---
+
+## El guion antes que la herramienta
+
+Un buen ataque de ingeniería social se prepara como un pentest: recon
+primero. Del OSINT del room anterior sale el material del pretexto:
+
+- Linkedin → organigrama, quién aprueba pagos, quién acaba de entrar
+  (los nuevos dicen sí a todo).
+- RRSS corporativas → viajes, proveedores, proyectos ("llamo de parte
+  del equipo del proyecto Delta que visteis en el post").
+- Web/registros → DNI/NIF de directivos, teléfonos de recepción,
+  horarios.
+
+Con eso se monta el **pretexto**: personaje, contexto y una petición
+que encaje con ambos. "Soy David, del soporte de Microsoft 365, nos
+consta un intento de acceso a tu cuenta y necesito verificar un código"
+funciona porque cada pieza es plausible.
+
+## Los principios de Cialdini aplicados al ataque
+
+| Principio | En el ataque |
+|---|---|
+| Autoridad | "Soy del banco/de IT/de la policía" |
+| Urgencia | "En 30 minutos se bloquea todo" |
+| Escarsez | "Solo quedan 2 plazas / hoy acaba" |
+| Reciprocidad | "Te regalo el informe, solo pide validar tu email" |
+| Prueba social | "Todos tus compañeros ya lo hicieron" |
+| Compromiso | "¿Me confirmas que eres tú? — vale, ahora el código" |
+
+Vishing = la llamada que junta autoridad + urgencia contra soporte o
+finanzas. Los casos famosos reales (Twitter 2020, Uber 2022) empezaron
+exactamente así: una llamada convincente a un helpdesk pidiendo un
+reset de MFA.
+
+## Vectores físicos y presenciales
+
+- **Tailgating**: la cola de la puerta con badge ajeno.
+- **USB drops**: memorias sembradas en el parking ("nóminas_2026.xlsx -
+  accelerator").
+- **Baiting por QR** (quishing): códigos que sustituyen carteles
+  legítimos.
+
+## El lado defensor
+
+Las defensas que funcionan son procedimentales, no técnicas: canales de
+verificación (llamar DE VUELTA al número oficial), límites de lo que
+NUNCA se pide por teléfono (nadie legítimo pide códigos MFA), reporte
+sin castigo, y simulacros medidos. El empleado no es "el eslabón débil"
+si el sistema está diseñado para que una llamada no baste.

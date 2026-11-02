@@ -1,0 +1,76 @@
+---
+index: 1
+title: "Anatomía del APK y análisis estático"
+questions:
+  - id: mobile-security-t01-q01
+    prompt: "¿Qué es un archivo APK estructuralmente?"
+    hint: "Un ZIP con clases.dex (bytecode Dalvik), recursos compilados, manifest binario y firma"
+    kind: text
+  - id: mobile-security-t01-q02
+    prompt: "¿Qué herramienta descompila el AndroidManifest.xml binario y los recursos a legible (smali/xml)?"
+    hint: "apktool d app.apk — el estándar para recursos y smali"
+    kind: text
+  - id: mobile-security-t01-q03
+    prompt: "¿Qué herramienta decompila el bytecode DEX a JAVA legible?"
+    hint: "jadx-gui (o jadx CLI) — para leer la lógica sin smali"
+    kind: text
+  - id: mobile-security-t01-q04
+    prompt: "En el manifest, ¿qué flag marca un componente (Activity/Receiver/Service) accesible por CUALQUIER app del dispositivo?"
+    hint: "android:exported=\"true\" — exportado sin permiso = superficie de ataque inter-app"
+    kind: text
+  - id: mobile-security-t01-q05
+    prompt: "¿Qué comando (o grep sobre el decompilado) busca URLs endurecidas y claves API tras desempaquetar?"
+    hint: "grep -r \"http\\|api[_-]\\?key\\|secret\" sobre la carpeta de apktool/jadx"
+    kind: text
+---
+
+## El APK por dentro
+
+```bash
+unzip -l target.apk
+# classes.dex      ← el código (bytecode Dalvik/ART)
+# AndroidManifest.xml (binario)
+# res/, assets/, lib/ (nativas .so), META-INF/ (firmas)
+```
+
+## La pareja estática: apktool + jadx
+
+```bash
+# apktool: recursos + manifest legibles + smali
+apktool d target.apk -o target-unpacked
+cat target-unpacked/AndroidManifest.xml | head -40
+
+# jadx: lógica en Java legible
+jadx target.apk -d target-jadx
+grep -rn "http://" target-jadx/sources/ | head    # ¿HTTP plano?
+grep -rni "api_key\|secret\|token" target-jadx/sources/ | head
+```
+
+## El checklist estático del manifest
+
+Lo primero que se lee en cualquier auditoría:
+
+| Indicador | Riesgo |
+|---|---|
+| `android:exported="true"` sin permiso | Otra app maliciosa puede lanzarlo |
+| `android:allowBackup="true"` | Los datos salen por adb backup |
+| `debuggable="true"` en release | Depuración attachable = memoria legible |
+| Permisos `READ_SMS`/`ACCESSIBILITY` sin justificar | Overpermission |
+| `usesCleartextTraffic="true"` | HTTP plano permitido |
+
+Después, el código: credenciales hardcodeadas (strings y grep), URLs
+de API internas (que revelan infra), flags de debugging, y el
+almacenamiento (`getSharedPreferences`/SQLite en claro vs
+EncryptedSharedPreferences).
+
+## OWASP MASVS y MASTG
+
+El marco de referencia móvil (equivalente al ASVS web): **MASVS**
+define los requisitos (almacenamiento, cripto, autenticación, red,
+resiliencia...) y **MASTG** la metodología de pruebas con recetas por
+plataforma. Los hallazgos de arriba mapean directo a MASVS-STORAGE y
+MASVS-NETWORK.
+
+La task siguiente rompe la barrera más común cuando el estático no
+basta: la app que solo se entiende viéndola correr — y que protege su
+tráfico con TLS pinning.

@@ -1,0 +1,84 @@
+---
+index: 2
+title: "proxychains: herramienta por túnel"
+questions:
+  - id: pivoting-y-tunneling-t02-q01
+    prompt: "¿En qué archivo se configura el proxy SOCKS que proxychains usa por defecto (ruta completa en Linux)?"
+    hint: "/etc/proxychains.conf (o proxychains4.conf) — sección [ProxyList] al final"
+    kind: text
+  - id: pivoting-y-tunneling-t02-q02
+    prompt: "Escribe la línea que añadirías a la ProxyList para usar el SOCKS5 del SSH de la task anterior."
+    hint: "socks5 127.0.0.1 1080"
+    kind: text
+  - id: pivoting-y-tunneling-t02-q03
+    prompt: "¿Por qué proxychains NUNCA enruta el tráfico ICMP (ping), y qué opción de nmap sustituye al ping para descubrir hosts a través del SOCKS?"
+    hint: "SOCKS solo encapsula TCP; el ping es ICMP — usa nmap -Pn (o -sn con TCP) y trata los hosts como up"
+    kind: text
+  - id: pivoting-y-tunneling-t02-q04
+    prompt: "¿Qué modo de proxychains conmuta al siguiente proxy de la lista si uno falla (ideal al encadenar varios pivotes)?"
+    hint: "Tres modos: dynamic, strict (orden fijo) y random — el que salta proxies caídos es dynamic"
+    kind: choice
+    options:
+      - id: a
+        label: "dynamic"
+      - id: b
+        label: "strict"
+      - id: c
+        label: "random"
+---
+
+## Configurar proxychains
+
+```bash
+sudo nano /etc/proxychains4.conf
+
+# Al final del archivo, en [ProxyList], comenta lo que haya y añade:
+socks5 127.0.0.1 1080
+```
+
+Con el SOCKS del `ssh -D 1080` de la task anterior vivo, cualquier
+herramienta que respete proxies pasa a "vivir" dentro de la red interna:
+
+```bash
+proxychains nmap -sT -Pn -n --top-ports 100 192.168.1.0/24
+proxychains curl http://192.168.1.20:8080
+proxychains python3 -m http.server  # no — esto es servidor; proxychains clienta CLIENTES
+```
+
+Ojo con esa última: proxychains intercepta conexiones de SALIDA. Un
+`http.server` montado así no gana nada — los servidores se exponen con
+los forwards -R/-L de SSH.
+
+## Escanear la red interna sin quemar el túnel
+
+ICMP no viaja por SOCKS (es TCP-only): `proxychains ping` falla SIEMPRE.
+El escaneo interno correcto:
+
+```bash
+# Host discovery sin ping, conexión TCP completa (-sT, el SYN half-open no funciona por SOCKS):
+proxychains nmap -sT -Pn -n --min-rate 50 --top-ports 100 192.168.1.0/24
+
+# Contra un host concreto ya encontrado:
+proxychains nmap -sT -Pn -n -sV -p 21,22,80,443,3389,8080 192.168.1.20
+```
+
+`-Pn` (tratar como up) y `-n` (no resolver DNS — la resolución del
+túnel sería del resolver interno, mejor controlada) son obligatorios de
+facto en escaneos por proxy.
+
+## Los límites de proxychains
+
+- Solo TCP (nada de ICMP/UDP).
+- Aplicaciones que ignoran proxies (binarios estáticos, algunos
+  exploits en raw sockets) no pasan por el túnel.
+- Alternativa moderna cuando necesitas UDP/DNS: `sshuttle` (transparente
+  por iptables) — lo tratas como "VPN pobre": `sshuttle -r
+  usuario@10.10.10.5 192.168.1.0/24` y TODO tu tráfico hacia esa red
+  viaja por SSH sin configurar nada más.
+
+## Modos de cadena
+
+El `proxychains.conf` abre con el modo: `strict` recorre la ProxyList
+en orden fijo; `dynamic` salta proxies caídos; `random` aleatoriza (con
+`chain_len`). Para pivoting de un solo salto cualquiera sirve — el
+detalle importa al encadenar 2+ saltos.

@@ -1,0 +1,72 @@
+---
+index: 2
+title: "Deauth y evil twin: atacar la confianza"
+questions:
+  - id: seguridad-wireless-t02-q01
+    prompt: "¿Qué hace un ataque de deautenticación y qué gestiona (administra) explotar?"
+    hint: "Frames de desconexion falsificados hacia el AP o el cliente (no están autenticados en 802.11): fuerza reconexiones — cada una, un handshake fresco que capturar"
+    kind: text
+  - id: seguridad-wireless-t02-q02
+    prompt: "¿Qué es un evil twin?"
+    hint: "Un AP falso con el mismo ESSID (y a veces mejor señal) que el legítimo: el cliente se conecta a ti y todo su tráfico pasa por el atacante"
+    kind: text
+  - id: seguridad-wireless-t02-q03
+    prompt: "¿Qué mecanismo de WPA-Enterprise (802.1X) podría haber evitado el credential capture del evil twin y qué exige desplegarlo?"
+    hint: "Validar el certificado del servidor (802.1X/EAP-TLS): exige PKI propia — la mayoría de usuarios pulsa 'aceptar' al warning y adiós"
+    kind: text
+  - id: seguridad-wireless-t02-q04
+    prompt: "¿Por qué las redes abiertas con captive portal son el hábitat natural del evil twin?"
+    hint: "El usuario está entrenado a aceptar certificados raros y logins en portales: el falso portal pide credenciales y las recoge"
+    kind: text
+---
+
+## Deauth: el empujón
+
+El 802.11 clásico no autentica los frames de gestión: cualquiera puede
+inyectar "desconéctate" firmado como el AP:
+
+```bash
+# Contra TU red de laboratorio:
+sudo aireplay-ng -0 3 -a AA:BB:CC:DD:EE:FF -c CLIENTMAC wlan0mon
+#   -0 3: 3 paquetes de deauth
+#   El cliente se reconecta → handshake fresco en tu captura
+```
+
+Con WPA3 los frames de gestión van protegidos (SAE/PMF) y el deauth
+clásico muere. Con WPA2 sigue funcionando en toda red sin
+`ieee80211w=1` (protected management frames) — que es casi todas.
+
+## Evil twin: la copia
+
+```
+[Víctima] ──conecta──▶ [AP atacante "MiFibra-A1B2"] ──internet──▶ [atacante MITM]
+                              mismo ESSID, canal con mejor señal o tras deauth masivo
+```
+
+El kit moderno (wifiphisher, hostapd + dnsmasq):
+
+```bash
+# hostapd con el ESSID clonado + dnsmasq sirviendo DHCP/DNS falso
+# → phishing del portal (router, Google, oficina) → credenciales
+# → o HTTPS stripping + instalación (la vía dura, detectada por el navegador)
+```
+
+La criptografía correcta (HTTPS con HSTS) sobrevive al MITM; el
+usuario pidiendo login en un portal falso no. Por eso el evil twin es
+el phishing del aire: el combate es de UX y entrenamiento, no de cifras.
+
+## Auditoría wireless legítima — el kit completo
+
+| Fase | Herramienta |
+|---|---|
+| Monitor mode + discovery | airmon-ng, airodump-ng, kismet |
+| Handshake capture | airodump-ng (+deauth puntual) |
+| Crack offline | aircrack-ng / hashcat -m 22000 |
+| Rogue detection | kismet (alerta de APs gemelos), Wireshark |
+| WPS (el otro hueco) | reaver (WPS PIN brute — redes con WPS activo) |
+
+**El marco legal**: en casi todas las jurisdicciones, interceptar redes
+ajenas (ni siquiera "solo capturar") es delito. Estas técnicas se
+practican en TU red de laboratorio (un AP viejo + dos tarjetas WiFi
+que soporten monitor mode — la clásica Alfa AWUS036ACH) o en
+plataformas con entornos dedicados.

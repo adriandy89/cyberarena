@@ -1,16 +1,38 @@
 {
   "slug": "jr-penetration-tester",
   "title": "Jr Penetration Tester",
-  "description": "De los fundamentos al pentesting junior: metodología, reconocimiento, Nmap, Burp Suite, escalada de privilegios, Active Directory y scripting.",
+  "description": "De novato a junior: metodología, recon OSINT/activo, Social Engineering, herramientas, privesc, AD, pivoting, passwords y scripting.",
   "level": "intermediate",
   "modules": [
-    { "slug": "pentest-foundations" },
-    { "slug": "recon-pasivo" },
-    { "slug": "recon-activo" },
-    { "slug": "nmap" },
-    { "slug": "burp-suite" },
-    { "slug": "privesc" },
-    { "slug": "active-directory" },
-    { "slug": "scripting" }
+    {
+      "slug": "pentest-foundations"
+    },
+    {
+      "slug": "recon-pasivo"
+    },
+    {
+      "slug": "recon-activo"
+    },
+    {
+      "slug": "nmap"
+    },
+    {
+      "slug": "burp-suite"
+    },
+    {
+      "slug": "privesc"
+    },
+    {
+      "slug": "active-directory"
+    },
+    {
+      "slug": "scripting"
+    },
+    {
+      "slug": "pivoting"
+    },
+    {
+      "slug": "mobile"
+    }
   ]
 }

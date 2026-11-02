@@ -1,0 +1,27 @@
+---
+slug: pivoting-y-tunneling
+title: "Pivoting y tunneling: muévete por la red interna"
+description: "SSH local/forward/remote port forwarding, SOCKS con proxychains y tunnels con chisel: de un solo shell a toda la red interna."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 45
+tags:
+  - networking
+  - pivoting
+  - tunneling
+  - ssh
+  - proxychains
+lab: null
+---
+
+En un pentest real rara vez comprometes el objetivo final al primer
+intento: ganas un punto de apoyo (una web expuesta, un equipo de un
+empleado) y desde ahí te mueves. Ese movimiento —usar una máquina
+comprometida como trampolín hacia segmentos internos que no ves desde
+fuera— se llama **pivoting**, y la herramienta que lo hace posible es el
+**tunneling**.
+
+Este room cubre las tres técnicas que resuelven el 90% de los casos:
+port forwarding con SSH (que casi todos los objetivos ya tienen),
+proxies SOCKS con proxychains, y tunnels reversos con chisel cuando no
+hay SSH de por medio.

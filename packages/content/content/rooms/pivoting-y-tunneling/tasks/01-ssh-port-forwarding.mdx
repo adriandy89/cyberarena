@@ -1,0 +1,77 @@
+---
+index: 1
+title: "SSH port forwarding: -L, -R y -D"
+questions:
+  - id: pivoting-y-tunneling-t01-q01
+    prompt: "¿Qué flag de SSH crea un tunnel LOCAL: un puerto de TU máquina que escucha y reenvía hacia un destino visible solo desde el servidor SSH?"
+    hint: "-L (local). El orden: -L [bind:]puertoLocal:hostDestino:puertoDestino"
+    kind: text
+  - id: pivoting-y-tunneling-t01-q02
+    prompt: "Tienes credenciales SSH en 10.10.10.5 (DMZ) y desde ahí sale un servicio web interno en 192.168.1.20:8080 que no ves desde fuera. Escribe el comando completo para abrirlo en tu localhost:8080."
+    hint: "ssh -L 8080:192.168.1.20:8080 usuario@10.10.10.5 — luego curl http://localhost:8080"
+    kind: text
+  - id: pivoting-y-tunneling-t01-q03
+    prompt: "¿Qué flag de SSH hace lo INVERSO: expone un servicio de TU máquina hacia la red del servidor SSH?"
+    hint: "-R (remote): -R puertoRemoto:hostLocal:puertoLocal — el clásico para recibir una shell reversa en un segmento sin salida"
+    kind: text
+  - id: pivoting-y-tunneling-t01-q04
+    prompt: "¿Qué flag de SSH levanta un proxy SOCKS4/5 dinámico (un puerto que enruta hacia CUALQUIER destino alcanzable por el servidor)?"
+    hint: "-D 1080 crea el SOCKS en localhost:1080"
+    kind: text
+---
+
+## El punto de apoyo
+
+Escenario típico: escaneas la DMZ, comprometes `10.10.10.5`, y desde esa
+máquina descubres `192.168.1.0/24` — una red interna que tu Kali no
+alcanza directamente. Todo lo que sigue asume credenciales SSH válidas
+en el pivote (por password, clave robada o tu propia shell upgraded a
+SSH).
+
+## Forward local (-L): un servicio interno en tu localhost
+
+```bash
+# Abre http://localhost:8080 en tu Kali = 192.168.1.20:8080 visto desde el pivote:
+ssh -N -L 8080:192.168.1.20:8080 usuario@10.10.10.5
+
+# -N: no ejecutes shell, solo el tunnel
+# Ahora desde TU máquina:
+curl http://localhost:8080
+nmap -sV -p 8080 localhost        # fingerprinting del servicio interno
+```
+
+El destino (`192.168.1.20`) NO tiene que ser el propio servidor SSH: SSH
+conecta desde el pivote hacia donde le digas. Ese detalle es lo que
+convierte -L en un escáner de red interna.
+
+## Forward remoto (-R): tu máquina visible desde dentro
+
+```bash
+# El reverso: el puerto 9001 del PIVOTE reenvía a tu 9001
+ssh -N -R 9001:127.0.0.1:9001 usuario@10.10.10.5
+```
+
+El caso de uso estrella: una víctima interna ejecuta tu reverse shell
+apuntando a `10.10.10.5:9001` (su propia red) y esa conexión aterriza en
+tu listener de Kali. Sin reglas de firewall nuevas, sin salida a
+internet del segmento interno.
+
+## SOCKS dinámico (-D): el túnel que sirve para todo
+
+```bash
+# Un solo túnel, cualquier destino:
+ssh -N -D 1080 usuario@10.10.10.5
+```
+
+`localhost:1080` es ahora un proxy **SOCKS5** que enruta cualquier
+conexión a través del pivote. A diferencia de -L (un destino fijo por
+túnel), el SOCKS decide el destino en cada conexión — perfecto para
+escanear rangos enteros. Cómo usarlo: la siguiente task.
+
+## Chuleta de las tres
+
+| Flag | Dirección | Uso típico |
+|---|---|---|
+| `-L` | TU máquina → vía pivote → destino | Ver un servicio interno concreto |
+| `-R` | Red del pivote → TU máquina | Recibir shells/licks desde dentro |
+| `-D` | TU máquina: proxy SOCKS universal | Escanear/navegar toda la red interna |

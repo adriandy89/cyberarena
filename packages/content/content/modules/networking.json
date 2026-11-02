@@ -1,9 +1,16 @@
 {
   "slug": "networking",
   "title": "Networking",
-  "description": "Cómo viajan los paquetes: capas, IP, puertos, TCP/UDP, DNS, HTTP y captura con Wireshark.",
+  "description": "Redes de base, Wireshark y seguridad wireless: el tráfico como evidencia y el aire como perímetro.",
   "rooms": [
-    { "slug": "redes-fundamentos" },
-    { "slug": "redes-wireshark" }
+    {
+      "slug": "redes-fundamentos"
+    },
+    {
+      "slug": "redes-wireshark"
+    },
+    {
+      "slug": "seguridad-wireless"
+    }
   ]
 }

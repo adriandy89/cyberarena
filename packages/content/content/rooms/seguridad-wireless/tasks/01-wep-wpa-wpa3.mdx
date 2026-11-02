@@ -1,0 +1,68 @@
+---
+index: 1
+title: "WEP, WPA2 y el 4-way handshake"
+questions:
+  - id: seguridad-wireless-t01-q01
+    prompt: "¿Por qué WEP se rompe en minutos (la debilidad de diseño)?"
+    hint: "Su RC4 con IVs de 24 bits: se repiten y filtran la clave con ~10k paquetes capturados (aircrack-ng los consume en vivo)"
+    kind: text
+  - id: seguridad-wireless-t01-q02
+    prompt: "¿Qué intercambio establece la clave de sesión en WPA2-Personal y es EL objetivo de captura en una auditoría?"
+    hint: "El 4-way handshake (WPA handshake): de él se derivan las claves y contra él se crackea la PSK offline"
+    kind: text
+  - id: seguridad-wireless-t01-q03
+    prompt: "En WPA-Personal, ¿qué dos datos componen el material que hashcat/aircrack necesitan para romper la contraseña offline?"
+    hint: "El SSID + la contraseña (PBKDF2-HMAC-SHA1, 4096 iteraciones): por eso SSIDs comunes tienen tablas precomputadas (rainbow de SSIDs)"
+    kind: text
+  - id: seguridad-wireless-t01-q04
+    prompt: "¿Qué ataque de WPA3 cerró el offline-cracking del handshake y cómo se llama la debilidad que lo sustituyó si la config es débil?"
+    hint: "SAE (Simultaneous Authentication of Equals, dragonfly) elimina el handshake crackeable; la degradación a WPA2 ( downgrade / Dragonblood) es la nueva frontera"
+    kind: text
+---
+
+## La línea evolutiva
+
+| Generación | Año | Clave | Roto por |
+|---|---|---|---|
+| WEP | 1999 | RC4, IV 24 bits | Estadística (minutos) |
+| WPA-TKIP | 2003 | parche sobre WEP | TKIP (deprecado) |
+| WPA2-CCMP | 2004 | AES + 4-way handshake | Offline crack de PSK débil |
+| WPA3-SAE | 2018 | password-authenticated | Downgrade/implementation bugs |
+
+## El 4-way handshake (el corazón de WPA2)
+
+Cuatro mensajes entre cliente y AP que prueban que ambos conocen la
+PSK **sin revelarla** y derivan las claves de sesión. El atacante solo
+necesita CAPTURARLO:
+
+```bash
+# Auditoría de TU red (aircrack-ng suite):
+sudo airmon-ng start wlan0                  # modo monitor
+sudo airodump-ng wlan0mon                   # ver redes y clientes
+sudo airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF -w captura wlan0mon
+# (esperar a que un cliente conecte — o provocarlo: task 2)
+
+# Crack offline del handshake capturado:
+aircrack-ng -w /usr/share/wordlists/rockyou.txt captura-01.cap
+# equivalente hashcat: -m 22000 (formato hcxpaxke/hccapx)
+```
+
+La fuerza bruta es offline (velocidad de GPU) pero la derivación es
+CARA (PBKDF2 4096×): una PSK de 12+ caracteres aleatorios aguanta
+décadas. "MiFibra-2024" cae en la hora.
+
+## El detalle del SSID
+
+La PSK se hashea con el SSID como salt — por eso SSID por defecto
+("MOVISTAR_XXXX") tiene tablas precomputadas masivas (36k SSIDs ×
+rockyou). Cambiar el SSID por defecto rompe esas tablas. Es la razón
+técnica más underrated del "renombra tu WiFi".
+
+## WPA3: SAE
+
+SAE sustituye el handshake por un intercambio tipo Dragonfly donde cada
+intento requiere interacción con el AP: no hay nada que crackear
+offline. Las debilidades prácticas hoy: downgrades a WPA2
+(transition mode mal configurado), bugs de implementación (Dragonblood)
+y... el usuario conectándose al evil twin sin que la criptografía
+importe — la siguiente task.

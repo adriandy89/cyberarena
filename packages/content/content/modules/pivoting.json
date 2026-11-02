@@ -1,0 +1,8 @@
+{
+  "slug": "pivoting",
+  "title": "Pivoting y Tunneling",
+  "description": "SSH forwarding, proxychains SOCKS y chisel: moverse por la red interna desde un único punto de apoyo.",
+  "rooms": [
+    { "slug": "pivoting-y-tunneling" }
+  ]
+}

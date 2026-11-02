@@ -1,0 +1,21 @@
+---
+slug: mobile-security
+title: "Mobile Security: el APK bajo el microscopio"
+description: "Anatomía de una app Android, análisis estático con apktool/jadx, TLS pinning y Frida: cómo se audita una app móvil."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 40
+tags:
+  - mobile
+  - android
+  - reversing
+  - owasp-masvs
+lab: null
+---
+
+El móvil es hoy el cliente de casi todo (banca, correo, trabajo) y una
+superficie de ataque con reglas propias: código empaquetado y firmado,
+almacenamiento local compartido, redes hostiles por defecto y un
+sandbox que es a la vez defensa y límite. Este room enseña a auditar
+una app Android como se hace en un pentest móvil real: de la descarga
+del APK al tráfico con Frida por medio.

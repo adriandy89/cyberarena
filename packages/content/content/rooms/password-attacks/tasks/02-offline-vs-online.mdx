@@ -1,0 +1,78 @@
+---
+index: 2
+title: "Offline vs online: dos juegos distintos"
+questions:
+  - id: password-attacks-t02-q01
+    prompt: "¿Qué limita la velocidad de un ataque ONLINE (contra un login real) y no existe en el cracking OFFLINE de hashes?"
+    hint: "La red y las contramedidas: rate limit, lockout de cuenta, logs, captcha — offline solo te limita tu GPU"
+    kind: text
+  - id: password-attacks-t02-q02
+    prompt: "¿Cómo se llama el ataque online que prueba UNA contraseña (tipo Verano2026!) contra MUCHAS cuentas, en vez de muchas contraseñas contra una?"
+    hint: "Password spraying — evita lockouts quedando bajo el umbral por cuenta"
+    kind: text
+  - id: password-attacks-t02-q03
+    prompt: "¿Qué es el credential stuffing?"
+    hint: "Reutilizar pares usuario:contraseña de breaches anteriores contra el login objetivo — funciona porque la gente reutiliza"
+    kind: text
+  - id: password-attacks-t02-q04
+    prompt: "En un spray con hydra contra SMB de un DC (10.10.10.10), ¿qué opción limita el número de intentos por usuario antes de saltar al siguiente?"
+    hint: "En spraying real se usa -e nsr o listas emparejadas; la clave es 1 intento/usuario/ronda con pausas — hydra: -L users.txt -p 'Verano2026!' sin -P"
+    kind: text
+---
+
+## La diferencia fundamental
+
+**Offline** (tienes el hash): velocidad de GPU (miles de millones de
+intentos/segundo en NTLM), sin logs, sin lockouts. El único muro es la
+longitud/complejidad real de la contraseña.
+
+**Online** (hablas con el servicio): velocidad de red (~decenas o
+centenas por segundo en el mejor caso), CON rate limiting, lockout de
+cuenta, alertas al SOC y captchas. La contraseña más débil del mundo
+sirve si bloqueas la cuenta antes de encontrarla.
+
+```bash
+# OFFLINE: hashcat a por todas (no toca la red del objetivo):
+hashcat -m 1000 ntlm.txt rockyou.txt -r best64.rule
+
+# ONLINE: hydra contra SMB — LENTO y ruidoso:
+hydra -L users.txt -P passwords.txt 10.10.10.10 smb
+```
+
+## Spraying: la táctica online que sí funciona
+
+En vez de `N contraseñas × 1 usuario` (lockout seguro), se hace
+`1 contraseña × N usuarios`, se espera (horas, a menudo) y se repite con
+la siguiente candidata. Las contraseñas estacionales son el blanco
+perfecto:
+
+```bash
+# Una ronda de spray contra SMB del DC:
+hydra -L users.txt -p "Verano2026!" 10.10.10.10 smb -t 4 -W 3
+#  -t 4: 4 hilos máx (discreción)   -W 3: espera 3s entre intentos
+
+# Herramienta dedicada (más elegante con AD):
+#     spray.sh o CrackerPack: calendarios de contraseñas comunes
+```
+
+El umbral típico de lockout (5-10 intentos) define tus rondas: 1 intento
+por cuenta al día ronda casi cualquier política. Por eso los SIEM
+alertan de "1 fallo × 500 cuentas" y no solo de "500 fallos × 1 cuenta".
+
+## Credential stuffing
+
+El tercer modo, industrial: pares reales usuario:contraseña de breaches
+públicos (Collections, leakos) probados en masa contra el login
+objetivo. No adivina nada — reutiliza. Es el argumento definitivo para
+comprobar tus credenciales corporativas contra bases de filtraciones y
+para el 2FA en todo lo importante.
+
+## Defensas que de verdad cambian el juego
+
+| Defensa | Mata qué ataque |
+|---|---|
+| Bloqueo progresivo + delay | Brute force online |
+| Detección de spray (1 fallo × muchas cuentas) | Spraying |
+| Breach-password screening (AD on-prem lo tiene) | Stuffing y rockyou |
+| 2FA/MFA | Todo lo anterior |
+| bcrypt/argon2 + salt | Cracking offline (ralentiza órdenes de magnitud) |

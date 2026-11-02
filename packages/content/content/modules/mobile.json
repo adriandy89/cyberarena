@@ -1,0 +1,8 @@
+{
+  "slug": "mobile",
+  "title": "Mobile Security",
+  "description": "Auditar apps Android: APK por dentro, análisis estático y dinámico con Frida.",
+  "rooms": [
+    { "slug": "mobile-security" }
+  ]
+}
