@@ -1,7 +1,7 @@
 {
   "slug": "cyber-security-101",
   "title": "Cyber Security 101",
-  "description": "Tu punto de partida en la ciberseguridad: fundamentos ofensivos y defensivos, Linux, Windows, redes, criptografía, web hacking y OWASP, con práctica desde el primer día.",
+  "description": "Tu punto de partida en la ciberseguridad: Linux, redes, Windows y Active Directory, criptografía, web hacking y OWASP, explotación, herramientas ofensivas y defensa, con práctica desde el primer día.",
   "level": "beginner",
   "order": 1,
   "modules": [
@@ -12,22 +12,25 @@
       "slug": "linux-fundamentals"
     },
     {
+      "slug": "networking"
+    },
+    {
       "slug": "windows-ad-fundamentals"
     },
     {
       "slug": "command-line"
     },
     {
-      "slug": "networking"
-    },
-    {
       "slug": "cryptography"
     },
     {
-      "slug": "exploitation-basics"
+      "slug": "web-hacking"
     },
     {
-      "slug": "web-hacking"
+      "slug": "owasp-top-10"
+    },
+    {
+      "slug": "exploitation-basics"
     },
     {
       "slug": "offensive-tooling"
@@ -43,9 +46,6 @@
     },
     {
       "slug": "cyber-career"
-    },
-    {
-      "slug": "owasp-top-10"
     }
   ]
 }

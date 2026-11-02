@@ -2,7 +2,7 @@
   "paths": {
     "cyber-security-101": {
       "title": "Cyber Security 101",
-      "description": "Your starting point in cybersecurity: offensive and defensive fundamentals, Linux, Windows, networking, cryptography, web hacking and OWASP, with hands-on practice from day one."
+      "description": "Your starting point in cybersecurity: Linux, networking, Windows and Active Directory, cryptography, web hacking and OWASP, exploitation, offensive tooling and defense, with hands-on practice from day one."
     },
     "jr-penetration-tester": {
       "title": "Jr Penetration Tester",
@@ -36,7 +36,7 @@
     },
     "networking": {
       "title": "Networking",
-      "description": "Networking basics, Wireshark and wireless security: traffic as evidence and the air as the perimeter."
+      "description": "Networking basics, wireless security and Wireshark: the air as the perimeter and traffic as evidence."
     },
     "cryptography": {
       "title": "Cryptography",

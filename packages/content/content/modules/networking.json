@@ -1,16 +1,16 @@
 {
   "slug": "networking",
   "title": "Networking",
-  "description": "Redes de base, Wireshark y seguridad wireless: el tráfico como evidencia y el aire como perímetro.",
+  "description": "Redes de base, seguridad wireless y Wireshark: el aire como perímetro y el tráfico como evidencia.",
   "rooms": [
     {
       "slug": "redes-fundamentos"
     },
     {
-      "slug": "redes-wireshark"
+      "slug": "seguridad-wireless"
     },
     {
-      "slug": "seguridad-wireless"
+      "slug": "redes-wireshark"
     }
   ]
 }
