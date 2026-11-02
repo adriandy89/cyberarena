@@ -3,6 +3,7 @@ name: E2E (Playwright)
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -32,6 +33,12 @@ jobs:
       DATABASE_URL: postgresql://cyberarena:cyberarena@localhost:5432/cyberarena?schema=public
       API_PORT: 3001
       WEB_PORT: 3000
+      # Throwaway values for this ephemeral stack (not secrets).
+      BETTER_AUTH_SECRET: e2e-ci-only-secret-0123456789abcdef0123456789
+      # Labs on demand against the lab-runner in dry-run mode (no Docker).
+      LABS_ENABLED: 'true'
+      LAB_RUNNER_URL: http://127.0.0.1:4100
+      LAB_RUNNER_TOKEN: e2e-ci-only-runner-token-0123456789abcdef
     steps:
       - uses: actions/checkout@v4
 
@@ -52,6 +59,16 @@ jobs:
 
       - name: Migrate + seed
         run: pnpm db:migrate && pnpm db:seed
+
+      - name: Start lab-runner (dry run)
+        run: |
+          bash infra/scripts/lab-flags.sh "$RUNNER_TEMP/lab-flags"
+          nohup env LAB_RUNNER_DRY_RUN=1 LAB_ASSETS=bind LAB_FLAGS_DIR="$RUNNER_TEMP/lab-flags" \
+            LAB_RUNNER_HOST=127.0.0.1 node apps/lab-runner/dist/main.js > runner.log 2>&1 &
+          for i in $(seq 1 20); do
+            curl -sf -H "Authorization: Bearer $LAB_RUNNER_TOKEN" http://127.0.0.1:4100/healthz >/dev/null && break || sleep 1
+          done
+          curl -sf -H "Authorization: Bearer $LAB_RUNNER_TOKEN" http://127.0.0.1:4100/healthz
 
       - name: Start API
         run: |
@@ -92,5 +109,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces
-          path: apps/web/test-results/
+          path: |
+            apps/web/test-results/
+            api.log
+            web.log
+            runner.log
           retention-days: 7

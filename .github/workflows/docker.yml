@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   build:
-    name: build api & web images
+    name: build api, web & lab-runner images
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -32,3 +32,6 @@ jobs:
 
       - name: Build Web image
         run: docker build -f apps/web/Dockerfile -t cyberarena-web:ci .
+
+      - name: Build lab-runner image (lints every lab compose)
+        run: docker build -f apps/lab-runner/Dockerfile -t cyberarena-lab-runner:ci .

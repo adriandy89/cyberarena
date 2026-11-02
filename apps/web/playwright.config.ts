@@ -4,7 +4,8 @@ const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000';
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 30_000,
+  // CI runners are slower (cold Next server, fresh DB): more room per test.
+  timeout: process.env.CI ? 60_000 : 30_000,
   retries: process.env.CI ? 1 : 0,
   workers: 1, // shared backend: avoid parallel user/content interference
   reporter: process.env.CI ? 'github' : 'list',

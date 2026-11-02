@@ -45,8 +45,7 @@ test.describe('Byte companion', () => {
   });
 
   test.describe('signed in', () => {
-    // Session + content fetch are slower in CI (same policy as room.spec).
-    test.skip(() => process.env.CI === 'true', 'Timing-sensitive in CI');
+    test.skip(() => process.env.E2E_SKIP_SIGNED_IN === '1', 'Signed-in flows disabled for this run');
 
     const user = makeTestUser();
     let cookie = '';

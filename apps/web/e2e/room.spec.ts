@@ -2,8 +2,7 @@ import { expect, test } from '@playwright/test';
 import { apiLogin, makeTestUser, sessionCookieOptions } from './utils';
 
 test.describe('room player (linux-fundamentos-1)', () => {
-  // Room solving depends on session + content fetch which is slower in CI
-  test.skip(() => process.env.CI === 'true', 'Timing-sensitive in CI');
+  test.skip(() => process.env.E2E_SKIP_SIGNED_IN === '1', 'Signed-in flows disabled for this run');
 
   const user = makeTestUser();
   let cookie = '';

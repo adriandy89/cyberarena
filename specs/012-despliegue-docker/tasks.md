@@ -25,8 +25,13 @@
 ## Fase C — Cierre
 
 - [x] T012 Runbook y arquitectura al día con lo verificado.
-- [ ] T013 CI: E2E también en PR y con sesión; build de la imagen del lab-runner.
+- [x] T013 CI: E2E también en PR y con sesión; build de la imagen del lab-runner.
 - [ ] T014 Limpieza acotada (106 T4) con `docker system df` antes/después; cierre de 106 y 012.
+
+## Bugs/Deuda
+
+- [ ] T901 Confirmar el primer run de `e2e.yml` y `docker.yml` en GitHub Actions (verificados solo con una
+      réplica local del job; desde la sesión no se puede lanzar Actions ni hacer push sin permiso).
 
 ## Registro
 
@@ -67,3 +72,9 @@
   `restore-db.sh` (destino explícito). Conteos idénticos en ambas BD: User 16, Room 59, Question 491,
   Answer 491, QuestionSolved 11, XpEvent 11, LabEvent 29, migraciones 11. BD scratch eliminada; la de
   producción no se tocó.
+- 2026-11-02 · **CI (T013).** `e2e.yml`: también en PR, `BETTER_AUTH_SECRET` y token del runner de usar y
+  tirar, lab-runner en modo simulado (`LAB_RUNNER_DRY_RUN=1`, `LAB_ASSETS=bind`) y logs de api/web/runner
+  en los artefactos; los tests con sesión dejan de saltarse en CI (`E2E_SKIP_SIGNED_IN=1` como escape;
+  timeout 60 s en CI). `docker.yml` construye también la imagen del runner (que pasa el lint de labs).
+  Réplica local del job (API compilada + `next start` + runner simulado, `CI=true`): **27 OK, 1 omitido**.
+  Falta ver el primer run real en GitHub Actions: T901.
