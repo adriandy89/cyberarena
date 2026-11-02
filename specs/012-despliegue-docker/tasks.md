@@ -9,7 +9,7 @@
 - [x] T002 Entrypoint de la API: secretos sin `\r\n`; `prisma migrate deploy` sin pnpm en runtime.
 - [x] T003 `.dockerignore` (store de pnpm, backups, secretos, tsbuildinfo, resultados E2E); `# syntax`
       en la línea 1; la imagen de la API sin `packages/content/private`.
-- [ ] T004 Web: `API_URL` como argumento de build (rewrite horneado correcto) + `turbo.json`.
+- [x] T004 Web: `API_URL` como argumento de build (rewrite horneado correcto) + `turbo.json`.
 - [ ] T005 Proxy: healthcheck de Caddy, comentario `--project-directory`, directorios vacíos sueltos.
 - [ ] T006 Scripts de BD: contenedor y BD explícitos; restore muestra el destino; restore a BD scratch.
 - [ ] T007 E2E sobre HTTPS: cookie `__Secure-`, `ignoreHTTPSErrors`, reintento ante 429 en el login.

@@ -19,6 +19,10 @@ COPY --from=prepare /app/out/json/ .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY --from=prepare /app/out/full/ .
 ENV NEXT_TELEMETRY_DISABLED=1
+# The /api rewrite destination is baked at build time (next.config.ts): point
+# it at the API service so direct hits on web:3000 also work.
+ARG API_URL=http://api:3001
+ENV API_URL=$API_URL
 RUN pnpm turbo build --filter=@repo/web...
 
 # --- runner: minimal, non-root ---
