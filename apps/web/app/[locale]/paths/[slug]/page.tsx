@@ -4,22 +4,12 @@ import { BookOpen, Clock, Layers } from '../../../../components/icon';
 import { LevelBadge } from '../../../../components/level-badge';
 import { PathProgress, type PathTree } from '../../../../components/path-progress';
 import { Breadcrumbs } from '../../../../components/shell/breadcrumbs';
+import { fetchApiJson } from '../../../../lib/api-server';
 
 export const dynamic = 'force-dynamic';
 
 async function loadPath(slug: string, locale: string): Promise<PathTree | null> {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
-  const localeParam = locale === 'en' ? '?locale=en' : '';
-  try {
-    const response = await fetch(
-      `${apiUrl}/api/catalog/paths/${encodeURIComponent(slug)}${localeParam}`,
-      { cache: 'no-store' },
-    );
-    if (!response.ok) return null;
-    return (await response.json()) as PathTree;
-  } catch {
-    return null;
-  }
+  return fetchApiJson<PathTree>(`/api/catalog/paths/${encodeURIComponent(slug)}`, locale);
 }
 
 export default async function PathDetailPage({

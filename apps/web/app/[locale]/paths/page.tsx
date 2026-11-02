@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, Clock, Layers } from '../../../components/icon';
 import { LevelBadge } from '../../../components/level-badge';
 import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
 import { Link } from '../../../i18n/navigation';
+import { fetchApiJson } from '../../../lib/api-server';
 
 interface CatalogRoomLink {
   slug: string;
@@ -31,18 +32,7 @@ const PREVIEW_ROOMS = 4;
 export const dynamic = 'force-dynamic';
 
 async function loadPaths(locale: string): Promise<CatalogPathSummary[]> {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
-  const localeParam = locale === 'en' ? '?locale=en' : '';
-  try {
-    const response = await fetch(`${apiUrl}/api/catalog${localeParam}`, {
-      cache: 'no-store',
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) return [];
-    return (await response.json()) as CatalogPathSummary[];
-  } catch {
-    return [];
-  }
+  return (await fetchApiJson<CatalogPathSummary[]>('/api/catalog', locale)) ?? [];
 }
 
 export default async function PathsPage({ params }: { params: Promise<{ locale: string }> }) {

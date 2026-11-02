@@ -1,6 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { HealthService, type HealthResponse } from './health.service';
 
+// Container healthchecks and the status page poll these: never rate-limited.
+@SkipThrottle()
 @Controller('health')
 export class HealthController {
   constructor(private readonly health: HealthService) {}

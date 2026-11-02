@@ -5,6 +5,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { AUTH } from './auth/auth.constants';
 import type { AuthInstance } from './auth/auth';
 import { AppModule } from './app.module';
+import { trustProxySetting } from './http/trust-proxy';
 
 async function bootstrap(): Promise<void> {
   // Better Auth reads the raw request body, so Nest's body parser stays off
@@ -15,6 +16,8 @@ async function bootstrap(): Promise<void> {
   app.setGlobalPrefix('api');
 
   const expressApp = app.getHttpAdapter().getInstance();
+  // Real client IP behind Caddy / the web server, for per-IP rate limiting.
+  expressApp.set('trust proxy', trustProxySetting());
   const auth = app.get<AuthInstance>(AUTH, { strict: false });
   const authHandler = toNodeHandler(auth);
 

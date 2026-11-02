@@ -13,6 +13,7 @@ import {
 } from '../../components/icon';
 import { LevelBadge } from '../../components/level-badge';
 import { Link } from '../../i18n/navigation';
+import { fetchApiJson } from '../../lib/api-server';
 
 interface CatalogPathSummary {
   slug: string;
@@ -28,15 +29,7 @@ interface CatalogPathSummary {
 export const dynamic = 'force-dynamic';
 
 async function loadPaths(locale: string): Promise<CatalogPathSummary[]> {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
-  const localeParam = locale === 'en' ? '?locale=en' : '';
-  try {
-    const response = await fetch(`${apiUrl}/api/catalog${localeParam}`, { cache: 'no-store' });
-    if (!response.ok) return [];
-    return (await response.json()) as CatalogPathSummary[];
-  } catch {
-    return [];
-  }
+  return (await fetchApiJson<CatalogPathSummary[]>('/api/catalog', locale)) ?? [];
 }
 
 const STEPS: Array<{ key: 'learn' | 'practice' | 'progress'; icon: LucideIcon }> = [

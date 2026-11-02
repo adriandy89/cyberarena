@@ -1,6 +1,8 @@
 import { Controller, Get, Header, Param, Query } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { RATE_LIMITS } from '../http/rate-limits';
 import { localizePathDetail, localizeSummaries, type EnCatalog } from './catalog-i18n';
 import { CatalogService } from './catalog.service';
 import { computeRoomContext } from './room-context';
@@ -18,6 +20,7 @@ const CONTENT_DIST =
   CONTENT_DIST_CANDIDATES.find((dir) => existsSync(join(dir, 'catalog-en.json'))) ?? null;
 
 /** Public read-only catalog (answers are never exposed — ADR-010). */
+@Throttle(RATE_LIMITS.publicRead)
 @Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}

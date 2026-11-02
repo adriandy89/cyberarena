@@ -64,6 +64,16 @@ export function createAuth(deps: AuthDependencies) {
     database: prismaAdapter(deps.prisma, { provider: 'postgresql' }),
     baseURL,
     trustedOrigins: trustedOriginsFrom(webUrl),
+    // /api/auth/* bypasses Nest (and its throttler): better-auth's own limiter
+    // covers it. Explicit here (its default is the same: on in production,
+    // 100 req / 10 s, sign-in/sign-up 3 / 10 s per IP). The IP is the
+    // single-value X-Forwarded-For that Caddy sets; multi-hop chains are not
+    // trusted unless `advanced.ipAddress.trustedProxies` is configured.
+    rateLimit: {
+      enabled: process.env.NODE_ENV === 'production',
+      window: 10,
+      max: 100,
+    },
     emailAndPassword: {
       enabled: true,
       requireEmailVerification,

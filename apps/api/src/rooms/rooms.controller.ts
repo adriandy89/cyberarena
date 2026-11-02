@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { AuthUser } from '../auth/auth-module-types';
 import { SessionGuard } from '../auth/session.guard';
+import { RATE_LIMITS } from '../http/rate-limits';
 import { RoomsService } from './rooms.service';
 
 const submitAnswerSchema = z.object({
@@ -16,6 +18,7 @@ export class RoomsController {
   constructor(private readonly rooms: RoomsService) {}
 
   /** Checks an answer server-side (hash comparison, ADR-011) and awards XP. */
+  @Throttle(RATE_LIMITS.answers)
   @Post(':slug/answers')
   submit(
     @Param('slug') slug: string,

@@ -6,6 +6,12 @@
   - 2026-11-02 primera versión, a partir de la petición del usuario: «levantar los labs y apagarlos desde
     el frontend solo cuando un usuario los utiliza, de forma óptima y a prueba de que se queden
     funcionando si nadie los está utilizando, revisión periódica del sistema. Seguridad».
+  - 2026-11-02 T003: el limitador propio de better-auth **ya estaba activo** en producción por defecto
+    (100 req/10 s; sign-in/sign-up 3/10 s por IP, con la IP del `X-Forwarded-For` de un solo valor que
+    pone Caddy); se deja explícito sin cambiar su comportamiento. Confiar redes privadas en better-auth
+    sería un error: si el cliente también llega desde una IP privada (Docker Desktop, LAN), todos caen en
+    un único cubo. Verificado contra la API de dev: con `X-Forwarded-For` A, la 31.ª respuesta en un
+    minuto da 429 y la IP B sigue pasando; health no se limita.
 
 ## 1. Propósito
 

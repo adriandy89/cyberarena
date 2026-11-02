@@ -12,6 +12,7 @@ import {
   type PlayerTask,
 } from '../../../../components/room-player';
 import { Breadcrumbs } from '../../../../components/shell/breadcrumbs';
+import { fetchApiJson } from '../../../../lib/api-server';
 
 interface ApiRoom {
   slug: string;
@@ -41,18 +42,6 @@ interface ApiRoom {
 
 export const dynamic = 'force-dynamic';
 
-async function fetchJson<T>(path: string, locale: string): Promise<T | null> {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
-  const localeParam = locale === 'en' ? '?locale=en' : '';
-  try {
-    const response = await fetch(`${apiUrl}${path}${localeParam}`, { cache: 'no-store' });
-    if (!response.ok) return null;
-    return (await response.json()) as T;
-  } catch {
-    return null;
-  }
-}
-
 export default async function RoomPage({
   params,
 }: {
@@ -64,8 +53,8 @@ export default async function RoomPage({
   const encoded = encodeURIComponent(slug);
   // The context (path, module, prev/next) is optional: the room still renders without it.
   const [room, context] = await Promise.all([
-    fetchJson<ApiRoom>(`/api/catalog/rooms/${encoded}`, locale),
-    fetchJson<RoomContext>(`/api/catalog/rooms/${encoded}/context`, locale),
+    fetchApiJson<ApiRoom>(`/api/catalog/rooms/${encoded}`, locale),
+    fetchApiJson<RoomContext>(`/api/catalog/rooms/${encoded}/context`, locale),
   ]);
   if (!room) {
     notFound();

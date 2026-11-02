@@ -1,6 +1,8 @@
 import { Controller, Get, Header, Query } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { z } from 'zod';
 import { DIFFICULTY_IDS, ROOM_TYPES } from '@repo/shared';
+import { RATE_LIMITS } from '../http/rate-limits';
 import { HacktivitiesService, HACKTIVITIES_SORTS } from './hacktivities.service';
 
 const listQuerySchema = z.object({
@@ -15,6 +17,7 @@ const listQuerySchema = z.object({
 });
 
 /** Public hacktivities directory (search/filter/sort). */
+@Throttle(RATE_LIMITS.publicRead)
 @Controller('hacktivities')
 export class HacktivitiesController {
   constructor(private readonly hacktivities: HacktivitiesService) {}
