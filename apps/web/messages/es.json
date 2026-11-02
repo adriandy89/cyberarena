@@ -263,12 +263,42 @@
   },
   "LabPanel": {
     "title": "Laboratorio",
-    "intro": "Levanta el laboratorio en tu máquina con Docker y atácalo desde tu terminal. La primera vez, copia flags.env.example a flags.env dentro de la carpeta del lab.",
+    "intro": "Levanta el laboratorio en tu máquina con Docker (desde la raíz del repositorio) y atácalo desde tu terminal.",
     "upLabel": "Levantar",
     "downLabel": "Destruir (siempre al terminar)",
     "copy": "Copiar",
     "copied": "¡Copiado!",
-    "warning": "Entorno educativo local aislado. Nunca expongas los labs a redes públicas."
+    "warning": "Entorno educativo local aislado. Nunca expongas los labs a redes públicas.",
+    "introOnDemand": "Arranca el laboratorio con un clic: corre en el servidor y se apaga solo cuando nadie lo usa. Si otra persona lo está usando, lo compartís.",
+    "start": "Iniciar lab",
+    "starting": "Arrancando el laboratorio…",
+    "startingHint": "Suele tardar unos segundos.",
+    "stop": "Detener",
+    "stopping": "Deteniendo…",
+    "extend": "Ampliar 1 h",
+    "restart": "Reiniciar",
+    "retry": "Reintentar",
+    "open": "Abrir el lab",
+    "ports": "Puertos",
+    "execHint": "Abre una terminal y entra con:",
+    "stopsAt": "Se apagará a las {time}.",
+    "keepOpen": "Mantén esta página abierta (vale en segundo plano): si la cierras, se apaga a los {minutes} min.",
+    "users": "{count, plural, one {# persona lo está usando} other {# personas lo están usando}}",
+    "loginToStart": "Inicia sesión para arrancar el laboratorio.",
+    "login": "Iniciar sesión",
+    "otherLab": "Ya tienes otro laboratorio en marcha ({slug}). Solo puedes tener uno a la vez.",
+    "goToOther": "Ir a su room",
+    "switchHere": "Cambiar a este lab",
+    "capacity": "Todos los huecos de laboratorio están ocupados ahora mismo.",
+    "capacityAt": "Se libera uno hacia las {time}.",
+    "runnerDown": "El servicio de laboratorios no responde ahora mismo.",
+    "unavailable": "Este laboratorio no está disponible en este servidor.",
+    "crashed": "El laboratorio se ha detenido inesperadamente.",
+    "expired": "El laboratorio se apagó porque nadie lo estaba usando.",
+    "error": "No se ha podido completar la acción. Inténtalo de nuevo.",
+    "chooseLab": "Elige el laboratorio",
+    "extra": "extra",
+    "showOther": "Ver ese lab"
   },
   "SecurityPanel": {
     "title": "Seguridad",
@@ -358,6 +388,27 @@
         "No he podido enviar tu respuesta. Este intento no cuenta como fallo.",
         "El servidor no responde. Comprueba tu conexión y vuelve a probar.",
         "Paquete perdido por el camino. ¿Lo reenviamos?"
+      ],
+      "labReady": [
+        "¡Laboratorio en marcha! Abre el enlace y empieza a explorar.",
+        "Lab listo. Mis sensores detectan un objetivo esperándote.",
+        "Todo arriba: el entorno es tuyo. ¡A por las flags!",
+        "Contenedores en pie. Recuerda: aquí puedes romper sin miedo.",
+        "Lab operativo. Empieza por reconocer el terreno."
+      ],
+      "labExpired": [
+        "Apagué el laboratorio porque nadie lo usaba. Puedes reiniciarlo cuando quieras.",
+        "Zzz… el lab se durmió por inactividad. Un clic y vuelve.",
+        "Ahorro de energía: el lab se apagó solo. Reinícialo para seguir.",
+        "Nadie al teclado, así que guardé el laboratorio. ¿Lo levantamos otra vez?",
+        "El lab estaba solo y lo apagué. Tus respuestas siguen guardadas."
+      ],
+      "labError": [
+        "Uy, el servicio de laboratorios no responde. Prueba en un momento.",
+        "Mis antenas no llegan al servidor de labs. Reintenta en unos segundos.",
+        "Algo falló al gestionar el laboratorio. Vuelve a intentarlo.",
+        "El lab no está disponible ahora mismo. No es culpa tuya.",
+        "Error en la sala de máquinas. Dame un momento y reintenta."
       ]
     },
     "greetings": {

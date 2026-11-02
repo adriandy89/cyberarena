@@ -24,6 +24,7 @@ interface ApiRoom {
   tags: string[];
   lab: string | null;
   labUrl: string | null;
+  extraLabs?: string[];
   tasks: Array<{
     id: string;
     index: number;
@@ -122,7 +123,15 @@ export default async function RoomPage({
       </header>
 
       <div className="mt-8 space-y-6">
-        {room.lab && <LabPanel labSlug={room.lab} labUrl={room.labUrl} />}
+        {room.lab && (
+          <LabPanel
+            roomSlug={room.slug}
+            labs={[
+              { slug: room.lab, main: true },
+              ...(room.extraLabs ?? []).map((slug) => ({ slug, main: false })),
+            ]}
+          />
+        )}
         <RoomPlayer roomSlug={room.slug} tasks={tasks} next={next} />
       </div>
 

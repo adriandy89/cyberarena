@@ -26,7 +26,10 @@ export type ByteEvent =
   | 'authRequired'
   | 'networkError'
   | 'pageTip'
-  | 'greeting';
+  | 'greeting'
+  | 'labReady'
+  | 'labExpired'
+  | 'labError';
 
 interface EventSpec {
   mood: ByteMood;
@@ -53,6 +56,9 @@ const EVENT_SPECS: Record<ByteEvent, EventSpec> = {
   roomCompleted: { mood: 'celebrate', tone: 'success', priority: 4, confetti: true },
   authRequired: { mood: 'point', tone: 'info', priority: 4, sticky: true },
   levelUp: { mood: 'celebrate', tone: 'success', priority: 5, confetti: true },
+  labReady: { mood: 'happy', tone: 'success', priority: 3 },
+  labExpired: { mood: 'sleep', tone: 'info', priority: 3 },
+  labError: { mood: 'error', tone: 'danger', priority: 3 },
 };
 
 export interface ByteAction {

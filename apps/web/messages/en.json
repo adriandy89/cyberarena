@@ -262,13 +262,43 @@
     "clearFilters": "Clear filters"
   },
   "LabPanel": {
-    "title": "Laboratory",
-    "intro": "Start the lab on your machine with Docker and attack it from your terminal. First time: copy flags.env.example to flags.env inside the lab folder.",
+    "title": "Lab",
+    "intro": "Bring the lab up on your machine with Docker (from the repository root) and attack it from your terminal.",
     "upLabel": "Start",
-    "downLabel": "Tear down (always when finished)",
+    "downLabel": "Destroy (always when you finish)",
     "copy": "Copy",
     "copied": "Copied!",
-    "warning": "Isolated local educational environment. Never expose labs to public networks."
+    "warning": "Isolated local training environment. Never expose the labs to public networks.",
+    "introOnDemand": "Start the lab with one click: it runs on the server and stops by itself when nobody is using it. If someone else is using it, you share it.",
+    "start": "Start lab",
+    "starting": "Starting the lab…",
+    "startingHint": "It usually takes a few seconds.",
+    "stop": "Stop",
+    "stopping": "Stopping…",
+    "extend": "Extend 1 h",
+    "restart": "Restart",
+    "retry": "Retry",
+    "open": "Open the lab",
+    "ports": "Ports",
+    "execHint": "Open a terminal and get in with:",
+    "stopsAt": "It will stop at {time}.",
+    "keepOpen": "Keep this page open (a background tab is fine): if you close it, the lab stops after {minutes} min.",
+    "users": "{count, plural, one {# person is using it} other {# people are using it}}",
+    "loginToStart": "Sign in to start the lab.",
+    "login": "Sign in",
+    "otherLab": "You already have another lab running ({slug}). You can only have one at a time.",
+    "goToOther": "Go to its room",
+    "switchHere": "Switch to this lab",
+    "capacity": "Every lab slot is in use right now.",
+    "capacityAt": "One frees up around {time}.",
+    "runnerDown": "The lab service is not responding right now.",
+    "unavailable": "This lab is not available on this server.",
+    "crashed": "The lab stopped unexpectedly.",
+    "expired": "The lab was stopped because nobody was using it.",
+    "error": "The action could not be completed. Please try again.",
+    "chooseLab": "Choose the lab",
+    "extra": "extra",
+    "showOther": "Show that lab"
   },
   "SecurityPanel": {
     "title": "Security",
@@ -358,6 +388,27 @@
         "I couldn't send your answer. This attempt doesn't count as a miss.",
         "The server isn't responding. Check your connection and try again.",
         "Packet lost on the way. Shall we resend it?"
+      ],
+      "labReady": [
+        "Lab up and running! Open the link and start exploring.",
+        "Lab ready. My sensors detect a target waiting for you.",
+        "Everything is up: the environment is yours. Go get those flags!",
+        "Containers standing. Remember: here you can break things safely.",
+        "Lab online. Start by scouting the terrain."
+      ],
+      "labExpired": [
+        "I stopped the lab because nobody was using it. Restart it whenever you like.",
+        "Zzz… the lab fell asleep from inactivity. One click brings it back.",
+        "Power saving: the lab stopped by itself. Restart it to keep going.",
+        "Nobody at the keyboard, so I put the lab away. Shall we bring it back?",
+        "The lab was alone, so I stopped it. Your answers are still saved."
+      ],
+      "labError": [
+        "Oops, the lab service is not responding. Try again in a moment.",
+        "My antennas cannot reach the lab server. Retry in a few seconds.",
+        "Something failed while managing the lab. Please try again.",
+        "The lab is not available right now. It is not your fault.",
+        "Trouble in the engine room. Give me a moment and retry."
       ]
     },
     "greetings": {

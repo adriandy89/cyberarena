@@ -29,7 +29,7 @@
 
 ## Fase D — Web
 
-- [ ] T011 `use-lab-session` + `LabPanel` (estados, ES/EN, Byte).
+- [x] T011 `use-lab-session` + `LabPanel` (estados, ES/EN, Byte).
 - [ ] T012 Sección admin de labs en el dashboard y fila de labs en `/status`.
 
 ## Fase E — Cierre
