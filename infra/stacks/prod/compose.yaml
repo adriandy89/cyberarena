@@ -1,6 +1,7 @@
 # CyberArena — PRODUCTION stack (phase 008).
 # Build & run from the repository root:
-#   docker compose --project-directory . -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
+#   docker compose --project-directory infra/stacks/prod -f infra/stacks/prod/compose.yaml --env-file infra/stacks/prod/.env up -d --build
+# (build contexts below are relative to infra/stacks/prod, so they reach the repo root)
 # The reverse proxy lives in infra/stacks/proxy (bring it up FIRST).
 name: cyberarena-prod
 
