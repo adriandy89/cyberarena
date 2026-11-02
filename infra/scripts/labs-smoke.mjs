@@ -3,15 +3,18 @@
 // the runner CLI (same rules as the API), check it answers from the host, stop it.
 //
 // Usage (from the repo root):
-//   node infra/scripts/labs-smoke.mjs [--runner <container>] [slug ...]
+//   node infra/scripts/labs-smoke.mjs [--runner <container>] [--host <lab host>] [slug ...]
 // Default runner container: cyberarena-prod-lab-runner-1 (dev: cyberarena-dev-lab-runner-1).
+// A remote server (LAN deployment, phase 013): DOCKER_HOST=ssh://user@server and
+// --host <server IP> to probe the labs where the runner publishes them.
 // Labs run one at a time, so the runner's capacity is never the bottleneck.
 import { execFileSync } from 'node:child_process';
 
 const argv = process.argv.slice(2);
-const runnerAt = argv.indexOf('--runner');
-const runner = runnerAt >= 0 ? argv[runnerAt + 1] : 'cyberarena-prod-lab-runner-1';
-const only = argv.filter((arg, index) => arg !== '--runner' && index !== runnerAt + 1);
+const valueOf = (name, fallback) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : fallback);
+const runner = valueOf('--runner', 'cyberarena-prod-lab-runner-1');
+const host = valueOf('--host', null);
+const only = argv.filter((arg, index) => !arg.startsWith('--') && !argv[index - 1]?.startsWith('--'));
 
 const docker = (args, timeout = 60_000) =>
   execFileSync('docker', args, { encoding: 'utf8', timeout, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -41,7 +44,7 @@ for (const lab of labs) {
   try {
     cli('up', lab.slug, '--wait');
     if (lab.access === 'http') {
-      const status = await httpStatus(lab.url);
+      const status = await httpStatus(host ? lab.url.replace('//127.0.0.1:', `//${host}:`) : lab.url);
       if (status === null) {
         ok = false;
         notes.push(`no HTTP answer at ${lab.url}`);

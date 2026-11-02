@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 // Smoke test of the production stack (phase 012). From the repo root:
 //   node infra/scripts/smoke-prod.mjs [--base https://localhost] [--no-crawl]
+// A stack elsewhere (LAN deployment, phase 013):
+//   node infra/scripts/smoke-prod.mjs --base https://192.168.1.20 --ca caddy-root.crt \
+//     --env-file stack.env --admin-password-file admin.txt
 // TLS is verified for real against Caddy's internal CA (exported from the proxy
-// container), not disabled. The admin password is read from the secrets file
-// and never printed.
+// container, or given with --ca), not disabled. The admin password is read from
+// a file and never printed.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -14,11 +17,14 @@ const flag = (name) => argv.includes(name);
 const option = (name, fallback) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : fallback);
 const BASE = option('--base', 'https://localhost').replace(/\/$/, '');
 const PROXY = option('--proxy', 'cyberarena-proxy-caddy-1');
+const CA = option('--ca', null);
+const ENV_FILE = option('--env-file', 'infra/stacks/prod/.env');
+const ADMIN_PASSWORD_FILE = option('--admin-password-file', 'infra/stacks/prod/secrets/bootstrap_admin_password');
 
 // Re-run with Caddy's root certificate trusted (Node reads it only at startup).
-if (BASE.startsWith('https://localhost') && !process.env.NODE_EXTRA_CA_CERTS) {
-  const cert = join(tmpdir(), 'cyberarena-caddy-root.crt');
-  execFileSync('docker', ['cp', `${PROXY}:/data/caddy/pki/authorities/local/root.crt`, cert]);
+if ((CA || BASE.startsWith('https://localhost')) && !process.env.NODE_EXTRA_CA_CERTS) {
+  const cert = CA ?? join(tmpdir(), 'cyberarena-caddy-root.crt');
+  if (!CA) execFileSync('docker', ['cp', `${PROXY}:/data/caddy/pki/authorities/local/root.crt`, cert]);
   const run = spawnSync(process.execPath, process.argv.slice(1), {
     stdio: 'inherit',
     env: { ...process.env, NODE_EXTRA_CA_CERTS: cert },
@@ -83,8 +89,8 @@ try {
   check('labs on demand enabled', labs.json?.enabled === true, JSON.stringify(labs.json));
 
   // Admin login (bootstrap admin) and an admin-only endpoint.
-  const email = envValue('infra/stacks/prod/.env', 'BOOTSTRAP_ADMIN_EMAIL') ?? 'admin@cyberarena.local';
-  const password = readFileSync('infra/stacks/prod/secrets/bootstrap_admin_password', 'utf8').replace(/[\r\n]/g, '');
+  const email = envValue(ENV_FILE, 'BOOTSTRAP_ADMIN_EMAIL') ?? 'admin@cyberarena.local';
+  const password = readFileSync(ADMIN_PASSWORD_FILE, 'utf8').replace(/[\r\n]/g, '');
   const signIn = await fetch(`${BASE}/api/auth/sign-in/email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Origin: BASE },

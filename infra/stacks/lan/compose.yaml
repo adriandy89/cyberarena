@@ -1,0 +1,61 @@
+# CyberArena — LAN deployment overlay (phase 013).
+#
+# Used ON TOP of infra/stacks/prod/compose.yaml, from a stack folder that lives
+# OUTSIDE the git clone (so `git pull` never meets local changes):
+#
+#   ~/cyberarena/repo    git clone (untouched)
+#   ~/cyberarena/stack   .env, secrets/, lab-flags/, backups/, cyberarena.sh -> repo
+#
+# Run it through cyberarena.sh (see README.md). Everything is ONE compose project
+# with its own networks: Caddy joins the stack instead of a separate proxy stack.
+services:
+  api:
+    build:
+      context: ${REPO_DIR:?set REPO_DIR in the stack .env}
+  web:
+    build:
+      context: ${REPO_DIR}
+  lab-runner:
+    build:
+      context: ${REPO_DIR}
+
+  caddy:
+    image: caddy:2.10-alpine
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp' # HTTP/3
+    environment:
+      # The LAN IP: Caddy serves it over HTTPS with its internal CA.
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in the stack .env}
+    volumes:
+      - ${REPO_DIR}/infra/stacks/proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE, CHOWN, SETUID, SETGID, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1:2019/config/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+    restart: unless-stopped
+    networks: [proxy]
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  # The prod file expects an external proxy network; here Caddy is part of the
+  # project, so the network is created (and removed) with it.
+  proxy:
+    name: cyberarena-lan-proxy
+    external: false
