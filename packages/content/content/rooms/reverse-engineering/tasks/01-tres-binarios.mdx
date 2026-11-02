@@ -1,0 +1,79 @@
+---
+index: 1
+title: "Level 1-3: strings, zlib y XOR"
+questions:
+  - id: reverse-engineering-t01-q01
+    prompt: "Descarga level1.sh. Un healthcheck de lo más normal con un CONFIG_HASH raro. Envía la flag."
+    hint: "curl -O http://127.0.0.1:18111/level1.sh && strings level1.sh | grep CONFIG — luego base64 -d"
+    kind: flag
+  - id: reverse-engineering-t01-q02
+    prompt: "level2.py corre sin error y no imprime nada útil. El _PAYLOAD comprimido esconde la flag. Envíala."
+    hint: "import zlib, base64; zlib.decompress(base64.b64decode(blob)) — correr el script NO la revela: hay que leer el código"
+    kind: flag
+  - id: reverse-engineering-t01-q03
+    prompt: "level3.bin es un ELF de verdad (magic 7f 45 4c 46). Su sección .data guarda la flag XORed con un byte. Envíala."
+    hint: "python: bytes(b ^ 0x5A for b in open('level3.bin','rb').read()) y buscar FLAG{ — ¿por qué 0x5A? pruébalo o fuerza el byte con un bucle 1..255"
+    kind: flag
+---
+
+## Level 1: la línea base
+
+```bash
+curl -O http://127.0.0.1:18111/level1.sh
+strings level1.sh | grep -i "hash\|flag\|key"
+# CONFIG_HASH="RkxBR3tzdHJpbmdzX2Jhc2VsaW5lX3JlfQ=="
+echo "RkxBR3tz..." | base64 -d
+```
+
+`strings` extrae todo lo imprimible del binario. El 80% del reversing
+ inicial es esto: contraseñas hardcodeadas, URLs de C2, rutas, tokens.
+Antes de abrir un disassembler, SIEMPRE strings.
+
+## Level 2: la capa que hay que pelar
+
+El script corre y dice "nothing to see here". El truco está en el
+payload que no ejecuta:
+
+```bash
+curl -O http://127.0.0.1:18111/level2.py
+python3 -c "
+import re, base64, zlib
+blob = re.search(r'_PAYLOAD = \"([^\"]+)\"', open('level2.py').read()).group(1)
+print(zlib.decompress(base64.b64decode(blob)).decode())
+"
+```
+
+Malware real empaqueta así sus etapas: base64 → zlib → XOR → a veces
+varias rondas. Cada capa se pela en orden inverso a como se puso. En
+CTFs, zlib-magic (`78 9c`) en un dump es la firma de que toca
+descomprimir.
+
+## Level 3: XOR en el ELF
+
+```bash
+curl -O http://127.0.0.1:18111/level3.bin
+file level3.bin          # ELF 64-bit
+xxd level3.bin | head -4 # mira el header de verdad
+```
+
+`strings` no ve la flag porque está XOReada. Un XOR de byte único tiene
+256 claves posibles — se fuerza en un segundo:
+
+```python
+data = open('level3.bin','rb').read()
+for key in range(256):
+    dec = bytes(b ^ key for b in data)
+    if b'FLAG{' in dec:
+        print(f'key=0x{key:02x}:', dec[dec.index(b"FLAG{"):].split(b"}")[0].decode() + "}")
+```
+
+Este single-byte XOR brute force resuelve más CTFs de los que admite
+cualquiera. Cuando la clave es multi-byte, se pasa a análisis de
+frecuencia o a buscar el key material en .data (el prólogo del room de
+criptografía aplica directo).
+
+## El kit que irás construyendo
+
+strings → xxd/od → python one-liners → objdump/readelf (secciones,
+símbolos) → ltrace/strace (qué llama) → gdb (breakpoints) → Ghidra
+(decompilar). Cada nivel de este room es un peldaño de esa escalera.

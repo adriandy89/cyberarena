@@ -8,6 +8,9 @@
     },
     {
       "slug": "detection-evasion"
+    },
+    {
+      "slug": "data-exfiltration"
     }
   ]
 }

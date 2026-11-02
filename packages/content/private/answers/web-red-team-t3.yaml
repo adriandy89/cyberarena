@@ -1,0 +1,4 @@
+# Respuestas nuevas de web-red-team (task 3, Tier 3).
+# IMPORTANTE: flags de labs/firewall-bypass/flags.env
+web-red-team-t03-q01: FLAG{tunneled_through_443}
+web-red-team-t03-q02: FLAG{source_port_53_bypass}

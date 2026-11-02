@@ -29,6 +29,34 @@
           "prompt": "What S3 misconfig is the most common data leak?"
         }
       }
+    },
+    "3": {
+      "title": "Lab: escape through the docker.sock",
+      "questions": {
+        "containers-y-cloud-t03-q01": {
+          "prompt": "Inside the lab container, confirm via /version that /var/run/docker.sock controls the HOST daemon. Submit the recon flag."
+        },
+        "containers-y-cloud-t03-q02": {
+          "prompt": "Create a privileged container binding the host / via the socket API. Submit the flag from the Warnings."
+        },
+        "containers-y-cloud-t03-q03": {
+          "prompt": "Start your escape container and read its logs: you just read a host file. Submit the final flag."
+        }
+      }
+    },
+    "4": {
+      "title": "Lab: rob the cloud via IMDS, S3 and IAM",
+      "questions": {
+        "containers-y-cloud-t04-q01": {
+          "prompt": "The workload exposes its metadata. Get the role credentials via IMDS and submit the flag."
+        },
+        "containers-y-cloud-t04-q02": {
+          "prompt": "One bucket is public. Pull terraform.tfstate (or secrets.env) and submit the flag inside."
+        },
+        "containers-y-cloud-t04-q03": {
+          "prompt": "Audit /iam/policies: one has Action * on Resource *. Submit its flag."
+        }
+      }
     }
   }
 }

@@ -1,0 +1,14 @@
+{
+  "title": "Reverse Engineering: the binary talks",
+  "description": "strings as a baseline, compression layers to peel and XOR inside ELF sections: three binaries, three techniques.",
+  "tasks": {
+    "1": {
+      "title": "Levels 1-3: strings, zlib and XOR",
+      "questions": {
+        "reverse-engineering-t01-q01": { "prompt": "Download level1.sh. A perfectly normal healthcheck with an odd CONFIG_HASH. Submit the flag." },
+        "reverse-engineering-t01-q02": { "prompt": "level2.py runs without errors and prints nothing useful. The compressed _PAYLOAD hides the flag. Submit it." },
+        "reverse-engineering-t01-q03": { "prompt": "level3.bin is a real ELF (magic 7f 45 4c 46). Its .data section stores the flag XORed with one byte. Submit it." }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+# Respuestas nuevas de containers-y-cloud (tasks 3-4, Tier 3).
+# IMPORTANTE: flags de labs/container-escape-lab y labs/cloud-iam-sim
+containers-y-cloud-t03-q01: FLAG{socket_recon_host_daemon}
+containers-y-cloud-t03-q02: FLAG{privileged_host_bind_escape}
+containers-y-cloud-t03-q03: FLAG{host_file_read_escape}
+containers-y-cloud-t04-q01: FLAG{imds_role_credentials}
+containers-y-cloud-t04-q02: FLAG{public_s3_tfstate}
+containers-y-cloud-t04-q03: FLAG{wildcard_iam_policy}

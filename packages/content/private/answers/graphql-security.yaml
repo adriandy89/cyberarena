@@ -1,0 +1,8 @@
+# Respuestas del room graphql-security.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/graphql-injection/flags.env
+graphql-security-t01-q01: SecretFlag
+graphql-security-t01-q02: FLAG{graphql_idor_admin_note}
+graphql-security-t01-q03: FLAG{hidden_type_introspected}
+graphql-security-t02-q01: FLAG{graphql_filter_injection}
+graphql-security-t02-q02: persisted queries

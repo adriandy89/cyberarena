@@ -1,0 +1,71 @@
+---
+index: 3
+title: "Lab: atraviesa el firewall"
+questions:
+  - id: web-red-team-t03-q01
+    prompt: "El puerto 80 de la intranet está bloqueado, pero el 443 está abierto y reenvía. Saca el secreto a través del gateway. Envía la flag."
+    hint: "curl \"http://127.0.0.1:18443/fetch?url=http://intranet.local/\" — el firewall confía en el puerto, no en el contenido"
+    kind: flag
+  - id: web-red-team-t03-q02
+    prompt: "El servicio admin (:18844) solo acepta conexiones cuyo PUERTO ORIGEN es 53. Conéctate así (desde dentro de la red del lab) y envía la flag."
+    hint: "docker exec al contenedor + socket python con bind(('', 53)) → la regla --sport 53 allow es de los errores de fw más viejos"
+    kind: flag
+---
+
+## Reglas de puerto ≠ seguridad
+
+El lab levanta tres servicios tras "reglas de firewall":
+
+```bash
+cd labs/firewall-bypass && cp flags.env.example flags.env
+docker compose --env-file flags.env up -d
+# :18180 intranet (bloqueada) | :18443 gateway (permitido) | :18844 admin
+```
+
+### Evasión 1: túnel por el puerto confiado
+
+La regla dice "443 permitido" — pero un puerto no sabe qué lleva
+dentro. El gateway del lab reenvía hacia dentro:
+
+```bash
+curl -s "http://127.0.0.1:18443/fetch?url=http://intranet.local/"
+```
+
+Es la misma razón por la que el C2 de facto viaja en 443 con mTLS
+legítimo-appearing: la política por puerto es una cerca de altura fija
+en un terreno irregular. Dominio fronting, SSH over HTTPS, DNS over
+HTTPS — todos viven de esta brecha entre "permitido" y "benigno".
+
+### Evasión 2: el puerto origen 53
+
+La regla admin allowlista `--sport 53` (DNS) asumiendo que solo el
+resolver interno hablaría así. Cualquier atacante ELIGE su puerto
+origen:
+
+```python
+# desde dentro de la red del lab (docker exec):
+import socket
+s = socket.socket()
+s.bind(('0.0.0.0', 53))          # mi puerto origen es 53
+s.connect(('127.0.0.1', 8443))   # la regla fw se cumple
+s.sendall(b'GET / HTTP/1.0\r\n\r\n')
+print(s.recv(4096))
+```
+
+(Desde fuera del docker network, el NAT reescribe el puerto origen —
+por eso el lab se ataca desde dentro, como un pivot real. En una red
+plana de empresa, `curl --local-port 53 http://objetivo:8443/` funciona
+directamente.)
+
+Es la clase de regla que nace de un ticket de 2011 ("el monitoring
+necesita consultar") y sobrevive a tres equipos de infraestructura. Las
+reglas correctas filtran por identidad (mTLS, tokens) y contexto, nunca
+por número de puerto de origen.
+
+### El diagnóstico del defensor
+
+`nmap` desde fuera muestra: 80 filtrado, 443 abierto, 8443 filtrado.
+"Seguro", dice el inventario. El gateway del 443 y el sport-53
+cuentan otra historia — la discusión de este room es cómo se auditó
+eso (pivoting interno + pruebas de regla) antes de que lo hiciera
+alguien más.

@@ -29,6 +29,17 @@
           "prompt": "What tools create covert tunnels?"
         }
       }
+    },
+    "3": {
+      "title": "Lab: pierce the firewall",
+      "questions": {
+        "web-red-team-t03-q01": {
+          "prompt": "The intranet port 80 is blocked but 443 is open and relays. Extract the secret through the gateway. Submit the flag."
+        },
+        "web-red-team-t03-q02": {
+          "prompt": "The admin service (:18844) only accepts connections whose SOURCE port is 53. Connect that way (from inside the lab network) and submit the flag."
+        }
+      }
     }
   }
 }

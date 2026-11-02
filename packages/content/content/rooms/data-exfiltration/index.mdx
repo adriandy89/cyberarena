@@ -1,0 +1,24 @@
+---
+slug: data-exfiltration
+title: "Exfiltración de datos: el canal DNS"
+description: "Roba un fichero clasificado codificándolo en subdominios DNS contra un servidor real, y luego detecta tu propio canal como el SOC."
+difficulty: hard
+type: walkthrough
+estimatedMinutes: 40
+tags:
+  - red-team
+  - dns
+  - exfiltration
+  - blue-team
+lab: dns-exfiltration
+labUrl: http://127.0.0.1:18112
+---
+
+El objetivo final de casi todo intrusion no es el shell — es el dato.
+Y las redes están construidas para que HTTP salga filtrado y DNS salga
+libre: sin DNS no hay internet. Esa asimetría es el canal de
+exfiltración más longevo que existe.
+
+Este room te pone en los dos lados: exfiltras un secreto real por DNS
+contra un servidor autoritativo de verdad (UDP), y luego abres la vista
+del SOC para ver qué delató el canal.

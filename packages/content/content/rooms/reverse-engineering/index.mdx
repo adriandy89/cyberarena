@@ -1,0 +1,24 @@
+---
+slug: reverse-engineering
+title: "Reverse Engineering: el binario habla"
+description: "strings como línea base, capas de compresión que hay que pelar y XOR en secciones de un ELF: tres binarios, tres técnicas."
+difficulty: medium
+type: walkthrough
+estimatedMinutes: 35
+tags:
+  - reversing
+  - binarios
+  - analisis
+lab: reverse-engineering
+labUrl: http://127.0.0.1:18111
+---
+
+El reversing empieza siempre igual: un binario que no tienes el código
+fuente y una pregunta ("¿qué hace?", "¿dónde valida la licencia?",
+"¿dónde guarda la flag?"). No necesitas IDA para empezar — la
+herramienta más rentable del reverser es `strings`, y la segunda es un
+script de 10 líneas.
+
+Este room practica la progresión clásica sobre tres binarios generados
+por el lab: lo que `strings` ve, lo que hay que descomprimir a mano, y
+lo que solo aparece tras un XOR.

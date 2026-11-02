@@ -29,6 +29,23 @@
           "prompt": "What tool automates ESC8?"
         }
       }
+    },
+    "3": {
+      "title": "Lab: kerberoasting, ESC1 and the forest",
+      "questions": {
+        "ad-avanzado-t03-q01": {
+          "prompt": "Kerberoast the weak-password service account in the lab (/kerberoast endpoint). Submit the flag."
+        },
+        "ad-avanzado-t03-q02": {
+          "prompt": "The lab LDAP is injectable: the (samAccountName=svc-*) filter returns what it should not. Submit the flag."
+        },
+        "ad-avanzado-t03-q03": {
+          "prompt": "Enumerate the certificates (/adcs/templates) and abuse ESC1 by issuing a cert with SAN administrator@corp.local. Submit the flag."
+        },
+        "ad-avanzado-t03-q04": {
+          "prompt": "Check /trust: there is a bidirectional external trust. Submit its flag."
+        }
+      }
     }
   }
 }

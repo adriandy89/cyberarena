@@ -1,0 +1,65 @@
+---
+index: 1
+title: "Introspection: el mapa del atacante"
+questions:
+  - id: graphql-security-t01-q01
+    prompt: "Consulta el __schema y localiza el tipo marcado como hidden. ¿Qué campo hint te da para llegar a la flag? (envía el nombre del type)"
+    hint: "curl -s http://127.0.0.1:18109/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{ __schema { types { name hint } } }\"}'"
+    kind: text
+  - id: graphql-security-t01-q02
+    prompt: "Eres alice (id=2). Recupera la nota del usuario id=1 (admin) vía la query user. Envía la flag."
+    hint: "{\"query\":\"{ user(id:1) { email note } }\"} — el resolver no comprueba dueño ni rol"
+    kind: flag
+  - id: graphql-security-t01-q03
+    prompt: "Usa el type oculto que reveló la introspection para obtener la flag final."
+    hint: "query { secretFlag { value } } — los resolvers existen para TODOS los types del schema"
+    kind: flag
+---
+
+## Un endpoint que se explica solo
+
+GraphQL expone `__schema`: cualquier cliente puede pedir el mapa completo
+de types, campos y argumentos. Es una feature de desarrollo que en
+producción es un regalo: el atacante no adivina endpoints — se los dan.
+
+```bash
+curl -s http://127.0.0.1:18109/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "{ __schema { types { name fields hint } } }"}' | jq .
+```
+
+En el lab verás un type marcado `hidden: true`. En un GraphQL real los
+types "internos" (debug, admin, deprecated) viven igual en el schema: la
+introspection no distingue lo que el equipo olvidó quitar.
+
+**La postura correcta**: introspection OFF en producción (Apollo:
+`validationRules: [NoSchemaIntrospectionCustomRule]`), o detrás de auth
+admin. "Ocultar" el schema sin apagar la resolución no protege nada —
+como comprobarás ahora.
+
+## El type oculto que no estaba oculto
+
+Pide el campo que el hint te regaló:
+
+```bash
+curl -s http://127.0.0.1:18109/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "{ secretFlag { value } }"}'
+```
+
+El resolver existe y responde. Un campo que nadie debía conocer sigue
+siendo un campo que cualquiera puede llamar: la seguridad por oscuridad
+en GraphQL muere el día que alguien corre introspection.
+
+## IDOR con tipado bonito
+
+```bash
+curl -s http://127.0.0.1:18109/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "{ user(id:1) { email note } }"}'
+```
+
+`user(id: N)` busca por ID sin comparar con la sesión — el clásico BOLA.
+Recorre IDs (1, 2, 3...) y cada registro ajeno cae. En GraphQL el bug es
+más frecuente que en REST porque cada resolver se escribe por separado y
+la autorización "se le olvida" al que no valida el argumento.

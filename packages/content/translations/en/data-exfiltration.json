@@ -1,0 +1,14 @@
+{
+  "title": "Data Exfiltration: the DNS channel",
+  "description": "Steal a classified file by encoding it into DNS subdomains against a real server, then detect your own channel as the SOC.",
+  "tasks": {
+    "1": {
+      "title": "Exfiltrate the secret and detect yourself",
+      "questions": {
+        "data-exfiltration-t01-q01": { "prompt": "Encode the /secret blob in base32, split it into labels (c1-, c2-...) and resolve them against the lab DNS. Submit the flag /status gives at exfil_complete." },
+        "data-exfiltration-t01-q02": { "prompt": "As the SOC: after exfiltrating, open /detect. What TYPE are the alerts your channel generated? (the first alert's type)" },
+        "data-exfiltration-t01-q03": { "prompt": "Submit the blue-team flag /detect delivers when correlating the signals." }
+      }
+    }
+  }
+}

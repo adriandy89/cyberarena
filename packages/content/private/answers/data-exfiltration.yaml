@@ -1,0 +1,6 @@
+# Respuestas del room data-exfiltration.
+# PRIVADO: el seed lo hashea a la tabla Answer.
+# IMPORTANTE: flags deben coincidir con labs/dns-exfiltration/flags.env
+data-exfiltration-t01-q01: FLAG{dns_exfil_reassembled}
+data-exfiltration-t01-q02: DNS_TUNNELING
+data-exfiltration-t01-q03: FLAG{soc_detects_tunnel}

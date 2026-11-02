@@ -1,0 +1,24 @@
+---
+slug: graphql-security
+title: "GraphQL Security: introspection e IDOR"
+description: "El endpoint que lo expone todo: introspection como mapa del ataque, IDOR en queries con IDs secuenciales y filter injection."
+difficulty: hard
+type: walkthrough
+estimatedMinutes: 40
+tags:
+  - web
+  - api
+  - graphql
+  - owasp
+lab: graphql-injection
+labUrl: http://127.0.0.1:18109
+---
+
+GraphQL prometió matar REST y trajo sus propios bugs: un solo endpoint
+que responde a cualquier query, con la capacidad de describirse a sí
+mismo (introspection) y resolvers que a menudo olvidan la autorización
+por objeto — el BOLA de las APIs, pero con queries tipadas.
+
+Este room ataca GraphCorp API, un GraphQL con las tres malas costumbres
+más comunes: introspection abierta, IDs sin control de dueño y filtros
+que interpolan strings.

@@ -1,0 +1,16 @@
+name: lab-dns-exfil
+services:
+  web:
+    image: python:3.12-alpine
+    volumes: [./site:/site:ro]
+    command: sh -c "cp /site/app.py /app.py && python /app.py"
+    environment: {FLAG_1: "${FLAG_1:?}", FLAG_2: "${FLAG_2:?}"}
+    ports:
+      - '127.0.0.1:18112:8080'
+      - '127.0.0.1:18153:53/udp'
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks: [lab]
+networks: {lab: {name: lab-dns-exfil}}

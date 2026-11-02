@@ -1,0 +1,14 @@
+{
+  "title": "WebSocket Security: injection and CSWSH",
+  "description": "The channel the firewall lets through: sender spoofing because the server trusts client JSON, and internal sockets with no auth or Origin check.",
+  "tasks": {
+    "1": {
+      "title": "Spoof the admin and open the internal console",
+      "questions": {
+        "websocket-security-t01-q01": { "prompt": "The chat trusts the JSON from field. Send a message impersonating admin and submit the flag the server gives you." },
+        "websocket-security-t01-q02": { "prompt": "The /admin socket is internal and validates neither token nor Origin. Connect directly and run the dump. Submit the flag." },
+        "websocket-security-t01-q03": { "prompt": "Which HTTP handshake header reveals which website the connection comes from (shown but never checked by this server)?" }
+      }
+    }
+  }
+}

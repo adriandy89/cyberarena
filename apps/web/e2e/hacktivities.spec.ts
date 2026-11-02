@@ -24,7 +24,10 @@ test.describe('hacktivities directory', () => {
 
   test('sort select renders and cards link to rooms', async ({ page }) => {
     await page.goto('/es/hacktivities');
-    const firstCard = page.locator('ul > li a', { hasText: /Linux Fundamentos I/ }).first();
+    // catalog-size agnostic: whatever sorts first must link to a room page
+    const firstCard = page.locator('ul > li a[href*="/rooms/"]').first();
     await expect(firstCard).toBeVisible({ timeout: 10_000 });
+    const href = await firstCard.getAttribute('href');
+    expect(href).toMatch(/\/rooms\/[a-z0-9-]+/);
   });
 });

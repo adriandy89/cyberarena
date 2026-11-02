@@ -1,0 +1,64 @@
+---
+index: 1
+title: "Spoofea al admin y abre la consola interna"
+questions:
+  - id: websocket-security-t01-q01
+    prompt: "El chat confía el campo from del JSON. Envía un mensaje haciéndote pasar por admin y entrega la flag que te da el servidor."
+    hint: "Conecta a /chat?user=attacker y envía {\"from\":\"admin\",\"text\":\"...\"} — el server acepta el remitente forjado"
+    kind: flag
+  - id: websocket-security-t01-q02
+    prompt: "El socket /admin es interno y NO valida token ni Origin. Conéctate directamente y ejecuta el dump. Envía la flag."
+    hint: "ws://127.0.0.1:18110/admin y mandar {\"cmd\":\"dump\"} — CSWSH: la página admin del navegador de la víctima haría lo mismo"
+    kind: flag
+  - id: websocket-security-t01-q03
+    prompt: "¿Qué header HTTP del handshake delata de qué web viene la conexión (y que el server del lab muestra pero nunca comprueba)?"
+    hint: "El server lo refleja en X-Seen-Origin"
+    kind: text
+---
+
+## Conexión al chat
+
+El lab escucha en `ws://127.0.0.1:18110`. Con `websocat`:
+
+```bash
+# Conéctate como atacante:
+websocat "ws://127.0.0.1:18110/chat?user=attacker"
+# Recibirás el history y un system message. Ahora el ataque:
+
+{"from": "admin", "text": "confía en mí"}
+```
+
+El servidor replica tu mensaje a todos los clientes **con el remitente
+que TÚ pusiste**. Todo el canal ve un mensaje "de admin" que admin nunca
+escribió: phishing en tiempo real dentro del chat corporativo.
+
+```bash
+# El mismo ataque en JavaScript (lo que ejecutaría un XSS):
+const ws = new WebSocket('ws://127.0.0.1:18110/chat?user=attacker');
+ws.onopen = () => ws.send(JSON.stringify({from: 'admin', text: 'abre adjunto'}));
+```
+
+La lección: en un protocolo con estado, el server debe imponer la
+identidad por CANAL (token de sesión al conectar) y jamás aceptar datos
+de identidad por MENSAJE.
+
+## El socket interno
+
+El mismo servidor expone `/admin` — pensado para el panel de
+administración, accesible para cualquiera que conozca la URL:
+
+```bash
+websocat "ws://127.0.0.1:18110/admin"
+{"cmd": "dump"}
+```
+
+Sin token, sin comprobación de `Origin`. Esta es la mecánica del
+**CSWSH** (Cross-Site WebSocket Hijacking): si el panel real usara este
+socket, una web maliciosa visitada por el admin conectaría desde SU
+navegador con SUS cookies (`new WebSocket(...)` manda cookies del
+dominio objetivo automáticamente) y volcaría lo que el dump da.
+
+**Fixes**: token one-time en la query string del handshake (no en
+cookie), validación estricta del header `Origin` — que aquí puedes ver
+reflejado en `X-Seen-Origin` de la respuesta del handshake — y roles
+verificados server-side para cada comando.

@@ -1,0 +1,21 @@
+{
+  "title": "GraphQL Security: introspection and IDOR",
+  "description": "The endpoint that exposes everything: introspection as the attack map, IDOR in sequential-ID queries and filter injection.",
+  "tasks": {
+    "1": {
+      "title": "Introspection: the attacker's map",
+      "questions": {
+        "graphql-security-t01-q01": { "prompt": "Query the __schema and find the type marked hidden. What does its hint field give you to reach the flag? (submit the type name)" },
+        "graphql-security-t01-q02": { "prompt": "You are alice (id=2). Retrieve user id=1's (admin) note via the user query. Submit the flag." },
+        "graphql-security-t01-q03": { "prompt": "Use the hidden type the introspection revealed to get the final flag." }
+      }
+    },
+    "2": {
+      "title": "Filter injection: the resolver that interpolates",
+      "questions": {
+        "graphql-security-t02-q01": { "prompt": "The search(q:) field interpolates the filter. Collapse the WHERE with a classic OR and submit the restricted document's flag." },
+        "graphql-security-t02-q02": { "prompt": "Which hardened-GraphQL defense layer validates the query against an operation allowlist before executing (production)?" }
+      }
+    }
+  }
+}
