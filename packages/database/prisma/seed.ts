@@ -111,12 +111,17 @@ async function main(): Promise<void> {
           description: seedModule.description,
           order: moduleOrder,
         };
-        const existingModule = await prisma.catalogModule.findUnique({ where: { slug: seedModule.slug } });
+        const existingModule = await prisma.catalogModule.findUnique({
+          where: { slug: seedModule.slug },
+        });
+        // Re-connect on update too: a module may have moved to another path (spec 010 T021).
+        const pathLink = { catalogPath: { connect: { slug: seedPath.slug } } };
         const catalogModule = existingModule
-          ? await prisma.catalogModule.update({ where: { id: existingModule.id }, data: moduleData })
-          : await prisma.catalogModule.create({
-              data: { ...moduleData, catalogPath: { connect: { slug: seedPath.slug } } },
-            });
+          ? await prisma.catalogModule.update({
+              where: { id: existingModule.id },
+              data: { ...moduleData, ...pathLink },
+            })
+          : await prisma.catalogModule.create({ data: { ...moduleData, ...pathLink } });
         stats.modules++;
 
         for (const [roomOrder, seedRoom] of seedModule.rooms.entries()) {
@@ -134,11 +139,14 @@ async function main(): Promise<void> {
             order: roomOrder,
           };
           const existingRoom = await prisma.room.findUnique({ where: { slug: seedRoom.slug } });
+          // Same for rooms: they may have moved to another module.
+          const moduleLink = { catalogModule: { connect: { id: catalogModule.id } } };
           const room = existingRoom
-            ? await prisma.room.update({ where: { id: existingRoom.id }, data: roomData })
-            : await prisma.room.create({
-                data: { ...roomData, catalogModule: { connect: { id: catalogModule.id } } },
-              });
+            ? await prisma.room.update({
+                where: { id: existingRoom.id },
+                data: { ...roomData, ...moduleLink },
+              })
+            : await prisma.room.create({ data: { ...roomData, ...moduleLink } });
           stats.rooms++;
 
           for (const seedTask of seedRoom.tasks) {
