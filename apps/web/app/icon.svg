@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- CyberArena app icon: Byte's head (components/byte/byte.tsx, idle mood) on a dark tile.
+       Source of favicon.ico and apple-icon.png: run `pnpm icons` in apps/web after editing. -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="0%" r="90%">
+      <stop offset="0" stop-color="#10b981" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#10b981" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#020617" />
+  <rect width="64" height="64" rx="14" fill="url(#glow)" />
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#34d399" stroke-opacity="0.45" stroke-width="2" />
+  <g transform="translate(-2.8 8.1) scale(0.58)">
+    <rect x="58.5" y="11" width="3" height="13" rx="1.5" fill="#94a3b8" />
+    <circle cx="60" cy="9" r="4.5" fill="#34d399" />
+    <rect x="14" y="41" width="10" height="20" rx="4.5" fill="#94a3b8" />
+    <rect x="96" y="41" width="10" height="20" rx="4.5" fill="#94a3b8" />
+    <rect x="20" y="22" width="80" height="56" rx="24" fill="#e2e8f0" />
+    <path d="M20 54 H100 A24 24 0 0 1 76 78 H44 A24 24 0 0 1 20 54 Z" fill="#cbd5e1" />
+    <ellipse cx="38" cy="30" rx="9" ry="3.5" transform="rotate(-18 38 30)" fill="#fff" opacity="0.75" />
+    <rect x="28" y="31" width="64" height="38" rx="16" fill="#0b1220" stroke="#34d399" stroke-opacity="0.35" stroke-width="1.2" />
+    <rect x="40" y="43" width="9" height="13" rx="4.5" fill="#34d399" />
+    <rect x="71" y="43" width="9" height="13" rx="4.5" fill="#34d399" />
+    <path d="M54 60 Q60 65 66 60" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" />
+  </g>
+</svg>

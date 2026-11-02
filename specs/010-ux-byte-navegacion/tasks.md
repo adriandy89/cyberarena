@@ -73,3 +73,12 @@
 - [x] T905 Pulido posterior al cierre: últimos emoji de la UI → iconos (gamificación, lab), nombres de
       nivel traducidos (`Levels` es/en: dashboard, clasificación y mensaje de subida de nivel de Byte) y
       margen inferior en móvil para que el Byte flotante no tape el pie.
+- [x] T906 BUG: la web no tenía favicon (ni `app/favicon.ico` ni iconos de metadatos), así que el navegador
+      no mostraba nada en la pestaña. Ahora:
+      - `app/icon.svg` es la fuente: la cabeza de Byte sobre una tesela oscura con borde esmeralda,
+        legible en pestañas claras y oscuras;
+      - `pnpm icons` en `apps/web` genera `app/favicon.ico` (16/32/48) y `app/apple-icon.png` (180), con
+        el `sharp` que ya trae Next.
+      Verificado con `next start`: las etiquetas `<link rel="icon">` y `apple-touch-icon` aparecen en
+      `/es`, `/en` y las páginas anidadas, y los tres ficheros responden 200 con su tipo. El proxy de
+      next-intl ya excluía las rutas con punto.
