@@ -1,16 +1,10 @@
 {
   "slug": "web-red-team",
   "title": "Web Red Teaming",
-  "description": "Bypass de WAF, payloads polimórficos, encoding en capas, C2 beaconing con jitter y evasión de detección.",
+  "description": "Bypass de WAF, payloads polimórficos y encoding en capas: atacar aplicaciones protegidas sin que salten las alarmas.",
   "rooms": [
     {
       "slug": "web-red-team"
-    },
-    {
-      "slug": "detection-evasion"
-    },
-    {
-      "slug": "data-exfiltration"
     }
   ]
 }

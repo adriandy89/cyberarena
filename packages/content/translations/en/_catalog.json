@@ -14,7 +14,7 @@
     },
     "advanced-pentesting": {
       "title": "Advanced Pentesting (Red Team / PT2)",
-      "description": "Expert level: binary exploitation, WAF evasion, advanced Active Directory, container escape, cloud IAM and AI/LLM exploitation."
+      "description": "Expert level: web red teaming and WAF evasion, advanced Active Directory, red team operations (C2 and exfiltration), container escape and cloud IAM, AI/LLM exploitation and binary exploitation."
     }
   },
   "modules": {
@@ -132,7 +132,7 @@
     },
     "auth": {
       "title": "Authentication Bypass",
-      "description": "Weak Basic Auth, JWT attacks, IDOR, session hijacking and prediction: five ways to get around authentication."
+      "description": "Weak Basic Auth, JWT attacks and IDOR, and session hijacking and prediction: the most common ways to get around authentication."
     },
     "api-logic": {
       "title": "API and Logic Flaws",
@@ -140,7 +140,7 @@
     },
     "web-red-team": {
       "title": "Web Red Teaming",
-      "description": "WAF bypass, polymorphic payloads, layered encoding, C2 beaconing with jitter and detection evasion."
+      "description": "WAF bypass, polymorphic payloads and layered encoding: attacking protected applications without tripping the alarms."
     },
     "ad-avanzado": {
       "title": "Advanced Active Directory",
@@ -161,6 +161,10 @@
     "passwords": {
       "title": "Password Attacks",
       "description": "Wordlists and mangling rules, offline cracking versus online attacks, password spraying and NTLM: the foundation of credential theft in Windows and Active Directory."
+    },
+    "red-team-ops": {
+      "title": "Red Team Operations",
+      "description": "C2 beaconing with jitter, detection evasion and DNS exfiltration: operating inside the target network without making noise."
     }
   }
 }

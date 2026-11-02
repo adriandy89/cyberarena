@@ -1,0 +1,13 @@
+{
+  "slug": "red-team-ops",
+  "title": "Red Team Operations",
+  "description": "C2 beaconing con jitter, evasión de detección y exfiltración por DNS: operar dentro de la red objetivo sin hacer ruido.",
+  "rooms": [
+    {
+      "slug": "detection-evasion"
+    },
+    {
+      "slug": "data-exfiltration"
+    }
+  ]
+}

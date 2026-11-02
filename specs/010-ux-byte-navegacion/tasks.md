@@ -50,7 +50,7 @@
 - [x] T021 [US4] Seed reconecta módulo→path y room→módulo.
 - [x] T022 [US4] CS101: orden de módulos, fácil→difícil, sin password-attacks.
 - [x] T023 [US4] JrPT: módulo `passwords`, AD al final, sin mobile.
-- [ ] T024 [US4] WebApp (+mobile) y Advanced (+red-team-ops) + descripciones.
+- [x] T024 [US4] WebApp (+mobile) y Advanced (+red-team-ops) + descripciones.
 - [ ] T025 [US4] Referencias adelantadas, traducción huérfana, avisos del validador.
 
 ## Fase H — Cierre
