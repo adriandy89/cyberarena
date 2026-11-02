@@ -27,6 +27,7 @@
 | F18 | `011-labs-bajo-demanda` | ✅ completada (2026-11-02) | Labs que se arrancan y apagan desde la web: lab-runner, reservas con latido, reaper, seguridad |
 | F19 | `012-despliegue-docker` | ✅ completada (2026-11-02) | Despliegue Docker completo (proxy + prod + lab-runner) probado de punta a punta; limpieza |
 | F20 | `013-despliegue-lan` | ✅ completada (2026-11-02) | Despliegue en el mini PC de la LAN (labs accesibles en la red, kit fuera del clon) |
+| F21 | `014-open-source` | 🔄 en curso | Publicación open source: auditoría de credenciales, plantillas de entorno, arranque desde un clon limpio, README en inglés y licencia |
 
 ## Convenciones
 
