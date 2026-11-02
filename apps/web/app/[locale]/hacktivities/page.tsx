@@ -2,6 +2,11 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { isDifficulty } from '@repo/shared';
+import { DifficultyBadge } from '@repo/ui';
+import { ByteScene } from '../../../components/byte/byte-scene';
+import { Clock, FlaskConical, MapIcon, Search, Users } from '../../../components/icon';
+import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
 import { Skeleton } from '../../../components/skeleton';
 import { Link } from '../../../i18n/navigation';
 
@@ -31,27 +36,24 @@ interface ListResponse {
   facets: Facets;
 }
 
-type Sort = 'popular' | 'newest' | 'az' | 'za' | 'time';
+const SORTS = ['recommended', 'popular', 'difficulty', 'newest', 'az', 'za', 'time'] as const;
+type Sort = (typeof SORTS)[number];
 
 const PAGE_SIZE = 24;
-
-const DIFFICULTY_CLASSES: Record<string, string> = {
-  info: 'border-sky-500/30 bg-sky-500/10 text-sky-400',
-  easy: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
-  medium: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
-  hard: 'border-orange-600/30 bg-orange-600/10 text-orange-500',
-  insane: 'border-red-500/30 bg-red-500/10 text-red-400',
-};
+/** Tags shown before the "more tags" toggle. */
+const VISIBLE_TAGS = 12;
 
 export default function HacktivitiesPage() {
   const t = useTranslations('HacktivitiesPage');
+  const nav = useTranslations('Nav');
   const [searchInput, setSearchInput] = useState('');
   const [query, setQuery] = useState('');
   const [difficulty, setDifficulty] = useState<string>('');
   const [type, setType] = useState<string>('');
   const [tag, setTag] = useState<string>('');
   const [labOnly, setLabOnly] = useState(false);
-  const [sort, setSort] = useState<Sort>('popular');
+  const [sort, setSort] = useState<Sort>('recommended');
+  const [allTags, setAllTags] = useState(false);
   const [data, setData] = useState<ListResponse | null>(null);
   const [skip, setSkip] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -121,19 +123,42 @@ export default function HacktivitiesPage() {
         : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:text-slate-200'
     }`;
 
+  const filtersActive = Boolean(query || difficulty || type || tag || labOnly);
+  const clearFilters = () => {
+    setSearchInput('');
+    setQuery('');
+    setDifficulty('');
+    setType('');
+    setTag('');
+    setLabOnly(false);
+    setSkip(0);
+  };
+  const tags = data?.facets.tags ?? [];
+  const shownTags = allTags ? tags : tags.slice(0, VISIBLE_TAGS);
+
   return (
     <div className="mx-auto flex max-w-5xl flex-col px-6 py-10">
+      <Breadcrumbs items={[{ label: nav('hacktivities') }]} className="mb-4" />
       <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
       <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
 
       {/* search + sort */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <input
-          value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
-          placeholder={t('searchPlaceholder')}
-          className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-slate-600 focus:border-emerald-500/60"
-        />
+        <label className="relative flex-1">
+          <span className="sr-only">{t('searchPlaceholder')}</span>
+          <Search
+            size={16}
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-500"
+          />
+          <input
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder={t('searchPlaceholder')}
+            type="search"
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2.5 pr-4 pl-10 text-sm outline-none transition-colors placeholder:text-slate-600 focus:border-emerald-500/60"
+          />
+        </label>
         <select
           value={sort}
           onChange={(event) => {
@@ -143,7 +168,7 @@ export default function HacktivitiesPage() {
           className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-300"
           aria-label={t('sortLabel')}
         >
-          {(['popular', 'newest', 'az', 'za', 'time'] as const).map((option) => (
+          {SORTS.map((option) => (
             <option key={option} value={option}>
               {t(`sort.${option}`)}
             </option>
@@ -193,7 +218,7 @@ export default function HacktivitiesPage() {
           <span className="w-20 text-xs font-semibold uppercase tracking-wide text-slate-500">
             {t('filters.tag')}
           </span>
-          {(data?.facets.tags ?? []).map((option) => (
+          {shownTags.map((option) => (
             <button
               key={option}
               type="button"
@@ -206,6 +231,16 @@ export default function HacktivitiesPage() {
               #{option}
             </button>
           ))}
+          {tags.length > VISIBLE_TAGS ? (
+            <button
+              type="button"
+              onClick={() => setAllTags((value) => !value)}
+              aria-expanded={allTags}
+              className="text-xs text-slate-400 underline underline-offset-2 hover:text-slate-200"
+            >
+              {allTags ? t('fewerTags') : t('moreTags', { count: tags.length - VISIBLE_TAGS })}
+            </button>
+          ) : null}
           <label className="ml-2 flex cursor-pointer items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
             <input
               type="checkbox"
@@ -216,7 +251,8 @@ export default function HacktivitiesPage() {
               }}
               className="accent-violet-500"
             />
-            🧪 {t('filters.labOnly')}
+            <FlaskConical size={13} aria-hidden="true" />
+            {t('filters.labOnly')}
           </label>
         </div>
       </div>
@@ -238,11 +274,10 @@ export default function HacktivitiesPage() {
               className="card-hover animate-fade-in flex h-full flex-col rounded-xl border border-slate-800 bg-slate-900/50 p-5 hover:border-emerald-500/40"
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${DIFFICULTY_CLASSES[room.difficulty] ?? DIFFICULTY_CLASSES.info}`}
-                >
-                  {room.difficulty}
-                </span>
+                <DifficultyBadge
+                  difficulty={isDifficulty(room.difficulty) ? room.difficulty : 'info'}
+                  className="px-2 text-[10px]"
+                />
                 <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                   {room.type}
                 </span>
@@ -257,9 +292,19 @@ export default function HacktivitiesPage() {
                 {room.description}
               </p>
               <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                <span>⏱ {room.estimatedMinutes}′</span>
-                <span>👥 {room.completions}</span>
-                <span className="truncate">🗺 {room.pathTitle}</span>
+                <span className="inline-flex items-center gap-1">
+                  <Clock size={12} aria-hidden="true" />
+                  {room.estimatedMinutes}′
+                </span>
+                <span className="inline-flex items-center gap-1" title={t('completions')}>
+                  <Users size={12} aria-hidden="true" />
+                  <span className="sr-only">{t('completions')}:</span>
+                  {room.completions}
+                </span>
+                <span className="inline-flex min-w-0 items-center gap-1">
+                  <MapIcon size={12} aria-hidden="true" className="shrink-0" />
+                  <span className="truncate">{room.pathTitle}</span>
+                </span>
               </p>
               {room.tags.length > 0 && (
                 <p className="mt-2 truncate text-[11px] text-slate-600">
@@ -272,9 +317,17 @@ export default function HacktivitiesPage() {
       </ul>
 
       {data && data.rooms.length === 0 && !loading && (
-        <p className="mt-8 rounded-xl border border-slate-800 bg-slate-900/50 p-6 text-sm text-slate-400">
-          {t('empty')}
-        </p>
+        <ByteScene mood="confused" message={t('empty')} className="mt-8" live>
+          {filtersActive ? (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="btn-press rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:border-slate-400"
+            >
+              {t('clearFilters')}
+            </button>
+          ) : null}
+        </ByteScene>
       )}
 
       {data && skip + data.rooms.length < data.total && (

@@ -4,6 +4,12 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { CertificateItem } from '@repo/shared';
+import { ByteScene } from '../../../../components/byte/byte-scene';
+import { Confetti } from '../../../../components/byte/confetti';
+import { Download, Printer } from '../../../../components/icon';
+import { Breadcrumbs } from '../../../../components/shell/breadcrumbs';
+import { PageSkeleton } from '../../../../components/skeleton';
+import { Link } from '../../../../i18n/navigation';
 
 interface MeResponse {
   name: string;
@@ -12,6 +18,7 @@ interface MeResponse {
 /** Path certificate: download the server-generated PDF or print the card. */
 export default function CertificatePage() {
   const t = useTranslations('CertificatePage');
+  const nav = useTranslations('Nav');
   const locale = useLocale();
   const params = useParams<{ locale: string; slug: string }>();
   const slug = params?.slug;
@@ -39,15 +46,22 @@ export default function CertificatePage() {
     })();
   }, [slug]);
 
-  if (certificate === undefined || name === null) {
-    return <div className="flex min-h-[50vh] items-center justify-center text-slate-500">…</div>;
+  // Guests get certificate === null (401) and never a name: no infinite "loading".
+  if (certificate === undefined) {
+    return <PageSkeleton cards={1} maxWidth="max-w-2xl" />;
   }
 
   if (certificate === null) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-6 text-center">
+      <div className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center gap-4 px-6 text-center">
+        <ByteScene mood="confused" size="lg" layout="column" message={t('notFoundHint')} />
         <p className="text-xl font-semibold">{t('notFound')}</p>
-        <p className="max-w-md text-sm text-slate-400">{t('notFoundHint')}</p>
+        <Link
+          href="/paths"
+          className="rounded-lg border border-slate-700 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-slate-500"
+        >
+          {nav('paths')}
+        </Link>
       </div>
     );
   }
@@ -79,25 +93,39 @@ export default function CertificatePage() {
 
   return (
     <div className="flex flex-col items-center px-6 py-10">
-      <div className="mb-8 flex w-full max-w-2xl justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => void downloadPdf()}
-          disabled={downloading}
-          className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:opacity-50 print:hidden"
-        >
-          {downloading ? '…' : t('download')}
-        </button>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:border-emerald-500/50 print:hidden"
-        >
-          🖨 {t('print')}
-        </button>
+      <div className="w-full max-w-2xl print:hidden">
+        <Breadcrumbs
+          items={[
+            { label: nav('dashboard'), href: '/dashboard' },
+            { label: certificate.pathTitle },
+          ]}
+        />
+      </div>
+      <div className="mt-6 mb-8 flex w-full max-w-2xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <ByteScene mood="celebrate" size="sm" tone="success" message={t('byte')} />
+        <div className="flex shrink-0 gap-3">
+          <button
+            type="button"
+            onClick={() => void downloadPdf()}
+            disabled={downloading}
+            className="btn-press inline-flex items-center gap-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
+          >
+            <Download size={15} aria-hidden="true" />
+            {downloading ? '…' : t('download')}
+          </button>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="btn-press inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:border-emerald-500/50"
+          >
+            <Printer size={15} aria-hidden="true" />
+            {t('print')}
+          </button>
+        </div>
       </div>
 
-      <article className="w-full max-w-2xl rounded-2xl border-4 border-double border-emerald-500/60 bg-white p-10 text-center text-slate-900 shadow-2xl">
+      <article className="relative w-full max-w-2xl animate-pop rounded-2xl border-4 border-double border-emerald-500/60 bg-white p-10 text-center text-slate-900 shadow-2xl">
+        <Confetti burst={1} className="print:hidden" />
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-700">CyberArena</p>
         <h1 className="mt-6 text-3xl font-black tracking-tight">{t('title')}</h1>
         <p className="mt-8 text-sm uppercase tracking-widest text-slate-500">{t('awardedTo')}</p>

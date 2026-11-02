@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { safeNextPath } from '@repo/shared';
+import { ByteScene } from '../../../components/byte/byte-scene';
 import { useRouter } from '../../../i18n/navigation';
 import { authClient } from '../../../lib/auth-client';
 
@@ -63,6 +64,13 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-6 py-12">
+      <ByteScene
+        mood={error ? 'sad' : submitting ? 'think' : 'wave'}
+        size="sm"
+        tone={error ? 'danger' : 'default'}
+        message={error ? t('byteError') : mode === 'signin' ? t('byteSignIn') : t('byteSignUp')}
+        className="mb-6"
+      />
       <h1 className="text-2xl font-semibold tracking-tight">
         {mode === 'signin' ? t('signInTitle') : t('signUpTitle')}
       </h1>

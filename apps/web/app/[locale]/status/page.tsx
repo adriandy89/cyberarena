@@ -2,6 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { ByteScene } from '../../../components/byte/byte-scene';
+import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
 
 interface HealthResponse {
   status: 'ok' | 'degraded';
@@ -23,6 +25,7 @@ function StatusDot({ up }: { up: boolean }) {
 
 export default function StatusPage() {
   const t = useTranslations('StatusPage');
+  const nav = useTranslations('Nav');
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,10 +51,21 @@ export default function StatusPage() {
   }, [load]);
 
   const reachable = health !== null && error === null;
+  const healthy = reachable && health?.status === 'ok' && health.db === 'up';
+  const mood = loading ? 'scan' : healthy ? 'happy' : 'error';
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-6 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+      <Breadcrumbs items={[{ label: nav('status') }]} className="mb-4" />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
+        <ByteScene
+          mood={mood}
+          size="sm"
+          tone={loading ? 'default' : healthy ? 'success' : 'danger'}
+          message={loading ? t('byteChecking') : healthy ? t('byteHealthy') : t('byteDown')}
+        />
+      </div>
       <p className="mt-1 text-sm text-slate-500">
         {t('api')} <code className="rounded bg-slate-900 px-1.5 py-0.5">/api/health</code>
       </p>

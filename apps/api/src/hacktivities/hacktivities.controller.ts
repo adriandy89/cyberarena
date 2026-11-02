@@ -9,7 +9,7 @@ const listQuerySchema = z.object({
   type: z.enum(ROOM_TYPES as [string, ...string[]]).optional(),
   tag: z.string().trim().max(64).optional(),
   lab: z.enum(['true', 'false']).optional(),
-  sort: z.enum(HACKTIVITIES_SORTS).default('popular'),
+  sort: z.enum(HACKTIVITIES_SORTS).default('recommended'),
   take: z.coerce.number().int().min(1).max(50).default(24),
   skip: z.coerce.number().int().min(0).default(0),
 });

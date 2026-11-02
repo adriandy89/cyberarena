@@ -41,7 +41,7 @@
 ## Fase F — Páginas
 
 - [x] T018 [US4,US5] Home: hero con Byte, roadmap desde `/api/catalog`, CTA, scroll reveal.
-- [ ] T019 [US4,US5] Hacktivities (`recommended`/`difficulty` + tests), leaderboard,
+- [x] T019 [US4,US5] Hacktivities (`recommended`/`difficulty` + tests), leaderboard,
       login, status, certificado con Byte.
 
 ## Fase G — Orden de contenidos

@@ -50,7 +50,10 @@
     "dbDown": "Sin conexión",
     "latency": "Latencia del health check",
     "refresh": "Actualizar",
-    "loading": "Consultando…"
+    "loading": "Consultando…",
+    "byteChecking": "Escaneando los servicios…",
+    "byteHealthy": "Todo en verde: API y base de datos responden.",
+    "byteDown": "Algo no responde. Revisa los contenedores y el runbook."
   },
   "NotFoundPage": {
     "title": "Página no encontrada",
@@ -81,7 +84,10 @@
       "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
       "invalidEmail": "El email no es válido.",
       "generic": "No se pudo completar la operación. Inténtalo de nuevo."
-    }
+    },
+    "byteSignIn": "¡Hola de nuevo! Entra y seguimos donde lo dejaste.",
+    "byteSignUp": "¡Bienvenido! Crea tu cuenta y guardaré cada flag que captures.",
+    "byteError": "Ups, algo no cuadra. Revisa los datos y vuelve a intentarlo."
   },
   "DashboardPage": {
     "title": "Tu panel",
@@ -213,7 +219,8 @@
       "all": "Histórico",
       "month": "Este mes"
     },
-    "empty": "Aún no hay puntuaciones en este periodo."
+    "empty": "Aún no hay puntuaciones en este periodo.",
+    "podium": "Podio"
   },
   "CertificatePage": {
     "title": "Certificado de finalización",
@@ -224,7 +231,8 @@
     "notFound": "Certificado no disponible",
     "notFoundHint": "Completa todas las preguntas de la ruta para obtenerlo.",
     "footnote": "Verificable en CyberArena · path {slug}",
-    "download": "⬇ Descargar PDF"
+    "download": "⬇ Descargar PDF",
+    "byte": "¡Ruta completada! Este certificado es tuyo: descárgalo o imprímelo."
   },
   "HacktivitiesPage": {
     "title": "Hacktivities",
@@ -232,7 +240,9 @@
     "searchPlaceholder": "Buscar rooms, tags…",
     "sortLabel": "Ordenar",
     "sort": {
+      "recommended": "Recomendado (orden de las rutas)",
       "popular": "Populares",
+      "difficulty": "Dificultad (fácil → difícil)",
       "newest": "Más nuevos",
       "az": "A→Z",
       "za": "Z→A",
@@ -246,7 +256,11 @@
     },
     "results": "{count, plural, one {# room} other {# rooms}}",
     "empty": "Sin resultados con esos filtros. Prueba a relajar la búsqueda.",
-    "loadMore": "Cargar más"
+    "loadMore": "Cargar más",
+    "moreTags": "+{count} tags",
+    "fewerTags": "Menos tags",
+    "completions": "Completado por",
+    "clearFilters": "Limpiar filtros"
   },
   "LabPanel": {
     "title": "Laboratorio",

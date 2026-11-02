@@ -2,7 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { DIFFICULTY_IDS, ROOM_TYPES } from '@repo/shared';
 import { PrismaService } from '../prisma/prisma.service';
 
-export const HACKTIVITIES_SORTS = ['popular', 'newest', 'az', 'za', 'time'] as const;
+export const HACKTIVITIES_SORTS = [
+  'recommended',
+  'popular',
+  'difficulty',
+  'newest',
+  'az',
+  'za',
+  'time',
+] as const;
 export type HacktivitiesSort = (typeof HACKTIVITIES_SORTS)[number];
 
 export interface HacktivitiesQuery {
@@ -26,7 +34,8 @@ interface RoomRow {
   tags: string[];
   lab: string | null;
   createdAt: Date;
-  catalogModule: { catalogPath: { slug: string; title: string } };
+  order: number;
+  catalogModule: { order: number; catalogPath: { slug: string; title: string; order: number } };
   tasks: Array<{ questions: Array<{ id: string }> }>;
 }
 
@@ -42,7 +51,12 @@ export class HacktivitiesService {
   async list(query: HacktivitiesQuery) {
     const rooms = await this.prisma.room.findMany({
       include: {
-        catalogModule: { select: { catalogPath: { select: { slug: true, title: true } } } },
+        catalogModule: {
+          select: {
+            order: true,
+            catalogPath: { select: { slug: true, title: true, order: true } },
+          },
+        },
         tasks: { select: { questions: { select: { id: true } } } },
       },
     });
@@ -57,14 +71,20 @@ export class HacktivitiesService {
       if (query.lab === 'true' && !room.lab) return false;
       if (query.lab === 'false' && room.lab) return false;
       if (needle) {
-        const haystack =
-          `${room.title} ${room.description} ${room.tags.join(' ')}`.toLowerCase();
+        const haystack = `${room.title} ${room.description} ${room.tags.join(' ')}`.toLowerCase();
         if (!haystack.includes(needle)) return false;
       }
       return true;
     });
 
     const completions = (slug: string) => completionsByRoom.get(slug) ?? 0;
+    // Learning order: path, then module, then room position (spec 010).
+    const byPathOrder = (a: RoomRow, b: RoomRow) =>
+      a.catalogModule.catalogPath.order - b.catalogModule.catalogPath.order ||
+      a.catalogModule.order - b.catalogModule.order ||
+      a.order - b.order;
+    const difficultyRank = (room: RoomRow) =>
+      DIFFICULTY_IDS.indexOf(room.difficulty as (typeof DIFFICULTY_IDS)[number]);
     const sorted = [...filtered].sort((a, b) => {
       switch (query.sort) {
         case 'newest':
@@ -75,9 +95,13 @@ export class HacktivitiesService {
           return b.title.localeCompare(a.title);
         case 'time':
           return a.estimatedMinutes - b.estimatedMinutes;
+        case 'difficulty':
+          return difficultyRank(a) - difficultyRank(b) || byPathOrder(a, b);
         case 'popular':
+          return completions(b.slug) - completions(a.slug) || byPathOrder(a, b);
+        case 'recommended':
         default:
-          return completions(b.slug) - completions(a.slug) || a.title.localeCompare(b.title);
+          return byPathOrder(a, b);
       }
     });
 

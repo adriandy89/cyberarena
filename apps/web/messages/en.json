@@ -50,7 +50,10 @@
     "dbDown": "No connection",
     "latency": "Health check latency",
     "refresh": "Refresh",
-    "loading": "Checking…"
+    "loading": "Checking…",
+    "byteChecking": "Scanning services…",
+    "byteHealthy": "All green: the API and the database are responding.",
+    "byteDown": "Something is not responding. Check the containers and the runbook."
   },
   "NotFoundPage": {
     "title": "Page not found",
@@ -81,7 +84,10 @@
       "passwordTooShort": "Password must be at least 8 characters.",
       "invalidEmail": "The email is not valid.",
       "generic": "The operation could not be completed. Try again."
-    }
+    },
+    "byteSignIn": "Welcome back! Sign in and we will pick up where you left off.",
+    "byteSignUp": "Welcome! Create your account and I will keep every flag you capture.",
+    "byteError": "Oops, something does not add up. Check your details and try again."
   },
   "DashboardPage": {
     "title": "Your dashboard",
@@ -213,7 +219,8 @@
       "all": "All-time",
       "month": "This month"
     },
-    "empty": "No scores in this period yet."
+    "empty": "No scores in this period yet.",
+    "podium": "Podium"
   },
   "CertificatePage": {
     "title": "Certificate of completion",
@@ -224,7 +231,8 @@
     "notFound": "Certificate not available",
     "notFoundHint": "Complete every question of the path to earn it.",
     "footnote": "Verifiable on CyberArena · path {slug}",
-    "download": "⬇ Download PDF"
+    "download": "⬇ Download PDF",
+    "byte": "Path complete! This certificate is yours: download or print it."
   },
   "HacktivitiesPage": {
     "title": "Hacktivities",
@@ -232,7 +240,9 @@
     "searchPlaceholder": "Search rooms, tags…",
     "sortLabel": "Sort",
     "sort": {
+      "recommended": "Recommended (path order)",
       "popular": "Most popular",
+      "difficulty": "Difficulty (easy → hard)",
       "newest": "Newest",
       "az": "A→Z",
       "za": "Z→A",
@@ -246,7 +256,11 @@
     },
     "results": "{count, plural, one {# room} other {# rooms}}",
     "empty": "No results with those filters. Try relaxing the search.",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "moreTags": "+{count} tags",
+    "fewerTags": "Fewer tags",
+    "completions": "Completed by",
+    "clearFilters": "Clear filters"
   },
   "LabPanel": {
     "title": "Laboratory",
