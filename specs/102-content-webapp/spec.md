@@ -27,5 +27,7 @@ read-only desde `site/` y las flags se inyectan por env (patrón ADR-006/007).
 
 ## 4. Criterios de éxito
 
-- [ ] Cada lab levanta, es explotable de verdad y su flag se resuelve vía API.
+- [x] Cada lab levanta, es explotable de verdad y su flag se resuelve vía API. *(2026-11-02, fase 012:
+  los 39 labs levantan y responden en producción a través del lab-runner; explotación real y flag
+  resuelta vía API en una muestra de 3 labs / 6 preguntas, todas correctas)*
 - [x] `pnpm build` verde, seed, catálogo actualizado.

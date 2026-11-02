@@ -19,7 +19,7 @@
 ## Fase B — Despliegue y pruebas
 
 - [x] T009 Despliegue completo (proxy + prod + lab-runner), seed doble, smoke y E2E sobre HTTPS.
-- [ ] T010 Labs en prod: UI, flag, reaper, API parada, adopción, smoke de los 39 labs.
+- [x] T010 Labs en prod: UI, flag, reaper, API parada, adopción, smoke de los 39 labs.
 - [ ] T011 Backup + restore en BD scratch.
 
 ## Fase C — Cierre
@@ -54,3 +54,16 @@
   labs activados, login de admin con cookie `__Secure-`, panel de labs de admin, endpoint de PDF vivo
   (404 = path no completado) y las 118 páginas de rooms ES+EN: todo OK. Playwright contra
   `https://localhost`: **27 OK, 1 omitido** (el del reaper exige inactividad de 1 min: se prueba en T010).
+- 2026-11-02 · **Labs en prod (T010).** API recreada con `LAB_IDLE_TIMEOUT_MIN=1` y
+  `LAB_SWEEP_SECONDS=10` (nuevas variables en el compose de prod; por defecto, la política acordada):
+  `labs.spec` sobre HTTPS 4/4, incluido el reaper. **Flags reales**: 3 labs arrancados por la API y
+  explotados desde el host (web-recon-1: ruta oculta y cabecera; idor-chain: IDOR, pedido ajeno y mass
+  assignment; xss-reflejado: búsqueda) → 6/6 respuestas `correct=true`. **API parada**: un lab arrancado
+  por la API y otro levantado a mano (adoptado) se apagaron solos a los ~5 min por plazo del runner.
+  API restaurada a 10 min / 60 s. `labs-smoke.mjs` con el runner de prod: **39/39** (HTTP 200 o
+  `exec`), sin labs encendidos al terminar.
+- 2026-11-02 · **Backup y restore (T011).** `backup-db.sh cyberarena-prod-postgres-1` →
+  `backups/cyberarena-20261102-193800.sql.gz` (210 KB); restaurado en `cyberarena_restore` con
+  `restore-db.sh` (destino explícito). Conteos idénticos en ambas BD: User 16, Room 59, Question 491,
+  Answer 491, QuestionSolved 11, XpEvent 11, LabEvent 29, migraciones 11. BD scratch eliminada; la de
+  producción no se tocó.

@@ -62,6 +62,9 @@ services:
       LAB_RUNNER_URL: http://lab-runner:4100
       LAB_RUNNER_TOKEN_FILE: /run/secrets/lab_runner_token
       LAB_MAX_RUNNING: ${LAB_MAX_RUNNING:-3}
+      # Policy (defaults = the agreed one); shorten only to test the reaper.
+      LAB_IDLE_TIMEOUT_MIN: ${LAB_IDLE_TIMEOUT_MIN:-10}
+      LAB_SWEEP_SECONDS: ${LAB_SWEEP_SECONDS:-60}
     secrets:
       - postgres_password
       - better_auth_secret
