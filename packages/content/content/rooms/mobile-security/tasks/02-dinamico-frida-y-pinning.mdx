@@ -3,13 +3,31 @@ index: 2
 title: "Análisis dinámico: Frida y TLS pinning"
 questions:
   - id: mobile-security-t02-q01
-    prompt: "¿Qué es Frida en una frase?"
-    hint: "Un framework que inyecta JavaScript en procesos (nativos o Java) para hookear funciones en caliente"
-    kind: text
+    prompt: "¿Cuál de estas frases describe mejor qué es Frida?"
+    hint: "Mira el ejemplo con Java.perform de la teoría: ese código se ejecuta DENTRO de la app mientras corre."
+    kind: choice
+    options:
+      - id: a
+        label: "Un descompilador que convierte el bytecode DEX en código Java legible"
+      - id: b
+        label: "Un proxy HTTP para interceptar y modificar el tráfico de la app"
+      - id: c
+        label: "Un framework que inyecta JavaScript en procesos (nativos o Java) para hookear funciones en caliente"
+      - id: d
+        label: "Un emulador de Android para ejecutar apps sin dispositivo físico"
   - id: mobile-security-t02-q02
     prompt: "¿Qué es el TLS certificate pinning y por qué rompe Burp/ZAP de primeras?"
-    hint: "La app lleva embebida la huella del certificado legítimo del servidor y rechaza el CA proxy de Burp"
-    kind: text
+    hint: "Piensa en qué pasa cuando Burp presenta su propio certificado, firmado por su CA, en lugar del certificado del servidor real."
+    kind: choice
+    options:
+      - id: a
+        label: "La app cifra sus peticiones dos veces y Burp solo sabe descifrar una de las capas"
+      - id: b
+        label: "El servidor bloquea las IPs de los proxies conocidos como Burp o ZAP"
+      - id: c
+        label: "La app solo acepta HTTP plano, así que un proxy HTTPS no ve nada"
+      - id: d
+        label: "La app lleva embebida la huella del certificado legítimo del servidor y rechaza la CA del proxy"
   - id: mobile-security-t02-q03
     prompt: "¿Cómo se llama el script universal de Frida que bypassea el pinning en cientos de apps Android sin escribir código?"
     hint: "Frida code-share: 'Android SSL Pinning Bypass' (httptoolkit / frida-multiple-unpinning)"

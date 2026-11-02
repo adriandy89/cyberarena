@@ -3,7 +3,7 @@ index: 1
 title: "Introspection: el mapa del atacante"
 questions:
   - id: graphql-security-t01-q01
-    prompt: "Consulta el __schema y localiza el tipo marcado como hidden. ¿Qué campo hint te da para llegar a la flag? (envía el nombre del type)"
+    prompt: "Consulta el __schema y localiza el type marcado como hidden (su campo hint te dirá cómo llegar a la flag). ¿Cómo se llama ese type?"
     hint: "curl -s http://127.0.0.1:18109/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{ __schema { types { name hint } } }\"}'"
     kind: text
   - id: graphql-security-t01-q02

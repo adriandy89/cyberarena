@@ -1,7 +1,15 @@
 # Respuestas del room session-security.
 # PRIVADO: el seed lo hashea a la tabla Answer.
 # IMPORTANTE: flags deben coincidir con labs/cookie-session-lab/flags.env
-session-security-t01-q01: "1"
+session-security-t01-q01:
+  - "1"
+  - "+1"
+  - uno
+  - one
+  - de 1 en 1
+  - de uno en uno
+  - by 1
+  - by one
 session-security-t01-q02: "99"
 session-security-t01-q03: FLAG{session_prediction_101}
 session-security-t02-q01: HttpOnly

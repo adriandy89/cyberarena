@@ -1,10 +1,18 @@
 # Respuestas del room jwt-security.
 # PRIVADO: el seed lo hashea a la tabla Answer.
 # IMPORTANTE: flags deben coincidir con labs/jwt-attack/flags.env
-jwt-security-t01-q01: "3"
-jwt-security-t01-q02: none
+jwt-security-t01-q01:
+  - "3"
+  - tres
+  - three
+jwt-security-t01-q02:
+  - none
+  - "alg:none"
+  - "alg: none"
 jwt-security-t01-q03: FLAG{jwt_none_algorithm_win}
-jwt-security-t02-q01: /crack
+jwt-security-t02-q01:
+  - /crack
+  - crack
 jwt-security-t02-q02: jwt_secret
 jwt-security-t02-q03: FLAG{forged_admin_token}
-jwt-security-t02-q04: FLAG{forged_admin_token}
+jwt-security-t02-q04: FLAG{weak_secret_cracked}

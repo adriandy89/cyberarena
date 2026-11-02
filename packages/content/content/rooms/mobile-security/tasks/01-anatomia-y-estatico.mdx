@@ -3,9 +3,18 @@ index: 1
 title: "Anatomía del APK y análisis estático"
 questions:
   - id: mobile-security-t01-q01
-    prompt: "¿Qué es un archivo APK estructuralmente?"
-    hint: "Un ZIP con clases.dex (bytecode Dalvik), recursos compilados, manifest binario y firma"
-    kind: text
+    prompt: "Estructuralmente, ¿qué es un archivo APK?"
+    hint: "Fíjate en el primer comando de la teoría: si unzip -l puede listar su contenido, ya sabes qué tipo de contenedor es."
+    kind: choice
+    options:
+      - id: a
+        label: "Un ejecutable nativo ELF compilado para ARM que Android lanza directamente"
+      - id: b
+        label: "Un ZIP con classes.dex (bytecode Dalvik), recursos compilados, manifest binario y firma"
+      - id: c
+        label: "Una imagen de disco cifrada que solo Google Play puede descifrar"
+      - id: d
+        label: "Un único JAR con bytecode Java estándar para la JVM de escritorio"
   - id: mobile-security-t01-q02
     prompt: "¿Qué herramienta descompila el AndroidManifest.xml binario y los recursos a legible (smali/xml)?"
     hint: "apktool d app.apk — el estándar para recursos y smali"

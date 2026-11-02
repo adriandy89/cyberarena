@@ -1,11 +1,36 @@
 # Respuestas del room mobile-security (teoría, sin lab).
 # PRIVADO: el seed lo hashea a la tabla Answer.
-mobile-security-t01-q01: "un ZIP con classes.dex, recursos compilados, manifest binario y firma"
-mobile-security-t01-q02: apktool
-mobile-security-t01-q03: jadx
-mobile-security-t01-q04: 'android:exported="true"'
-mobile-security-t01-q05: "grep -r"
-mobile-security-t02-q01: "un framework que inyecta JavaScript en procesos para hookear funciones en caliente"
-mobile-security-t02-q02: "la app lleva la huella del certificado del servidor y rechaza la CA del proxy"
-mobile-security-t02-q03: "frida-multiple-unpinning (el script universal de unpinning)"
-mobile-security-t02-q04: networkSecurityConfig
+mobile-security-t01-q01: b
+mobile-security-t01-q02:
+  - apktool
+  - apktool d
+mobile-security-t01-q03:
+  - jadx
+  - jadx-gui
+mobile-security-t01-q04:
+  - 'android:exported="true"'
+  - "android:exported=true"
+  - "android:exported"
+  - 'exported="true"'
+  - "exported=true"
+mobile-security-t01-q05:
+  - "grep -r"
+  - grep
+  - "grep -rn"
+  - "grep -ri"
+  - "grep -rni"
+mobile-security-t02-q01: c
+mobile-security-t02-q02: d
+mobile-security-t02-q03:
+  - frida-multiple-unpinning
+  - frida-multiple-unpinning.js
+  - frida multiple unpinning
+  - multiple-unpinning
+  - multiple unpinning
+mobile-security-t02-q04:
+  - networkSecurityConfig
+  - android:networkSecurityConfig
+  - network_security_config.xml
+  - network_security_config
+  - network security config
+  - Network Security Configuration

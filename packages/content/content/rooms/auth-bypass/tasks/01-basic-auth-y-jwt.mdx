@@ -15,8 +15,8 @@ questions:
     hint: "alg: none — el algoritmo 'sin algoritmo'."
     kind: text
   - id: auth-bypass-t01-q04
-    prompt: "Submit the JWT weak secret flag (crack the hash from /crack endpoint, then forge a token as admin)."
-    hint: "The secret is a common phrase. Try jwt_secret."
+    prompt: "Envía la flag del nivel 2 del lab: forja un JWT con alg:none y role:admin y pásalo a /level2?token=X."
+    hint: "Header {\"alg\":\"none\"}, payload con role admin, ambos en base64url, y la firma vacía: el token termina en punto."
     kind: flag
 ---
 

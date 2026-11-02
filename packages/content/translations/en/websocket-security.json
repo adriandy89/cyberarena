@@ -4,10 +4,20 @@
   "tasks": {
     "1": {
       "title": "Spoof the admin and open the internal console",
+      "body": "## Connecting to the chat\n\nThe lab listens on `ws://127.0.0.1:18110`. With `websocat`:\n\n```bash\n# Connect as the attacker:\nwebsocat \"ws://127.0.0.1:18110/chat?user=attacker\"\n# You will receive the history and a system message. Now the attack:\n\n{\"from\": \"admin\", \"text\": \"confía en mí\"}\n```\n\nThe server relays your message to every client **with the sender\nYOU set**. The whole channel sees a message \"from admin\" that admin never\nwrote: real-time phishing inside the corporate chat.\n\n```bash\n# The same attack in JavaScript (what an XSS would run):\nconst ws = new WebSocket('ws://127.0.0.1:18110/chat?user=attacker');\nws.onopen = () => ws.send(JSON.stringify({from: 'admin', text: 'abre adjunto'}));\n```\n\nThe lesson: in a stateful protocol, the server must enforce\nidentity per CHANNEL (a session token on connect) and never accept identity\ndata per MESSAGE.\n\n## The internal socket\n\nThe same server exposes `/admin` — meant for the administration\npanel, reachable by anyone who knows the URL:\n\n```bash\nwebsocat \"ws://127.0.0.1:18110/admin\"\n{\"cmd\": \"dump\"}\n```\n\nNo token, no `Origin` check. This is how\n**CSWSH** (Cross-Site WebSocket Hijacking) works: if the real panel used this\nsocket, a malicious website visited by the admin would connect from THEIR\nbrowser with THEIR cookies (`new WebSocket(...)` sends the target domain's\ncookies automatically) and dump whatever the dump returns.\n\n**Fixes**: a one-time token in the handshake query string (not in a\ncookie), strict validation of the `Origin` header — which here you can see\nreflected in `X-Seen-Origin` in the handshake response — and roles\nverified server-side for every command.",
       "questions": {
-        "websocket-security-t01-q01": { "prompt": "The chat trusts the JSON from field. Send a message impersonating admin and submit the flag the server gives you." },
-        "websocket-security-t01-q02": { "prompt": "The /admin socket is internal and validates neither token nor Origin. Connect directly and run the dump. Submit the flag." },
-        "websocket-security-t01-q03": { "prompt": "Which HTTP handshake header reveals which website the connection comes from (shown but never checked by this server)?" }
+        "websocket-security-t01-q01": {
+          "prompt": "The chat trusts the JSON from field. Send a message impersonating admin and submit the flag the server gives you.",
+          "hint": "Connect to /chat?user=attacker and send {\"from\":\"admin\",\"text\":\"...\"} — the server accepts the forged sender"
+        },
+        "websocket-security-t01-q02": {
+          "prompt": "The /admin socket is internal and validates neither token nor Origin. Connect directly and run the dump. Submit the flag.",
+          "hint": "ws://127.0.0.1:18110/admin and send {\"cmd\":\"dump\"} — CSWSH: the admin page in the victim's browser would do the same"
+        },
+        "websocket-security-t01-q03": {
+          "prompt": "Which HTTP handshake header reveals which website the connection comes from (shown but never checked by this server)?",
+          "hint": "The server reflects it in X-Seen-Origin"
+        }
       }
     }
   }

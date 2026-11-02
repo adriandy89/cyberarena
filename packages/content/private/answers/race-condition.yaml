@@ -1,9 +1,19 @@
 # Respuestas del room race-condition.
 # PRIVADO: el seed lo hashea a la tabla Answer.
 # IMPORTANTE: flags deben coincidir con labs/race-condition/flags.env
-race-condition-t01-q01: TOCTOU
-race-condition-t01-q02: "1"
+race-condition-t01-q01:
+  - TOCTOU
+  - TOCTTOU
+race-condition-t01-q02:
+  - "1"
+  - uno
+  - one
 race-condition-t01-q03: FLAG{double_spend_detected}
-race-condition-t02-q01: lock
+race-condition-t02-q01:
+  - lock
+  - "with lock"
+  - "with lock:"
+  - threading.Lock
+  - "threading.Lock()"
 race-condition-t02-q02: FLAG{purchase_limit_bypassed}
 race-condition-t02-q03: FLAG{negative_balance_achieved}

@@ -24,7 +24,7 @@
       pivoting-y-tunneling, active-directory-ataque.
 - [x] T009 [US1,US2] Lote WebApp-A: sqli-basico, xss-reflejado, ssrf-basico, command-injection, file-upload,
       log-forging.
-- [ ] T010 [US1,US2] Lote WebApp-B: auth-bypass, jwt-security, session-security, race-condition, api-security,
+- [x] T010 [US1,US2] Lote WebApp-B: auth-bypass, jwt-security, session-security, race-condition, api-security,
       graphql-security, websocket-security, mobile-security.
 - [ ] T011 [US1,US2] Lote Advanced: web-red-team, ad-avanzado, detection-evasion, data-exfiltration,
       containers-y-cloud, ai-llm-exploitation, binary-exploitation.
