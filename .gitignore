@@ -25,6 +25,8 @@ infra/stacks/*/.env
 infra/stacks/*/secrets/*
 !infra/stacks/*/secrets/README.md
 labs/**/*.env
+# Flag files for the lab-runner (infra/scripts/lab-flags.sh)
+infra/stacks/*/lab-flags/
 
 # Prisma
 packages/database/src/generated/

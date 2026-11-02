@@ -3,6 +3,8 @@
 #   docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d
 # Only infrastructure (postgres + mailpit):
 #   docker compose --project-directory . -f infra/stacks/dev/compose.yaml --env-file infra/stacks/dev/.env up -d postgres mailpit
+# Labs on demand (phase 011): add `--profile labs` (needs LAB_RUNNER_TOKEN and
+# infra/scripts/lab-flags.sh infra/stacks/dev/lab-flags).
 name: cyberarena-dev
 
 services:
@@ -73,6 +75,10 @@ services:
       SMTP_HOST: mailpit
       SMTP_PORT: 1025
       EMAIL_FROM: ${EMAIL_FROM:-CyberArena <no-reply@cyberarena.local>}
+      # Labs on demand (phase 011): off unless the `labs` profile runs the runner.
+      LABS_ENABLED: ${LABS_ENABLED:-false}
+      LAB_RUNNER_URL: http://lab-runner:4100
+      LAB_RUNNER_TOKEN: ${LAB_RUNNER_TOKEN:-}
     ports:
       - '${API_PORT:-3001}:3001'
     volumes:
@@ -106,6 +112,43 @@ services:
     networks:
       - frontend
       - backend
+      - labs-control
+
+  # Labs on demand (phase 011, ADR-015). Same image as production; the port is
+  # published on loopback for an API running on the host (`pnpm dev`).
+  lab-runner:
+    profiles: [labs]
+    build:
+      context: .
+      dockerfile: apps/lab-runner/Dockerfile
+    environment:
+      LAB_RUNNER_TOKEN: ${LAB_RUNNER_TOKEN:-}
+      LAB_FLAGS_DIR: /run/lab-flags
+      LAB_ASSETS: volume
+      LAB_ASSETS_VOLUME: cyberarena-lab-assets
+      LAB_ASSETS_MOUNT: /assets
+      LAB_MAX_RUNNING: ${LAB_MAX_RUNNING:-3}
+      # Tunable in dev to test deadlines quickly.
+      LAB_UNLEASED_GRACE_SECONDS: ${LAB_UNLEASED_GRACE_SECONDS:-300}
+      LAB_LOOP_SECONDS: ${LAB_LOOP_SECONDS:-30}
+    ports:
+      - '127.0.0.1:${LAB_RUNNER_PORT:-4100}:4100'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./infra/stacks/dev/lab-flags:/run/lab-flags:ro
+      - lab-assets:/assets
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 128
+    restart: always
+    stop_grace_period: 60s
+    networks:
+      - labs-control
 
   web:
     image: node:22-bookworm-slim
@@ -145,9 +188,14 @@ services:
 volumes:
   pgdata:
   pnpm-store:
+  lab-assets:
+    name: cyberarena-lab-assets
 
 networks:
   # web <-> api
   frontend: {}
   # api <-> postgres, mailpit (web cannot reach the database)
   backend: {}
+  # api <-> lab-runner. Not internal in dev only: the runner publishes its port
+  # on loopback for an API running on the host.
+  labs-control: {}

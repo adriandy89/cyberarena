@@ -9,6 +9,9 @@
 !**/.env.example
 **/*.log
 **/generated
+# Lab flags never enter an image (the runner reads them from a mount).
+labs/**/*.env
+infra/stacks/*/lab-flags
 docker-data
 docs
 specs

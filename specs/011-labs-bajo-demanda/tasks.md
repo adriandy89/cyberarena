@@ -17,7 +17,7 @@
       `cap_drop`); test que pasa el lint por todos; `validate.ts` comprueba que `lab:` existe.
 - [x] T006 Núcleo del runner (estado, plazos, mutex, args de compose, override, assets) con `execFile`
       simulado; modo `LAB_RUNNER_DRY_RUN`.
-- [ ] T007 Servidor HTTP, auth, watchdog, CLI, Dockerfile; servicio en los compose de dev y prod;
+- [x] T007 Servidor HTTP, auth, watchdog, CLI, Dockerfile; servicio en los compose de dev y prod;
       Postgres de prod en `127.0.0.1`; `infra/scripts/lab-flags.sh`.
 
 ## Fase C — API

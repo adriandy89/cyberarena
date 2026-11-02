@@ -21,6 +21,11 @@
     verificados los 4 vectores como `student` (SUID find, `find -exec bash -p`, `sudo vim`, cron).
     En Docker Desktop el port-forward acepta TCP antes de que la app escuche: «listo» se comprueba con
     una petición HTTP, no con el puerto (los labs Python tardan ~2 s).
+  - 2026-11-02 T007, verificado con el runner real en contenedor (dev, `--profile labs`, gracia 60 s):
+    `up --wait` de sqli-basico → HTTP 200 desde el host, montaje del volumen de assets `RW:false`,
+    `restart=no`, 256 MB/128 pids/0,5 CPU; sin renovar, se apaga al vencer el plazo; un lab levantado a
+    mano se adopta y se apaga a los 60 s; SIGTERM al runner apaga todos los labs; al arrancar adopta lo
+    que encuentra. La imagen no contiene ningún `.env`.
 
 ## 1. Propósito
 

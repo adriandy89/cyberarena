@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsx scripts/build-manifest.ts && tsc -p tsconfig.build.json",
     "manifest": "tsx scripts/build-manifest.ts",
+    "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run"

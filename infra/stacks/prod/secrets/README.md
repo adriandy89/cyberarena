@@ -12,7 +12,9 @@ openssl rand -base64 32 | tr -d '\n=+/' > better_auth_secret
 # Password del admin inicial (opcional: sin este archivo se genera una aleatoria
 # y se registra UNA vez en el log del arranque — ADR-009).
 printf 'TuPasswordInicial-12345' > bootstrap_admin_password
-chmod 600 postgres_password better_auth_secret bootstrap_admin_password
+# Token compartido api <-> lab-runner (fase 011, ADR-015).
+openssl rand -hex 32 > lab_runner_token
+chmod 600 postgres_password better_auth_secret bootstrap_admin_password lab_runner_token
 ```
 
 - `postgres_password` → POSTGRES_PASSWORD_FILE del contenedor postgres + DATABASE_URL
@@ -20,6 +22,8 @@ chmod 600 postgres_password better_auth_secret bootstrap_admin_password
 - `better_auth_secret` → BETTER_AUTH_SECRET de la api (entrypoint).
 - `bootstrap_admin_password` → BOOTSTRAP_ADMIN_PASSWORD de la api (entrypoint); SOLO
   se usa si la tabla de usuarios está vacía al arrancar.
+- `lab_runner_token` → LAB_RUNNER_TOKEN_FILE de la api y del lab-runner: sin él, el runner
+  no arranca (32+ caracteres).
 
 Los secretos de compose se montan como archivos en el contenedor: no aparecen en
 `docker inspect` del servicio ni en el yaml.
