@@ -4,8 +4,17 @@ title: "REMnux, FlareVM y el laboratorio seguro"
 questions:
   - id: herramientas-defensivas-t02-q01
     prompt: "¿Qué es REMnux?"
-    hint: "Linux preparado para análisis de malware."
-    kind: text
+    hint: "Está basada en Ubuntu y viene cargada de herramientas para analizar muestras y evidencias."
+    kind: choice
+    options:
+      - id: a
+        label: "Una distribución Linux preparada para análisis de malware"
+      - id: b
+        label: "Un antivirus comercial para servidores Linux"
+      - id: c
+        label: "Una herramienta web de GCHQ para decodificar datos"
+      - id: d
+        label: "Un instalador que convierte una VM Windows en laboratorio de reversing"
   - id: herramientas-defensivas-t02-q02
     prompt: "¿Dónde se analiza SIEMPRE malware peligroso?"
     hint: "Máquina aislada, sin acceso a tu red real."

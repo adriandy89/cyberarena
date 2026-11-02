@@ -1,10 +1,22 @@
 # Respuestas del room defensa-introduccion.
 # PRIVADO: el seed lo hashea a la tabla Answer.
-defensa-introduccion-t01-q01: Security Operations Center
+defensa-introduccion-t01-q01:
+  - Security Operations Center
+  - Centro de Operaciones de Seguridad
 defensa-introduccion-t01-q02: b
-defensa-introduccion-t02-q01: tail -f
-defensa-introduccion-t02-q02: C:\Windows\System32\winevt
+defensa-introduccion-t02-q01:
+  - tail -f
+  - tail --follow
+defensa-introduccion-t02-q02:
+  - 'C:\Windows\System32\winevt'
+  - 'C:\Windows\System32\winevt\Logs'
+  - '%SystemRoot%\System32\winevt'
+  - '%SystemRoot%\System32\winevt\Logs'
 defensa-introduccion-t02-q03: b
-defensa-introduccion-t03-q01: contencion
-defensa-introduccion-t03-q02: una alerta que se dispara sin que haya un ataque real
+defensa-introduccion-t03-q01:
+  - contencion
+  - contención
+  - la contencion
+  - containment
+defensa-introduccion-t03-q02: c
 defensa-introduccion-t03-q03: b

@@ -7,7 +7,7 @@ questions:
     hint: "curl -s http://127.0.0.1:18106/emails/02-urgente.eml — Return-Path: bounce@??? y Message-ID: <abc123@??>"
     kind: flag
   - id: phishing-forensics-t01-q02
-    prompt: "Del mismo email: Authentication-Results muestra tres checks fallidos. Escribe los tres en orden alfabético separados por comas (spf,dkim,dmarc) con su valor: formato 'spf=X,dkim=Y,dmarc=Z'."
+    prompt: "Del mismo email: Authentication-Results muestra tres checks fallidos. Escribe los tres con su valor, en este orden y separados por comas: formato 'spf=X,dkim=Y,dmarc=Z'."
     hint: "spf=none, dkim=none, dmarc=fail — cópialos exactos del header"
     kind: text
   - id: phishing-forensics-t01-q03

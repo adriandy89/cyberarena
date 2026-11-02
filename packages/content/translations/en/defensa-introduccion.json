@@ -3,58 +3,98 @@
   "description": "SOC, monitoring, log analysis, incident response.",
   "tasks": {
     "1": {
-      "title": "The SOC",
+      "title": "The SOC: the control tower",
+      "body": "## What is done in a SOC?\n\nA **SOC** (Security Operations Center) is the team and the infrastructure that watch over\nan organization's security 24/7:\n\n1. **Monitor** — collect events (logs, alerts, traffic).\n2. **Detect** — separate the noise from real attacks.\n3. **Analyze** — investigate every alert: false positive or intrusion?\n4. **Respond** — contain, eradicate, recover.\n5. **Improve** — post-incident: harden and update the detections.\n\n## The roles you'll see in job postings\n\n- **L1 Analyst (Tier 1)**: alert triage — the first filter.\n- **L2 Analyst (Tier 2)**: in-depth incident investigation.\n- **Threat Hunter**: searches for attacks the alerts didn't cover.\n- **SOC Engineer**: builds and tunes the detections (SIEM, EDR).\n- **DFIR**: digital forensics and incident response.\n\nThe most direct EMPLOYABLE path into cybersecurity is exactly this one: SOC analyst.\nThe fundamentals you are learning (networking, logs, Linux/Windows) are the daily work\nof an L1 analyst.",
       "questions": {
         "defensa-introduccion-t01-q01": {
-          "prompt": "What does SOC stand for?"
+          "prompt": "What does SOC stand for?",
+          "hint": "Security Operations Center."
         },
         "defensa-introduccion-t01-q02": {
-          "prompt": "What is the PRIMARY goal of a SOC?"
+          "prompt": "What is the PRIMARY goal of a SOC?",
+          "hint": "It's not about hacking: it's about knowing what is going on and reacting.",
+          "options": {
+            "a": "Attacking rivals before they attack",
+            "b": "Monitoring, detecting, responding to and preventing security incidents",
+            "c": "Uninstalling antivirus software",
+            "d": "Selling firewalls"
+          }
         }
       }
     },
     "2": {
-      "title": "Logs: digital evidence",
+      "title": "Logs: the digital evidence",
+      "body": "## Everything leaves a trace\n\nEvery system generates events: logins (successful and failed), changes, process\nexecution, connections… Defensive work starts with knowing WHERE to look:\n\n```bash\n# Linux\ntail -f /var/log/auth.log          # live SSH login attempts\ngrep \"Failed password\" /var/log/auth.log | wc -l   # brute force?\nlast                               # latest logins\njournalctl -u ssh --since \"1 hour ago\"\n```\n\n```powershell\n# Windows: Event Viewer (eventvwr.msc) or PowerShell\nGet-WinEvent -LogName Security -MaxEvents 20\n# Key channels: Security (4624 successful login, 4625 failed login), System, Application\n```\n\n## What an analyst looks for in logs\n\n- **Bursts of failed logins** → brute force (your Hydra from the previous module, seen\n  from the other side).\n- **Successful login at odd hours or from an unusual IP** → possible compromise.\n- **Creation of new users/services** → persistence.\n- **Odd processes running as SYSTEM** → escalation in progress.\n\nThe irony of the trade: every offensive tool you learned leaves its signature in the\nlogs. The best defenders understand the attack.",
       "questions": {
         "defensa-introduccion-t02-q01": {
-          "prompt": "What Linux tool follows a log LIVE?"
+          "prompt": "Which Linux tool you already know lets you follow a log LIVE?",
+          "hint": "tail with the follow option."
         },
         "defensa-introduccion-t02-q02": {
-          "prompt": "Where does Windows store event logs?"
+          "prompt": "Where does Windows store its event logs (.evtx extension)?",
+          "hint": "System folder containing 'winevt'."
         },
         "defensa-introduccion-t02-q03": {
-          "prompt": "An admin deletes logs after an alert. What does this indicate?"
+          "prompt": "An administrator deletes logs right after an alert. What does it indicate?",
+          "hint": "Defenders don't destroy evidence.",
+          "options": {
+            "a": "Routine maintenance",
+            "b": "Possible compromise: attackers erase their tracks (anti-forensics)",
+            "c": "Low disk space",
+            "d": "It's mandatory after every alert"
+          }
         }
       }
     },
     "3": {
       "title": "The incident lifecycle",
+      "body": "## The 6 phases (simplified NIST model)\n\n1. **Preparation** — plan, tools, permissions, drills.\n2. **Detection and analysis** — the alert arrives: is it real? What is its scope?\n3. **Containment** — isolate the machine, block the IP, revoke sessions. *(the first\n   action! Not \"shut down and wipe\": that destroys evidence)*\n4. **Eradication** — remove the malware, close the way in.\n5. **Recovery** — restore from clean backups, verify.\n6. **Lessons learned** — report: what failed, what to improve, new detections.\n\n## The analyst's real life: triage\n\nAlerts arrive by the hundreds (most of them are false positives). L1 triage decides\nin minutes: dismiss / escalate. A good analyst knows the tools WELL ENOUGH\nto ask: \"would I be doing this if I were the attacker?\" — and to look for\nthat trace.\n\nWith this you finish the defensive introduction. The next modules of the path visit\nthe solutions (SIEM, firewall/IDS) and the tools (CyberChef, REMnux) that\nmake all of this real. Red team and blue team now speak your language.",
       "questions": {
         "defensa-introduccion-t03-q01": {
-          "prompt": "What is the first phase on confirming an intrusion?"
+          "prompt": "In incident response, what is the first phase once an intrusion is confirmed?",
+          "hint": "Don't wipe or shut down: first isolate the damage."
         },
         "defensa-introduccion-t03-q02": {
-          "prompt": "What is a false positive?"
+          "prompt": "What is a 'false positive' in a SOC?",
+          "hint": "Think of the alert that wastes the L1 analyst's time: it goes off, but there is nothing behind it.",
+          "options": {
+            "a": "A real attack that no rule managed to detect",
+            "b": "A correct alert triggered by a confirmed attack",
+            "c": "An alert that fires when there is no real attack",
+            "d": "A log that the attacker has deleted or altered"
+          }
         },
         "defensa-introduccion-t03-q03": {
-          "prompt": "What phase closes the cycle after eradication?"
+          "prompt": "After containing and eradicating an incident, which phase closes the cycle?",
+          "hint": "Lessons learned and improved detections.",
+          "options": {
+            "a": "Forget about it and move on",
+            "b": "Recovery + post-incident review (root cause, improvements)",
+            "c": "Change jobs",
+            "d": "Shut down the SOC"
+          }
         }
       }
     },
     "4": {
       "title": "Lab: investigate the compromised host",
+      "body": "## The first 15 minutes of response\n\nBring up the compromised host and log in as the responder:\n\n```bash\ncd labs/incident-response && cp flags.env.example flags.env\ndocker compose --env-file flags.env up -d\ndocker exec -it lab-incident-response-victim-1 sh\n```\n\nInside, the classic Triage playbook (PID: Prioritize, Identify, Decide):\n\n```bash\nps aux                              # processes: does any of them live in /tmp? fake kernel name?\nnetstat -tn                         # connections: ESTABLISHED to where?\ncat /etc/crontabs/root              # scheduled persistence\nawk -F: '$3 == 0 {print $1}' /etc/passwd   # only root should have UID 0\nls -la /tmp /var/tmp                # almost everything bad lives here\n```\n\n## The 4 classic artifacts\n\n1. **Cron backdoor**: attackers love cron — it runs as root, every\n   minute, and nobody looks at /etc/crontabs. A script named\n   `.systemd-resolved` in /tmp, pretending to be a system service.\n2. **UID 0 user**: a second account with UID 0 is root under another\n   name. It's created with a single `echo >> /etc/passwd` and survives\n   reboots and root password changes.\n3. **Disguised process**: real kernel workers (`[kworker/...]`)\n   appear between brackets in `ps` and have NO binary on disk. One with\n   a path in /tmp is fake by definition.\n4. **Active C2 channel**: `netstat -tn` reveals the ESTABLISHED session to\n   the attacker's server. Connecting to the C2 yourself (from outside) gives\n   you its banner — what the implant would see.\n\n## Containment (the \"D\" in PID)\n\n```sh\n# inside the container:\nsed -i '/systemd-resolved/d' /etc/crontabs/root   # 1. kill the cron job\nuserdel svc-helper                                 # 2. remove the fake root\nkill %1 2>/dev/null; rm -f /tmp/.kworker /var/tmp/.sys/conf  # 3. process\n# 4. isolate: docker compose stop (in real life: network quarantine + rotation\n#    of ALL the credentials the root session touched)\n```\n\n**Golden rule**: on a host compromised at root level, don't clean up —\n**reinstall**. You never know what else was left behind. Here we play at finding things; out there\nyou rebuild from a golden image.",
       "questions": {
         "defensa-introduccion-t04-q01": {
-          "prompt": "A suspicious cron job runs /tmp/.systemd-resolved as root every minute. Submit the flag hidden in the crontab comment."
+          "prompt": "A suspicious cron job runs /tmp/.systemd-resolved as root every minute. Submit the flag hidden in the crontab comment.",
+          "hint": "docker exec -it lab-incident-response-victim-1 sh → cat /etc/crontabs/root (on alpine, root's crontab lives there)"
         },
         "defensa-introduccion-t04-q02": {
-          "prompt": "An attacker-created user has UID 0 (a second root account). What is its name?"
+          "prompt": "An attacker-created user has UID 0 (a second root account). What is its name?",
+          "hint": "awk -F: '$3 == 0 {print $1}' /etc/passwd — the flag is in its GECOS field"
         },
         "defensa-introduccion-t04-q03": {
-          "prompt": "A process disguises its binary as a kernel worker and lives in /tmp. Its config holds a flag: find it."
+          "prompt": "A process disguises its binary as a kernel worker and lives in /tmp. Its config holds a flag: find it.",
+          "hint": "ps aux | grep -v grep | grep kworker → binary /tmp/.kworker; its config is in /var/tmp/.sys/conf"
         },
         "defensa-introduccion-t04-q04": {
-          "prompt": "There is a live ESTABLISHED C2 connection. Connect to the same server from your host and submit the token it gives you."
+          "prompt": "There is a live ESTABLISHED C2 connection. Connect to the same server from your host and submit the token it gives you.",
+          "hint": "netstat -tn inside the container shows c2-server:4444; from your host: the C2 is published on 127.0.0.1:18108 (telnet/nc)"
         }
       }
     }

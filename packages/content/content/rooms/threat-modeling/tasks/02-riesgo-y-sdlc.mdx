@@ -3,13 +3,31 @@ index: 2
 title: "Priorizar riesgos y meterlo en el SDLC"
 questions:
   - id: threat-modeling-t02-q01
-    prompt: "¿Qué es el riesgo en su formulación clásica (la multiplicación que usan DREAD y casi todos los modelos)?"
-    hint: "Riesgo = Impacto × Probabilidad — DREAD lo desglosa: Damage, Reproducibility, Exploitability, Affected users, Discoverability"
-    kind: text
+    prompt: "¿Cuál es la formulación clásica del riesgo (la multiplicación que usan DREAD y casi todos los modelos)?"
+    hint: "Combina cuánto daño haría la amenaza con lo probable que es que ocurra. DREAD lo desglosa en Damage, Reproducibility, Exploitability, Affected users y Discoverability."
+    kind: choice
+    options:
+      - id: a
+        label: "Riesgo = Amenaza + Vulnerabilidad"
+      - id: b
+        label: "Riesgo = Coste del control × Número de activos"
+      - id: c
+        label: "Riesgo = Impacto × Probabilidad"
+      - id: d
+        label: "Riesgo = Probabilidad ÷ Impacto"
   - id: threat-modeling-t02-q02
     prompt: "¿Cuáles son las 4 respuestas posibles ante un riesgo identificado (el cuadrante clásico de gestión)?"
-    hint: "Mitigar, Aceptar, Transferir, Evitar — el mismo marco que en riesgo empresarial"
-    kind: text
+    hint: "Es el mismo marco que en riesgo empresarial; repasa la tabla de decisiones de esta task."
+    kind: choice
+    options:
+      - id: a
+        label: "Mitigar, aceptar, transferir y evitar"
+      - id: b
+        label: "Detectar, contener, erradicar y recuperar"
+      - id: c
+        label: "Identificar, proteger, detectar y responder"
+      - id: d
+        label: "Escanear, explotar, escalar y persistir"
   - id: threat-modeling-t02-q03
     prompt: "¿En qué fase del SDLC el threat modeling es más barato y más efectivo?"
     hint: "Diseño (antes del código): arreglar en diseño = horas; en producción = incidentes + parches + reputación"

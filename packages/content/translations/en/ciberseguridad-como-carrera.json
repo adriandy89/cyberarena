@@ -3,27 +3,52 @@
   "description": "Principles, real roles, and how to keep advancing.",
   "tasks": {
     "1": {
-      "title": "Principles and role map",
+      "title": "The professional's principles and the role map",
+      "body": "## CIA: the goal of everything\n\n**Confidentiality** (only those who should, see), **Integrity** (data is not altered\nwithout authorization), **Availability** (the system is there when it's needed). Every\nsecurity control protects one of the three. Add authentication and non-repudiation\nto get the five-element model (AAA).\n\n## The role map (the ones you can already recognize)\n\n| Role | Does | Keywords |\n|---|---|---|\n| **Pentester** | authorized attacks + report | the commercial \"red team\" |\n| **Red teamer** | simulates real adversaries, stealth | TTPs, evasion |\n| **SOC analyst** | monitors and responds | SIEM, triage (your module 10) |\n| **DFIR** | forensics + incident response | evidence, timeline |\n| **Threat hunter** | searches for what the alerts didn't see | hypothesis, anomaly |\n| **AppSec / DevSecOps** | security in the code and the pipeline | SDLC, SAST/DAST |\n| **GRC** | standards, risk, audit | ISO 27001, NIST |\n\nNone of them is \"better\": they are perspectives on the same problem. Yours starts with the one\nthat hooked you the most in this path.",
       "questions": {
         "ciberseguridad-como-carrera-t01-q01": {
-          "prompt": "What is the classic security triad?"
+          "prompt": "Which of these is the classic information security triad?",
+          "hint": "Three words starting with C, I and A.",
+          "options": {
+            "a": "Authentication, authorization and auditing",
+            "b": "Prevention, detection and response",
+            "c": "Confidentiality, integrity and availability",
+            "d": "Firewall, antivirus and backups"
+          }
         },
         "ciberseguridad-como-carrera-t01-q02": {
-          "prompt": "What role breaks systems WITH AUTHORIZATION?"
+          "prompt": "Which role is dedicated to breaking systems WITH AUTHORIZATION to find flaws?",
+          "hint": "The one you've been learning in the offensive half of the path."
         },
         "ciberseguridad-como-carrera-t01-q03": {
-          "prompt": "A colleague asks to test without written permission. What do you do?"
+          "prompt": "A colleague asks you to 'test' their company's website without written permission. What do you do as a professional?",
+          "hint": "Authorization is EVERYTHING.",
+          "options": {
+            "a": "Help them: it's their company",
+            "b": "Refuse until you have written authorization (scope) from someone in charge",
+            "c": "Test just a little, without causing damage",
+            "d": "Charge them first"
+          }
         }
       }
     },
     "2": {
-      "title": "How to keep going",
+      "title": "How to keep going from here",
+      "body": "## The route that works\n\n1. **Practice in public**: solve labs and WRITE your own write-ups (GitHub/ blog).\n   A clear write-up is worth more than ten certificates on your CV.\n2. **Build**: a home lab (you already have one: CyberArena!), your own scripts — this\n   very platform is a portfolio project.\n3. **Go deeper**: this platform's **Jr Penetration Tester** path continues\n   exactly where you are: Nmap, Burp, privilege escalation, Active Directory,\n   with dedicated Docker labs.\n4. **Specialize later**: Offensive (PT2/Web/Red Team), Defensive (SOC/DFIR) or\n   AppSec. The specialist's T is built on a general base — and this IS your base.\n\n## The habits of good professionals\n\n- **Read everything**: advisories, other people's write-ups, changelogs. Curiosity is the\n  number one skill in the field.\n- **Impeccable ethics**: your reputation is your most fragile asset. Written authorization,\n  always, for everything.\n- **Share**: the community (CTFs, write-ups, mentoring) is how everyone you admire today\n  grew.\n\n**Congratulations**: you have finished Cyber Security 101. Go to your dashboard,\ncheck your level and your badges… and when you're ready: we'll be waiting for you in Jr Penetration\nTester. 🚩",
       "questions": {
         "ciberseguridad-como-carrera-t02-q01": {
-          "prompt": "What demonstrates MORE real capability in an interview?"
+          "prompt": "What demonstrates MORE real capability in a cybersecurity job interview?",
+          "hint": "What you have DONE, not what you say you know.",
+          "options": {
+            "a": "An expensive certificate with no practice",
+            "b": "Solved labs, your own write-ups and a portfolio of projects",
+            "c": "Knowing the names of tools",
+            "d": "The number of certificates"
+          }
         },
         "ciberseguridad-como-carrera-t02-q02": {
-          "prompt": "What is the next path after CS101?"
+          "prompt": "On this platform, which path comes next after Cyber Security 101?",
+          "hint": "The name of this very site gives you a clue… it's the junior pentesting one."
         }
       }
     }

@@ -4,12 +4,30 @@ title: "STRIDE sobre el diagrama de datos"
 questions:
   - id: threat-modeling-t01-q01
     prompt: "¿Qué representa un DFD (Data Flow Diagram) y cuáles son sus 4 elementos estándar?"
-    hint: "El mapa del sistema: procesos, almacenes de datos, entidades externas y flujos de datos"
-    kind: text
+    hint: "Es el mapa de por dónde se mueven los datos: quién los envía, quién los transforma, dónde se guardan y por qué canales viajan."
+    kind: choice
+    options:
+      - id: a
+        label: "La red física: routers, switches, firewalls y servidores"
+      - id: b
+        label: "El mapa del sistema: procesos, almacenes de datos, entidades externas y flujos de datos"
+      - id: c
+        label: "El modelo de clases: clases, atributos, métodos y relaciones"
+      - id: d
+        label: "La matriz de riesgos: amenazas, impactos, probabilidades y controles"
   - id: threat-modeling-t01-q02
-    prompt: "Nombra las 6 letras de STRIDE."
-    hint: "Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege"
-    kind: text
+    prompt: "¿Qué significan las 6 letras de STRIDE?"
+    hint: "Cada letra es una categoría de amenaza; repasa la tabla «STRIDE traducido a ataques reales»."
+    kind: choice
+    options:
+      - id: a
+        label: "Scanning, Tracing, Rootkits, Injection, DDoS, Exfiltration"
+      - id: b
+        label: "Sniffing, Trojans, Replay, Interception, DNS poisoning, Escalation"
+      - id: c
+        label: "Spoofing, Tampering, Ransomware, Intrusion, Defacement, Exploitation"
+      - id: d
+        label: "Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege"
   - id: threat-modeling-t01-q03
     prompt: "Un atacante modifica un pedido en tránsito entre el navegador y la API. ¿Qué letra de STRIDE es?"
     hint: "Tampering (manipulación) — si no hay HTTPS/integridad, el flujo de datos es el blanco"

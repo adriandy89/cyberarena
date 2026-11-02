@@ -8,8 +8,17 @@ questions:
     kind: text
   - id: defensa-introduccion-t03-q02
     prompt: "¿Qué es un 'falso positivo' en un SOC?"
-    hint: "Alerta que dispara sin ataque real."
-    kind: text
+    hint: "Piensa en la alerta que hace perder tiempo al analista N1: suena, pero detrás no hay nada."
+    kind: choice
+    options:
+      - id: a
+        label: "Un ataque real que ninguna regla llegó a detectar"
+      - id: b
+        label: "Una alerta correcta disparada por un ataque confirmado"
+      - id: c
+        label: "Una alerta que se dispara sin que haya un ataque real"
+      - id: d
+        label: "Un log que el atacante ha borrado o alterado"
   - id: defensa-introduccion-t03-q03
     prompt: "Tras contener y erradicar un incidente, ¿qué fase cierra el ciclo?"
     hint: "Lecciones aprendidas y mejora de detecciones."

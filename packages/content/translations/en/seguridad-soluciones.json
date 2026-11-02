@@ -3,41 +3,70 @@
   "description": "The technology behind defense.",
   "tasks": {
     "1": {
-      "title": "SIEM",
+      "title": "SIEM: the brain that correlates",
+      "body": "## From log chaos to an actionable alert\n\nA **SIEM** (Security Information and Event Management) ingests logs from EVERYTHING\n(firewalls, servers, AD, applications, EDRs) and analyzes them together:\n\n```text\nEvents:   100 failed logins (firewall)  +  successful login (DC)  +  access to unusual shares (file server)\n          └──────────── correlation rule: \"successful brute force\" ────────────┘\n          → critical-severity ALERT to the SOC\n```\n\nReal examples: Splunk, Elastic (ELK), QRadar, Wazuh, Microsoft Sentinel.\n\n## How the analyst uses it\n\n```sql\n-- SPL/KQL-style query language (Splunk/Sentinel):\nindex=auth \"Failed password\" | stats count by src_ip | where count > 20\n```\n\nSearch, pivot and enrich: from a suspicious IP to \"what else did that IP do?\" in\nseconds. SIEMs are fed with signatures AND with behavior (UEBA: anomalies such as\n\"this user never logs in at night… today they did\").\n\nAs an attacker, the SIEM is your invisible enemy: every command you run generates\nevents that can be correlated. Detection is a matter of having the right rule.",
       "questions": {
         "seguridad-soluciones-t01-q01": {
-          "prompt": "What does a SIEM do besides storing logs?"
+          "prompt": "What does a SIEM do (besides storing logs)?",
+          "hint": "Bringing together events from many sources and detecting patterns.",
+          "options": {
+            "a": "It encrypts network traffic",
+            "b": "It centralizes logs from multiple sources and correlates them to generate alerts",
+            "c": "It replaces firewalls",
+            "d": "It only makes backups"
+          }
         },
         "seguridad-soluciones-t01-q02": {
-          "prompt": "What is a correlation rule?"
+          "prompt": "In a SIEM, what is a 'correlation rule'?",
+          "hint": "Remember the example: 100 failed logins + a successful login + access to unusual shares = \"successful brute force\".",
+          "options": {
+            "a": "A firewall rule that allows or denies traffic by IP and port",
+            "b": "A signature that identifies a single known malicious packet",
+            "c": "A policy that decides how long logs are kept",
+            "d": "Logic that joins several separate events into a single incident and raises an alert"
+          }
         }
       }
     },
     "2": {
       "title": "Firewall, IDS and IPS",
+      "body": "## The network's guardians\n\n- **Firewall**: filters by rules (IP/port — packet filter; or connection state —\n  stateful). The gatekeeper of every perimeter network.\n- **NGFW** (Next-Gen): adds application and user inspection, and even a built-in\n  IPS (e.g. Palo Alto, Fortinet).\n- **IDS** (Intrusion Detection): listens (often on a span/mirror port) and ALERTS\n  on malicious patterns. E.g.: Snort, Suricata.\n- **IPS** (Intrusion Prevention): the same but INLINE — it can drop the\n  malicious packet before it arrives.\n\n## Signatures vs anomalies\n\nClassic IDS/IPS detect by **signatures** (known patterns: \"this is an EternalBlue\nscan\") and by **anomaly** (odd behavior: \"that server has never talked\nto that country\"). As an attacker: signatures are evaded by modifying payloads;\nanomalies, by keeping a low profile.\n\n## Vulnerability scanners (the third leg)\n\n**Nessus, OpenVAS, Qualys**: they inventory the network and check versions against known\nCVEs. Defenders use them to prioritize patches; pentesters, to\nstart enumeration. They are noisy by design — their presence in the logs is unavoidable.",
       "questions": {
         "seguridad-soluciones-t02-q01": {
-          "prompt": "What device FILTERS traffic by rules?"
+          "prompt": "Which device FILTERS traffic based on rules (allow/deny)?",
+          "hint": "The classic of every network."
         },
         "seguridad-soluciones-t02-q02": {
-          "prompt": "IDS vs IPS difference?"
+          "prompt": "What is the difference between an IDS and an IPS?",
+          "hint": "Detect vs Prevent.",
+          "options": {
+            "a": "An IDS detects and alerts; an IPS also BLOCKS in real time",
+            "b": "They're the same thing under a different name",
+            "c": "An IDS blocks; an IPS only watches",
+            "d": "Neither of them works at the network level"
+          }
         },
         "seguridad-soluciones-t02-q03": {
-          "prompt": "What firewall type inspects the application layer?"
+          "prompt": "Which type of firewall inspects all the way up to the application layer (HTTP, DNS…)?",
+          "hint": "Next-Generation / layer 7."
         }
       }
     },
     "3": {
       "title": "Lab: correlate the chained attack",
+      "body": "## From events to an incident\n\nA SIEM is worth as much as its **correlation**: each source on its own tells a boring\nstory; cross-referenced, they give away the campaign. The lab exposes three sources from the\nnight of Oct 31 containing a complete attack:\n\n```bash\ncurl -s http://127.0.0.1:18107/logs/firewall\ncurl -s http://127.0.0.1:18107/logs/auth\ncurl -s http://127.0.0.1:18107/logs/web\n```\n\n## The method (pivoting)\n\n1. **Find what they have in common**: which IP appears in all three sources?\n   ```bash\n   # extract the IPs and cross-reference:\n   curl -s http://127.0.0.1:18107/logs/firewall | grep -oE '[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+' | sort -u\n   ```\n2. **Sort by time**: recon (scan of /robots, /.env...) → SSH brute\n   force → exploit → persistence → outbound callbacks to `185.221.9.7`.\n3. **Validate**: submit your reconstruction to the engine:\n   ```bash\n   curl -s \"http://127.0.0.1:18107/correlate?ip=<IP>&time=<HH:MM:SS>&persistence=<mecanismo>\"\n   ```\n\n## What each source tells you\n\n| Source | Contributes |\n|---|---|\n| Firewall | Which connections got through (and the scan that bounced) |\n| Auth | Brute force, accepted session, sudo, cron, useradd |\n| Web | The exact path of the exploit (command injection) |\n\nNotice the fine detail: the SSH session `Accepted password for deploy`\nmatches **to the second** the firewall's ACCEPT connection and the injected\nquery in the access log. That time anchoring across three sources is the\noperational definition of correlation — and what a tier-2 analyst does\nall day in Splunk/Elastic, with rules far more comfortable than grep.",
       "questions": {
         "seguridad-soluciones-t03-q01": {
-          "prompt": "Pull /logs/firewall, /logs/auth and /logs/web from the lab. Which external IP appears in recon, brute force, the exploit AND the callbacks? Submit it as the flag."
+          "prompt": "Pull /logs/firewall, /logs/auth and /logs/web from the lab. Which external IP appears in recon, brute force, the exploit AND the callbacks? Submit it as the flag.",
+          "hint": "grep 203.0.113. in all three sources: the same IP does the scan, the brute force and the exploitation"
         },
         "seguridad-soluciones-t03-q02": {
-          "prompt": "The exploit is a command injection in /api/v1/ping (host=127.0.0.1;id). At what time (HH:MM:SS UTC) does the ;id query land?"
+          "prompt": "The exploit is a command injection in /api/v1/ping (host=127.0.0.1;id). At what time (HH:MM:SS UTC) does the ;id query land?",
+          "hint": "In /logs/web, the line with ping?host=127.0.0.1;id — cross-check it with the firewall's ACCEPT connection at the same second"
         },
         "seguridad-soluciones-t03-q03": {
-          "prompt": "What persistence mechanism runs /tmp/.x as root every minute? Submit the /correlate flag with persistence=<mechanism>."
+          "prompt": "What persistence mechanism runs /tmp/.x as root every minute? Submit the /correlate flag with persistence=<mechanism>.",
+          "hint": "cron[2901]: (root) CMD (/bin/sh /tmp/.x ...) — there's also a bonus UID 0 user"
         }
       }
     }

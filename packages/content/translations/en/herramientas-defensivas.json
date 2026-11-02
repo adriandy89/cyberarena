@@ -3,30 +3,62 @@
   "description": "CyberChef, REMnux/FlareVM and safe lab setup.",
   "tasks": {
     "1": {
-      "title": "CyberChef",
+      "title": "CyberChef: the Swiss Army knife of analysis",
+      "body": "## GCHQ's \"operations cylinder\"\n\n**CyberChef** (gchq.github.io/CyberChef, runs offline in your browser) chains\noperations: the output of each one feeds the next.\n\n```text\nInput: RkxBR3s=  →  [From Base64]  →  [ROT13]  →  FLAG{...}\n```\n\nStar operations for everyday work:\n- **From/To Base64, Hex, URL** — the usual decoders.\n- **ROT13, XOR** — challenges and simple malware.\n- **Extract IPs / URLs / emails** — from a log or a dirty binary.\n- **Magic** — it guesses the chain of operations for you! (try it: paste the ROT13+base64\n  from your previous rooms and click Magic).\n\nFor an analyst: examining headers, decoding phishing payloads, extracting IOCs\nfrom a log. For a CTF: 50% of the \"decoding\" challenges.\n\nIt needs no installation: download the HTML and it works offline (ideal for evidence\nyou don't want to expose to the internet).",
       "questions": {
         "herramientas-defensivas-t01-q01": {
-          "prompt": "What is CyberChef?"
+          "prompt": "What is CyberChef?",
+          "hint": "GCHQ released it; it runs in the browser.",
+          "options": {
+            "a": "An online antivirus",
+            "b": "A web tool to decode/analyze data by chaining operations",
+            "c": "A port scanner",
+            "d": "An image editor"
+          }
         },
         "herramientas-defensivas-t01-q02": {
-          "prompt": "What does chaining operations in Recipe mean?"
+          "prompt": "In CyberChef, what does chaining operations in the 'Recipe' mean?",
+          "hint": "Look at the example: RkxBR3s= → [From Base64] → [ROT13] → FLAG{...}.",
+          "options": {
+            "a": "Running every operation in parallel on the same input",
+            "b": "Saving favorite operations in a list to use them later",
+            "c": "The output of each operation is used as the input of the next one",
+            "d": "Applying only the last operation in the list"
+          }
         },
         "herramientas-defensivas-t01-q03": {
-          "prompt": "What CyberChef operation auto-detects encoding?"
+          "prompt": "You already know base64 and ROT13 from cryptography. Which CyberChef operation would combine them (detecting the encoding for you)?",
+          "hint": "Magic detects it on its own."
         }
       }
     },
     "2": {
-      "title": "REMnux, FlareVM and lab",
+      "title": "REMnux, FlareVM and the safe lab",
+      "body": "## Ready-made distributions\n\n- **REMnux**: Ubuntu loaded with tools for malware and evidence analysis:\n  decoders, PDF/Office analyzers, network sniffing, IOC extraction\n  scripts.\n- **FlareVM**: the same but on Windows (a PS> installer that turns a VM into a\n  reverse engineering lab: debuggers, PE dissectors, decompilers).\n\n## The golden rule of the lab\n\n```text\nAnalysis VM  ←→  host-only network  (NEVER bridged to your LAN)\n```\n\nMalware is detonated in the VM with the network isolated (or with INetSim/FakeNet simulating\nthe internet to see what it \"calls\"). Snapshots BEFORE detonating: analyze → restore →\nrepeat. An analyst without snapshots ends up reinstalling everything far too often.\n\n## Closing the path's circle\n\nYou now know both sides: attacking (recon, exploits, offensive tooling) and defending (SOC,\nlogs, SIEM, analysis). The last module of the path connects all of this with YOUR career.",
       "questions": {
         "herramientas-defensivas-t02-q01": {
-          "prompt": "What is REMnux?"
+          "prompt": "What is REMnux?",
+          "hint": "It's based on Ubuntu and comes loaded with tools to analyze samples and evidence.",
+          "options": {
+            "a": "A Linux distribution prepared for malware analysis",
+            "b": "A commercial antivirus for Linux servers",
+            "c": "A GCHQ web tool for decoding data",
+            "d": "An installer that turns a Windows VM into a reversing lab"
+          }
         },
         "herramientas-defensivas-t02-q02": {
-          "prompt": "Where should you ALWAYS analyze malware?"
+          "prompt": "Where should dangerous malware ALWAYS be analyzed?",
+          "hint": "An isolated machine, with no access to your real network.",
+          "options": {
+            "a": "On your work laptop, with up-to-date antivirus",
+            "b": "In a dedicated, isolated virtual machine (host-only network)",
+            "c": "On your phone",
+            "d": "In the company cloud"
+          }
         },
         "herramientas-defensivas-t02-q03": {
-          "prompt": "What kit is the Windows equivalent of REMnux?"
+          "prompt": "Which kit is the equivalent of REMnux but for Windows (Win32 malware analysis)?",
+          "hint": "It installs on top of a Windows VM; flare."
         }
       }
     }

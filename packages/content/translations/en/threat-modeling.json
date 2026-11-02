@@ -4,19 +4,71 @@
   "tasks": {
     "1": {
       "title": "STRIDE over the data flow diagram",
+      "body": "## The method in 4 questions\n\n1. **What are we building?** → the DFD.\n2. **What can go wrong?** → STRIDE over each element.\n3. **What are we going to do about it?** → mitigate/accept/transfer.\n4. **Did we do a good job?** → validate and repeat on every iteration.\n\n## The minimal DFD of a web app\n\n```\n[User]   ──HTTPS──▶ (API) ──▶ [Postgres]\n[Admin]  ──HTTPS──▶ (API) ──▶ [S3 bucket]\n                        └────▶ [External payments API]\n```\n\nEach **element** of the DFD has its natural threats — that's where\nSTRIDE comes in, as a checklist:\n\n| DFD element | STRIDE letters that apply |\n|---|---|\n| Data flow | T (tampering), I (interception), D |\n| Process (API) | All of STRIDE |\n| Data store (DB/S3) | T, I, R (audit logs), D |\n| External entity | S (spoofing) |\n\n## STRIDE translated into real attacks\n\nEach category has an offensive room where you will exploit it. Most of them are in the\nJr Penetration Tester and Web Application Pentesting paths: come back to this table when\nyou complete them and you'll see the same knowledge from the other side.\n\n| Letter | Question | Room where you'll practice it |\n|---|---|---|\n| **S**poofing | Can I pass myself off as someone else? | auth-bypass, session-security |\n| **T**ampering | Can I modify data in transit/at rest? | jwt-security (alg none) |\n| **R**epudiation | Can I deny my action? (no logs) | log-forging (just the opposite) |\n| **I**nformation disclosure | Can I see what I shouldn't? | BOLA (api-security), sqli |\n| **D**enial of service | Can I take the service down? | api-security (unlimited consumption) |\n| **E**levation of privilege | Can I escalate? | mass-assignment, privesc-linux |\n\nThe teaching revelation: every offensive room on this platform IS an\nexecuted threat model. Designing with STRIDE is writing the attack BEFORE\nthe attacker does — literally the same knowledge, on the other side of\nthe whiteboard.",
       "questions": {
-        "threat-modeling-t01-q01": { "prompt": "What does a DFD represent and what are its 4 standard elements?" },
-        "threat-modeling-t01-q02": { "prompt": "Name the 6 letters of STRIDE." },
-        "threat-modeling-t01-q03": { "prompt": "An attacker modifies an order in transit between browser and API. Which STRIDE letter is it?" },
-        "threat-modeling-t01-q04": { "prompt": "Logs stored WITHOUT user/IP/time open which STRIDE category?" }
+        "threat-modeling-t01-q01": {
+          "prompt": "What does a DFD (Data Flow Diagram) represent and what are its 4 standard elements?",
+          "hint": "It's the map of where the data moves: who sends it, who transforms it, where it is stored and through which channels it travels.",
+          "options": {
+            "a": "The physical network: routers, switches, firewalls and servers",
+            "b": "The system map: processes, data stores, external entities and data flows",
+            "c": "The class model: classes, attributes, methods and relationships",
+            "d": "The risk matrix: threats, impacts, likelihoods and controls"
+          }
+        },
+        "threat-modeling-t01-q02": {
+          "prompt": "What do the 6 letters of STRIDE stand for?",
+          "hint": "Each letter is a threat category; review the \"STRIDE translated into real attacks\" table.",
+          "options": {
+            "a": "Scanning, Tracing, Rootkits, Injection, DDoS, Exfiltration",
+            "b": "Sniffing, Trojans, Replay, Interception, DNS poisoning, Escalation",
+            "c": "Spoofing, Tampering, Ransomware, Intrusion, Defacement, Exploitation",
+            "d": "Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege"
+          }
+        },
+        "threat-modeling-t01-q03": {
+          "prompt": "An attacker modifies an order in transit between the browser and the API. Which STRIDE letter is it?",
+          "hint": "Tampering — without HTTPS/integrity, the data flow is the target",
+          "options": {
+            "a": "Tampering",
+            "b": "Spoofing",
+            "c": "Repudiation"
+          }
+        },
+        "threat-modeling-t01-q04": {
+          "prompt": "Logs stored WITHOUT identifying the user/IP/time open up which STRIDE category?",
+          "hint": "Repudiation: the attacker can deny having done it — without binding evidence there is no attribution"
+        }
       }
     },
     "2": {
       "title": "Prioritize risks and embed it in the SDLC",
+      "body": "## From the list of threats to the list of tasks\n\nA threat modeling meeting produces 30 threats; the month has 40 hours. You\nprioritize. **DREAD** scores each threat 1-10 on five axes (Damage,\nReproducibility, Exploitability, Affected users, Discoverability) and the\naverage orders the list. Today many teams directly use\nImpact × Likelihood or a mapping to CVSS.\n\nWith the list sorted, each threat gets one of FOUR decisions:\n\n| Decision | When | Example |\n|---|---|---|\n| **Mitigate** | Cost of the control < risk | HTTPS everywhere (T/I) |\n| **Accept** | Low risk or disproportionate cost | Public rating without login |\n| **Transfer** | Someone else covers it better | WAF/CDN anti-DDoS to the provider |\n| **Avoid** | The feature isn't worth the risk | Disable file uploads |\n\nThe important part: the decision is WRITTEN DOWN with its justification and an owner.\n\"We'll look into it\" is not a category.\n\n## Threat modeling in the real cycle\n\nIt's not a one-off ceremony: it lives with the product.\n\n```\nnew design    ──▶  threat modeling session (1-2h, team + security)\n                        │\n                        ▼\n              threats → backlog issues (with priority)\n                        │\n        ┌───────────────┴───────────────┐\n        ▼                               ▼\n  sprint: controls               review: new features\n  (tests that prove them)         = new threats? repeat\n```\n\nSigns that you're doing it right: pentest findings\n**stop being a surprise** (they were already in the model), security\nrequirements reach the backlog as normal user stories, and the repo's\nDFD is as up to date as the README.\n\n## Other frameworks (in case you run into them)\n\n- **PASTA** (7 steps, oriented to business risk — heavier).\n- **LINDDUN** (privacy: the STRIDE of personal data).\n- **Attack trees** (from the offensive side: break a goal down into\n  attack paths — fits perfectly with the mindset of the offensive\n  rooms).\n\nThe framework matters less than the habit: looking at the system like the\nattacker, on every iteration, with a written record of what was decided.\nEverything else is just picking the checklist.",
       "questions": {
-        "threat-modeling-t02-q01": { "prompt": "What is risk in its classic formulation (the multiplication used by DREAD and most models)?" },
-        "threat-modeling-t02-q02": { "prompt": "What are the 4 possible responses to an identified risk (the classic management quadrant)?" },
-        "threat-modeling-t02-q03": { "prompt": "In which SDLC phase is threat modeling cheapest and most effective?" }
+        "threat-modeling-t02-q01": {
+          "prompt": "What is the classic formulation of risk (the multiplication used by DREAD and almost every model)?",
+          "hint": "It combines how much damage the threat would do with how likely it is to happen. DREAD breaks it down into Damage, Reproducibility, Exploitability, Affected users and Discoverability.",
+          "options": {
+            "a": "Risk = Threat + Vulnerability",
+            "b": "Risk = Cost of the control × Number of assets",
+            "c": "Risk = Impact × Likelihood",
+            "d": "Risk = Likelihood ÷ Impact"
+          }
+        },
+        "threat-modeling-t02-q02": {
+          "prompt": "What are the 4 possible responses to an identified risk (the classic management quadrant)?",
+          "hint": "It's the same framework as in business risk; review the decision table in this task.",
+          "options": {
+            "a": "Mitigate, accept, transfer and avoid",
+            "b": "Detect, contain, eradicate and recover",
+            "c": "Identify, protect, detect and respond",
+            "d": "Scan, exploit, escalate and persist"
+          }
+        },
+        "threat-modeling-t02-q03": {
+          "prompt": "In which SDLC phase is threat modeling cheapest and most effective?",
+          "hint": "Design (before the code): fixing it in design = hours; in production = incidents + patches + reputation"
+        }
       }
     }
   }

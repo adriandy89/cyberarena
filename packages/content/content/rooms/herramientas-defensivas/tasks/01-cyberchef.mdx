@@ -17,8 +17,17 @@ questions:
         label: "Un editor de imágenes"
   - id: herramientas-defensivas-t01-q02
     prompt: "En CyberChef, ¿qué significa encadenar operaciones en 'Recipe'?"
-    hint: "La salida de una alimenta la siguiente."
-    kind: text
+    hint: "Fíjate en el ejemplo: RkxBR3s= → [From Base64] → [ROT13] → FLAG{...}."
+    kind: choice
+    options:
+      - id: a
+        label: "Ejecutar todas las operaciones en paralelo sobre la misma entrada"
+      - id: b
+        label: "Guardar operaciones favoritas en una lista para usarlas más tarde"
+      - id: c
+        label: "La salida de cada operación se usa como entrada de la siguiente"
+      - id: d
+        label: "Aplicar solo la última operación de la lista"
   - id: herramientas-defensivas-t01-q03
     prompt: "Ya sabes base64 y ROT13 de criptografía. ¿Qué operación de CyberChef las combinaría?"
     hint: "Magic lo detecta solo."

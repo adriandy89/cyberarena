@@ -3,49 +3,74 @@
   "description": "Hydra for credentials, Gobuster for directories, sqlmap for SQL injection.",
   "tasks": {
     "1": {
-      "title": "Hydra: brute force",
+      "title": "Hydra: credential brute force",
+      "body": "## The credential hammer\n\nHydra launches login attempts against services (SSH, FTP, HTTP forms, RDP…), trying\ndictionary combinations:\n\n```bash\n# SSH with a fixed user and a password dictionary\nhydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.10.5 ssh\n\n# Web form (note the http-post-form module: login=^USER^&pass=^PASS^:F=incorrecto)\nhydra -l admin -P rockyou.txt 10.10.10.5 http-post-form \\\n  \"/login:user=^USER^&password=^PASS^:Login incorrecto\"\n```\n\n- `-l` single user / `-L` file of users\n- `-p` single password / `-P` file of passwords\n- `^USER^`/`^PASS^` are replaced on every attempt; `:F=mensaje` detects the failure\n\n## When it works (and when it doesn't)\n\nIt works against: dictionary passwords, services with no limit on attempts.\nIt fails against: account lockout, 2FA, rate limiting, long random passwords.\nAs a defender: lockout + rate limit + 2FA kills Hydra.\n\n**Ethics**: brute force ONLY in labs. Against third parties it is illegal, and it also\nlocks out real users' accounts.",
       "questions": {
         "herramientas-ofensivas-t01-q01": {
-          "prompt": "What type of attack does Hydra execute?"
+          "prompt": "What type of attack does Hydra carry out?",
+          "hint": "Trying many passwords/usernames against a login service.",
+          "options": {
+            "a": "SQL code injection",
+            "b": "Dictionary (or brute-force) attack against authentication services",
+            "c": "Port scanning",
+            "d": "Traffic sniffing"
+          }
         },
         "herramientas-ofensivas-t01-q02": {
-          "prompt": "In hydra, what does -P (uppercase) mean?"
+          "prompt": "In 'hydra -l admin -P rockyou.txt ssh://10.10.10.5', what does -P (uppercase) mean?",
+          "hint": "Uppercase = file; lowercase -p = single value."
         }
       }
     },
     "2": {
-      "title": "Gobuster",
+      "title": "Gobuster: uncovering what is hidden",
+      "body": "## Looking over ffuf's shoulder\n\nYou already know ffuf (web module). **Gobuster** is the classic alternative, with its own\nsyntax:\n\n```bash\ngobuster dir -u http://10.10.10.5 -w /usr/share/wordlists/dirb/common.txt\n# useful flags: -x php,html,txt (extensions) -t 50 (threads) -s 200,301,302,403\n```\n\n- **dir**: brute-forces paths (`/admin`, `/backup.zip`…)\n- **dns**: brute-forces subdomains (`gobuster dns -d victima.com -w subdominios.txt`)\n- **vhost**: brute-forces virtual hosts\n\n## Reading the results\n\n| Code | What it means for you |\n|---|---|\n| 200 | exists and is accessible |\n| 301/302 | redirect (follow it with -u and a trailing slash) |\n| **403** | it EXISTS but it's forbidden! — a bypass target |\n| 404 | doesn't exist |\n\nA 403 deserves attention: sometimes you can bypass it by changing headers (`X-Forwarded-For`),\ntrying uppercase letters or appending `/.` after the path. Those techniques are practiced in the\nJr Pentester path.\n\n## Operational hygiene\n\nFuzzing generates a LOT of noise in the logs — a defender spots it in seconds. In real\nengagements the time window and the request rate are agreed with the client. In labs: go for it.",
       "questions": {
         "herramientas-ofensivas-t02-q01": {
-          "prompt": "Which Gobuster mode brute-forces directories?"
+          "prompt": "Which Gobuster mode brute-forces web directories and files?",
+          "hint": "It's the default mode: gobuster dir."
         },
         "herramientas-ofensivas-t02-q02": {
-          "prompt": "What HTTP code indicates a protected directory?"
+          "prompt": "Which HTTP code usually indicates a protected directory (it exists but you can't see it)?",
+          "hint": "Forbidden."
         }
       }
     },
     "3": {
-      "title": "sqlmap",
+      "title": "sqlmap: automated SQL injection",
+      "body": "## From a 500 error to the entire database\n\nYou already know how to detect SQLi by hand (`' OR 1=1--`). **sqlmap** automates the full\nexploitation: it enumerates databases, tables and columns, and dumps the data.\n\n```bash\n# Vulnerable parameter in the URL (note the trailing quote of the id=1 parameter)\nsqlmap -u \"http://10.10.10.5/producto?id=1\" --batch\n\n# Progressive steps\nsqlmap -u URL --dbs                 # list databases\nsqlmap -u URL -D tienda --tables    # tables of a database\nsqlmap -u URL -D tienda -T users --dump   # data!\nsqlmap -u URL --os-shell            # try to get an OS shell (maximum damage)\n```\n\nWith `--batch` it answers its prompts with the defaults (useful in labs).\n\n## Order matters\n\nIn a real pentest: (1) you find the injection point BY HAND with Burp, (2) you understand\nwhich parameter and which context, (3) ONLY then do you automate. Running sqlmap blindly against\na whole website generates noise, can take the app down, and makes you miss findings that manual\nreasoning uncovers.\n\nSQL injection is explained in depth in the OWASP Top 10 module and in the Jr\nPentester path — with dedicated labs. Here you take away the map: unvalidated input\n→ manipulated query → compromised database.",
       "questions": {
         "herramientas-ofensivas-t03-q01": {
-          "prompt": "What sqlmap option dumps a table?"
+          "prompt": "Which sqlmap option dumps the data of a specific table?",
+          "hint": "--dump with -D database -T table."
         },
         "herramientas-ofensivas-t03-q02": {
-          "prompt": "What sqlmap flag gets an OS shell?"
+          "prompt": "Which sqlmap flag tries to get an operating system shell (--os-...)?",
+          "hint": "Operating system."
         },
         "herramientas-ofensivas-t03-q03": {
-          "prompt": "Before automating SQLi, what should you ALWAYS do?"
+          "prompt": "Before automating SQLi with sqlmap, what should you ALWAYS do?",
+          "hint": "Understand the vulnerable parameter manually first.",
+          "options": {
+            "a": "Nothing: sqlmap finds everything on its own",
+            "b": "Confirm the injection by hand (quote, error) and pin down the parameter",
+            "c": "Upload an antivirus",
+            "d": "Reboot the server"
+          }
         }
       }
     },
     "4": {
-      "title": "Lab: hydra",
+      "title": "Lab: brute force with hydra",
+      "body": "## Practice: hydra against a real login\n\n```bash\n# Verify directly (if you know the password):\ncurl \"http://127.0.0.1:18090/login?username=admin&password=summer2014\"\n\n# With hydra (GET form):\nhydra -l admin -P /usr/share/wordlists/rockyou.txt 127.0.0.1 -s 18090 \\\n  http-get-form \"/login:username=^USER^&password=^PASS^:incorrect\"\n\n# With ffuf:\nffuf -w rockyou.txt -u \"http://127.0.0.1:18090/login?username=admin&password=FUZZ\" -fc 401\n```\n\nThe passwords in this lab are in the top 100 of rockyou.txt. That's the lesson:\nif your password is in a dictionary, a brute-force attack finds it\nin seconds.",
       "questions": {
         "herramientas-ofensivas-t04-q01": {
-          "prompt": "Brute force admin and submit the flag."
+          "prompt": "Brute-force the password of the 'admin' user and submit the flag.",
+          "hint": "curl the lab: try summer2014 directly, or use hydra against the GET form"
         },
         "herramientas-ofensivas-t04-q02": {
-          "prompt": "The svc_backup password is changeme. Submit its flag."
+          "prompt": "The service account 'svc_backup' has the weakest password of all (changeme). Submit its flag.",
+          "hint": "curl 'http://LAB/login?username=svc_backup&password=changeme'"
         }
       }
     }

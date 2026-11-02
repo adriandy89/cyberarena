@@ -17,8 +17,17 @@ questions:
         label: "Solo hace backups"
   - id: seguridad-soluciones-t01-q02
     prompt: "En un SIEM, ¿qué es una 'regla de correlación'?"
-    hint: "Lógica que une eventos sueltos en un incidente."
-    kind: text
+    hint: "Recuerda el ejemplo: 100 fallos de login + un login exitoso + acceso a shares raros = «fuerza bruta con éxito»."
+    kind: choice
+    options:
+      - id: a
+        label: "Una regla de firewall que permite o deniega tráfico por IP y puerto"
+      - id: b
+        label: "Una firma que identifica un único paquete malicioso conocido"
+      - id: c
+        label: "Una política que decide cuánto tiempo se conservan los logs"
+      - id: d
+        label: "Lógica que une varios eventos sueltos en un único incidente y genera una alerta"
 ---
 
 ## Del caos de logs a la alerta accionable
