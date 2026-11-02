@@ -9,6 +9,9 @@
     - escribir un README profesional **en inglés**, por secciones y con la captura de `docs/assets`, que explique el despliegue local paso a paso;
     - avisar cuando todo esté listo. El cambio de visibilidad del repositorio lo hace el usuario.
   - 2026-11-02 cerrada: listo para publicar (registro en `tasks.md`). Quedan para el usuario las decisiones del §4.
+  - 2026-11-02 el usuario renombró el repositorio a `adriandy89/cyberarena` (§4). Se actualizaron los badges y los
+    `git clone` del README y del kit LAN, `repository`/`bugs` en `package.json`, el remoto local y el del
+    clon del mini PC.
 
 ## 1. Propósito
 

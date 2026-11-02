@@ -6,8 +6,8 @@
 Guided learning paths, interactive rooms with flags, gamified progress and isolated Docker labs that start
 on demand from the browser.
 
-[![CI](https://github.com/adriandy89/tryhackme/actions/workflows/ci.yml/badge.svg)](https://github.com/adriandy89/tryhackme/actions/workflows/ci.yml)
-[![E2E](https://github.com/adriandy89/tryhackme/actions/workflows/e2e.yml/badge.svg)](https://github.com/adriandy89/tryhackme/actions/workflows/e2e.yml)
+[![CI](https://github.com/adriandy89/cyberarena/actions/workflows/ci.yml/badge.svg)](https://github.com/adriandy89/cyberarena/actions/workflows/ci.yml)
+[![E2E](https://github.com/adriandy89/cyberarena/actions/workflows/e2e.yml/badge.svg)](https://github.com/adriandy89/cyberarena/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-22%2B-339933?logo=node.js&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-compose-2496ED?logo=docker&logoColor=white)
@@ -111,7 +111,7 @@ You only need Docker. The code is mounted into the containers with hot reload.
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/adriandy89/tryhackme.git cyberarena
+   git clone https://github.com/adriandy89/cyberarena.git
    cd cyberarena
    ```
 
@@ -162,7 +162,7 @@ Windows and macOS.
 1. **Clone, install and configure**
 
    ```bash
-   git clone https://github.com/adriandy89/tryhackme.git cyberarena
+   git clone https://github.com/adriandy89/cyberarena.git
    cd cyberarena
    corepack enable
    pnpm install

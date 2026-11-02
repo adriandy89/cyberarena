@@ -22,7 +22,7 @@ puerto y reenvía `/api` a la api por la red interna del proyecto.
 
 ```bash
 mkdir -p ~/cyberarena/stack
-git clone https://github.com/adriandy89/tryhackme.git ~/cyberarena/repo
+git clone https://github.com/adriandy89/cyberarena.git ~/cyberarena/repo
 ln -s ~/cyberarena/repo/infra/stacks/lan/cyberarena.sh ~/cyberarena/stack/cyberarena.sh
 cd ~/cyberarena/stack
 ./cyberarena.sh init          # detecta la IP de la LAN; o: ./cyberarena.sh init 192.168.1.20

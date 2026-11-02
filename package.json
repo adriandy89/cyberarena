@@ -4,6 +4,13 @@
   "private": true,
   "description": "Open-source, self-hosted cybersecurity learning platform: guided paths, rooms with flags, on-demand Docker labs and gamification. Bilingual (ES/EN).",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adriandy89/cyberarena.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adriandy89/cyberarena/issues"
+  },
   "packageManager": "pnpm@11.18.0",
   "engines": {
     "node": ">=22.0.0"
