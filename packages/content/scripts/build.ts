@@ -21,6 +21,7 @@ import { sortPathsByOrder } from '../src/catalog-order';
 import {
   applyCatalogTranslation,
   applyRoomTranslation,
+  translationGaps,
   type CatalogTranslation,
   type RoomTranslation,
 } from '../src/translations';
@@ -30,6 +31,18 @@ const CONTENT = path.join(ROOT, 'content');
 const PRIVATE = path.join(ROOT, 'private');
 const TRANSLATIONS = path.join(ROOT, 'translations');
 const DIST = path.join(ROOT, 'dist');
+
+// CLI flags:
+//   --dry-run              validate everything, write nothing (safe for parallel checks)
+//   --en-report[=a,b]      list missing EN items for every room (or only those slugs)
+//   --strict-en            fail when any EN item is missing
+const ARGS = process.argv.slice(2);
+const DRY_RUN = ARGS.includes('--dry-run');
+const STRICT_EN = ARGS.includes('--strict-en');
+const EN_REPORT_ARG = ARGS.find((arg) => arg.startsWith('--en-report'));
+const EN_REPORT: string[] | null = EN_REPORT_ARG
+  ? (EN_REPORT_ARG.split('=')[1] ?? '').split(',').filter(Boolean)
+  : null;
 
 interface ParseError {
   file: string;
@@ -209,13 +222,30 @@ async function main(): Promise<void> {
     for (const warning of warnings) console.warn(`  ! ${warning}`);
   }
 
-  await mkdir(DIST, { recursive: true });
-  await writeFile(path.join(DIST, 'catalog.json'), JSON.stringify(catalog, null, 2), 'utf8');
-  // answers.json is seed-only (gitignored, never imported by web code — ADR-010).
-  await writeFile(path.join(DIST, 'answers.json'), JSON.stringify(answers, null, 2), 'utf8');
+  // --- EN coverage (spec 107): what each room still lacks in English ---
+  const enTranslations = await loadTranslations('en');
+  const gapsByRoom = new Map<string, string[]>();
+  for (const room of compiledPaths.flatMap((p) => p.modules.flatMap((m) => m.rooms))) {
+    const gaps = translationGaps(room, enTranslations[room.slug]);
+    if (gaps.length > 0) gapsByRoom.set(room.slug, gaps);
+  }
+  const gapCount = [...gapsByRoom.values()].reduce((sum, gaps) => sum + gaps.length, 0);
+  if (EN_REPORT) {
+    for (const slug of EN_REPORT.length > 0 ? EN_REPORT : [...gapsByRoom.keys()]) {
+      const gaps = gapsByRoom.get(slug);
+      console.log(`  [en] ${slug}: ${gaps ? gaps.join(', ') : 'OK'}`);
+    }
+  }
+  if (gapCount > 0) {
+    const summary = `EN coverage: ${gapCount} missing item(s) in ${gapsByRoom.size} room(s)`;
+    if (STRICT_EN) {
+      console.error(`content build FAILED: ${summary} (see --en-report)`);
+      process.exit(1);
+    }
+    console.warn(`content build: ${summary} (details: --en-report[=slug,...])`);
+  }
 
   // --- EN catalog (merge translations) ---
-  const enTranslations = await loadTranslations('en');
   const catalogEn = JSON.parse(JSON.stringify(catalog)) as Catalog;
   // Paths and modules are translated from _catalog.json; a missing entry fails the build.
   const missingEn = applyCatalogTranslation(catalogEn, await loadCatalogTranslation('en'));
@@ -231,6 +261,16 @@ async function main(): Promise<void> {
       }
     }
   }
+
+  if (DRY_RUN) {
+    console.log('content check OK (dry run: nothing written to dist/)');
+    return;
+  }
+
+  await mkdir(DIST, { recursive: true });
+  await writeFile(path.join(DIST, 'catalog.json'), JSON.stringify(catalog, null, 2), 'utf8');
+  // answers.json is seed-only (gitignored, never imported by web code — ADR-010).
+  await writeFile(path.join(DIST, 'answers.json'), JSON.stringify(answers, null, 2), 'utf8');
   await writeFile(path.join(DIST, 'catalog-en.json'), JSON.stringify(catalogEn, null, 2), 'utf8');
 
   const roomCount = referencedRooms.size;

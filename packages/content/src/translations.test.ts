@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCatalogTranslation } from './translations';
+import { applyCatalogTranslation, applyRoomTranslation, translationGaps } from './translations';
 
 function catalog() {
   return {
@@ -43,5 +43,90 @@ describe('applyCatalogTranslation', () => {
     });
     expect(missing).toEqual(['path:cs101', 'module:m2']);
     expect(data.paths[0]!.title).toBe('CS101 ES');
+  });
+});
+
+describe('applyRoomTranslation options', () => {
+  it('translates choice labels by option id and keeps the ids', () => {
+    const room = {
+      title: 'ES',
+      description: 'ES',
+      tasks: [
+        {
+          index: 1,
+          title: 'T',
+          body: 'cuerpo',
+          questions: [
+            {
+              id: 'r-t01-q01',
+              prompt: '¿?',
+              hint: 'pista',
+              options: [
+                { id: 'a', label: 'Uno' },
+                { id: 'b', label: 'Dos' },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    applyRoomTranslation(room, {
+      tasks: {
+        '1': { body: 'body', questions: { 'r-t01-q01': { hint: 'hint', options: { a: 'One' } } } },
+      },
+    });
+    const question = room.tasks[0]!.questions[0]!;
+    expect(room.tasks[0]!.body).toBe('body');
+    expect(question.hint).toBe('hint');
+    expect(question.options).toEqual([
+      { id: 'a', label: 'One' },
+      { id: 'b', label: 'Dos' },
+    ]);
+  });
+});
+
+describe('translationGaps', () => {
+  const room = {
+    title: 'ES',
+    description: 'ES',
+    tasks: [
+      {
+        index: 1,
+        questions: [
+          { id: 'r-t01-q01', prompt: 'p', hint: 'pista', options: [{ id: 'a', label: 'x' }] },
+          { id: 'r-t01-q02', prompt: 'p', hint: null },
+        ],
+      },
+    ],
+  };
+
+  it('lists every missing EN item', () => {
+    expect(translationGaps(room, { title: 'EN', tasks: { '1': { title: 'T' } } })).toEqual([
+      'description',
+      't1.body',
+      't1.q01.prompt',
+      't1.q01.hint',
+      't1.q01.option:a',
+      't1.q02.prompt',
+    ]);
+  });
+
+  it('is empty for a complete translation (no hint needed when the source has none)', () => {
+    expect(
+      translationGaps(room, {
+        title: 'EN',
+        description: 'EN',
+        tasks: {
+          '1': {
+            title: 'T',
+            body: 'B',
+            questions: {
+              'r-t01-q01': { prompt: 'P', hint: 'H', options: { a: 'X' } },
+              'r-t01-q02': { prompt: 'P' },
+            },
+          },
+        },
+      }),
+    ).toEqual([]);
   });
 });

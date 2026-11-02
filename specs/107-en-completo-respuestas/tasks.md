@@ -5,7 +5,7 @@
 ## Fase A — Specs y formato
 
 - [x] T001 spec + tasks 107; ROADMAP (fila 107).
-- [ ] T002 [US1,US3] Formato EN con `options`, informe de cobertura (`build --en-report`,
+- [x] T002 [US1,US3] Formato EN con `options`, informe de cobertura (`build --en-report`,
       `--dry-run`) + tests.
 - [ ] T003 [US2] Respuestas con alternativas: YAML lista → `answers.json` string[], migración
       `Answer.altHashes`, seed, API acepta cualquiera, validador de `choice` + tests.

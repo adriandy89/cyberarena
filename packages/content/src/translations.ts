@@ -17,6 +17,8 @@ export interface RoomTranslation {
         {
           prompt?: string;
           hint?: string | null;
+          /** Choice labels by option id (a-e); ids never change. */
+          options?: Record<string, string>;
         }
       >;
     }
@@ -25,6 +27,13 @@ export interface RoomTranslation {
 
 export interface ContentTranslations {
   [locale: string]: Record<string, RoomTranslation>; // [locale][roomSlug]
+}
+
+interface TranslatableQuestion {
+  id: string;
+  prompt: string;
+  hint: string | null;
+  options?: Array<{ id: string; label: string }>;
 }
 
 /**
@@ -39,7 +48,7 @@ export function applyRoomTranslation(
       index: number;
       title: string;
       body: string;
-      questions: Array<{ id: string; prompt: string; hint: string | null }>;
+      questions: Array<TranslatableQuestion>;
     }>;
   },
   translation: RoomTranslation | undefined,
@@ -58,6 +67,12 @@ export function applyRoomTranslation(
       const qT = taskT.questions?.[question.id];
       if (!qT) continue;
       if (qT.prompt) question.prompt = qT.prompt;
+      if (qT.options && question.options) {
+        question.options = question.options.map((option) => ({
+          ...option,
+          label: qT.options?.[option.id] ?? option.label,
+        }));
+      }
       if (qT.hint !== undefined) question.hint = qT.hint;
     }
   }
@@ -115,4 +130,38 @@ export function applyCatalogTranslation(
     }
   }
   return missing;
+}
+
+/**
+ * Lists what a room still lacks in a translation (spec 107): room texts,
+ * task title/body, and per question prompt, hint (when the source has one)
+ * and every choice label. Keys look like `t2.body` or `t1.q03.option:b`.
+ */
+export function translationGaps(
+  room: {
+    title: string;
+    description: string;
+    tasks: Array<{ index: number; questions: Array<TranslatableQuestion> }>;
+  },
+  translation: RoomTranslation | undefined,
+): string[] {
+  const gaps: string[] = [];
+  if (!translation?.title) gaps.push('title');
+  if (!translation?.description) gaps.push('description');
+  for (const task of room.tasks) {
+    const key = `t${task.index}`;
+    const taskT = translation?.tasks?.[String(task.index)];
+    if (!taskT?.title) gaps.push(`${key}.title`);
+    if (!taskT?.body) gaps.push(`${key}.body`);
+    task.questions.forEach((question, index) => {
+      const qKey = `${key}.q${String(index + 1).padStart(2, '0')}`;
+      const qT = taskT?.questions?.[question.id];
+      if (!qT?.prompt) gaps.push(`${qKey}.prompt`);
+      if (question.hint && !qT?.hint) gaps.push(`${qKey}.hint`);
+      for (const option of question.options ?? []) {
+        if (!qT?.options?.[option.id]) gaps.push(`${qKey}.option:${option.id}`);
+      }
+    });
+  }
+  return gaps;
 }
