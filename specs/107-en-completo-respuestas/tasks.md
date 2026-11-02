@@ -14,7 +14,7 @@
 
 - [ ] T004 [US1,US2] Lote CS101-I: intro-ciberseguridad-ofensiva, recon-web-basico, linux-fundamentos-1/2/3,
       redes-fundamentos, seguridad-wireless, redes-wireshark, windows-fundamentos-1.
-- [ ] T005 [US1,US2] Lote CS101-II: active-directory-basico, linea-de-comandos-windows, criptografia-basica,
+- [x] T005 [US1,US2] Lote CS101-II: active-directory-basico, linea-de-comandos-windows, criptografia-basica,
       steganography, criptografia-pki, web-hacking-basico, owasp-top-10, explotacion-basica, reverse-engineering.
 - [x] T006 [US1,US2] Lote CS101-III: herramientas-ofensivas, defensa-introduccion, phishing-forensics,
       threat-modeling, seguridad-soluciones, herramientas-defensivas, malware-analysis, ciberseguridad-como-carrera.

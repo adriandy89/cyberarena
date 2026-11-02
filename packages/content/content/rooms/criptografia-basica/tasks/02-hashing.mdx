@@ -21,8 +21,17 @@ questions:
     kind: text
   - id: criptografia-basica-t02-q03
     prompt: "¿Por qué las contraseñas se guardan hasheadas y NO cifradas?"
-    hint: "No hace falta recuperarlas, solo verificarlas."
-    kind: text
+    hint: "Piensa en qué hace el login: ¿necesita conocer la contraseña original o le basta con compararla?"
+    kind: choice
+    options:
+      - id: a
+        label: "Porque hashear siempre es más rápido que cifrar"
+      - id: b
+        label: "Porque el cifrado no funciona con textos cortos"
+      - id: c
+        label: "Porque solo hay que verificarlas, nunca recuperar la original"
+      - id: d
+        label: "Porque un hash ocupa menos espacio que la contraseña"
 ---
 
 ## Hash ≠ cifrado

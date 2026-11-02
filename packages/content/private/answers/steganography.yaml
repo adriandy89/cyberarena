@@ -4,4 +4,7 @@
 steganography-t01-q01: FLAG{lsb_pixels_dont_lie}
 steganography-t01-q02: FLAG{jpeg_comment_segment}
 steganography-t02-q01: FLAG{data_after_iend}
-steganography-t02-q02: IEND
+steganography-t02-q02:
+  - IEND
+  - "49 45 4E 44"
+  - "49454E44"

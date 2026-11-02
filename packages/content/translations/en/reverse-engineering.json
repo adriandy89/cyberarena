@@ -4,10 +4,20 @@
   "tasks": {
     "1": {
       "title": "Levels 1-3: strings, zlib and XOR",
+      "body": "## Level 1: the baseline\n\n```bash\ncurl -O http://127.0.0.1:18111/level1.sh\nstrings level1.sh | grep -i \"hash\\|flag\\|key\"\n# CONFIG_HASH=\"RkxBR3tzdHJpbmdzX2Jhc2VsaW5lX3JlfQ==\"\necho \"RkxBR3tz...\" | base64 -d\n```\n\n`strings` extracts everything printable from the binary. 80% of early\nreversing is exactly this: hardcoded passwords, C2 URLs, paths, tokens.\nBefore opening a disassembler, ALWAYS run strings.\n\n## Level 2: the layer you have to peel\n\nThe script runs and says \"nothing to see here\". The trick is in the\npayload it never executes:\n\n```bash\ncurl -O http://127.0.0.1:18111/level2.py\npython3 -c \"\nimport re, base64, zlib\nblob = re.search(r'_PAYLOAD = \\\"([^\\\"]+)\\\"', open('level2.py').read()).group(1)\nprint(zlib.decompress(base64.b64decode(blob)).decode())\n\"\n```\n\nReal malware packs its stages like this: base64 → zlib → XOR → sometimes\nseveral rounds. Each layer is peeled off in the reverse order it was applied. In\nCTFs, the zlib magic (`78 9c`) in a dump is the sign that it's time to\ndecompress.\n\n## Level 3: XOR in the ELF\n\n```bash\ncurl -O http://127.0.0.1:18111/level3.bin\nfile level3.bin          # ELF 64-bit\nxxd level3.bin | head -4 # look at the real header\n```\n\n`strings` can't see the flag because it's XORed. A single-byte XOR has\n256 possible keys — you brute-force it in a second:\n\n```python\ndata = open('level3.bin','rb').read()\nfor key in range(256):\n    dec = bytes(b ^ key for b in data)\n    if b'FLAG{' in dec:\n        print(f'key=0x{key:02x}:', dec[dec.index(b\"FLAG{\"):].split(b\"}\")[0].decode() + \"}\")\n```\n\nThis single-byte XOR brute force solves more CTFs than anyone will\nadmit. When the key is multi-byte, you move on to frequency analysis\nor to hunting for the key material in .data (the cryptography room's prologue\napplies directly).\n\n## The kit you'll build up\n\nstrings → xxd/od → python one-liners → objdump/readelf (sections,\nsymbols) → ltrace/strace (what it calls) → gdb (breakpoints) → Ghidra\n(decompiling). Each level of this room is one rung on that ladder.",
       "questions": {
-        "reverse-engineering-t01-q01": { "prompt": "Download level1.sh. A perfectly normal healthcheck with an odd CONFIG_HASH. Submit the flag." },
-        "reverse-engineering-t01-q02": { "prompt": "level2.py runs without errors and prints nothing useful. The compressed _PAYLOAD hides the flag. Submit it." },
-        "reverse-engineering-t01-q03": { "prompt": "level3.bin is a real ELF (magic 7f 45 4c 46). Its .data section stores the flag XORed with one byte. Submit it." }
+        "reverse-engineering-t01-q01": {
+          "prompt": "Download level1.sh. A perfectly normal healthcheck with an odd CONFIG_HASH. Submit the flag.",
+          "hint": "curl -O http://127.0.0.1:18111/level1.sh && strings level1.sh | grep CONFIG — then base64 -d"
+        },
+        "reverse-engineering-t01-q02": {
+          "prompt": "level2.py runs without errors and prints nothing useful. The compressed _PAYLOAD hides the flag. Submit it.",
+          "hint": "import zlib, base64; zlib.decompress(base64.b64decode(blob)) — running the script does NOT reveal it: you have to read the code"
+        },
+        "reverse-engineering-t01-q03": {
+          "prompt": "level3.bin is a real ELF (magic 7f 45 4c 46). Its .data section stores the flag XORed with one byte. Submit it.",
+          "hint": "python: bytes(b ^ 0x5A for b in open('level3.bin','rb').read()) and look for FLAG{ — why 0x5A? try it, or brute-force the byte with a 1..255 loop"
+        }
       }
     }
   }

@@ -3,7 +3,7 @@ index: 3
 title: "Romper contraseñas y jugar con codificaciones"
 questions:
   - id: criptografia-basica-t03-q01
-    prompt: "¿Qué herramienta de diccionario convierte listas de contraseñas contra hashes (la de 'John')?"
+    prompt: "¿Qué herramienta clásica de cracking prueba listas de contraseñas (diccionarios) contra hashes?"
     hint: "John the Ripper."
     kind: text
   - id: criptografia-basica-t03-q02
@@ -37,7 +37,7 @@ john --show hash.txt
 ```
 
 Su primo `hashcat` usa la GPU (más rápido). El rey de los diccionarios:
-`rockyou.txt` (14M de contraseñas reales filtradas en 2006). Moraleja defensiva:
+`rockyou.txt` (14M de contraseñas reales filtradas en 2009). Moraleja defensiva:
 las contraseñas de diccionario CAEN; la longitud manda.
 
 ## Codificación ≠ cifrado (error de novato)

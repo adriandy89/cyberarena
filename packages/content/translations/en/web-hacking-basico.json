@@ -4,51 +4,83 @@
   "tasks": {
     "1": {
       "title": "Anatomy of a web application",
+      "body": "## The three layers of any website\n\n- **Frontend** (YOUR browser): HTML for structure, CSS for style, JavaScript for behavior.\n  All of that code is ON YOUR MACHINE — you can read it, modify it and disable it.\n- **Backend** (the server): receives requests, queries the DB, makes decisions. You CAN'T\n  read its code… you can only infer it from how it responds.\n- **Database**: where the data lives (users, orders…).\n\n## The web hacker's tool #1: DevTools\n\nOn any page: `F12` (or Ctrl+Shift+I).\n\n- **Elements**: the live HTML — this is where forgotten comments show up\n  (`<!-- TODO: quitar admin.php -->`) and sometimes… flags.\n- **Network**: every request and response (XHR/fetch included).\n- **Console**: run JavaScript on the page; the developer's error\n  messages give away internal routes and variables.\n\nTry it NOW on any website: right-click → \"View page source\"\n(Ctrl+U) and search for `TODO`, `password` or `secret`. That habit will stay with you\nfor your whole career.\n\n## The change of mindset\n\nA regular user SEES a website. A web hacker sees: forms I can tamper with,\nURL parameters the server might not validate, JS code that reveals internal\nendpoints (`/api/admin/users`), cookies I can read… Everything that reaches your\nbrowser is YOURS to inspect.",
       "questions": {
         "web-hacking-basico-t01-q01": {
-          "prompt": "Where does JavaScript execute?"
+          "prompt": "Where does a website's frontend JavaScript run?",
+          "hint": "Open DevTools: that Scripts tab runs on YOUR machine.",
+          "options": {
+            "a": "On the web server, before the page is sent",
+            "b": "In the database",
+            "c": "In the client's browser",
+            "d": "On the DNS server"
+          }
         },
         "web-hacking-basico-t01-q02": {
-          "prompt": "What keyboard shortcut opens DevTools?"
+          "prompt": "What keyboard shortcut opens DevTools?",
+          "hint": "A single function key."
         }
       }
     },
     "2": {
       "title": "Your first bug",
+      "body": "## The bug that never dies\n\nA real scenario: a form tells you \"price: 10€\", with JavaScript that stops you from\nchanging it. The attacker:\n\n1. Opens DevTools → Network.\n2. Submits the form normally.\n3. Right-clicks the request → \"Copy as fetch\" — and EDITS the body:\n   `precio=1` (or even `precio=-100`!).\n4. Pastes it into the Console and hits Enter.\n\nIf the server does NOT revalidate, they just bought it for 1€. The rule that follows (and that\nyou'll see in OWASP): **every security validation must be repeated on the server**.\nWhatever runs on the client, the attacker controls.\n\n## Discovering what they don't show you\n\nBeyond the visible form, every website has unlinked routes:\n`/admin`, `/backup.zip`, `/.git/config`…\n\n```bash\n# Directory fuzzing with ffuf (classic wordlist):\nffuf -w /usr/share/wordlists/dirb/common.txt -u http://LAB/FUZZ\n# gobuster dir -u http://LAB -w common.txt   (alternative)\n```\n\nThe `FUZZ` placeholder is replaced by each word in the wordlist: routes that\nexist respond differently (200/301/403) from those that don't (404). This technique, combined\nwith what you learned about robots.txt in the web-recon-1 lab, is the basic \"content discovery\"\nof every web engagement.",
       "questions": {
         "web-hacking-basico-t02-q01": {
-          "prompt": "Why is JS-only validation a flaw?"
+          "prompt": "Why is relying on validation done ONLY with JavaScript in the browser a security flaw?",
+          "hint": "Who controls what runs in your browser?",
+          "options": {
+            "a": "Because JavaScript is slow",
+            "b": "The attacker controls their own browser: they can disable it or send the tampered request straight to the server",
+            "c": "Because it doesn't work on mobile",
+            "d": "It isn't a flaw if there's HTTPS"
+          }
         },
         "web-hacking-basico-t02-q02": {
-          "prompt": "What wildcard is used for directory brute force?"
+          "prompt": "In ffuf, which keyword (placeholder) in the URL gets replaced by each wordlist entry?",
+          "hint": "It's in uppercase at the end of the example URL: http://LAB/____"
         }
       }
     },
     "3": {
       "title": "Burp Suite",
+      "body": "## The proxy that sees everything\n\nBurp Suite (the Community edition is enough to learn) sits IN THE MIDDLE:\n\n```text\nBrowser ──► Burp (127.0.0.1:8080) ──► Server\n```\n\nConfigure the browser's proxy (or use FoxyProxy) and from then on:\n\n- **Proxy > Intercept**: freezes every request. Edit it (change the price, the\n  parameter, the cookie) and Forward. You no longer need \"copy as fetch\": full control.\n- **HTTP History**: everything that has gone through, ready to replay (Repeater).\n- **Repeater**: sends ONE request N times with tweaks — the web hacker's workshop.\n\n## The rest of the arsenal (you'll use it in the Jr Pentester path)\n\n- **Intruder**: automates lists (users, IDs, payloads) against a parameter.\n- **Decoder**: base64/hex/URL in an instant.\n- **Comparer**: diffs two responses (how does the admin's differ from the user's?).\n\nWith DevTools you LOOK; with Burp you TOUCH. In Jr Penetration Tester you'll master it (the\nBurp Suite module) and in Web Application Pentesting you'll attack vulnerable labs with it\n(SQLi, XSS…) — this foundation is enough to start playing in the CyberArena labs\ntoday.",
       "questions": {
         "web-hacking-basico-t03-q01": {
-          "prompt": "What Burp mode pauses each request?"
+          "prompt": "What is the Burp mode that pauses every request so you can edit it before it is sent called?",
+          "hint": "Intercept ON/OFF."
         },
         "web-hacking-basico-t03-q02": {
-          "prompt": "What Burp module automates attacks?"
+          "prompt": "Which Burp module automates attacks with lists of values on a parameter (the brute-force artillery)?",
+          "hint": "It starts with I."
         },
         "web-hacking-basico-t03-q03": {
-          "prompt": "Burp vs DevTools: what advantage?"
+          "prompt": "Burp acts as a proxy between your browser and the server. What advantage does it give you over DevTools?",
+          "hint": "DevTools only SEES; Burp also…",
+          "options": {
+            "a": "It loads pages faster",
+            "b": "It lets you INTERCEPT and MODIFY requests and responses before they arrive (both ways)",
+            "c": "Wait, can DevTools modify them too?",
+            "d": "None: they do the same thing"
+          }
         }
       }
     },
     "4": {
       "title": "Lab: discover hidden content",
+      "body": "## Practice: content discovery against the lab\n\n```bash\n# Fuzzing with gobuster:\ngobuster dir -u http://127.0.0.1:18089 -w /usr/share/wordlists/dirb/common.txt\n\n# Or by hand (robots.txt already gives you clues):\ncurl http://127.0.0.1:18089/robots.txt\n# Disallow: /admin\n# Disallow: /backup\n# Disallow: /dev\n```\n\n```bash\n# Follow the /dev redirect:\ncurl -L http://127.0.0.1:18089/dev\n```\n\nrobots.txt, directory listing and redirects are the three techniques you've just practiced\nagainst a real server. In a pentest, this discovery takes 30 seconds and can\nreveal admin panels, backups and development environments.",
       "questions": {
         "web-hacking-basico-t04-q01": {
-          "prompt": "Find the admin panel (200 on /admin). Submit its flag."
+          "prompt": "Find the admin panel (200 on /admin). Submit its flag.",
+          "hint": "curl http://127.0.0.1:18089/admin"
         },
         "web-hacking-basico-t04-q02": {
-          "prompt": "Submit the flag from /backup/db.sql."
+          "prompt": "Submit the flag from /backup/db.sql.",
+          "hint": "curl http://127.0.0.1:18089/backup/db.sql"
         },
         "web-hacking-basico-t04-q03": {
-          "prompt": "/dev redirects (301). Follow it (curl -L). Submit the flag."
+          "prompt": "/dev redirects (301). Follow it (curl -L). Submit the flag.",
+          "hint": "curl -L http://127.0.0.1:18089/dev"
         }
       }
     }

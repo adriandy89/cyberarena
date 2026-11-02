@@ -2,20 +2,77 @@
   "title": "Active Directory Basics: the kingdom you'll conquer",
   "description": "What a domain is, the Domain Controller, users/groups and how Kerberos authenticates: the corporate forest map.",
   "tasks": {
-    "1": { "title": "Domains and the Domain Controller", "questions": {
-      "active-directory-basico-t01-q01": { "prompt": "What is the server that stores and manages the Active Directory database called?" },
-      "active-directory-basico-t01-q02": { "prompt": "In the user 'ANA@corp.local', which part is the domain?" },
-      "active-directory-basico-t01-q03": { "prompt": "What organizational units structure users and computers within the domain?" }
-    }},
-    "2": { "title": "Groups that matter (and why you'll want them)", "questions": {
-      "active-directory-basico-t02-q01": { "prompt": "Which group has full control over ALL domain controllers?" },
-      "active-directory-basico-t02-q02": { "prompt": "What is the built-in local administrator account on EVERY Windows machine called?" },
-      "active-directory-basico-t02-q03": { "prompt": "What does a 'ticket' represent in Kerberos authentication?" }
-    }},
-    "3": { "title": "Your first look inside AD", "questions": {
-      "active-directory-basico-t03-q01": { "prompt": "Which directory protocol does Active Directory use?" },
-      "active-directory-basico-t03-q02": { "prompt": "Which Windows command-line tool queries AD (e.g. to list domain users)?" },
-      "active-directory-basico-t03-q03": { "prompt": "What does DNS in an AD domain record besides names (key for finding controllers)?" }
-    }}
+    "1": {
+      "title": "Domains and the Domain Controller",
+      "body": "## From chaos to a domain\n\nWithout AD: every machine has its own local users (workgroup) — unmanageable at scale.\nWith AD: a **domain** (e.g. `corp.local`) centralizes identities. A domain\nuser signs in on ANY authorized machine: one identity, many machines.\n\n## The DC: the crown jewel\n\nThe **Domain Controller (DC)** stores the NTDS.dit database (every\nuser and every hash) and answers authentication requests. Compromising the DC = compromising the whole\ndomain. That's why in AD labs your end goal is always to reach the DC.\n\n## The hierarchy\n\n```text\nForest                  ← security boundary\n└── Domain corp.local\n    ├── OU=Madrid\n    │   ├── users, computers, groups\n    │   └── applied GPOs\n    └── OU=Barcelona\n```\n\n**OUs** group objects so you can delegate and apply **GPOs** (Group Policy Objects:\npolicies the DC pushes to the machines — settings, restrictions, startup\nscripts… and sometimes cleartext passwords an attacker will happily read).\n\n## Minimum vocabulary\n\n- **Object**: user, computer, group, printer… anything that lives in AD.\n- **Security group**: a collection of users with permissions (Domain Admins is THE\n  group you'll want).\n- **Trust**: a relationship between domains/forests that allows cross access — in\n  Red Teaming, the route to the \"parent domain\".",
+      "questions": {
+        "active-directory-basico-t01-q01": {
+          "prompt": "What is the server that stores and manages the Active Directory database called?",
+          "hint": "Its abbreviation is DC."
+        },
+        "active-directory-basico-t01-q02": {
+          "prompt": "In the user 'ANA@corp.local', which part is the domain?",
+          "hint": "Whatever comes after the @ sign."
+        },
+        "active-directory-basico-t01-q03": {
+          "prompt": "What organizational units structure users and computers within the domain?",
+          "hint": "Short for Organizational Units.",
+          "options": {
+            "a": "Security groups",
+            "b": "OUs (Organizational Units)",
+            "c": "Registry hives",
+            "d": "VLANs"
+          }
+        }
+      }
+    },
+    "2": {
+      "title": "Groups that matter (and why you'll want them)",
+      "body": "## The groups of the realm\n\n| Group | Power |\n|---|---|\n| **Domain Admins** | administrators of the whole domain (DC included) |\n| **Enterprise Admins** | the whole FOREST (the top level) |\n| **Administrators** | local admins on each machine |\n| **Domain Users** | any domain user |\n\nIn an engagement, your dream escalation is usually: regular user → Domain Admins. And your\nnightmare as a defender: someone being in there without you knowing it.\n\n## Kerberos: the guardian with tickets\n\nAD has authenticated with **Kerberos** (port 88) since Windows 2000:\n\n1. **AS-REQ**: you send your username to the **KDC** (a service on the DC).\n2. **AS-REP**: you receive a **TGT** (Ticket Granting Ticket) encrypted with your key.\n3. **TGS-REQ**: you present the TGT to request access to a service (e.g. a file server).\n4. **TGS-REP**: you receive the **service ticket**, which you present to the server.\n\nNo password is ever sent over the network — only cryptographic tickets. The attacks\nyou'll study later (Kerberoasting, Pass-the-Ticket, AS-REP Roasting) abuse\nexactly these tickets. For now, remember: **TGT = temporary master key;\nservice ticket = the key to one specific door**.\n\n> NTLM (the older protocol) is still active in many networks and brings its own abuses\n> (NTLM relay). We go deeper, with labs, in the Jr Pentester path.",
+      "questions": {
+        "active-directory-basico-t02-q01": {
+          "prompt": "Which group has full control over ALL domain controllers?",
+          "hint": "It starts with Domain."
+        },
+        "active-directory-basico-t02-q02": {
+          "prompt": "What is the built-in local administrator account on EVERY Windows machine called?",
+          "hint": "The usual one, the one Windows created at install time."
+        },
+        "active-directory-basico-t02-q03": {
+          "prompt": "What does a 'ticket' represent in Kerberos authentication?",
+          "hint": "A pass that proves who you are without resending your password.",
+          "options": {
+            "a": "A firewall log entry",
+            "b": "A cryptographic proof of identity that you present to services",
+            "c": "An email from the administrator",
+            "d": "A Windows error message"
+          }
+        }
+      }
+    },
+    "3": {
+      "title": "Your first look inside AD",
+      "body": "## LDAP: the language of AD\n\nActive Directory speaks **LDAP** (Lightweight Directory Access Protocol, port 389/636).\nEnumerating AD = asking the DC LDAP questions: \"give me every user\", \"who are the\nDomain Admins?\", \"which computers are there?\".\n\n```powershell\n# From a domain-joined Windows machine, no extra tools:\nnet user /domain              # domain users\nnet group \"Domain Admins\" /domain\n```\n\nThe historic binary: **net** (yes, net!). For more power you'll use PowerShell\n(`Get-ADUser -Filter *`) or offensive tools (enum4linux, BloodHound — the latter\nmaps complete attack paths and you'll see it in Jr Pentester).\n\n## DNS: the domain's phone book\n\nAD is married to its internal DNS: the `corp.local` domain lives there. The\n**SRV** records (`_ldap._tcp.corp.local`) announce which machines are DCs and which services\nthey offer (Kerberos, LDAP…). That's why \"DNS is broken\" on a corporate network usually\nmeans \"AD is broken\".\n\nWith this you wrap up the Windows/AD module: editions and the Registry, UAC and the domain\nmodel. Next stop: networking — how your packets really travel.",
+      "questions": {
+        "active-directory-basico-t03-q01": {
+          "prompt": "Which directory protocol does Active Directory use?",
+          "hint": "Successor of X.500; its port is 389."
+        },
+        "active-directory-basico-t03-q02": {
+          "prompt": "Which Windows command-line tool queries AD (e.g. to list domain users)?",
+          "hint": "Three letters; you use it with 'user /domain' and 'group /domain'."
+        },
+        "active-directory-basico-t03-q03": {
+          "prompt": "What does DNS in an AD domain record besides names (key for finding controllers)?",
+          "hint": "SRV records point to the DCs.",
+          "options": {
+            "a": "Nothing: DNS is independent of AD",
+            "b": "SRV records announcing where the DCs and their services are",
+            "c": "The users' passwords",
+            "d": "Only internal web pages"
+          }
+        }
+      }
+    }
   }
 }

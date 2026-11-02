@@ -22,7 +22,16 @@ questions:
   - id: owasp-top-10-t01-q03
     prompt: "Ocultar el botón de admin en la interfaz SIN verificar permisos en el servidor, ¿protege algo?"
     hint: "Ya sabes por el módulo web que el cliente se controla."
-    kind: text
+    kind: choice
+    options:
+      - id: a
+        label: "No: el atacante controla el cliente y puede enviar la petición directamente al servidor"
+      - id: b
+        label: "Sí: si el botón no se ve, nadie puede llegar a esa función"
+      - id: c
+        label: "Sí, siempre que la web use HTTPS"
+      - id: d
+        label: "Solo protege si además se ofusca el JavaScript"
 ---
 
 ## #1 Broken Access Control (el rey invicto)

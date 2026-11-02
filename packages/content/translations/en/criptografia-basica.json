@@ -4,71 +4,115 @@
   "tasks": {
     "1": {
       "title": "Encryption: symmetric and asymmetric",
+      "body": "## One key or two\n\n- **Symmetric** (AES, ChaCha20): fast, ONE secret key to encrypt and decrypt.\n  Problem: how do two parties who have never met agree on the key?\n- **Asymmetric** (RSA, elliptic curves): TWO keys. What the **public** key encrypts only\n  the **private** key can open (and the other way round for signing). Slow, but it solves the key agreement.\n\n## The HTTPS dance (simplified)\n\n1. The server presents its **certificate** with its public key.\n2. The browser verifies it against the authorities (CAs) and generates a session key.\n3. It encrypts that key with the server's public key → only the server can open it.\n4. The rest of the connection runs on **symmetric** encryption (fast).\n\nThe best of both worlds: asymmetric to agree, symmetric to talk. The same thing\nhappens in SSH (`~/.ssh/id_ed25519` is your private key; the server keeps your public one).\n\n## Keys that really matter\n\n- The private key NEVER travels. Spotting an `id_rsa` or a `.pem` on a compromised\n  server = open door.\n- **Length rules**: RSA-1024 is broken in practice; 2048+ is acceptable;\n  AES-128/256 are strong as of today.\n- The encryption is strong; the way it's **used** is weak (expired certificates, leaked\n  keys, misconfigured TLS).",
       "questions": {
         "criptografia-basica-t01-q01": {
-          "prompt": "In SYMMETRIC encryption, how many keys are used and who shares them?"
+          "prompt": "In SYMMETRIC encryption, how many keys are used and who shares them?",
+          "hint": "The same one to encrypt and to decrypt.",
+          "options": {
+            "a": "A public key that anyone can use",
+            "b": "A single secret key shared between the parties",
+            "c": "Two keys: a public one and a private one",
+            "d": "None: the algorithm is enough"
+          }
         },
         "criptografia-basica-t01-q02": {
-          "prompt": "In HTTPS, what does TLS exchange to agree on the symmetric session key?"
+          "prompt": "In HTTPS, which key does the browser generate and send encrypted with the server's public key, to use it afterwards for symmetric encryption?",
+          "hint": "It's temporary: it only lives as long as the connection does."
         },
         "criptografia-basica-t01-q03": {
-          "prompt": "What pair of keys does a digital certificate contain?"
+          "prompt": "In ASYMMETRIC encryption, what are the two keys of the pair called? (answer 'X and Y')",
+          "hint": "One travels freely; the other never moves."
         }
       }
     },
     "2": {
       "title": "Hashing: digital fingerprints",
+      "body": "## Hash ≠ encryption\n\nA **hash** (SHA-256, bcrypt…) condenses any input into a fixed-length\nfingerprint:\n\n```bash\necho -n \"hola\" | sha256sum\n# b16b...  (64 characters)\necho -n \"HOLA\" | sha256sum\n# completely different with just ONE character changed!\n```\n\nProperties: **one-way** (it can't be \"decrypted\"), deterministic (same input →\nsame hash), and the avalanche effect. Uses: download integrity (checksums), signatures,\nblockchain Merkle trees… and passwords.\n\n## Passwords stored properly\n\nIf you store `hash(contraseña)` and the user types \"their\" password, you recompute and\ncompare — you never need the original. But since attackers try millions of\ncandidates against fast hashes (SHA-256), passwords use **slow hashes with a\nsalt**: bcrypt, scrypt or argon2.\n\n- **Salt**: a unique random value per user → two users with \"123456\" don't produce\n  the same hash, and precomputed tables (rainbow tables) become useless.\n- Cyber 101 in one line: `md5(sin salt)` = bad; `argon2/bcrypt` = good.\n\n## Recognizing hashes (a daily CTF skill)\n\n```bash\nhashid '5f4dcc3b5aa765d61d8327deb882cf99'   # suggests the algorithm (it's the MD5 of password!)\necho -n \"prueba\" | md5sum\n```\n\nThat sample hash is THE classic: the MD5 of `password`. In the next task we crack it.",
       "questions": {
         "criptografia-basica-t02-q01": {
-          "prompt": "Is a hash reversible (can the original be recovered)?"
+          "prompt": "Is a hash reversible (can the original be recovered)?",
+          "hint": "It's a one-way function.",
+          "options": {
+            "a": "Yes, with the right key",
+            "b": "No: it's one-way by design",
+            "c": "Only MD5 hashes",
+            "d": "It depends on the length"
+          }
         },
         "criptografia-basica-t02-q02": {
-          "prompt": "What property requires that a minimal input change changes the entire hash?"
+          "prompt": "What property requires that a minimal input change changes the entire hash?",
+          "hint": "The avalanche effect."
         },
         "criptografia-basica-t02-q03": {
-          "prompt": "Why are passwords stored hashed and NOT encrypted?"
+          "prompt": "Why are passwords stored hashed and NOT encrypted?",
+          "hint": "Think about what the login does: does it need to know the original password, or is comparing enough?",
+          "options": {
+            "a": "Because hashing is always faster than encrypting",
+            "b": "Because encryption doesn't work on short texts",
+            "c": "Because they only need to be verified, never recovered in their original form",
+            "d": "Because a hash takes up less space than the password"
+          }
         }
       }
     },
     "3": {
       "title": "Cracking passwords and playing with encodings",
+      "body": "## Attacking passwords (the ethical part: in labs)\n\nWith a fast hash (MD5/SHA) and a dictionary, cracking just means trying candidates:\n\n```bash\n# John the Ripper against an MD5\necho '5f4dcc3b5aa765d61d8327deb882cf99' > hash.txt\njohn --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hash.txt\njohn --show hash.txt\n```\n\nIts cousin `hashcat` uses the GPU (faster). The king of dictionaries:\n`rockyou.txt` (14M real passwords leaked in 2009). Defensive takeaway:\ndictionary passwords FALL; length rules.\n\n## Encoding ≠ encryption (a rookie mistake)\n\n- **Base64**: `echo -n \"hola\" | base64` → `aG9sYQ==` — anyone can reverse it\n  (`base64 -d`). It's for TRANSPORT, not secrecy.\n- **Hex / URL-encoding**: just as reversible.\n- **ROT13**: encrypts by shifting letters 13 places… and is ITS OWN inverse. A toy\n  (but it shows up in CTFs all the time!).\n\nIf during a pentest you \"discover\" a base64 string, ALWAYS decode it — it often hides\n`usuario:contraseña` credentials (HTTP Basic Auth is literally that!).\n\n## Your ROT13 flag\n\nThe guide has given you the ROT13-encoded flag in the question: use `tr` (Linux/macOS) or\nCyberChef locally, and enjoy your first \"crack\" :)",
       "questions": {
         "criptografia-basica-t03-q01": {
-          "prompt": "Which dictionary tool converts password lists against hashes?"
+          "prompt": "Which classic cracking tool tries password lists (dictionaries) against hashes?",
+          "hint": "John the Ripper."
         },
         "criptografia-basica-t03-q02": {
-          "prompt": "Decode with ROT13 and submit the flag: SYNT{ebg13_erirynqb}"
+          "prompt": "Decode with ROT13 and submit the flag: SYNT{ebg13_erirynqb}",
+          "hint": "ROT13 shifts each letter 13 places (A↔N). On Linux: echo 'texto' | tr 'A-Za-z' 'N-ZA-Mn-za-m'"
         },
         "criptografia-basica-t03-q03": {
-          "prompt": "Are Base64 and hexadecimal encryption?"
+          "prompt": "Are Base64 and hexadecimal encryption?",
+          "hint": "Anyone can reverse them without a key.",
+          "options": {
+            "a": "Yes: they hide the information",
+            "b": "No: they are ENCODINGS, reversible by anyone without a key",
+            "c": "Only hex is encryption",
+            "d": "Only with TLS"
+          }
         }
       }
     },
     "4": {
       "title": "Lab: crack real hashes",
+      "body": "## Practice: cracking against the lab\n\nStart the lab and visit each level:\n\n```bash\ncurl http://127.0.0.1:18088/challenge/1    # gives you the MD5 hash\ncurl \"http://127.0.0.1:18088/challenge/1?answer=password\"  # replies with the flag\n```\n\nThe passwords are in the top 100 of rockyou.txt:\n- Level 1 (MD5): the most common one of all\n- Level 2 (SHA1): \"let me in\"\n- Level 3 (SHA256): the keyboard one\n\nWhen you think you know the password, send it with `?answer=PASSWORD` to check it.",
       "questions": {
         "criptografia-basica-t04-q01": {
-          "prompt": "Crack the level 1 MD5 hash and submit the flag."
+          "prompt": "Crack the level 1 MD5 hash and submit the flag.",
+          "hint": "The hash starts with 5f4dcc... (crackstation.net has it)"
         },
         "criptografia-basica-t04-q02": {
-          "prompt": "Crack the level 2 SHA1 hash."
+          "prompt": "Crack the level 2 SHA1 hash.",
+          "hint": "Crackstation or john --wordlist=rockyou.txt"
         },
         "criptografia-basica-t04-q03": {
-          "prompt": "Crack the level 3 SHA256 hash."
+          "prompt": "Crack the level 3 SHA256 hash.",
+          "hint": "Another common password, a different algorithm."
         }
       }
     },
     "5": {
       "title": "Lab: multi-layer decoding puzzle",
+      "body": "## Layered decoding\n\nThe lab serves 3 progressive challenges. Each flag is encoded in layers:\n\n### Level 1: base64\n```bash\n# The endpoint gives you the encoded string:\ncurl http://127.0.0.1:18097/challenge/1\n#Take the \"encoded\" value and:\necho 'RkxBR3s...' | base64 -d\n```\n\n### Level 2: base64 + ROT13\n```bash\ncurl http://127.0.0.1:18097/challenge/2\n# First base64 -d, then ROT13:\necho 'STRING' | base64 -d | tr 'A-Za-z' 'N-ZA-Mn-za-m'\n```\n\n### Level 3: base64 + XOR\n```bash\ncurl http://127.0.0.1:18097/challenge/3\n# base64 -d, then XOR with the key \"ctf\":\n# In Python:\npython3 -c \"import base64; d=base64.b64decode('STRING'); print(''.join(chr(b^ord('ctf'[i%3])) for i,b in enumerate(d)))\"\n```\n\nEach level gives you a different flag. Send them with `?answer=FLAG{...}` to verify.",
       "questions": {
         "criptografia-basica-t05-q01": {
-          "prompt": "Decode challenge 1 (simple base64) and submit the flag."
+          "prompt": "Decode challenge 1 (simple base64) and submit the flag.",
+          "hint": "echo STRING | base64 -d"
         },
         "criptografia-basica-t05-q02": {
-          "prompt": "Decode challenge 2 (base64 + ROT13) and submit the flag."
+          "prompt": "Decode challenge 2 (base64 + ROT13) and submit the flag.",
+          "hint": "echo STRING | base64 -d | tr 'A-Za-z' 'N-ZA-Mn-za-m'"
         },
         "criptografia-basica-t05-q03": {
-          "prompt": "Decode challenge 3 (base64 + XOR with key 'ctf') and submit the flag."
+          "prompt": "Decode challenge 3 (base64 + XOR with key 'ctf') and submit the flag.",
+          "hint": "echo STRING | base64 -d, then XOR with 'ctf' in CyberChef or Python"
         }
       }
     }

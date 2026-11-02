@@ -3,9 +3,18 @@ index: 1
 title: "Anatomía de una aplicación web"
 questions:
   - id: web-hacking-basico-t01-q01
-    prompt: "¿Dónde se ejecuta JavaScript: en el servidor o en el navegador del cliente?"
+    prompt: "¿Dónde se ejecuta el JavaScript del frontend de una web?"
     hint: "Abre las DevTools: esa pestaña Scripts corre en TU máquina."
-    kind: text
+    kind: choice
+    options:
+      - id: a
+        label: "En el servidor web, antes de enviar la página"
+      - id: b
+        label: "En la base de datos"
+      - id: c
+        label: "En el navegador del cliente"
+      - id: d
+        label: "En el servidor DNS"
   - id: web-hacking-basico-t01-q02
     prompt: "¿Qué atajo de teclado abre las DevTools en el navegador?"
     hint: "Una sola tecla de función."

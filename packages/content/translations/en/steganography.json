@@ -4,16 +4,30 @@
   "tasks": {
     "1": {
       "title": "LSB in BMP and JPEG COM",
+      "body": "## LSB: the pixel classic\n\nA 24-bit BMP image stores 3 bytes per pixel (RGB). Changing the least\nsignificant bit (LSB) of a channel shifts the color by 1/256 — invisible\nto the eye. A 64×64 pixel-art image holds 4096 bits: more than enough for a message.\n\nThe lab's scheme: first 32 bits = message length (LE), then the\nmessage, 1 bit per byte of the pixel data:\n\n```bash\ncurl -O http://127.0.0.1:18105/bmp-lago.bmp\n```\n\n```python\n# extract_lsb.py — the go-to extractor\nimport struct\ndata = open('bmp-lago.bmp','rb').read()\npx = data[54:]                       # BMP headers = 14 + 40 bytes\ndef bits(n):  return [px[i] & 1 for i in range(n)]\ndef tobytes(bs):\n    out = bytearray()\n    for i in range(0, len(bs), 8):\n        b = 0\n        for bit in bs[i:i+8]: b = (b << 1) | bit\n        out.append(b)\n    return bytes(out)\nlength = struct.unpack('<I', tobytes(bits(32)))[0]\nmsg = tobytes(bits(32 + length*8)[32:])\nprint(msg.decode())\n```\n\nIn real CTFs `zsteg` (PNG/BMP) and `stegsolve` do this and much more,\nbut knowing how to write the extractor teaches you what they look for.\n\n## JPEG COM: metadata with substance\n\nJPEG is a segment-based format: `FF E0` APP0, `FF DB` DQT... and `FF FE`\n**COM**, a free-form comment that any editor can write. Nobody\nsees it when opening the image, but it's there:\n\n```bash\ncurl -O http://127.0.0.1:18105/vacaciones.jpg\nstrings vacaciones.jpg | grep -i flag\nexiftool vacaciones.jpg       # the pro alternative: Comment: secret: FLAG{...}\n```\n\n**Defensive lesson**: DLP tools that only look at extensions miss\nmetadata; attackers exfiltrate through EXIF/COM fields nobody audits.",
       "questions": {
-        "steganography-t01-q01": { "prompt": "Download bmp-lago.bmp from the lab. The first 32 pixel LSBs hold the length (little-endian) then the message. Submit the flag." },
-        "steganography-t01-q02": { "prompt": "Download vacaciones.jpg. The flag lives in a JPEG COM (comment) segment. Submit it." }
+        "steganography-t01-q01": {
+          "prompt": "Download bmp-lago.bmp from the lab. The first 32 pixel LSBs hold the length (little-endian) then the message. Submit the flag.",
+          "hint": "python: read the bytes from offset 54, take the least significant bit of each byte, group them 8 at a time (MSB first)"
+        },
+        "steganography-t01-q02": {
+          "prompt": "Download vacaciones.jpg. The flag lives in a JPEG COM (comment) segment. Submit it.",
+          "hint": "strings vacaciones.jpg | grep FLAG — or exiftool vacaciones.jpg"
+        }
       }
     },
     "2": {
       "title": "Data past IEND and double files",
+      "body": "## The concatenated file trick\n\nA well-formed PNG ends with the `IEND` chunk (CRC included). Decoders\nstop there and **ignore everything that comes after it**. That\nturns any PNG into an envelope: append a ZIP at the end and the image\nlooks identical.\n\n```bash\ncurl -O http://127.0.0.1:18105/logo-corp.png\n\n# Option 1: binwalk detects embedded signatures\nbinwalk logo-corp.png\n# Decimal    Hex        Description\n# 0          0x0        PNG image\n# N          0xN        Zip archive data\n\n# Option 2: by hand with python\npython3 -c \"\nimport zipfile\n# zipfile reads the End of Central Directory from the END of the file,\n# so it opens the PNG 'with the glued zip' without trimming anything:\nz = zipfile.ZipFile('logo-corp.png')\nprint(z.namelist())\nprint(z.read('notas-secretas.txt').decode())\n\"\n```\n\n`unzip` swallows it too: `unzip logo-corp.png` (it complains about \"extra\ndata at beginning\" but extracts anyway).\n\n## The reverse trick: polyglots\n\nThe same idea turned around produces **polyglot files** (valid as two\nformats at once): GIFAR (GIF+JAR), PDF+DOC... Antivirus scanners and\nupload validators that only read the header swallow them whole. That's why serious\nuploads validate the full content, not the extension or just\nthe first magic bytes.\n\n## The analyst's stego kit\n\n| Tool | What for |\n|---|---|\n| `strings` / `grep` | First thing, always: text inside binaries |\n| `binwalk` | Embedded signatures (zip, ELF, nested PNGs) |\n| `exiftool` | EXIF/COM image metadata |\n| `zsteg` / `stegsolve` | LSB and bit planes (PNG/BMP) |\n| `steghide` | LSB with a passphrase (JPEG/BMP/WAV) |\n| `xxd` | When nothing else works: look at the bytes |",
       "questions": {
-        "steganography-t02-q01": { "prompt": "logo-corp.png is a valid PNG BUT weighs more than it should: a ZIP is glued after IEND. Extract its contents and submit the flag." },
-        "steganography-t02-q02": { "prompt": "What hexadecimal signature marks the end of a PNG (the chunk after which the file should end)? Write the 4 ASCII characters." }
+        "steganography-t02-q01": {
+          "prompt": "logo-corp.png is a valid PNG BUT weighs more than it should: a ZIP is glued after IEND. Extract its contents and submit the flag.",
+          "hint": "binwalk logo-corp.png → zip at offset N; or python: find IEND and open the rest with zipfile"
+        },
+        "steganography-t02-q02": {
+          "prompt": "What hexadecimal signature marks the end of a PNG (the chunk after which the file should end)? Write the 4 ASCII characters.",
+          "hint": "IEND — type the 4 ASCII characters"
+        }
       }
     }
   }

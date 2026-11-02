@@ -17,8 +17,17 @@ questions:
         label: "Contraseñas de usuarios"
   - id: criptografia-pki-t01-q02
     prompt: "¿Qué es una CA (Certificate Authority)?"
-    hint: "La entidad de confianza que firma certificados."
-    kind: text
+    hint: "Piensa en la cadena de confianza: la Root y la Intermediate son ejemplos."
+    kind: choice
+    options:
+      - id: a
+        label: "Un algoritmo de cifrado simétrico"
+      - id: b
+        label: "El archivo .key donde se guarda la clave privada del servidor"
+      - id: c
+        label: "Un protocolo que sustituye a TLS"
+      - id: d
+        label: "La entidad de confianza que firma (emite) certificados digitales"
   - id: criptografia-pki-t01-q03
     prompt: "¿Qué comando openssl inspecciona un certificado remoto?"
     hint: "openssl s_client -connect host:443"

@@ -9,7 +9,16 @@ questions:
   - id: owasp-top-10-t03-q02
     prompt: "Una dependencia npm comprometida que roba claves en cada instalación, ¿qué entrada del Top 10 es?"
     hint: "Cadena de suministro de software."
-    kind: text
+    kind: choice
+    options:
+      - id: a
+        label: "#3 Injection"
+      - id: b
+        label: "#8 Software & Data Integrity Failures"
+      - id: c
+        label: "#9 Logging & Monitoring Failures"
+      - id: d
+        label: "#10 SSRF"
   - id: owasp-top-10-t03-q03
     prompt: "¿Por qué 'logging & monitoring insuficiente' es un riesgo de seguridad en sí mismo?"
     hint: "¿Qué pasa si atacan y nadie lo ve?"

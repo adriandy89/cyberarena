@@ -4,15 +4,31 @@
   "tasks": {
     "1": {
       "title": "Certificates and the chain of trust",
+      "body": "## The PKI trust model\n\n```text\nRoot CA ( self-signed, in your browser/OS )\n└── Intermediate CA ( signed by Root )\n    └── Server Cert ( signed by Intermediate, for yourdomain.com )\n```\n\nYour browser trusts ~150 preinstalled Root CAs (VeriSign, DigiCert, Let's\nEncrypt ISRG Root X1...). When you visit https://ejemplo.com:\n\n1. The server presents its certificate\n2. Your browser verifies the Intermediate's signature\n3. The Intermediate was signed by a Root you already trust\n4. The chain is valid → transitive trust\n\nIf ANY link fails (expired certificate, untrusted CA, name\nmismatch) → the browser shows the warning.\n\n## OpenSSL: your everyday tool\n\n```bash\n# Inspect a remote certificate\nopenssl s_client -connect ejemplo.com:443 -servername ejemplo.com 2>/dev/null | openssl x509 -text -noout\n\n# Key output:\n#   Subject: CN=ejemplo.com           (who it's for)\n#   Issuer: C=US, O=Let's Encrypt     (who signed it)\n#   Not Before / Not After             (validity)\n#   Subject Alternative Names          (covered domains)\n\n# Show only the dates\nopenssl s_client -connect ejemplo.com:443 2>/dev/null | openssl x509 -noout -dates\n\n# Generate a private key + CSR (Certificate Signing Request)\nopenssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr\n\n# Self-sign (for labs)\nopenssl req -x509 -keyout server.key -out server.crt -days 365 -subj \"/CN=localhost\"\n```\n\n## What a pentester looks for in certificates\n\n- **CN and SAN**: subdomains you may not have known about (enumeration)\n- **Dates**: expired certificate = finding (possible bypass in misconfigured clients)\n- **Algorithm**: signed with SHA-1 today = weak\n- **Key size**: RSA < 2048 = weak\n- **Issuer**: internal CAs reveal corporate infrastructure",
       "questions": {
         "criptografia-pki-t01-q01": {
-          "prompt": "What does a digital certificate contain?"
+          "prompt": "What does a digital certificate contain?",
+          "hint": "Public key, identity, the CA's signature, validity dates.",
+          "options": {
+            "a": "Only the server's private key",
+            "b": "The holder's public key, their identity (CN/SAN), the CA that signs it and validity dates",
+            "c": "Only the domain name",
+            "d": "User passwords"
+          }
         },
         "criptografia-pki-t01-q02": {
-          "prompt": "What is a CA (Certificate Authority)?"
+          "prompt": "What is a CA (Certificate Authority)?",
+          "hint": "Think about the chain of trust: the Root and the Intermediate are examples.",
+          "options": {
+            "a": "A symmetric encryption algorithm",
+            "b": "The .key file where the server's private key is stored",
+            "c": "A protocol that replaces TLS",
+            "d": "The trusted entity that signs (issues) digital certificates"
+          }
         },
         "criptografia-pki-t01-q03": {
-          "prompt": "What openssl command inspects a remote certificate?"
+          "prompt": "What openssl command inspects a remote certificate?",
+          "hint": "openssl s_client -connect host:443"
         }
       }
     }

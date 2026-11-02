@@ -1,11 +1,38 @@
 # Respuestas del room owasp-top-10.
 # PRIVADO: el seed lo hashea a la tabla Answer.
-owasp-top-10-t01-q01: Broken Access Control
+owasp-top-10-t01-q01:
+  - Broken Access Control
+  - control de acceso roto
+  - pérdida de control de acceso
+  - A01
 owasp-top-10-t01-q02: b
-owasp-top-10-t01-q03: "no, el atacante controla el cliente y puede enviar la peticion directamente"
-owasp-top-10-t02-q01: SQL injection
-owasp-top-10-t02-q02: "consultas preparadas / consultas parametrizadas"
-owasp-top-10-t02-q03: XSS
-owasp-top-10-t03-q01: SSRF
-owasp-top-10-t03-q02: "8 - software and data integrity failures"
+owasp-top-10-t01-q03: a
+owasp-top-10-t02-q01:
+  - SQL injection
+  - SQLi
+  - inyección SQL
+  - inyección de SQL
+owasp-top-10-t02-q02:
+  - consultas parametrizadas
+  - consultas preparadas
+  - consulta parametrizada
+  - consulta preparada
+  - sentencias preparadas
+  - prepared statements
+  - prepared statement
+  - parameterized queries
+  - parameterized query
+  - parametrized queries
+owasp-top-10-t02-q03:
+  - XSS
+  - Cross-Site Scripting
+  - Cross Site Scripting
+  - stored XSS
+  - XSS almacenado
+  - XSS persistente
+owasp-top-10-t03-q01:
+  - SSRF
+  - Server-Side Request Forgery
+  - Server Side Request Forgery
+owasp-top-10-t03-q02: b
 owasp-top-10-t03-q03: b

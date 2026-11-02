@@ -7,12 +7,12 @@ questions:
     hint: "El dólar con guion bajo."
     kind: text
   - id: linea-de-comandos-windows-t03-q02
-    prompt: "¿Qué cmdlet descarga y ejecuta contenido de una URL (el que NUNCA ejecutes de fuentes que no controles)?"
-    hint: " Invoke-Expression abreviado, iex."
+    prompt: "¿Qué cmdlet ejecuta como código una cadena y se combina con DownloadString para lanzar scripts descargados de una URL (nunca de fuentes que no controles)?"
+    hint: "Mira la nota final del task: va justo después de la tubería en 'iwr ... | ___'."
     kind: text
   - id: linea-de-comandos-windows-t03-q03
     prompt: "¿Qué hace 'Get-ChildItem -Recurse -Filter *.zip | Select-Object FullName'?"
-    hint: "Tres cmdlets, un pipeline."
+    hint: "Dos cmdlets, un pipeline."
     kind: choice
     options:
       - id: a
