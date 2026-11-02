@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useState, type ReactNode } from 'react';
+import { ExternalLink, FlaskConical, TriangleAlert } from './icon';
 
 function CopyRow({ label, command }: { label: string; command: string }) {
   const t = useTranslations('LabPanel');
@@ -48,9 +49,10 @@ export function LabPanel({ labSlug, labUrl }: { labSlug: string; labUrl: string 
         href={labUrl}
         target="_blank"
         rel="noreferrer"
-        className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/25"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/25"
       >
-        {labUrl} ↗
+        {labUrl}
+        <ExternalLink size={12} aria-hidden="true" />
       </a>
     );
   }
@@ -58,16 +60,26 @@ export function LabPanel({ labSlug, labUrl }: { labSlug: string; labUrl: string 
     <section className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-violet-300">
-          🧪 {t('title')}
+          <FlaskConical size={16} aria-hidden="true" />
+          {t('title')}
         </h2>
         {urlLink}
       </div>
       <p className="mt-2 text-xs leading-relaxed text-slate-400">{t('intro')}</p>
       <div className="mt-4 space-y-3">
-        <CopyRow label={t('upLabel')} command={`docker compose -f ${base}/compose.yaml --env-file ${base}/flags.env up -d`} />
-        <CopyRow label={t('downLabel')} command={`docker compose -f ${base}/compose.yaml --env-file ${base}/flags.env down -v`} />
+        <CopyRow
+          label={t('upLabel')}
+          command={`docker compose -f ${base}/compose.yaml --env-file ${base}/flags.env up -d`}
+        />
+        <CopyRow
+          label={t('downLabel')}
+          command={`docker compose -f ${base}/compose.yaml --env-file ${base}/flags.env down -v`}
+        />
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-slate-500">⚠️ {t('warning')}</p>
+      <p className="mt-3 flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-500">
+        <TriangleAlert size={13} aria-hidden="true" className="mt-px shrink-0 text-amber-400/80" />
+        {t('warning')}
+      </p>
     </section>
   );
 }

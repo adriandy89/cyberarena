@@ -8,7 +8,7 @@ export async function SiteFooter() {
   const t = await getTranslations('Nav');
   return (
     <footer className="mt-16 border-t border-slate-800/70">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-xs text-slate-500 sm:px-6 md:flex-row md:items-start md:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-8 pb-24 text-xs sm:pb-8 text-slate-500 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm space-y-2">
           <p className="text-sm font-bold tracking-tight text-slate-300">
             Cyber<span className="text-emerald-400">Arena</span>

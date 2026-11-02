@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import type { CertificateItem } from '@repo/shared';
 import { useEffect, useState } from 'react';
 import { Link } from '../i18n/navigation';
+import { Award, Flame, GraduationCap, Lock } from './icon';
 
 interface StreakInfo {
   current: number;
@@ -45,7 +46,8 @@ export function GamificationPanels() {
         if (streakRes.ok) setStreak((await streakRes.json()) as StreakInfo);
         if (badgesRes.ok) setBadges((await badgesRes.json()) as BadgesResponse);
         if (skillsRes.ok) setSkills((await skillsRes.json()) as SkillItem[]);
-        if (certificatesRes.ok) setCertificates((await certificatesRes.json()) as CertificateItem[]);
+        if (certificatesRes.ok)
+          setCertificates((await certificatesRes.json()) as CertificateItem[]);
       } catch {
         // panels simply stay hidden on failure
       }
@@ -67,8 +69,11 @@ export function GamificationPanels() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
               {t('streakCard')}
             </h2>
-            <span className={`text-lg font-bold ${streak.current > 0 ? 'text-orange-400' : 'text-slate-500'}`}>
-              🔥 {streak.current}
+            <span
+              className={`inline-flex items-center gap-1.5 text-lg font-bold ${streak.current > 0 ? 'text-orange-400' : 'text-slate-500'}`}
+            >
+              <Flame size={18} aria-hidden="true" />
+              {streak.current}
             </span>
           </div>
           <p className="mt-2 text-xs text-slate-500">
@@ -76,9 +81,7 @@ export function GamificationPanels() {
               ? t('streakDone', { required: streak.required })
               : t('streakTodo', { solved: streak.solvedToday, required: streak.required })}
           </p>
-          <p className="mt-1 text-xs text-slate-600">
-            {t('streakBest', { best: streak.best })}
-          </p>
+          <p className="mt-1 text-xs text-slate-600">{t('streakBest', { best: streak.best })}</p>
         </section>
       )}
 
@@ -92,13 +95,18 @@ export function GamificationPanels() {
               <li
                 key={badge.id}
                 title={badgeName(badge.id)}
-                className={`rounded-lg border px-3 py-2.5 text-xs font-semibold ${
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-semibold ${
                   badge.earned
                     ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                     : 'border-slate-800 bg-slate-950/60 text-slate-600'
                 }`}
               >
-                {badge.earned ? '🏅' : '🔒'} {badgeName(badge.id)}
+                {badge.earned ? (
+                  <Award size={14} aria-hidden="true" className="shrink-0" />
+                ) : (
+                  <Lock size={14} aria-hidden="true" className="shrink-0" />
+                )}
+                <span className="truncate">{badgeName(badge.id)}</span>
               </li>
             ))}
           </ul>
@@ -143,8 +151,9 @@ export function GamificationPanels() {
                   href={`/certificate/${certificate.pathSlug}`}
                   className="flex items-center justify-between rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-sm transition-colors hover:border-amber-400/60"
                 >
-                  <span className="font-medium text-amber-200">
-                    🎓 {certificate.pathTitle}
+                  <span className="inline-flex items-center gap-2 font-medium text-amber-200">
+                    <GraduationCap size={16} aria-hidden="true" />
+                    {certificate.pathTitle}
                   </span>
                   <span className="text-xs text-amber-300/80">{certificate.xpInPath} XP</span>
                 </Link>

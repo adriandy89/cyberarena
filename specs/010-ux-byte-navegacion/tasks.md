@@ -70,3 +70,6 @@
       (ahora en el mismo módulo `red-team-ops`): recortar el solapamiento.
 - [x] T904 DEUDA (contenido): Burp Suite se introduce en `web-hacking-basico`, `herramientas-ofensivas`
       (texto) y `burp-suite-pro`: dejar el primero como introducción y enlazar en vez de repetir.
+- [x] T905 Pulido posterior al cierre: últimos emoji de la UI → iconos (gamificación, lab), nombres de
+      nivel traducidos (`Levels` es/en: dashboard, clasificación y mensaje de subida de nivel de Byte) y
+      margen inferior en móvil para que el Byte flotante no tape el pie.

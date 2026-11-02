@@ -9,6 +9,7 @@ import { Byte } from './byte/byte';
 import { useByte } from './byte/byte-provider';
 import { Confetti } from './byte/confetti';
 import { usePrefersReducedMotion } from './byte/use-reduced-motion';
+import { useLevelName } from './level-name';
 import { ArrowRight, ChevronLeft, ChevronRight, Lightbulb, LogIn, WifiOff } from './icon';
 
 export interface PlayerQuestion {
@@ -95,6 +96,7 @@ export function RoomPlayer({
   const tByte = useTranslations('Byte.companion');
   const { react } = useByte();
   const reduced = usePrefersReducedMotion();
+  const levelName = useLevelName();
   const searchParams = useSearchParams();
   const rootRef = useRef<HTMLDivElement>(null);
   const loginHref = `/login?next=${encodeURIComponent(`/rooms/${roomSlug}`)}`;
@@ -203,7 +205,9 @@ export function RoomPlayer({
           }));
           const leveledUp = data.level && data.level.after > data.level.before;
           if (leveledUp) {
-            react('levelUp', { vars: { level: data.level!.after, name: data.level!.name } });
+            react('levelUp', {
+              vars: { level: data.level!.after, name: levelName(data.level!.name) },
+            });
           }
           if (data.roomCompleted) {
             setRoomCompleted(true);
@@ -234,7 +238,7 @@ export function RoomPlayer({
         });
       }
     },
-    [roomSlug, solved, pending, hintsOpen, react, tByte, loginHref, next],
+    [roomSlug, solved, pending, hintsOpen, react, tByte, loginHref, next, levelName],
   );
 
   const task = tasks[current]!;

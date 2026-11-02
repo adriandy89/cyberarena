@@ -4,6 +4,7 @@ import { cn } from '@repo/ui';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { Byte } from '../../../components/byte/byte';
+import { useLevelName } from '../../../components/level-name';
 import { ByteScene } from '../../../components/byte/byte-scene';
 import { Trophy } from '../../../components/icon';
 import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
@@ -39,6 +40,7 @@ const PODIUM_STYLE: Record<number, { height: string; tone: string; delay: string
 export default function LeaderboardPage() {
   const t = useTranslations('LeaderboardPage');
   const nav = useTranslations('Nav');
+  const levelName = useLevelName();
   const [period, setPeriod] = useState<Period>('all');
   const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null);
 
@@ -156,7 +158,7 @@ export default function LeaderboardPage() {
                   <span className="shrink-0 text-right">
                     <span className="text-sm font-bold text-emerald-400">{entry.xp} XP</span>
                     <span className="ml-2 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
-                      {entry.levelName}
+                      {levelName(entry.levelName)}
                     </span>
                   </span>
                 </li>

@@ -470,5 +470,28 @@
     "errorMessage": "My circuits tripped over an unexpected error. You can retry or go back home.",
     "retry": "Retry",
     "home": "Go home"
+  },
+  "Levels": {
+    "NEOPHYTE": "Neophyte",
+    "APPRENTICE": "Apprentice",
+    "PATHFINDER": "Pathfinder",
+    "SEEKER": "Seeker",
+    "VISIONARY": "Visionary",
+    "VOYAGER": "Voyager",
+    "ADEPT": "Adept",
+    "HACKER": "Hacker",
+    "MAGE": "Mage",
+    "WIZARD": "Wizard",
+    "MASTER": "Master",
+    "GURU": "Guru",
+    "LEGEND": "Legend",
+    "GUARDIAN": "Guardian",
+    "TITAN": "Titan",
+    "SAGE": "Sage",
+    "VANGUARD": "Vanguard",
+    "SHOGUN": "Shogun",
+    "ASCENDED": "Ascended",
+    "MYTHIC": "Mythic",
+    "GRANDMASTER": "Grandmaster"
   }
 }

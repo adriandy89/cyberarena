@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { authClient } from '../../../lib/auth-client';
 import { Link, useRouter } from '../../../i18n/navigation';
 import { DashboardHero } from '../../../components/dashboard-hero';
+import { useLevelName } from '../../../components/level-name';
 import { GamificationPanels } from '../../../components/gamification-panels';
 import { SecurityPanel } from '../../../components/security-panel';
 import { Breadcrumbs } from '../../../components/shell/breadcrumbs';
@@ -61,6 +62,7 @@ interface ProgressOverview {
 export default function DashboardPage() {
   const t = useTranslations('DashboardPage');
   const nav = useTranslations('Nav');
+  const levelName = useLevelName();
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const [me, setMe] = useState<MeResponse | null>(null);
@@ -170,7 +172,7 @@ export default function DashboardPage() {
               {t('xpCard')}
             </h2>
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
-              {xp.level.name} · {xp.totalXp} XP
+              {levelName(xp.level.name)} · {xp.totalXp} XP
             </span>
           </div>
           <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-slate-800">

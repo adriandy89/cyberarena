@@ -470,5 +470,28 @@
     "errorMessage": "Mis circuitos han tropezado con un error inesperado. Puedes reintentarlo o volver al inicio.",
     "retry": "Reintentar",
     "home": "Ir al inicio"
+  },
+  "Levels": {
+    "NEOPHYTE": "Neófito",
+    "APPRENTICE": "Aprendiz",
+    "PATHFINDER": "Explorador",
+    "SEEKER": "Buscador",
+    "VISIONARY": "Visionario",
+    "VOYAGER": "Viajero",
+    "ADEPT": "Adepto",
+    "HACKER": "Hacker",
+    "MAGE": "Mago",
+    "WIZARD": "Hechicero",
+    "MASTER": "Maestro",
+    "GURU": "Gurú",
+    "LEGEND": "Leyenda",
+    "GUARDIAN": "Guardián",
+    "TITAN": "Titán",
+    "SAGE": "Sabio",
+    "VANGUARD": "Vanguardia",
+    "SHOGUN": "Shogun",
+    "ASCENDED": "Ascendido",
+    "MYTHIC": "Mítico",
+    "GRANDMASTER": "Gran maestro"
   }
 }
