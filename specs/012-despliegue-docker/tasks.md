@@ -11,7 +11,7 @@
       en la línea 1; la imagen de la API sin `packages/content/private`.
 - [x] T004 Web: `API_URL` como argumento de build (rewrite horneado correcto) + `turbo.json`.
 - [x] T005 Proxy: healthcheck de Caddy, comentario `--project-directory`, directorios vacíos sueltos.
-- [ ] T006 Scripts de BD: contenedor y BD explícitos; restore muestra el destino; restore a BD scratch.
+- [x] T006 Scripts de BD: contenedor y BD explícitos; restore muestra el destino; restore a BD scratch.
 - [ ] T007 E2E sobre HTTPS: cookie `__Secure-`, `ignoreHTTPSErrors`, reintento ante 429 en el login.
 - [ ] T008 `infra/scripts/seed-prod.sh` y `infra/scripts/smoke-prod.sh`.
 
